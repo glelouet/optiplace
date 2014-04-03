@@ -1,0 +1,644 @@
+<html>
+<head>
+<title>TestNG:  Command line test</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>Command line test</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>91/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Fri Nov 29 16:46:08 CET 2013</td>
+</tr>
+<tr><td>Total time:</td><td>0 seconds (939 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='entropy.configuration.TestConfigurationGenerator.simpleTest()'><b>simpleTest</b><br>Test class: entropy.configuration.TestConfigurationGenerator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfigurationGenerator@4181496</td></tr>
+<tr>
+<td title='entropy.core.PowerStateTest.smallcentertest()'><b>smallcentertest</b><br>Test class: entropy.core.PowerStateTest</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.PowerStateTest@57279d82</td></tr>
+<tr>
+<td title='entropy.configuration.parser.TestPlainTextConfigurationSerializer.test()'><b>test</b><br>Test class: entropy.configuration.parser.TestPlainTextConfigurationSerializer</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.parser.TestPlainTextConfigurationSerializer@4f3516d7</td></tr>
+<tr>
+<td title='entropy.configuration.TestVirtualMachinesSetComparator.test1()'><b>test1</b><br>Test class: entropy.configuration.TestVirtualMachinesSetComparator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestVirtualMachinesSetComparator@69d5ee81</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testAdd()'><b>testAdd</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testAddAll()'><b>testAddAll</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testAddOffline()'><b>testAddOffline</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testAddOffline()'><b>testAddOffline</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testAddOnline()'><b>testAddOnline</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testAddOnline()'><b>testAddOnline</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testAddOnline2()'><b>testAddOnline2</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testAddWaiting()'><b>testAddWaiting</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testAddWaiting()'><b>testAddWaiting</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.parser.TestPlainTextConfigurationSerializer.testBadContent()'><b>testBadContent</b><br>Test class: entropy.configuration.parser.TestPlainTextConfigurationSerializer</td>
+<td><div><pre>entropy.configuration.parser.ConfigurationSerializerException: Unrecognized characters: toto
+	at entropy.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:125)
+	at entropy.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:197)
+	at entropy.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:45)
+	at entropy.configuration.parser.TestPlainTextConfigurationSerializer.testBadContent(TestPlainTextConfigurationSerializer.java:113)
+	at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:70)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.executeMulti(TestNGDirectoryTestSuite.java:158)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.execute(TestNGDirectoryTestSuite.java:98)
+	at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:111)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:164)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:110)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:175)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcessWhenForked(SurefireStarter.java:107)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:68)
+... Removed 25 stack frames</pre></div><a href='#' onClick='toggleBox("stack-trace1527637230", this, "Click to show all stack frames", "Click to hide stack frames")'>Click to show all stack frames</a>
+<div class='stack-trace' id='stack-trace1527637230'><pre>entropy.configuration.parser.ConfigurationSerializerException: Unrecognized characters: toto
+	at entropy.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:125)
+	at entropy.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:197)
+	at entropy.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:45)
+	at entropy.configuration.parser.TestPlainTextConfigurationSerializer.testBadContent(TestPlainTextConfigurationSerializer.java:113)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:80)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:714)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:901)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:1231)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:127)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:111)
+	at org.testng.TestRunner.privateRun(TestRunner.java:767)
+	at org.testng.TestRunner.run(TestRunner.java:617)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:334)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:329)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:291)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:240)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:86)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1198)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1123)
+	at org.testng.TestNG.run(TestNG.java:1031)
+	at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:70)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.executeMulti(TestNGDirectoryTestSuite.java:158)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.execute(TestNGDirectoryTestSuite.java:98)
+	at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:111)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:164)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:110)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:175)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcessWhenForked(SurefireStarter.java:107)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:68)
+</pre></div></td>
+<td>0</td>
+<td>entropy.configuration.parser.TestPlainTextConfigurationSerializer@4f3516d7</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfigurationGenerator.testBunchOfVMs()'><b>testBunchOfVMs</b><br>Test class: entropy.configuration.TestConfigurationGenerator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfigurationGenerator@4181496</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testCPUCapacity()'><b>testCPUCapacity</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testCPUConsumption()'><b>testCPUConsumption</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testCPUMax()'><b>testCPUMax</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testClear()'><b>testClear</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testClone()'><b>testClone</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testCopyConstructor()'><b>testCopyConstructor</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testCopyConstructor()'><b>testCopyConstructor</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testCopyConstructor()'><b>testCopyConstructor</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testCopyConstructor()'><b>testCopyConstructor</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testEquals()'><b>testEquals</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testEquals()'><b>testEquals</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testEquals()'><b>testEquals</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testEquals()'><b>testEquals</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testEquals()'><b>testEquals</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestVirtualMachineComparator.testEquivalent()'><b>testEquivalent</b><br>Test class: entropy.configuration.TestVirtualMachineComparator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestVirtualMachineComparator@476374f1</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testGetFromName()'><b>testGetFromName</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testGetLocation()'><b>testGetLocation</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetOnlines()'><b>testGetOnlines</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testGetOnlines()'><b>testGetOnlines</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetPosition()'><b>testGetPosition</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetRunningLocation()'><b>testGetRunningLocation</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetRunnings()'><b>testGetRunnings</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testGetRunnings()'><b>testGetRunnings</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetSleepingLocation()'><b>testGetSleepingLocation</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetSleepings()'><b>testGetSleepings</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testGetSleepings()'><b>testGetSleepings</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testGetWaitings()'><b>testGetWaitings</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testGetWaitings()'><b>testGetWaitings</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.core.packers.TestFastBinPacking.testGuillaume()'><b>testGuillaume</b><br>Test class: entropy.core.packers.TestFastBinPacking</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.packers.TestFastBinPacking@1830a1a8</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testIPAddress()'><b>testIPAddress</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.core.packers.FastBinPackerTest.testInsertDescreasing()'><b>testInsertDescreasing</b><br>Test class: entropy.core.packers.FastBinPackerTest</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.packers.FastBinPackerTest@266ea5e1</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testLazyConstructor()'><b>testLazyConstructor</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testLazyConstructors()'><b>testLazyConstructors</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.core.packers.TestFastBinPacking.testLoadSup()'><b>testLoadSup</b><br>Test class: entropy.core.packers.TestFastBinPacking</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.packers.TestFastBinPacking@1830a1a8</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testMax()'><b>testMax</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testMemoryTotal()'><b>testMemoryTotal</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testMemoryTotal()'><b>testMemoryTotal</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testMin()'><b>testMin</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testNbOfCPUs()'><b>testNbOfCPUs</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testNbOfCPUs()'><b>testNbOfCPUs</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestResourcePicker.testNode()'><b>testNode</b><br>Test class: entropy.configuration.TestResourcePicker</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestResourcePicker@51a34231</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testNodeMax()'><b>testNodeMax</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testNodeMin()'><b>testNodeMin</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testNodeSum()'><b>testNodeSum</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestVirtualMachineComparator.testNonEquivalent()'><b>testNonEquivalent</b><br>Test class: entropy.configuration.TestVirtualMachineComparator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestVirtualMachineComparator@476374f1</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testNotEquals()'><b>testNotEquals</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testNotEquals()'><b>testNotEquals</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testPlatform()'><b>testPlatform</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleNode.testPlatform()'><b>testPlatform</b><br>Test class: entropy.configuration.TestSimpleNode</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleNode@5c1d8d6f</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testRemove()'><b>testRemove</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testRemove()'><b>testRemove</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testRemove()'><b>testRemove</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testRetainAll()'><b>testRetainAll</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testSelfContains()'><b>testSelfContains</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testSet()'><b>testSet</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testSetRunOn()'><b>testSetRunOn</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testSetRunOn()'><b>testSetRunOn</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testSetSleepOn()'><b>testSetSleepOn</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testSetSleepOn()'><b>testSetSleepOn</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfigurationGenerator.testSimpleCluster()'><b>testSimpleCluster</b><br>Test class: entropy.configuration.TestConfigurationGenerator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfigurationGenerator@4181496</td></tr>
+<tr>
+<td title='entropy.core.heuristics.StickVMsHeuristicTest.testSimpleConfigurationRemaining()'><b>testSimpleConfigurationRemaining</b><br>Test class: entropy.core.heuristics.StickVMsHeuristicTest</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.heuristics.StickVMsHeuristicTest@7c1eea38</td></tr>
+<tr>
+<td title='entropy.tools.VMsPerMemTest.testSimpleORdering()'><b>testSimpleORdering</b><br>Test class: entropy.tools.VMsPerMemTest</td>
+<td></td>
+<td>0</td>
+<td>entropy.tools.VMsPerMemTest@17f99aa6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testSingleton()'><b>testSingleton</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestVirtualMachineComparator.testSort()'><b>testSort</b><br>Test class: entropy.configuration.TestVirtualMachineComparator</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestVirtualMachineComparator@476374f1</td></tr>
+<tr>
+<td title='entropy.configuration.TestManagedElementSets.testSum()'><b>testSum</b><br>Test class: entropy.configuration.TestManagedElementSets</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestManagedElementSets@52929ed4</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testTemplate()'><b>testTemplate</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testToString()'><b>testToString</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleManagedElementSet.testToString()'><b>testToString</b><br>Test class: entropy.configuration.TestSimpleManagedElementSet</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleManagedElementSet@77bb1dd2</td></tr>
+<tr>
+<td title='entropy.configuration.TestConfiguration.testToString()'><b>testToString</b><br>Test class: entropy.configuration.TestConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestConfiguration@20c52900</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testToString()'><b>testToString</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.configuration.parser.TestPlainTextConfigurationSerializer.testUnknownFile()'><b>testUnknownFile</b><br>Test class: entropy.configuration.parser.TestPlainTextConfigurationSerializer</td>
+<td><div><pre>java.io.FileNotFoundException: /tmp/out5513660458809605463out (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:138)
+	at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:97)
+	at entropy.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:44)
+	at entropy.configuration.parser.TestPlainTextConfigurationSerializer.testUnknownFile(TestPlainTextConfigurationSerializer.java:86)
+	at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:70)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.executeMulti(TestNGDirectoryTestSuite.java:158)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.execute(TestNGDirectoryTestSuite.java:98)
+	at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:111)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:164)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:110)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:175)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcessWhenForked(SurefireStarter.java:107)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:68)
+... Removed 25 stack frames</pre></div><a href='#' onClick='toggleBox("stack-trace346143955", this, "Click to show all stack frames", "Click to hide stack frames")'>Click to show all stack frames</a>
+<div class='stack-trace' id='stack-trace346143955'><pre>java.io.FileNotFoundException: /tmp/out5513660458809605463out (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:138)
+	at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:97)
+	at entropy.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:44)
+	at entropy.configuration.parser.TestPlainTextConfigurationSerializer.testUnknownFile(TestPlainTextConfigurationSerializer.java:86)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:80)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:714)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:901)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:1231)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:127)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:111)
+	at org.testng.TestRunner.privateRun(TestRunner.java:767)
+	at org.testng.TestRunner.run(TestRunner.java:617)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:334)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:329)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:291)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:240)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:86)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1198)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1123)
+	at org.testng.TestNG.run(TestNG.java:1031)
+	at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:70)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.executeMulti(TestNGDirectoryTestSuite.java:158)
+	at org.apache.maven.surefire.testng.TestNGDirectoryTestSuite.execute(TestNGDirectoryTestSuite.java:98)
+	at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:111)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:164)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:110)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:175)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcessWhenForked(SurefireStarter.java:107)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:68)
+</pre></div></td>
+<td>0</td>
+<td>entropy.configuration.parser.TestPlainTextConfigurationSerializer@4f3516d7</td></tr>
+<tr>
+<td title='entropy.configuration.TestResourcePicker.testVM()'><b>testVM</b><br>Test class: entropy.configuration.TestResourcePicker</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestResourcePicker@51a34231</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleConfiguration.testVMStateConsistency()'><b>testVMStateConsistency</b><br>Test class: entropy.configuration.TestSimpleConfiguration</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleConfiguration@6387f30b</td></tr>
+<tr>
+<td title='entropy.core.heuristics.StickVMsHeuristicTest.testVMsByCPUTIMESMemIncreasing()'><b>testVMsByCPUTIMESMemIncreasing</b><br>Test class: entropy.core.heuristics.StickVMsHeuristicTest</td>
+<td></td>
+<td>0</td>
+<td>entropy.core.heuristics.StickVMsHeuristicTest@7c1eea38</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testWithNeeds()'><b>testWithNeeds</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+<tr>
+<td title='entropy.configuration.TestSimpleVirtualMachine.testWithNoNeeds()'><b>testWithNoNeeds</b><br>Test class: entropy.configuration.TestSimpleVirtualMachine</td>
+<td></td>
+<td>0</td>
+<td>entropy.configuration.TestSimpleVirtualMachine@354ec8d6</td></tr>
+</table><p>
+</body>
+</html>

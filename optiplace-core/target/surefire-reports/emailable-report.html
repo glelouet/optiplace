@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>TestNG:  Unit Test</title>
+<style type="text/css">
+table caption,table.info_table,table.result,table.passed,table.failed {margin-bottom:10px;border:1px solid #000099;border-collapse:collapse;empty-cells:show;}
+table.info_table td,table.info_table th,table.result td,table.result th,table.passed td,table.passed th,table.failed td,table.failed th {
+border:1px solid #000099;padding:.25em .5em .25em .5em
+}
+table.result th {vertical-align:bottom}
+tr.param th {padding-left:1em;padding-right:1em}
+tr.param td {padding-left:.5em;padding-right:2em}
+td.numi,th.numi,td.numi_attn {
+text-align:right
+}
+tr.total td {font-weight:bold}
+table caption {
+text-align:center;font-weight:bold;
+}
+table.passed tr.stripe td,table tr.passedodd td {background-color: #00AA00;}
+table.passed td,table tr.passedeven td {background-color: #33FF33;}
+table.passed tr.stripe td,table tr.skippedodd td {background-color: #cccccc;}
+table.passed td,table tr.skippedodd td {background-color: #dddddd;}
+table.failed tr.stripe td,table tr.failedodd td,table.result td.numi_attn {background-color: #FF3333;}
+table.failed td,table tr.failedeven td,table.result tr.stripe td.numi_attn {background-color: #DD0000;}
+tr.stripe td,tr.stripe th {background-color: #E6EBF9;}
+p.totop {font-size:85%;text-align:center;border-bottom:2px black solid}
+div.shootout {padding:2em;border:3px #4854A8 solid}
+</style>
+</head>
+<body>
+<table cellspacing="0" cellpadding="0" class="result">
+<tr><th>Test</th><th class="numi">Methods<br/>Passed</th><th class="numi">Scenarios<br/>Passed</th><th class="numi"># skipped</th><th class="numi"># failed</th><th class="numi">Total<br/>Time</th><th class="numi">Included<br/>Groups</th><th class="numi">Excluded<br/>Groups</th></tr>
+<tr><td style="text-align:left;padding-right:2em">Command line test</td><td class="numi">83</td><td class="numi">83</td><td class="numi">0</td><td class="numi">0</td><td class="numi">0.8 seconds</td><td class="numi"></td><td class="numi"></td></tr>
+</table>
+<table cellspacing="0" cellpadding="0" class="passed" id="summary">
+<tr><th>Class</th><th>Method</th><th># of<br/>Scenarios</th><th>Start</th><th>Time<br/>(ms)</th></tr>
+<tr><th colspan="4">Command line test &#8212; passed</th></tr>
+<tr class="passedodd"><td rowspan="1">fr.emn.optiplace.core.heuristics.StickVMsHeuristicTest</td><td><a href="#m1"><b>testVMsByCPUTIMESMemIncreasing</b>  </a></td><td class="numi">1</td><td>1392736765964</td><td class="numi">12</td></tr>
+<tr class="passedeven"><td rowspan="1">fr.emn.optiplace.tools.VMsPerMemTest</td><td><a href="#m2"><b>testSimpleORdering</b>  </a></td><td class="numi">1</td><td>1392736765976</td><td class="numi">2</td></tr>
+<tr class="passedodd"><td rowspan="18">fr.emn.optiplace.configuration.TestSimpleConfiguration</td><td><a href="#m3"><b>testGetWaitings</b> (unit) </a></td><td class="numi">1</td><td>1392736765979</td><td class="numi">11</td></tr><tr class="passedodd"><td><a href="#m4"><b>testClone</b> (unit) </a></td><td class="numi">1</td><td>1392736765990</td><td class="numi">5</td></tr><tr class="passedodd"><td><a href="#m5"><b>testRemove</b> (unit) </a></td><td class="numi">1</td><td>1392736765995</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m6"><b>testGetRunnings</b> (unit) </a></td><td class="numi">1</td><td>1392736765995</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m7"><b>testAddOffline</b> (unit) </a></td><td class="numi">1</td><td>1392736765997</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m8"><b>testGetOnlines</b> (unit) </a></td><td class="numi">1</td><td>1392736765998</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m9"><b>testGetSleepings</b> (unit) </a></td><td class="numi">1</td><td>1392736765999</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m10"><b>testVMStateConsistency</b> (unit) </a></td><td class="numi">1</td><td>1392736766001</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m11"><b>testSetRunOn</b> (unit) </a></td><td class="numi">1</td><td>1392736766002</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m12"><b>testAddWaiting</b> (unit) </a></td><td class="numi">1</td><td>1392736766004</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m13"><b>testEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766005</td><td class="numi">2</td></tr><tr class="passedodd"><td><a href="#m14"><b>testToString</b> (unit) </a></td><td class="numi">1</td><td>1392736766007</td><td class="numi">2</td></tr><tr class="passedodd"><td><a href="#m15"><b>testAddOnline2</b> (unit) </a></td><td class="numi">1</td><td>1392736766009</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m16"><b>testSetSleepOn</b> (unit) </a></td><td class="numi">1</td><td>1392736766010</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m17"><b>testGetLocation</b> (unit) </a></td><td class="numi">1</td><td>1392736766012</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m18"><b>testAddOnline</b> (unit) </a></td><td class="numi">1</td><td>1392736766013</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m19"><b>testCopyConstructor</b> (unit) </a></td><td class="numi">1</td><td>1392736766013</td><td class="numi">2</td></tr><tr class="passedodd"><td><a href="#m20"><b>testNotEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766016</td><td class="numi">3</td></tr>
+<tr class="passedeven"><td rowspan="3">fr.emn.optiplace.configuration.TestVirtualMachineComparator</td><td><a href="#m21"><b>testEquivalent</b> (unit) </a></td><td class="numi">1</td><td>1392736766019</td><td class="numi">3</td></tr><tr class="passedeven"><td><a href="#m22"><b>testSort</b> (unit) </a></td><td class="numi">1</td><td>1392736766022</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m23"><b>testNonEquivalent</b> (unit) </a></td><td class="numi">1</td><td>1392736766023</td><td class="numi">0</td></tr>
+<tr class="passedodd"><td rowspan="12">fr.emn.optiplace.configuration.TestSimpleVirtualMachine</td><td><a href="#m24"><b>testCopyConstructor</b> (unit) </a></td><td class="numi">1</td><td>1392736766023</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m25"><b>testWithNoNeeds</b> (unit) </a></td><td class="numi">1</td><td>1392736766023</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m26"><b>testCPUConsumption</b> (unit) </a></td><td class="numi">1</td><td>1392736766024</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m27"><b>testTemplate</b> (unit) </a></td><td class="numi">1</td><td>1392736766024</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m28"><b>testToString</b> (unit) </a></td><td class="numi">1</td><td>1392736766024</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m29"><b>testWithNeeds</b> (unit) </a></td><td class="numi">1</td><td>1392736766025</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m30"><b>testPlatform</b> (unit) </a></td><td class="numi">1</td><td>1392736766025</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m31"><b>testEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766025</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m32"><b>testCPUMax</b> (unit) </a></td><td class="numi">1</td><td>1392736766026</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m33"><b>testNbOfCPUs</b> (unit) </a></td><td class="numi">1</td><td>1392736766026</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m34"><b>testLazyConstructors</b> (unit) </a></td><td class="numi">1</td><td>1392736766026</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m35"><b>testMemoryTotal</b> (unit) </a></td><td class="numi">1</td><td>1392736766027</td><td class="numi">0</td></tr>
+<tr class="passedeven"><td rowspan="16">fr.emn.optiplace.configuration.TestConfiguration</td><td><a href="#m36"><b>testGetOnlines</b> (unit) </a></td><td class="numi">1</td><td>1392736766027</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m37"><b>testAddOffline</b> (unit) </a></td><td class="numi">1</td><td>1392736766028</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m38"><b>testGetSleepingLocation</b> (unit) </a></td><td class="numi">1</td><td>1392736766030</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m39"><b>testGetSleepings</b> (unit) </a></td><td class="numi">1</td><td>1392736766031</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m40"><b>testSetSleepOn</b> (unit) </a></td><td class="numi">1</td><td>1392736766032</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m41"><b>testRemove</b> (unit) </a></td><td class="numi">1</td><td>1392736766033</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m42"><b>testGetRunnings</b> (unit) </a></td><td class="numi">1</td><td>1392736766034</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m43"><b>testGetWaitings</b> (unit) </a></td><td class="numi">1</td><td>1392736766035</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m44"><b>testGetRunningLocation</b> (unit) </a></td><td class="numi">1</td><td>1392736766036</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m45"><b>testSetRunOn</b> (unit) </a></td><td class="numi">1</td><td>1392736766037</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m46"><b>testNotEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766038</td><td class="numi">3</td></tr><tr class="passedeven"><td><a href="#m47"><b>testAddWaiting</b> (unit) </a></td><td class="numi">1</td><td>1392736766042</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m48"><b>testAddOnline</b> (unit) </a></td><td class="numi">1</td><td>1392736766043</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m49"><b>testToString</b> (unit) </a></td><td class="numi">1</td><td>1392736766044</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m50"><b>testEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766045</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m51"><b>testGetPosition</b> (unit) </a></td><td class="numi">1</td><td>1392736766047</td><td class="numi">0</td></tr>
+<tr class="passedodd"><td rowspan="2">fr.emn.optiplace.configuration.TestResourcePicker</td><td><a href="#m52"><b>testVM</b> (unit) </a></td><td class="numi">1</td><td>1392736766048</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m53"><b>testNode</b> (unit) </a></td><td class="numi">1</td><td>1392736766048</td><td class="numi">1</td></tr>
+<tr class="passedeven"><td rowspan="8">fr.emn.optiplace.configuration.TestSimpleNode</td><td><a href="#m54"><b>testEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766049</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m55"><b>testMemoryTotal</b> (unit) </a></td><td class="numi">1</td><td>1392736766049</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m56"><b>testPlatform</b> (unit) </a></td><td class="numi">1</td><td>1392736766049</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m57"><b>testLazyConstructor</b> (unit) </a></td><td class="numi">1</td><td>1392736766050</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m58"><b>testIPAddress</b> (unit) </a></td><td class="numi">1</td><td>1392736766050</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m59"><b>testNbOfCPUs</b> (unit) </a></td><td class="numi">1</td><td>1392736766051</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m60"><b>testCopyConstructor</b> (unit) </a></td><td class="numi">1</td><td>1392736766051</td><td class="numi">0</td></tr><tr class="passedeven"><td><a href="#m61"><b>testCPUCapacity</b> (unit) </a></td><td class="numi">1</td><td>1392736766051</td><td class="numi">1</td></tr>
+<tr class="passedodd"><td rowspan="11">fr.emn.optiplace.configuration.TestSimpleManagedElementSet</td><td><a href="#m62"><b>testEquals</b> (unit) </a></td><td class="numi">1</td><td>1392736766052</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m63"><b>testAddAll</b> (unit) </a></td><td class="numi">1</td><td>1392736766053</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m64"><b>testGetFromName</b> (unit) </a></td><td class="numi">1</td><td>1392736766053</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m65"><b>testAdd</b> (unit) </a></td><td class="numi">1</td><td>1392736766053</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m66"><b>testRetainAll</b> (unit) </a></td><td class="numi">1</td><td>1392736766054</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m67"><b>testSelfContains</b> (unit) </a></td><td class="numi">1</td><td>1392736766054</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m68"><b>testRemove</b> (unit) </a></td><td class="numi">1</td><td>1392736766055</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m69"><b>testSet</b> (unit) </a></td><td class="numi">1</td><td>1392736766055</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m70"><b>testSingleton</b> (unit) </a></td><td class="numi">1</td><td>1392736766056</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m71"><b>testCopyConstructor</b> (unit) </a></td><td class="numi">1</td><td>1392736766056</td><td class="numi">0</td></tr><tr class="passedodd"><td><a href="#m72"><b>testClear</b> (unit) </a></td><td class="numi">1</td><td>1392736766056</td><td class="numi">1</td></tr>
+<tr class="passedeven"><td rowspan="3">fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer</td><td><a href="#m73"><b>test</b> (unit) </a></td><td class="numi">1</td><td>1392736766057</td><td class="numi">4</td></tr><tr class="passedeven"><td><a href="#m74"><b>testBadContent</b> (unit) </a></td><td class="numi">1</td><td>1392736766062</td><td class="numi">1</td></tr><tr class="passedeven"><td><a href="#m75"><b>testUnknownFile</b> (unit) </a></td><td class="numi">1</td><td>1392736766063</td><td class="numi">0</td></tr>
+<tr class="passedodd"><td rowspan="3">fr.emn.optiplace.configuration.TestConfigurationGenerator</td><td><a href="#m76"><b>testBunchOfVMs</b>  </a></td><td class="numi">1</td><td>1392736766064</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m77"><b>testSimpleCluster</b>  </a></td><td class="numi">1</td><td>1392736766065</td><td class="numi">1</td></tr><tr class="passedodd"><td><a href="#m78"><b>simpleTest</b>  </a></td><td class="numi">1</td><td>1392736766066</td><td class="numi">1</td></tr>
+<tr class="passedeven"><td rowspan="1">fr.emn.optiplace.core.PowerStateTest</td><td><a href="#m79"><b>smallcentertest</b>  </a></td><td class="numi">1</td><td>1392736766067</td><td class="numi">144</td></tr>
+<tr class="passedodd"><td rowspan="1">fr.emn.optiplace.core.packers.FastBinPackerTest</td><td><a href="#m80"><b>testInsertDescreasing</b>  </a></td><td class="numi">1</td><td>1392736766211</td><td class="numi">149</td></tr>
+<tr class="passedeven"><td rowspan="2">fr.emn.optiplace.core.packers.TestFastBinPacking</td><td><a href="#m81"><b>testLoadSup</b> (unit) </a></td><td class="numi">1</td><td>1392736766360</td><td class="numi">409</td></tr><tr class="passedeven"><td><a href="#m82"><b>testGuillaume</b> (unit) </a></td><td class="numi">1</td><td>1392736766769</td><td class="numi">18</td></tr>
+<tr class="passedodd"><td rowspan="1">fr.emn.optiplace.core.heuristics.StickVMsHeuristicTest</td><td><a href="#m83"><b>testSimpleConfigurationRemaining</b>  </a></td><td class="numi">1</td><td>1392736766790</td><td class="numi">11</td></tr>
+</table>
+<h1>Command line test</h1>
+<h2 id="m1">fr.emn.optiplace.configuration.TestSimpleConfiguration:testGetSleepings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m2">fr.emn.optiplace.core.heuristics.StickVMsHeuristicTest:testSimpleConfigurationRemaining</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m3">fr.emn.optiplace.configuration.TestConfiguration:testGetRunnings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m4">fr.emn.optiplace.core.PowerStateTest:smallcentertest</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m5">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testWithNeeds</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m6">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testRemove</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m7">fr.emn.optiplace.configuration.TestSimpleConfiguration:testRemove</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m8">fr.emn.optiplace.configuration.TestConfiguration:testRemove</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m9">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testSet</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m10">fr.emn.optiplace.configuration.TestSimpleConfiguration:testGetWaitings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m11">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testToString</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m12">fr.emn.optiplace.configuration.TestConfiguration:testNotEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m13">fr.emn.optiplace.configuration.TestSimpleConfiguration:testAddOnline2</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m14">fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer:test</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m15">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testMemoryTotal</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m16">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testSingleton</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m17">fr.emn.optiplace.configuration.TestConfiguration:testToString</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m18">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testGetFromName</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m19">fr.emn.optiplace.configuration.TestSimpleConfiguration:testEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m20">fr.emn.optiplace.configuration.TestSimpleNode:testNbOfCPUs</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m21">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testCPUConsumption</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m22">fr.emn.optiplace.configuration.TestSimpleNode:testEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m23">fr.emn.optiplace.configuration.TestSimpleConfiguration:testAddOnline</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m24">fr.emn.optiplace.tools.VMsPerMemTest:testSimpleORdering</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m25">fr.emn.optiplace.configuration.TestConfigurationGenerator:testBunchOfVMs</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m26">fr.emn.optiplace.configuration.TestSimpleConfiguration:testAddOffline</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m27">fr.emn.optiplace.configuration.TestConfigurationGenerator:testSimpleCluster</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m28">fr.emn.optiplace.configuration.TestConfiguration:testGetSleepings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m29">fr.emn.optiplace.configuration.TestSimpleConfiguration:testVMStateConsistency</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m30">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m31">fr.emn.optiplace.configuration.TestConfigurationGenerator:simpleTest</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m32">fr.emn.optiplace.configuration.TestSimpleConfiguration:testSetRunOn</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m33">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testAdd</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m34">fr.emn.optiplace.configuration.TestConfiguration:testAddOffline</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m35">fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer:testBadContent</h2>
+<div style="padding-left:3em">
+<p>Unrecognized characters: toto</p>
+fr.emn.optiplace.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:125)
+<br/>at fr.emn.optiplace.configuration.parser.PlainTextConfigurationSerializer.unSerialize(PlainTextConfigurationSerializer.java:197)
+<br/>at fr.emn.optiplace.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:45)
+<br/>at fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer.testBadContent(TestPlainTextConfigurationSerializer.java:116)
+<br/>35 lines not shown
+</div>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m36">fr.emn.optiplace.configuration.TestConfiguration:testEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m37">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testNbOfCPUs</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m38">fr.emn.optiplace.core.packers.TestFastBinPacking:testLoadSup</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m39">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testLazyConstructors</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m40">fr.emn.optiplace.configuration.TestSimpleConfiguration:testGetLocation</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m41">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testSelfContains</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m42">fr.emn.optiplace.configuration.TestSimpleConfiguration:testGetOnlines</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m43">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testCopyConstructor</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m44">fr.emn.optiplace.configuration.TestSimpleConfiguration:testGetRunnings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m45">fr.emn.optiplace.configuration.TestSimpleNode:testCPUCapacity</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m46">fr.emn.optiplace.configuration.TestResourcePicker:testVM</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m47">fr.emn.optiplace.configuration.TestSimpleConfiguration:testAddWaiting</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m48">fr.emn.optiplace.configuration.TestConfiguration:testGetRunningLocation</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m49">fr.emn.optiplace.configuration.TestConfiguration:testGetSleepingLocation</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m50">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testAddAll</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m51">fr.emn.optiplace.configuration.TestSimpleNode:testLazyConstructor</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m52">fr.emn.optiplace.configuration.TestConfiguration:testSetRunOn</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m53">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testTemplate</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m54">fr.emn.optiplace.configuration.TestConfiguration:testGetOnlines</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m55">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testRetainAll</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m56">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testWithNoNeeds</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m57">fr.emn.optiplace.configuration.TestVirtualMachineComparator:testEquivalent</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m58">fr.emn.optiplace.configuration.TestSimpleNode:testMemoryTotal</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m59">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testCPUMax</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m60">fr.emn.optiplace.core.packers.TestFastBinPacking:testGuillaume</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m61">fr.emn.optiplace.configuration.TestSimpleNode:testIPAddress</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m62">fr.emn.optiplace.configuration.TestResourcePicker:testNode</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m63">fr.emn.optiplace.configuration.TestConfiguration:testGetWaitings</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m64">fr.emn.optiplace.configuration.TestSimpleNode:testPlatform</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m65">fr.emn.optiplace.configuration.TestSimpleConfiguration:testSetSleepOn</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m66">fr.emn.optiplace.configuration.TestVirtualMachineComparator:testSort</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m67">fr.emn.optiplace.configuration.TestSimpleConfiguration:testCopyConstructor</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m68">fr.emn.optiplace.core.heuristics.StickVMsHeuristicTest:testVMsByCPUTIMESMemIncreasing</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m69">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testClear</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m70">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testPlatform</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m71">fr.emn.optiplace.configuration.TestSimpleConfiguration:testToString</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m72">fr.emn.optiplace.configuration.TestConfiguration:testAddOnline</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m73">fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer:testUnknownFile</h2>
+<div style="padding-left:3em">
+<p>/tmp/out3514323432648167762out (No such file or directory)</p>
+java.io.FileInputStream.open(Native Method)
+<br/>at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:146)
+<br/>at java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:101)
+<br/>at fr.emn.optiplace.configuration.parser.FileConfigurationSerializer.read(FileConfigurationSerializer.java:44)
+<br/>at fr.emn.optiplace.configuration.parser.TestPlainTextConfigurationSerializer.testUnknownFile(TestPlainTextConfigurationSerializer.java:89)
+<br/>35 lines not shown
+</div>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m74">fr.emn.optiplace.configuration.TestConfiguration:testSetSleepOn</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m75">fr.emn.optiplace.configuration.TestVirtualMachineComparator:testNonEquivalent</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m76">fr.emn.optiplace.configuration.TestSimpleConfiguration:testNotEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m77">fr.emn.optiplace.configuration.TestSimpleConfiguration:testClone</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m78">fr.emn.optiplace.configuration.TestSimpleNode:testCopyConstructor</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m79">fr.emn.optiplace.configuration.TestSimpleVirtualMachine:testEquals</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m80">fr.emn.optiplace.configuration.TestSimpleManagedElementSet:testCopyConstructor</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m81">fr.emn.optiplace.core.packers.FastBinPackerTest:testInsertDescreasing</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m82">fr.emn.optiplace.configuration.TestConfiguration:testAddWaiting</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+<h2 id="m83">fr.emn.optiplace.configuration.TestConfiguration:testGetPosition</h2>
+<p class="totop"><a href="#summary">back to summary</a></p>
+</body></html>

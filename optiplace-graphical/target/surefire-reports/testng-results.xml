@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="0" passed="0">
+  <reporter-output>
+  </reporter-output>
+  <suite name="fr.emn.optiplace.configuration.graphics.SVGCreatorTest" duration-ms="4" started-at="2014-02-18T15:19:28Z" finished-at="2014-02-18T15:19:28Z">
+    <groups>
+    </groups>
+    <test name="Command line test" duration-ms="4" started-at="2014-02-18T15:19:28Z" finished-at="2014-02-18T15:19:28Z">
+    </test> <!-- Command line test -->
+  </suite> <!-- fr.emn.optiplace.configuration.graphics.SVGCreatorTest -->
+</testng-results>
