@@ -1,8 +1,0 @@
-entropy
-entropy.configuration
-entropy.configuration.resources
-entropy.solver
-entropy.solver.choco
-entropy.view
-entropy.view.access
-entropy.view.annotations
