@@ -10,22 +10,14 @@
 
 package fr.emn.optiplace.configuration;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.ManagedElementSet;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
+import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Default implementation of Configuration.
@@ -506,5 +498,16 @@ public class SimpleConfiguration implements Configuration, Cloneable {
 			}
 		}
 		return ret;
+	}
+
+	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
+	{
+		resources.put(CPUConsSpecification.TYPE, CPUConsSpecification.INSTANCE);
+		resources.put(MemConsSpecification.TYPE, MemConsSpecification.INSTANCE);
+	}
+
+	@Override
+	public Map<String, ResourceSpecification> resources() {
+		return resources;
 	}
 }

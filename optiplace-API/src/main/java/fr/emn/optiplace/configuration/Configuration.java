@@ -259,4 +259,7 @@ public interface Configuration extends CenterStates {
 	 */
 	Map<String, ManagedElementSet<Node>> getBelongingClusters(Node n);
 
+	/** get the known list of resources specifications */
+	Map<String, ResourceSpecification> resources();
+
 }

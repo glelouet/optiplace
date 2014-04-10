@@ -4,11 +4,7 @@ import fr.emn.optiplace.BaseCenter;
 import fr.emn.optiplace.ConfigStrat;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.SimpleNode;
-import fr.emn.optiplace.configuration.SimpleVirtualMachine;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.Rule;
 
@@ -44,7 +40,6 @@ public class EntropyTestCase extends SolvingProcess {
 	public void clean() {
 		center = new BaseCenter();
 		center.setBaseView(new EmptyView());
-		addDefaultResourceView();
 		center.setSource(new SimpleConfiguration());
 		strat = new ConfigStrat();
 		target = new DeducedTarget();

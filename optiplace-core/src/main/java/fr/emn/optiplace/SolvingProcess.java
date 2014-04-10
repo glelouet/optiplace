@@ -30,7 +30,6 @@ import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.MultiSolutionDisplayer;
-import fr.emn.optiplace.view.DefaultResourcesView;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.SearchHeuristic;
@@ -45,21 +44,6 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(SolvingProcess.class);
-
-	/**
-	 * add a the default view specifying the CPU and RAM resource to the
-	 * {@link #center(BaseCenter)}. This is automatically called on creation.
-	 */
-	public void addDefaultResourceView() {
-		center.getViews().add(DefaultResourcesView.INSTANCE);
-	}
-
-	/**
-	 * add a view for CPU and RAM
-	 */
-	{
-		addDefaultResourceView();
-	}
 
 	/** the core problem, modified by the views */
 	protected DefaultReconfigurationProblem problem;

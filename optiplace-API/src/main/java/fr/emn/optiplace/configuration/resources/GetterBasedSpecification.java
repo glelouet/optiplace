@@ -10,7 +10,7 @@ import fr.emn.optiplace.configuration.VirtualMachine;
 /**
  * resource specification based on the presence of {@link #getCapacity(Node)}
  * and {@link #getUse(VirtualMachine)} methods
- *
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public abstract class GetterBasedSpecification implements ResourceSpecification {
@@ -21,7 +21,7 @@ public abstract class GetterBasedSpecification implements ResourceSpecification 
 
 	/**
 	 * add resource specifications to a (potential null) map
-	 *
+	 * 
 	 * @param map
 	 *            the map to add data inside, or null to create one
 	 * @param res

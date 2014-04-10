@@ -10,7 +10,7 @@ import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 
 /**
  * @author guillaume
- *
+ * 
  */
 public class SVGCreatorTest {
 	@SuppressWarnings("unused")

@@ -67,7 +67,8 @@ public class SVGCreator {
 			}
 		}
 		URI uri = uni.loadSVG(new StringReader("<svg width=\"" + maxX
-				+ "\" height=\"" + maxY + "\" style=\"fill:grey;\"></svg>"), "myImage");
+				+ "\" height=\"" + maxY + "\" style=\"fill:grey;\"></svg>"),
+				"myImage");
 		icon.setSvgURI(uri);
 		SVGDiagram diag = uni.getDiagram(uri);
 
@@ -75,7 +76,8 @@ public class SVGCreator {
 		for (int i = 0; i < squares.length; i++) {
 			Node n = cfg.getOnlines().get(i);
 			try {
-				double nodeLoad = Math.max(rx.getUse(cfg, n) / rx.getCapacity(n),
+				double nodeLoad = Math.max(
+						rx.getUse(cfg, n) / rx.getCapacity(n),
 						ry.getUse(cfg, n) / ry.getCapacity(n));
 				Rect r = makeNodeRect(squares[i], pos[i], maxX, maxY,
 						makeLoadColor(nodeLoad));
@@ -87,8 +89,8 @@ public class SVGCreator {
 				// for each of his vms
 				for (VirtualMachine vm : cfg.getRunnings(n)) {
 					int dx = rx.getUse(vm), dy = ry.getUse(vm);
-					double vmLoadx = 1.0 * dx / squares[i].dX, vmLoady = 1.0 * dy
-							/ squares[i].dY;
+					double vmLoadx = 1.0 * dx / squares[i].dX, vmLoady = 1.0
+							* dy / squares[i].dY;
 					double vmLoad = Math.max(vmLoadx, vmLoady);
 					Rect r2 = makeVMRect(vmX, dx, vmY, dy, vmLoad);
 					vmX += vm.getCPUConsumption();
@@ -145,7 +147,8 @@ public class SVGCreator {
 			}
 			if (strokeColor != null) {
 				ret.addAttribute("stroke", AnimationElement.AT_XML, strokeColor);
-				ret.addAttribute("stroke-width", AnimationElement.AT_XML, "" + border);
+				ret.addAttribute("stroke-width", AnimationElement.AT_XML, ""
+						+ border);
 			}
 			ret.updateTime(0.0);
 		} catch (Exception e) {
@@ -157,7 +160,8 @@ public class SVGCreator {
 
 	public static final float threshold = 0.4f;
 
-	public static String makeNodeColor(int cpu, int mem, int usedCpu, int usedMem) {
+	public static String makeNodeColor(int cpu, int mem, int usedCpu,
+			int usedMem) {
 		float loadcpu = (float) usedCpu / cpu;
 		float loadmem = (float) usedMem / mem;
 		float load = Math.max(loadcpu, loadmem);
@@ -169,16 +173,19 @@ public class SVGCreator {
 			return makeColor(0, (float) Math.sqrt(load / threshold),
 					(float) Math.sqrt(1 - load / threshold));
 		} else {
-			return makeColor((float) Math.sqrt((load - threshold) / (1 - threshold)),
-					(float) Math.sqrt(1 - (load - threshold) / (1 - threshold)), 0);
+			return makeColor(
+					(float) Math.sqrt((load - threshold) / (1 - threshold)),
+					(float) Math.sqrt(1 - (load - threshold) / (1 - threshold)),
+					0);
 		}
 	}
 
-	protected final static String[] APPENDTOFILL = new String[] { "000000",
-			"00000", "0000", "000", "00", "0", "" };
+	protected final static String[] APPENDTOFILL = new String[]{"000000",
+			"00000", "0000", "000", "00", "0", ""};
 
 	public static String makeColor(float r, float g, float b) {
-		String val = Integer.toHexString(new Color(r, g, b).getRGB() & 0x00ffffff);
+		String val = Integer
+				.toHexString(new Color(r, g, b).getRGB() & 0x00ffffff);
 		return "#" + APPENDTOFILL[val.length()] + val;
 	}
 
