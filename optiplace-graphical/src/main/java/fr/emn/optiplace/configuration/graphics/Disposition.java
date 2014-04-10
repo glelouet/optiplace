@@ -1,93 +1,97 @@
 package fr.emn.optiplace.configuration.graphics;
 
-import java.util.HashSet;
-
-/**
- * a disposition places an Element, its target.<br />
- * The target touches a left and top Dispositions, or null. They are the lAnchor
- * and tAnchor.<br />
- * 
- * @deprecated
- * @author guillaume
- */
-@Deprecated
+/** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
 public class Disposition {
 
-	protected Disposition lAnchor = null, tAnchor = null;
+  final Square2D[] squares;
+  final Pos[] pos;
 
-	protected Square2D target = null;
+  boolean dirty = true;
 
-	/** computed from anchors and their elements */
-	protected int startX = 0, startY = 0;
+  int maxX, maxY;
 
-	protected boolean clean = true;
+  /**
+   * 
+   */
+  public Disposition(Square2D[] squares) {
+    this.squares = squares;
+    pos = new Pos[squares.length];
+  }
 
-	public HashSet<Disposition> anchored = new HashSet<Disposition>();
+  public int length() {
+    return squares.length;
+  }
 
-	public void setLAnchor(Disposition anchor) {
-		if (this.lAnchor != null) {
-			this.lAnchor.anchored.remove(this);
-		}
-		this.lAnchor = anchor;
-		anchor.anchored.add(this);
-		dirty();
-	}
+  public Square2D square(int i) {
+    if (i < length()) {
+      return squares[i];
+    }
+    return null;
+  }
 
-	public void setTAnchor(Disposition anchor) {
-		if (this.tAnchor != null) {
-			this.tAnchor.anchored.remove(this);
-		}
-		this.tAnchor = anchor;
-		anchor.anchored.add(this);
-		dirty();
-	}
+  public Pos pos(int i) {
+    if (i < length()) {
+      return pos[i];
+    }
+    return null;
+  }
 
-	public void setTarget(Square2D target) {
-		this.target = target;
-		dirty();
-	}
+  public void pos(Pos pos, int i) {
+    if (i < length()) {
+      this.pos[i] = pos;
+      dirty();
+    }
+  }
 
-	/** to call any time an internal modification is made */
-	public void dirty() {
-		clean = false;
-		for (Disposition d : anchored) {
-			d.dirty();
-		}
-	}
+  /** ensure each Square is associated to a position
+   * @return this */
+  public Disposition fill() {
+    for (int i = 0; i < length(); i++) {
+      if (pos[i] == null) {
+        pos[i] = new Pos();
+        dirty();
+      }
+    }
+    return this;
+  }
 
-	/** recompute the internal positions, if not clean. */
-	public void replace() {
-		if (clean) {
-			return;
-		}
-		if (tAnchor != null) {
-			tAnchor.replace();
-		}
-		if (lAnchor != null) {
-			lAnchor.replace();
-		}
-		startX = lAnchor.getStartX()
-				+ (lAnchor.getTarget() != null ? lAnchor.getTarget().dX : 0);
-		startY = tAnchor.getStartY()
-				+ (tAnchor.getTarget() != null ? tAnchor.getTarget().dY : 0);
-		clean = true;
-	}
+  public void dirty() {
+    dirty = true;
+  }
 
-	/** @return */
-	public Square2D getTarget() {
-		return target;
-	}
+  /** clean the dirty cached elements
+   * @return this */
+  public Disposition clean() {
+    if (!dirty) {
+      return this;
+    }
+    checkMaxima();
+    dirty = false;
+    return this;
+  }
 
-	/** @return */
-	public int getStartX() {
-		replace();
-		return startX;
-	}
+  /**
+   * 
+   */
+  protected void checkMaxima() {
+    maxX = 0;
+    maxY = 0;
+    for (int i = 0; i < length(); i++) {
+      if (squares[i] != null && pos[i] != null) {
+        maxX = Math.max(maxX, squares[i].dX + pos[i].x);
+        maxY = Math.max(maxY, squares[i].dY + pos[i].y);
+      }
+    }
+  }
 
-	/** @return */
-	public int getStartY() {
-		replace();
-		return startY;
-	}
+  public int maxX() {
+    clean();
+    return maxX;
+  }
+
+  public int maxY() {
+    clean();
+    return maxY;
+  }
 
 }
