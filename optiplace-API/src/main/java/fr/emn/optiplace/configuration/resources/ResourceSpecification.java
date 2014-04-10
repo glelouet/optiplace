@@ -9,7 +9,7 @@ import fr.emn.optiplace.configuration.VirtualMachine;
 /**
  * specifies, for one resource known as its {@link #getType() type} the
  * capacities of the nodes and the consumptions of the VMs for that resource.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public interface ResourceSpecification {
@@ -48,7 +48,7 @@ public interface ResourceSpecification {
 
 	/**
 	 * get the sum of the uses of vms
-	 * 
+	 *
 	 * @param vms
 	 *            the virtualMachines hosted on the given node
 	 * @return the sum of the use of the vms
@@ -62,13 +62,24 @@ public interface ResourceSpecification {
 	int getCapacity(Node n);
 
 	/**
-	 * get the load, as vms consumption / nodes apacity, of the center relative
+	 * get the load, as vms consumption / nodes capacity, of the center relative
 	 * to this resource
-	 * 
+	 *
 	 * @param cfg
-	 *            the center
+	 * the center
 	 * @return sum of vms consumptions / sum of nodes capacities
 	 */
 	double getLoad(Configuration cfg);
+
+	/**
+	 * get the use of a node in a given configuration
+	 *
+	 * @param cfg
+	 * the configuration
+	 * @param n
+	 * the node
+	 * @return the use of the node
+	 */
+	double getUse(Configuration cfg, Node n);
 
 }

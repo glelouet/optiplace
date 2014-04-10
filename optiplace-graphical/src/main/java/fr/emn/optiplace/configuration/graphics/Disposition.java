@@ -4,11 +4,13 @@ import java.util.HashSet;
 
 /**
  * a disposition places an Element, its target.<br />
- * The target touches a left and top positions, or null. They are the lAnchor
+ * The target touches a left and top Dispositions, or null. They are the lAnchor
  * and tAnchor.<br />
  * 
+ * @deprecated
  * @author guillaume
  */
+@Deprecated
 public class Disposition {
 
 	protected Disposition lAnchor = null, tAnchor = null;

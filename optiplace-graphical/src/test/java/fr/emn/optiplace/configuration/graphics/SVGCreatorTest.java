@@ -5,11 +5,12 @@ import com.kitfox.svg.app.beans.SVGIcon;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.SimpleNode;
 import fr.emn.optiplace.configuration.SimpleVirtualMachine;
-import fr.emn.optiplace.configuration.graphics.SVGCreator;
+import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
+import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 
 /**
  * @author guillaume
- * 
+ *
  */
 public class SVGCreatorTest {
 	@SuppressWarnings("unused")
@@ -33,7 +34,8 @@ public class SVGCreatorTest {
 		cfg.setRunOn(n2vm1, n2);
 		cfg.addOnline(new SimpleNode("n3", 1, 700, 600));
 		SVGCreator creator = new SVGCreator();
-		SVGIcon icon = creator.export(cfg);
+		SVGIcon icon = creator.export(cfg, CPUConsSpecification.INSTANCE,
+				MemConsSpecification.INSTANCE);
 		SVGCreator.writeSVG(icon, "target/icon.png");
 	}
 }

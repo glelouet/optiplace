@@ -51,7 +51,9 @@ public class BasicPositionner implements Positionner {
 
   public void organize(Square2D[] squares, Pos[] pos, int idx) {
     replace(squares[idx], squares, pos);
-    organize(squares, pos, idx + 1);
+		if (idx + 1 < squares.length) {
+			organize(squares, pos, idx + 1);
+		}
   }
 
   /** moves a square so it does not overlap with the previous squares.
@@ -61,11 +63,26 @@ public class BasicPositionner implements Positionner {
    * @param y the y pos of each square */
   public static void replace(Square2D square2d, Square2D[] squares, Pos[] pos) {
     ArrayList<Pos> availablePos = new ArrayList<>(Arrays.asList(new Pos(0, 0)));
-    for(int i=0;i<squares.length && squares[i]!=square2d;i++) {
-
+		int i = 0;
+		// for each other node before this one
+		for (; i < squares.length && squares[i] != square2d; i++) {
+			ArrayList<Pos> remPos = new ArrayList<Pos>();
+    	for(Pos p : availablePos) {
+				System.err.println("check overlap " + square2d + " at pos" + p
+						+ " with " + squares[i] + " at pos " + pos[i]);
+				if (p.overlaps(square2d, squares[i], pos[i])) {
+					remPos.add(p);
+				} else {
+					System.err.println("no overlap");
+				}
+    	}
+			System.err.println("square " + square2d + " overrlaps in positions "
+					+ remPos);
+			availablePos.removeAll(remPos);
+			availablePos.add(new Pos(pos[i].x + squares[i].dX, pos[i].y));
+			availablePos.add(new Pos(pos[i].x, pos[i].y + squares[i].dY));
     }
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		pos[i] = availablePos.get(0);
   }
 
 }

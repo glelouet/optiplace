@@ -19,9 +19,9 @@ public class Pos {
     y = o.y;
   }
 
-  public boolean overlaps(Square2D me, Square2D other, int ox, int oy) {
-    if (me.dX + x <= other.dX || other.dX + ox <= me.dX
-        || me.dY + y <= other.dY || other.dY + oy <= me.dY) {
+	public boolean overlaps(Square2D me, Square2D other, Pos otherPos) {
+		if (me.dX + x <= otherPos.x || other.dX + otherPos.x <= x
+				|| me.dY + y <= otherPos.y || other.dY + otherPos.y <= y) {
       return false;
     }
     return true;
@@ -31,4 +31,9 @@ public class Pos {
   public Pos clone() {
     return new Pos(this);
   }
+
+	@Override
+	public String toString() {
+		return "[" + x + ";" + y + "]";
+	}
 }
