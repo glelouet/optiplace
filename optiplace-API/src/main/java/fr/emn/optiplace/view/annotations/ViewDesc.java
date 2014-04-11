@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * description of a view in annotations.<br />
  * Only one class with this annotation should be present in the project to
- * create a plugin. This class should extend EmptyView. time<br />
+ * create a plugin. This class should extend EmptyView.<br />
  * This annotation is processed at compile time, to generate plugin description
  * file in the jar.<br />
  * It also allows to guess where the Constraints, goals and heuristics are
@@ -21,24 +21,16 @@ import java.lang.annotation.Target;
 public @interface ViewDesc {
 
 	/**
-	 * the full name of the required config file, from the config
-	 * repository(generally, working directory).<br />
-	 * if not set, or set to "", no config is required. If set to a file name,
-	 * the plugin cannot be loaded unless such a file is found in config
-	 * directory.
+	 * the full name of the required config URI to load this.<br />
+	 * if not set, or set to "", no config is required. If set, the plugin
+	 * cannot be loaded unless such a resource is found.
 	 */
-	String configFile() default "";
+	String configURI() default "";
 
 	/**
-	 * path relative to the annotated class package to the package of goals
-	 * related to the view.
+	 * short name of the view. Only used for description. If not specified, the
+	 * full package.class name is used
 	 */
-	String goalsPackage() default "goals";
-
-	/**
-	 * path relative to the annotated class package to the package of
-	 * constraints related to the view.
-	 */
-	String constraintsPackage() default "constraints";
+	String shortname() default "";
 
 }

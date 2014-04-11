@@ -62,6 +62,7 @@
 		<module>optiplace-API</module>
 		<module>optiplace-core</module>
 		<module>optiplace-graphical</module>
+		<module>optiplace-server</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>

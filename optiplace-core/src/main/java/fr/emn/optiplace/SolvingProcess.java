@@ -67,6 +67,10 @@ public class SolvingProcess extends OptiplaceProcess {
 			views.add(center.getBaseView());
 		}
 
+		for (ResourceSpecification r : src.resources().values()) {
+			problem.addResourceHandler(new ResourceHandler(r));
+		}
+
 		// add all the resources specified by the view
 		for (ViewAsModule v : views) {
 			for (ResourceSpecification r : v.getPackedResource()) {
