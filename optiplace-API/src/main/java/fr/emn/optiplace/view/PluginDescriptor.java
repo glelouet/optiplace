@@ -1,6 +1,7 @@
 package fr.emn.optiplace.view;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -124,10 +125,18 @@ public class PluginDescriptor extends AbstractProcessor {
     }
     if (line.startsWith(CLASSPARAM)) {
       clazz=line.substring(CLASSPARAM.length());
+      return;
     }
     if (line.startsWith(CFGFILEPARAM)) {
       cfg = line.substring(CFGFILEPARAM.length());
+      return;
     }
+    if (line.startsWith(DEPPARAM)) {
+      line = line.substring(DEPPARAM.length() + 1, line.length() - 1);
+      depends = new HashSet<>(Arrays.asList(line.split(", ")));
+      return;
+    }
+    System.err.println("dropped " + line);
   }
 
   public void read(BufferedReader reader) {
