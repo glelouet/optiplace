@@ -16,7 +16,7 @@ import fr.emn.optiplace.configuration.resources.ResourceHandler;
  * capacities of the hosts and the consumptions of the vms.<br />
  * It does NOT extend the view because it is used as a base view by the other
  * modules.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public interface CoreView {
@@ -28,10 +28,16 @@ public interface CoreView {
 
 	/**
 	 * @param n
-	 *            a node of the problem
-	 * @return the index of the node in the problem
+	 * a node of the problem
+	 * @return the index of the node in the problem, or -1
 	 */
 	public int node(Node n);
+
+	/**
+	 * @param idx
+	 * @return the node at given position, or null
+	 */
+	public Node node(int idx);
 
 	/**
 	 * @return the array of vm of this problem, each vm being on its index
@@ -40,10 +46,16 @@ public interface CoreView {
 
 	/**
 	 * @param vm
-	 *            a virtual machine of this problem
-	 * @return the internal index for this vm
+	 * a virtual machine of this problem
+	 * @return the internal index for this vm, or -1
 	 */
 	public int vm(VirtualMachine vm);
+
+	/**
+	 * @param idx
+	 * @return the vm at given pos, or null
+	 */
+	public VirtualMachine vm(int idx);
 
 	/**
 	 * @param vm

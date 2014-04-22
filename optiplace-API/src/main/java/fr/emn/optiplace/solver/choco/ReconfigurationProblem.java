@@ -56,14 +56,6 @@ public interface ReconfigurationProblem
 	int getCurrentLocation(int vmIdx);
 
 	/**
-	 * Get all the nodes in the model. Indexed by their identifier.
-	 * 
-	 * @return an array of node.
-	 */
-	@Override
-	Node[] nodes();
-
-	/**
 	 * Get all the virtual machiens in the model. Indexed by their identifier.
 	 * 
 	 * @return an array of virtual machines.
@@ -78,44 +70,6 @@ public interface ReconfigurationProblem
 	 * @return a configuration
 	 */
 	Configuration getSourceConfiguration();
-
-	/**
-	 * Get the index of a virtual machine
-	 * 
-	 * @param vm
-	 *            the virtual machine
-	 * @return its index or -1 in case of failure
-	 */
-	@Override
-	int vm(VirtualMachine vm);
-
-	/**
-	 * Get the virtual machine with a specified index
-	 * 
-	 * @param idx
-	 *            the index of the virtual machine
-	 * @return the virtual machine or null in case of failure
-	 */
-	VirtualMachine getVirtualMachine(int idx);
-
-	/**
-	 * Get the index of a node
-	 * 
-	 * @param n
-	 *            the node
-	 * @return its index or -1 in case of failure
-	 */
-	@Override
-	int node(Node n);
-
-	/**
-	 * Get the node with a specified index
-	 * 
-	 * @param idx
-	 *            the index of the node
-	 * @return the node or null in case of failure
-	 */
-	Node getNode(int idx);
 
 	/**
 	 * Get the formal value of the used CPU of a node.
