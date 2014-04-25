@@ -69,7 +69,7 @@ import gnu.trove.TIntIntHashMap;
  * configuration, the model create the different actions that aims to perform
  * the transition to the destination configuration. In addition, several actions
  * acting on the placement of the virtual machines can be added.
- *
+ * 
  * @author Fabien Hermenier
  */
 public final class DefaultReconfigurationProblem extends CPSolver
@@ -129,7 +129,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	/**
 	 * Make a new model.
-	 *
+	 * 
 	 * @param src
 	 *            The source configuration. It must be viable.
 	 * @param run
@@ -270,7 +270,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	/**
 	 * converts an array of vms to an array of index of those vms in the
 	 * problem.
-	 *
+	 * 
 	 * @param vms
 	 *            the vms to convert, all of them must belong to the problem
 	 * @return a new array of those vms.
@@ -781,7 +781,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	@Override
 	public IntDomainVar mult(IntDomainVar left, int right) {
 		if (left.isInstantiated()) {
-			return createIntegerConstant(left.getVal()*right);
+			return createIntegerConstant(left.getVal() * right);
 		}
 		IntDomainVar ret = null;
 		if (left.getInf() == 0 && left.getSup() == 1) {
@@ -951,7 +951,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	/**
 	 * get the min and max values of the inf and sup ranges of an array of
 	 * IntDomainVar
-	 *
+	 * 
 	 * @param array
 	 *            the table of VarIntDomain
 	 * @return [min(inf(array)), max(sup(array))]

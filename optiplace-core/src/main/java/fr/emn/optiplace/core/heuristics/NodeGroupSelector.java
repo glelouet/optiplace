@@ -27,7 +27,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 /**
  * A heuristic to select a group of nodes to associate to a group of VM. Try the
  * current group if possible.
- *
+ * 
  * @author Fabien Hermenier
  */
 public class NodeGroupSelector implements ValSelector<IntDomainVar> {
@@ -47,7 +47,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 	/**
 	 * Build a selector for a specific solver.
-	 *
+	 * 
 	 * @param s
 	 *            the solver
 	 * @param o
@@ -87,7 +87,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the biggest amount of free CPU resources
 	 * that can host the slice.
-	 *
+	 * 
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -110,7 +110,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the biggest amount of free memory
 	 * resources that can host the slice.
-	 *
+	 * 
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -134,7 +134,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the smallest amount of free memory
 	 * resources that can host the slice.
-	 *
+	 * 
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -158,7 +158,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the smallest amount of free CPU resources
 	 * that can host the slice.
-	 *
+	 * 
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node

@@ -13,7 +13,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
  * delegate the calls to a reconfiguration problem
- *
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class SimpleCoreView implements CoreView {
