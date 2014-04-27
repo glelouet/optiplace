@@ -7,13 +7,13 @@ import java.io.File;
  * 
  */
 public class ViewManagerMain {
-  @SuppressWarnings("unused")
-  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-  .getLogger(ViewManagerMain.class);
+	@SuppressWarnings("unused")
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+			.getLogger(ViewManagerMain.class);
 
-  public static void main(String[] args) {
-    ViewManager m = new ViewManager();
-    m.setJarDir(new File("target/"));
-    m.start();
-  }
+	public static void main(String[] args) {
+		ViewManager m = new ViewManager();
+		m.setJarDir(new File("target/"));
+		m.start();
+	}
 }

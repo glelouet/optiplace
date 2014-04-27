@@ -8,6 +8,7 @@ import java.util.List;
 
 import choco.kernel.solver.constraints.SConstraint;
 import choco.kernel.solver.variables.Var;
+import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -125,7 +126,7 @@ public class EmptyView implements View {
 	}
 
 	@Override
-	public void endSolving() {
+	public void endSolving(ActionGraph a) {
 	}
 
 	/** do nothing. Overwrite if a view require config file. */

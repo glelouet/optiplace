@@ -4,6 +4,7 @@
 package fr.emn.optiplace;
 
 import choco.kernel.solver.variables.integer.IntDomainVar;
+import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -15,6 +16,8 @@ public class DeducedTarget {
 			.getLogger(DeducedTarget.class);
 
 	private Configuration destination;
+
+	private final ActionGraph actions = new ActionGraph();
 
 	private long buildTime;
 
@@ -35,6 +38,13 @@ public class DeducedTarget {
 	/** @return the destination */
 	public Configuration getDestination() {
 		return destination;
+	}
+
+	/**
+	 * @return the list of actions deduced.
+	 */
+	public ActionGraph getActions() {
+		return actions;
 	}
 
 	/**

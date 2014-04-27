@@ -137,4 +137,9 @@ public abstract class GetterBasedSpecification implements ResourceSpecification 
 		}
 		return use;
 	}
+
+	@Override
+	public boolean canHost(Configuration cfg, Node n, VirtualMachine vm) {
+		return getUse(cfg, n) <= getUse(vm);
+	}
 }
