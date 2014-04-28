@@ -40,7 +40,7 @@ public interface ViewAsModule {
 	 *         The LAST added view's algorithms are used first, but in the order
 	 *         they were provided by the view.
 	 */
-	public List<SearchHeuristic> getViewHeuristics();
+	public List<SearchHeuristic> getSearchHeuristics();
 
 	/**
 	 * @return the (optionnal) goal specified by the view.<br />

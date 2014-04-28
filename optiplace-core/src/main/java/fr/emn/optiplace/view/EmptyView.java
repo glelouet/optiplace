@@ -107,11 +107,11 @@ public class EmptyView implements View {
 		requestedRules.add(cst);
 	}
 
-	protected ArrayList<SearchHeuristic> viewHeuristics = new ArrayList<>();
+	protected ArrayList<SearchHeuristic> searchHeuristics = new ArrayList<>();
 
 	@Override
-	public List<SearchHeuristic> getViewHeuristics() {
-		return viewHeuristics;
+	public List<SearchHeuristic> getSearchHeuristics() {
+		return searchHeuristics;
 	}
 
 	protected SearchGoal searchGoal = null;
