@@ -10,9 +10,9 @@ import fr.emn.optiplace.view.PluginDescriptor;
 
 /** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
 public class ViewManager {
-  @SuppressWarnings("unused")
+
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-  .getLogger(ViewManager.class);
+      .getLogger(ViewManager.class);
 
   protected File jarDir = new File(".");
 
