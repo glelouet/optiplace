@@ -20,6 +20,7 @@ import choco.kernel.solver.search.ISolutionDisplay;
 import choco.kernel.solver.search.ISolutionPool;
 import choco.kernel.solver.search.SolutionPoolFactory;
 import choco.kernel.solver.variables.integer.IntDomainVar;
+import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -242,11 +243,13 @@ public class SolvingProcess extends OptiplaceProcess {
 		} else {
 			target.setDestination(null);
 		}
+		Migrate.addMigrations(this.center.getSource(), target.getDestination(),
+				target.getActions());
 		target.setSearchBacktracks(problem.getBackTrackCount());
 		target.setSearchNodes(problem.getNodeCount());
 		target.setSearchSolutions(problem.getNbSolutions());
 		for (ViewAsModule v : center.getViews()) {
-			v.endSolving();
+			v.endSolving(target.getActions());
 		}
 	}
 }

@@ -35,8 +35,8 @@ public class ViewManager {
   protected void load() {
     System.err.println("working in " + jarDir.getAbsolutePath());
     if (!jarDir.exists()) {
-      System.err.println("no directory " + jarDir.getAbsolutePath()
-          + " exists");
+      System.err
+      .println("no directory " + jarDir.getAbsolutePath() + " exists");
     }
     for (File f : jarDir.listFiles(JARFILTER)) {
       System.err.println(f.getAbsolutePath());
@@ -48,7 +48,8 @@ public class ViewManager {
         if (entry != null) {
           addManaged(f);
         }
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         System.err.println("aborting load of " + f.getAbsolutePath()
             + " because of " + e);
       }
@@ -59,8 +60,8 @@ public class ViewManager {
   protected void addManaged(File jarFile) {
     System.err.println("managing file " + jarFile);
     try {
-      URLClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURI()
-          .toURL()});
+      URLClassLoader cl = new URLClassLoader(new URL[] { jarFile.toURI()
+          .toURL() });
       PluginDescriptor desc = new PluginDescriptor();
       BufferedReader reader = new BufferedReader(
           new InputStreamReader(

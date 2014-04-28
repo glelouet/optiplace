@@ -10,7 +10,14 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +25,16 @@ import org.slf4j.LoggerFactory;
 import choco.Choco;
 import choco.cp.solver.CPSolver;
 import choco.cp.solver.constraints.global.BoundGccVar;
-import choco.cp.solver.constraints.integer.*;
+import choco.cp.solver.constraints.integer.Element;
+import choco.cp.solver.constraints.integer.ElementV;
+import choco.cp.solver.constraints.integer.EqualXYC;
+import choco.cp.solver.constraints.integer.EuclideanDivisionXYZ;
+import choco.cp.solver.constraints.integer.GreaterOrEqualXC;
+import choco.cp.solver.constraints.integer.LessOrEqualXC;
+import choco.cp.solver.constraints.integer.MaxOfAList;
+import choco.cp.solver.constraints.integer.MinOfAList;
+import choco.cp.solver.constraints.integer.NotEqualXYC;
+import choco.cp.solver.constraints.integer.TimesXYZ;
 import choco.cp.solver.constraints.reified.ReifiedFactory;
 import choco.cp.solver.constraints.set.InverseSetInt;
 import choco.cp.solver.variables.integer.IntTerm;
@@ -31,7 +47,11 @@ import choco.kernel.solver.search.measure.IMeasures;
 import choco.kernel.solver.variables.Var;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import choco.kernel.solver.variables.set.SetVar;
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.ManagedElementSet;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
 import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -239,6 +259,14 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		return v;
 	}
 
+	@Override
+	public VirtualMachine vm(int idx) {
+		if (idx < vms.length && idx >= 0) {
+			return vms[idx];
+		}
+		return null;
+	}
+
 	/**
 	 * converts an array of vms to an array of index of those vms in the
 	 * problem.
@@ -259,14 +287,6 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public VirtualMachine getVirtualMachine(int idx) {
-		if (idx < vms.length && idx >= 0) {
-			return vms[idx];
-		}
-		return null;
-	}
-
-	@Override
 	public int node(Node n) {
 		int h = n.hashCode();
 		int v = revNodes.get(h);
@@ -277,7 +297,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public Node getNode(int idx) {
+	public Node node(int idx) {
 		if (idx < nodes.length && idx >= 0) {
 			return nodes[idx];
 		} else {
@@ -409,7 +429,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	protected void makeHosters() {
 		hosters = new IntDomainVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			VirtualMachine vm = getVirtualMachine(i);
+			VirtualMachine vm = vm(i);
 			hosters[i] = createEnumIntVar(vm.getName() + ".hoster", 0,
 					nodes.length - 1);
 		}
@@ -524,7 +544,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	public IntDomainVar isPowered(int idx) {
 		if (nodesPowered == null) {
-			nodesPowered = new IntDomainVar[nodes.length];
+			makeIsPowereds();
 		}
 		return nodesPowered[idx];
 
@@ -621,7 +641,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	protected void makeIsMigrateds() {
 		isMigrateds = new IntDomainVar[vms().length];
 		for (int i = 0; i < isMigrateds.length; i++) {
-			VirtualMachine vm = getVirtualMachine(i);
+			VirtualMachine vm = vm(i);
 			Node sourceHost = getSourceConfiguration().getLocation(vm);
 			if (getSourceConfiguration().getAllVirtualMachines().contains(vm)) {
 				isMigrateds[i] = isDifferent(host(vm), node(sourceHost));
@@ -733,6 +753,15 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	@Override
 	public IntDomainVar mult(IntDomainVar left, IntDomainVar right) {
+		if (left.isInstantiatedTo(0) || right.isInstantiatedTo(0)) {
+			return createIntegerConstant(0);
+		}
+		if (left.isInstantiatedTo(1)) {
+			return right;
+		}
+		if (right.isInstantiatedTo(1)) {
+			return left;
+		}
 		int min = left.getInf() * right.getInf(), max = min;
 		for (int prod : new int[]{left.getInf() * right.getSup(),
 				left.getSup() * right.getSup(), left.getInf() * right.getSup()}) {
@@ -751,6 +780,9 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	@Override
 	public IntDomainVar mult(IntDomainVar left, int right) {
+		if (left.isInstantiated()) {
+			return createIntegerConstant(left.getVal() * right);
+		}
 		IntDomainVar ret = null;
 		if (left.getInf() == 0 && left.getSup() == 1) {
 			ret = createEnumIntVar("(" + left.getName() + ")*" + right,
@@ -856,7 +888,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		}
 		for (VirtualMachine vm : getSourceConfiguration()
 				.getAllVirtualMachines()) {
-			cfg.setRunOn(vm, getNode(host(vm).getVal()));
+			cfg.setRunOn(vm, node(host(vm).getVal()));
 		}
 		return cfg;
 	}

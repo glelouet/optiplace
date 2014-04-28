@@ -2,6 +2,7 @@ package fr.emn.optiplace.view;
 
 import java.util.List;
 
+import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -52,7 +53,9 @@ public interface ViewAsModule {
 	/**
 	 * is called by the solver when the solving of the problem has ended. As
 	 * such, the view should retrieve the results of the problem
+	 * 
+	 * @param actionGraph
 	 */
-	public void endSolving();
+	public void endSolving(ActionGraph actionGraph);
 
 }

@@ -70,7 +70,17 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
+	public Node node(int n) {
+		return pb.node(n);
+	}
+
+	@Override
 	public int vm(VirtualMachine vm) {
+		return pb.vm(vm);
+	}
+
+	@Override
+	public VirtualMachine vm(int vm) {
 		return pb.vm(vm);
 	}
 

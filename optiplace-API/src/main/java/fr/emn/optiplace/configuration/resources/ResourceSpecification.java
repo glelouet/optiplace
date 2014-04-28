@@ -82,4 +82,15 @@ public interface ResourceSpecification {
 	 */
 	double getUse(Configuration cfg, Node n);
 
+	/**
+	 * check wether a vm can be hosted on given node.
+	 * 
+	 * @param n
+	 *            the node
+	 * @param vm
+	 *            the vm
+	 * @return true if there is enough resource on n to host vm.
+	 */
+	boolean canHost(Configuration cfg, Node n, VirtualMachine vm);
+
 }
