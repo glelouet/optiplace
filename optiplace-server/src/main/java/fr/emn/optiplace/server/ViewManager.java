@@ -1,6 +1,10 @@
 package fr.emn.optiplace.server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.JarEntry;
@@ -68,6 +72,7 @@ public class ViewManager {
               cl.getResourceAsStream(fr.emn.optiplace.view.PluginDescriptor.DESCRIPTORFILENAME)));
       desc.read(reader);
       System.err.println("got desc : " + desc);
+			cl.close();
     }
     catch (Exception e) {
       logger.warn("", e);
