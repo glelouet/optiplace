@@ -7,9 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specify an attribute is a dependency . Should only be applied to attributes
- * whose type inherits View.
- * 
+ * Specify an attribute is a view dependency . Should only be applied to
+ * attributes whose type inherits View. eg the thermal view depends on the power
+ * view.
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 @Retention(RetentionPolicy.RUNTIME)
