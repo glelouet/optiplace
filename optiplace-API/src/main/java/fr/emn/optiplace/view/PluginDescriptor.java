@@ -1,9 +1,15 @@
 package fr.emn.optiplace.view;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -17,6 +23,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 import fr.emn.optiplace.view.annotations.Depends;
+import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.annotations.ViewDesc;
 
 /**
@@ -55,21 +62,24 @@ public class PluginDescriptor extends AbstractProcessor {
 			return true;
 		}
 		Element el = it.next();
-		ViewDesc an = el.getAnnotation(ViewDesc.class);
 		clazz = el.asType().toString();
-		cfg = an.configURI();
+		requiredConf = extractRequiredConfs(el, roundEnv);
+		optionalConf = extractOptionalConfs(el, roundEnv);
 		depends = extractDependenciesTypes(el, roundEnv);
 		return true;
 	}
 
 	protected String clazz;
 
-	protected String cfg;
+	protected Map<String, String> requiredConf;
+
+	protected Map<String, String> optionalConf;
 
 	protected HashSet<String> depends;
 
 	public static final String CLASSPARAM = "class=";
-	public static final String CFGFILEPARAM = "configFile=";
+	public static final String REQCONFPARAM = "requiredConf=";
+	public static final String OPTCONFPARAM = "optionConf=";
 	public static final String DEPPARAM = "dependsOn=";
 
 	/**
@@ -92,8 +102,15 @@ public class PluginDescriptor extends AbstractProcessor {
 	protected void write(Writer w) {
 		try {
 			w.write(CLASSPARAM + clazz + "\n");
-			if (cfg != null && !cfg.isEmpty()) {
-				w.write(CFGFILEPARAM + cfg + "\n");
+			if (requiredConf != null && !requiredConf.isEmpty()) {
+				w.write(REQCONFPARAM
+						+ removeFirstAndLastChar(requiredConf.toString())
+						+ "\n");
+			}
+			if (optionalConf != null && !optionalConf.isEmpty()) {
+				w.write(OPTCONFPARAM
+						+ removeFirstAndLastChar(optionalConf.toString())
+						+ "\n");
 			}
 			if (depends != null && !depends.isEmpty()) {
 				w.write(DEPPARAM + depends + "\n");
@@ -101,7 +118,12 @@ public class PluginDescriptor extends AbstractProcessor {
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 		}
+	}
 
+	public static String removeFirstAndLastChar(String s) {
+		String ret = s.substring(1, s.length() - 2);
+		System.err.println("" + s + " => " + ret);
+		return ret;
 	}
 
 	public static HashSet<String> extractDependenciesTypes(Element el,
@@ -118,6 +140,56 @@ public class PluginDescriptor extends AbstractProcessor {
 		return depsTypes;
 	}
 
+	/**
+	 * @param el
+	 * @param roundEnv
+	 * @return
+	 */
+	public static Map<String, String> extractOptionalConfs(Element el,
+			RoundEnvironment roundEnv) {
+		Map<String, String> ret = new HashMap<String, String>();
+		// first we get all the Parameter fields of the class
+		HashSet<Element> children = new HashSet<Element>(
+				el.getEnclosedElements());
+		Set<? extends Element> parameters = roundEnv
+				.getElementsAnnotatedWith(Parameter.class);
+		children.retainAll(parameters);
+		for (Element e : children) {
+			Parameter p = e.getAnnotation(Parameter.class);
+			if (!p.required()) {
+				String name = e.getSimpleName().toString();
+				String conf = p.confName();
+				ret.put(name, conf);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * @param el
+	 * @param roundEnv
+	 * @return
+	 */
+	public static Map<String, String> extractRequiredConfs(Element el,
+			RoundEnvironment roundEnv) {
+		Map<String, String> ret = new HashMap<String, String>();
+		// first we get all the Parameter fields of the class
+		HashSet<Element> children = new HashSet<Element>(
+				el.getEnclosedElements());
+		Set<? extends Element> parameters = roundEnv
+				.getElementsAnnotatedWith(Parameter.class);
+		children.retainAll(parameters);
+		for (Element e : children) {
+			Parameter p = e.getAnnotation(Parameter.class);
+			if (p.required()) {
+				String name = e.getSimpleName().toString();
+				String conf = p.confName();
+				ret.put(name, conf);
+			}
+		}
+		return ret;
+	}
+
 	public void handleLine(String line) {
 		if (line == null) {
 			return;
@@ -126,9 +198,13 @@ public class PluginDescriptor extends AbstractProcessor {
 			clazz = line.substring(CLASSPARAM.length());
 			return;
 		}
-		if (line.startsWith(CFGFILEPARAM)) {
-			cfg = line.substring(CFGFILEPARAM.length());
-			return;
+		if (line.startsWith(REQCONFPARAM)) {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+		if (line.startsWith(OPTCONFPARAM)) {
+			// TODO
+			throw new UnsupportedOperationException();
 		}
 		if (line.startsWith(DEPPARAM)) {
 			line = line.substring(DEPPARAM.length() + 1, line.length() - 1);

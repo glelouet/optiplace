@@ -21,13 +21,6 @@ import java.lang.annotation.Target;
 public @interface ViewDesc {
 
 	/**
-	 * the full name of the required config URI to load this.<br />
-	 * if not set, or set to "", no config is required. If set, the plugin
-	 * cannot be loaded unless such a resource is found.
-	 */
-	String configURI() default "";
-
-	/**
 	 * short name of the view. Only used for description. If not specified, the
 	 * full package.class name is used
 	 */

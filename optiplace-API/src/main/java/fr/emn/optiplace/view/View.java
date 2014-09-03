@@ -1,31 +1,53 @@
 package fr.emn.optiplace.view;
 
-import java.io.File;
 import java.util.List;
 
 import choco.kernel.solver.constraints.SConstraint;
 import choco.kernel.solver.variables.Var;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
  * <p>
- * Add informations to a {@link ReconfigurationProblem problem}. Those
- * informations may be directly added to the problem on the
- * {@link #associate(ReconfigurationProblem)} call, or added on demand when the
- * associated constraints require their {@link ReconfigurationProblem}
+ * A view represents additional domain to inject in a problem to solve.<br/>
+ * A view can add
+ * <ul>
+ * <li>{@link ResourceSpecification}, specified by the
+ * {@link #getPackedResource()}, which describes the resources provided by the
+ * nodes and used by their vms.</li>
+ * <li>{@link Rule} specified by the administrator, which will be translated
+ * into constraints in the problem, or will restrict the variables' domains</li>
+ * <li>{@link SearchGoal} and their associated {@link SearchHeuristic} to
+ * specify the goal when resolving a problem and one or more strategies to
+ * explore this problem's potential solutions</li>
+ * </ul>
  * </p>
  * <p>
- * A view must not be associated to several {@link ReconfigurationProblem}s at
+ * The domain informations may be added to the problem
+ * <ul>
+ * <li>on a {@link View.#associate(ReconfigurationProblem)} call, eg for some
+ * new variables to integrate to the problem</li>
+ * <li>by a solver call to {@linkplain Rule.#inject(ReconfigurationProblem)} for
+ * the rules returned by {@link #getRequestedRules()}</li>
+ * </ul>
+ * </p>
+ * <p>
+ * A view can not be associated to several {@link ReconfigurationProblem}s at
  * the same time, and doing so may crash
  * </p>
  * <p>
- * The constraints managed by the view, using {@link #getRequestedRules()} and
- * {@link #addRule(Rule)}.
+ * When a problem in which a view was added has been resolved by the solver, and
+ * a solution found, the solver will call
+ * {@link #endSolving(fr.emn.optiplace.actions.ActionGraph))} for this view. At
+ * this moment, the view is supposed to extract it's result solution data from
+ * the problem, and deduce its actions to integrate into the ActionGraph. eg. a
+ * CPU throttle view would extract the real throttle lvl of the CPUs and add
+ * corresponding actions to the action graph.
  * </p>
  * <p>
- * When the problem has been resolved and a solution found (or no solution), the
- * solver will call {@link #endSolving()} for the views to retrieve their
- * results
+ * The parameters of the view are specified using {@link ViewConfiguration}. The
+ * view can REQUIRE one configuration, specified using {@link
+ * ViewDesc.#configURI()}, which will be translated into
  * </p>
  * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
@@ -38,6 +60,7 @@ public interface View extends ViewAsModule {
 	 * @param cst
 	 */
 	public void addRule(Rule cst);
+
 	/**
 	 * add a constraint to the problem, if not already added, and store it in
 	 * the list of added constraints.
@@ -72,14 +95,15 @@ public interface View extends ViewAsModule {
 	public void clear();
 
 	/**
-	 * set the required config files. if this implementation should not require
-	 * config files, this should do nothing.
+	 * set the required configuration. If this implementation does not require a
+	 * configuration, such as having no specification in {@link
+	 * ViewDesc.#configURI()}, this should do nothing.
 	 * 
-	 * @param files
-	 *            the config files required. use {@link File.getPath()} to get
-	 *            its name.
+	 * @param conf
+	 *            the configuration retrieved by the core for this view, from
+	 *            its description annotation.
 	 */
-	public void setConfigFiles(File... files);
+	public void setConfig(ViewConfiguration conf);
 
 	/** @return the problem */
 	public ReconfigurationProblem getProblem();

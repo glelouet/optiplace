@@ -1,6 +1,5 @@
 package fr.emn.optiplace.view;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -129,11 +128,6 @@ public class EmptyView implements View {
 	public void endSolving(ActionGraph a) {
 	}
 
-	/** do nothing. Overwrite if a view require config file. */
-	@Override
-	public void setConfigFiles(File... files) {
-	}
-
 	/**
 	 * an empty resource array to be returned by {@link #getPackedResource()}
 	 * when no resource must be packed by the solver
@@ -147,5 +141,9 @@ public class EmptyView implements View {
 
 	public void setResourceSpecs(ResourceSpecification... specs) {
 		resourcesSpecs = specs;
+	}
+
+	@Override
+	public void setConfig(ViewConfiguration conf) {
 	}
 }

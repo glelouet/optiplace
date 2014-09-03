@@ -10,7 +10,7 @@ import fr.emn.optiplace.view.View;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
- *
+ * 
  */
 public class AvailableView {
 
@@ -42,7 +42,7 @@ public class AvailableView {
 
 	/**
 	 * @param name
-	 * the name to set
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -57,7 +57,7 @@ public class AvailableView {
 
 	/**
 	 * @param dependencies
-	 * the dependencies to set
+	 *            the dependencies to set
 	 */
 	public void setDependencies(ArrayList<String> dependencies) {
 		this.dependencies = dependencies;
@@ -72,7 +72,7 @@ public class AvailableView {
 
 	/**
 	 * @param provides
-	 * the provides to set
+	 *            the provides to set
 	 */
 	public void setProvides(ArrayList<String> provides) {
 		this.provides = provides;
