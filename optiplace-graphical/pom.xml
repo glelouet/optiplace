@@ -50,7 +50,6 @@
 		<dependency>
 			<groupId>fr.emn.optiplace</groupId>
 			<artifactId>optiplace-core</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.kitfox.svg</groupId>
