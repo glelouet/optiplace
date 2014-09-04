@@ -10,7 +10,7 @@ import java.net.URLClassLoader;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import fr.emn.optiplace.view.PluginDescriptor;
+import fr.emn.optiplace.view.ViewDescription;
 
 /** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
 public class ViewManager {
@@ -47,7 +47,7 @@ public class ViewManager {
 			try {
 				JarFile jar = new JarFile(f.getAbsolutePath());
 				JarEntry entry = jar
-						.getJarEntry(fr.emn.optiplace.view.PluginDescriptor.DESCRIPTORFILENAME);
+						.getJarEntry(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME);
 				jar.close();
 				if (entry != null) {
 					addManaged(f);
@@ -65,10 +65,10 @@ public class ViewManager {
 		try {
 			URLClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURI()
 					.toURL()});
-			PluginDescriptor desc = new PluginDescriptor();
+			ViewDescription desc = new ViewDescription();
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(
-							cl.getResourceAsStream(fr.emn.optiplace.view.PluginDescriptor.DESCRIPTORFILENAME)));
+							cl.getResourceAsStream(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME)));
 			desc.read(reader);
 			System.err.println("got desc : " + desc);
 			cl.close();

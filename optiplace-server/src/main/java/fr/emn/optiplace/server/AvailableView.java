@@ -5,7 +5,7 @@ package fr.emn.optiplace.server;
 
 import java.util.ArrayList;
 
-import fr.emn.optiplace.view.PluginDescriptor;
+import fr.emn.optiplace.view.PluginParser;
 import fr.emn.optiplace.view.View;
 
 /**
@@ -21,7 +21,7 @@ public class AvailableView {
 	public AvailableView() {
 	}
 
-	public AvailableView(PluginDescriptor pl, View v) {
+	public AvailableView(PluginParser pl, View v) {
 		this.v = v;
 	}
 

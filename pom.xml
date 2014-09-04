@@ -25,7 +25,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<developerConnection>scm:svn:http://193.54.76.34:8000/usvn/svn/optiplace-base/trunk</developerConnection>
+		<developerConnection>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</developerConnection>
+		<url>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</url>
+		<connection>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</connection>
 	</scm>
 
 	<build>
