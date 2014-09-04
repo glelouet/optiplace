@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Describe the dependencies, and configuration parameters of a view. Should be
  * automatically created by the {@link PluginParser} at compile time
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
 public class ViewDescription {
@@ -37,7 +37,7 @@ public class ViewDescription {
 	public static final String DEPPARAM = "dependsOn=";
 
 	public static String removeFirstAndLastChar(String s) {
-		String ret = s.substring(1, s.length() - 2);
+		String ret = s.substring(1, s.length() - 1);
 		return ret;
 	}
 
