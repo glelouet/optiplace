@@ -29,6 +29,16 @@
 		<url>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</url>
 		<connection>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</connection>
 	</scm>
+    <distributionManagement>
+        <repository>
+            <id>kimsufi-repository</id>
+            <url>ftp://91.121.120.36:12345/stable</url>
+        </repository>
+        <snapshotRepository>
+            <id>kimsufi-repository</id>
+            <url>ftp://91.121.120.36:12345/snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 	<build>
 		<!-- <plugins> -->
