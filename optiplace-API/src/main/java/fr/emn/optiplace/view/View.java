@@ -91,9 +91,6 @@ public interface View extends ViewAsModule {
 	 */
 	public List<SConstraint<? extends Var>> getAddedConstraints();
 
-	/** empty any {@link ReconfigurationProblem} - related internal data. */
-	public void clear();
-
 	/**
 	 * set the required configuration. If this implementation does not require a
 	 * configuration, such as having no specification in {@link

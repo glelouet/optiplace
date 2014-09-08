@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Describe the dependencies, and configuration parameters of a view. Should be
@@ -32,7 +33,7 @@ public class ViewDescription {
 
 	protected Map<String, String> optionalConf;
 
-	protected HashSet<String> depends;
+	protected Set<String> depends;
 
 	public static final String CLASSPARAM = "class=";
 	public static final String REQCONFPARAM = "requiredConf=";

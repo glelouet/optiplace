@@ -1,13 +1,14 @@
 package fr.emn.optiplace.view;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -26,10 +27,10 @@ import fr.emn.optiplace.view.annotations.ViewDesc;
 /**
  * Parses the views of a project at compile time to produce a viewDescription to
  * add to the jar.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-@SupportedAnnotationTypes(value = {"fr.emn.optiplace.view.annotations.*"})
+@SupportedAnnotationTypes(value = { "fr.emn.optiplace.view.annotations.*" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PluginParser extends AbstractProcessor {
 
@@ -50,98 +51,64 @@ public class PluginParser extends AbstractProcessor {
 		}
 		Set<? extends Element> els = roundEnv
 				.getElementsAnnotatedWith(ViewDesc.class);
-		if (els.size() > 1) {
-			System.err.println("too many plugin classes : " + els
-					+ " : cannot generate plugin desc");
+		if (els.size() != 1) {
+			System.err.println("cannot generate plugin desc for : " + els);
 			return true;
 		}
-		Iterator<? extends Element> it = els.iterator();
-		if (!it.hasNext()) {
-			System.err.println("no plugin to describe");
-			return true;
-		}
-		Element el = it.next();
-
+		Element el = els.stream().findAny().get();
 		vd.clazz = el.asType().toString();
-		vd.requiredConf = extractRequiredConfs(el, roundEnv);
-		vd.optionalConf = extractOptionalConfs(el, roundEnv);
+		vd.requiredConf = extractConfs(el, roundEnv, true);
+		vd.optionalConf = extractConfs(el, roundEnv, false);
 		vd.depends = extractDependenciesTypes(el, roundEnv);
 		return true;
 	}
 
-	public static HashSet<String> extractDependenciesTypes(Element el,
+	public static Set<String> extractDependenciesTypes(Element el,
 			RoundEnvironment roundEnv) {
 		HashSet<Element> dependencies = new HashSet<Element>(
 				el.getEnclosedElements());
-		Set<? extends Element> depends = roundEnv
-				.getElementsAnnotatedWith(Depends.class);
-		dependencies.retainAll(depends);
-		HashSet<String> depsTypes = new HashSet<String>();
-		for (Element e : dependencies) {
-			depsTypes.add(e.asType().toString());
-		}
-		return depsTypes;
+		return roundEnv.getElementsAnnotatedWith(Depends.class).stream()
+				.filter(e -> dependencies.contains(e)).map(e -> e.asType().toString())
+				.collect(Collectors.toSet());
 	}
 
 	/**
+	 * extract the attributes annotated as {@link Parameter} from the parsed class
+	 *
 	 * @param el
+	 * the element standing for the class annotated with {@link ViewDesc}
 	 * @param roundEnv
-	 * @return
+	 * the environment of parsing when compiling classes, giving access to the
+	 * fields of the class
+	 * @param required
+	 * set to true to only extract required fields, false to only extract optional
+	 * fields, or null to extract both
+	 * @return a new Map specifying which attributes require which conf file
 	 */
-	public static Map<String, String> extractOptionalConfs(Element el,
-			RoundEnvironment roundEnv) {
-		Map<String, String> ret = new HashMap<String, String>();
-		// first we get all the Parameter fields of the class
-		HashSet<Element> children = new HashSet<Element>(
-				el.getEnclosedElements());
+	public static Map<String, String> extractConfs(Element el,
+			RoundEnvironment roundEnv, Boolean required) {
 		Set<? extends Element> parameters = roundEnv
 				.getElementsAnnotatedWith(Parameter.class);
-		children.retainAll(parameters);
-		for (Element e : children) {
-			Parameter p = e.getAnnotation(Parameter.class);
-			if (!p.required()) {
-				String name = e.getSimpleName().toString();
-				String conf = p.confName();
-				ret.put(name, conf);
-			}
-		}
-		return ret;
+		return new HashSet<Element>(el.getEnclosedElements())
+				.stream()
+				.filter(
+						e -> parameters.contains(e)
+								&& (required == null || e.getAnnotation(Parameter.class)
+										.required() == required))
+				.collect(
+						toMap(e -> e.getSimpleName().toString(),
+								e -> e.getAnnotation(Parameter.class).confName()));
 	}
 
 	/**
-	 * @param el
-	 * @param roundEnv
-	 * @return
-	 */
-	public static Map<String, String> extractRequiredConfs(Element el,
-			RoundEnvironment roundEnv) {
-		Map<String, String> ret = new HashMap<String, String>();
-		// first we get all the Parameter fields of the class
-		HashSet<Element> children = new HashSet<Element>(
-				el.getEnclosedElements());
-		Set<? extends Element> parameters = roundEnv
-				.getElementsAnnotatedWith(Parameter.class);
-		children.retainAll(parameters);
-		for (Element e : children) {
-			Parameter p = e.getAnnotation(Parameter.class);
-			if (p.required()) {
-				String name = e.getSimpleName().toString();
-				String conf = p.confName();
-				ret.put(name, conf);
-			}
-		}
-		return ret;
-	}
-
-	/**
-	 * write the plugin description to a file in the to-be jar, the file named
-	 * as {@link #DESCRIPTORFILENAME}
+	 * write the plugin description to a file in the to-be jar, the file named as
+	 * {@link #DESCRIPTORFILENAME}
 	 */
 	protected void write() {
 		try {
-			FileObject o = processingEnv.getFiler().createResource(
-					StandardLocation.CLASS_OUTPUT, "", DESCRIPTORFILENAME,
-					(Element) null);
+			FileObject o = processingEnv.getFiler()
+					.createResource(StandardLocation.CLASS_OUTPUT, "",
+							DESCRIPTORFILENAME, (Element) null);
 			BufferedWriter w = new BufferedWriter(o.openWriter());
 			vd.write(w);
 			w.close();

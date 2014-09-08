@@ -9,7 +9,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 /**
  * A view, seen as a module in a reconfigurationProblem. Such a module provides
  * resources specifications, rules, objectives and heuristics.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public interface ViewAsModule {
@@ -17,7 +17,7 @@ public interface ViewAsModule {
 	/**
 	 * associate that view to a problem. May let the problem untouched.<br />
 	 * set the used {@link ReconfigurationProblem}
-	 * 
+	 *
 	 * @param rp
 	 *            the problem to modify and use.
 	 */
@@ -34,7 +34,7 @@ public interface ViewAsModule {
 
 	/**
 	 * get the heuristics specified in the view
-	 * 
+	 *
 	 * @return the list of heuristics made by the view from its internal
 	 *         algorithms. <br />
 	 *         The LAST added view's algorithms are used first, but in the order
@@ -53,9 +53,12 @@ public interface ViewAsModule {
 	/**
 	 * is called by the solver when the solving of the problem has ended. As
 	 * such, the view should retrieve the results of the problem
-	 * 
+	 *
 	 * @param actionGraph
 	 */
 	public void endSolving(ActionGraph actionGraph);
+
+	/** empty any {@link ReconfigurationProblem} - related internal data. */
+	public void clear();
 
 }
