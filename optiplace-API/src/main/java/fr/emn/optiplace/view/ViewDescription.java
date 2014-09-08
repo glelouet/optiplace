@@ -5,10 +5,13 @@ package fr.emn.optiplace.view;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Describe the dependencies, and configuration parameters of a view. Should be
@@ -41,6 +44,11 @@ public class ViewDescription {
 		return ret;
 	}
 
+	/**
+	 * translate a configuration line from eg a file describing the view.
+	 *
+	 * @param line
+	 */
 	public void handleLine(String line) {
 		if (line == null) {
 			return;
@@ -50,12 +58,12 @@ public class ViewDescription {
 			return;
 		}
 		if (line.startsWith(REQCONFPARAM)) {
-			// TODO
-			throw new UnsupportedOperationException();
+			requiredConf = translateStringToMap(line.substring(REQCONFPARAM.length()));
+			return;
 		}
 		if (line.startsWith(OPTCONFPARAM)) {
-			// TODO
-			throw new UnsupportedOperationException();
+			optionalConf = translateStringToMap(line.substring(OPTCONFPARAM.length()));
+			return;
 		}
 		if (line.startsWith(DEPPARAM)) {
 			line = line.substring(DEPPARAM.length() + 1, line.length() - 1);
@@ -63,6 +71,30 @@ public class ViewDescription {
 			return;
 		}
 		System.err.println("dropped " + line);
+	}
+
+	/**
+	 * translate a String of coma-separated key, value pairs. Supposes the String
+	 * was created using hashmap.toString() while removing the begining and ending
+	 * curling bracket ( { and } )s
+	 *
+	 * @param line
+	 * a String to parse
+	 * @return a new hashmap containing the pairs, or null if parsing failed
+	 */
+	public static HashMap<String, String> translateStringToMap(String line) {
+		HashMap<String, String> ret = new HashMap<String, String>();
+		Properties props = new Properties();
+		try {
+			props.load(new StringReader(line.replace(", ", "\n")));
+		} catch (IOException e) {
+			logger.warn("", e);
+			return null;
+		}
+		for (Map.Entry<Object, Object> e : props.entrySet()) {
+			ret.put((String) e.getKey(), (String) e.getValue());
+		}
+		return ret;
 	}
 
 	public void read(BufferedReader reader) {
