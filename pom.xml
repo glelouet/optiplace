@@ -8,7 +8,8 @@
 	General Public License for more details. ~ ~ You should have received a copy 
 	of the GNU Lesser General Public License ~ along with Entropy. If not, see 
 	<http://www.gnu.org/licenses />. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.emn</groupId>
@@ -28,16 +29,16 @@
 		<url>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</url>
 		<connection>scm:git:git@ns355283.ip-91-121-120.eu:root/optiplace-base.git</connection>
 	</scm>
-    <distributionManagement>
-        <repository>
-            <id>kimsufi-repository</id>
-            <url>ftp://91.121.120.36:12345/stable</url>
-        </repository>
-        <snapshotRepository>
-            <id>kimsufi-repository</id>
-            <url>ftp://91.121.120.36:12345/snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>kimsufi-repository</id>
+			<url>ftp://91.121.120.36:12345/stable</url>
+		</repository>
+		<snapshotRepository>
+			<id>kimsufi-repository</id>
+			<url>ftp://91.121.120.36:12345/snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<build>
 		<!-- <plugins> -->
@@ -118,6 +119,6 @@
 	</dependencyManagement>
 	<properties>
 		<stable-optiplace>${project.version}</stable-optiplace>
-		<java.version>1.7</java.version>
+		<java.version>1.8</java.version>
 	</properties>
 </project>

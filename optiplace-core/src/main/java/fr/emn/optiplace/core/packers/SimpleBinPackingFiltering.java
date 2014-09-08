@@ -141,7 +141,6 @@ public final class SimpleBinPackingFiltering {
 		updateInfLoad(bin, cstr.getRLoad(bin).get());
 		updateSupLoad(bin, cstr.getCLoad(bin).get() + cstr.getRLoad(bin).get());
 	}
-
 	/**
 	 * Redundant method to compute the rload and the cload of each bin. Very bad
 	 * for performance. These values should be maintained incrementally.

@@ -55,7 +55,6 @@ public class SVGCreator {
 		}
 		return export(cfg, x, y);
 	}
-
 	public SVGIcon export(Configuration cfg, ResourceSpecification x,
 			ResourceSpecification y) {
 		Square2D[] nodeSquares = new Square2D[cfg.getAllNodes().size()];
@@ -127,7 +126,6 @@ public class SVGCreator {
 		}
 		return icon;
 	}
-
 	Rect makeNodeRect(Square2D s, Pos p, int maxX, int maxY, String load) {
 		return drawRect(p.x, s.dX, p.y, s.dY, load, strokeColor);
 	}

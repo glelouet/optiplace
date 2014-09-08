@@ -49,5 +49,4 @@ public class ReconfigurationResult {
 		}
 		return migs;
 	}
-
 }
