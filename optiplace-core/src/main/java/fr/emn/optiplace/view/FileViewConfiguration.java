@@ -7,10 +7,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -39,63 +38,26 @@ public class FileViewConfiguration implements ViewConfiguration {
 	}
 
 	@Override
-	public Iterable<String> toLineIterable() {
-		return new Iterable<String>() {
-
-			@Override
-			public Iterator<String> iterator() {
-				try {
-					return new Iterator<String>() {
-
-						BufferedReader b = new BufferedReader(new FileReader(f));
-						String next = null;
-
-						@Override
-						public void remove() {
-							throw new UnsupportedOperationException();
-						}
-
-						@Override
-						public String next() {
-							if (hasNext()) {
-								String ret = next;
-								next = null;
-								return ret;
-							}
-							return null;
-						}
-
-						@Override
-						public boolean hasNext() {
-							if (next != null) {
-								return true;
-							}
-							try {
-								next = b.readLine();
-							} catch (IOException e) {
-								logger.warn("", e);
-							}
-							return next != null;
-						}
-					};
-				} catch (FileNotFoundException e) {
-					logger.warn("", e);
-					return null;
-				}
-			}
-		};
+	public Stream<String> lines() {
+		try {
+			return new BufferedReader(new FileReader(f)).lines();
+		} catch (FileNotFoundException e) {
+			logger.warn("", e);
+			return null;
+		}
 	}
 
 	@Override
 	public Map<String, String> toStringMap() {
 		Map<String, String> ret = new HashMap<String, String>();
-		for (String s : toLineIterable()) {
-			int posEQUAL = s.indexOf('=');
-			if (posEQUAL != -1) {
-				ret.put(s.substring(0, posEQUAL),
-						s.substring(posEQUAL + 2, s.length() - 1));
-			}
-		}
+		lines().forEach(
+				s -> {
+					int posEQUAL = s.indexOf('=');
+					if (posEQUAL != -1) {
+						ret.put(s.substring(0, posEQUAL),
+								s.substring(posEQUAL + 2, s.length() - 1));
+					}
+				});
 		return ret;
 	}
 }
