@@ -158,6 +158,23 @@ public interface Configuration {
     return ret != null ? ret : getVM(name);
   }
 
+  /** @param elem an element to rename
+   * @param newString the new name of the element to use
+   * @return a new element with same id, different name created instead of elem,
+   * or elem if it already had name newString */
+  <T extends ManagedElement> T rename(T elem, String newString);
+
+  /** enforce an element has given name
+   * @param elem an element, identified by its id
+   * @return null if elem is not present or null, or an internal element with
+   * same id and given name (which could be the same) */
+  default <T extends ManagedElement> T rename(T elem) {
+    if (elem == null) {
+      return null;
+    }
+    return rename(elem, elem.getName());
+  }
+
   /** Set a virtual machine running on a node. The node is set online whatever
    * his previous state was. If the virtual machine is already in a other
    * location or state in the configuration, it is updated

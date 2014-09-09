@@ -10,504 +10,196 @@
 
 package fr.emn.optiplace.configuration;
 
-import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
-import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
+import gnu.trove.TObjectIntHashMap;
 
 import java.util.*;
-import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 /**
  * Default implementation of Configuration.
- * 
+ *
  * @author Fabien Hermenier
  */
 public class SimpleConfiguration implements Configuration, Cloneable {
 
-	private static final int IDX_SHIFT = -1;
-
-	private static final int RUNNINGS = 1;
-
-	private static final int SLEEPINGS = 2;
-
-	private static final int WAITINGS = 3;
-
-	private static final int ONLINES = 1;
-
-	private static final int OFFLINES = 2;
-
-	private final ManagedElementSet<Node> allNodes;
-
-	private final ManagedElementSet<VirtualMachine> allVMs;
-
-	private final ManagedElementSet<Node>[] nodesByState;
-
-	private final ManagedElementSet<VirtualMachine>[] vmsByState;
-
-	private final TIntIntHashMap vmState;
-
-	private final TIntIntHashMap nodeState;
-
-	private final TIntObjectHashMap<Node> vmPlace;
-
-	private final TIntObjectHashMap<ManagedElementSet<VirtualMachine>>[] hosted;
-
-	/** Build an empty configuration. */
-	@SuppressWarnings("unchecked")
-	public SimpleConfiguration() {
-		vmsByState = new ManagedElementSet[3];
-		vmState = new TIntIntHashMap();
-		nodeState = new TIntIntHashMap();
-
-		nodesByState = new ManagedElementSet[2];
-		for (int i = 0; i < nodesByState.length; i++) {
-			nodesByState[i] = new SimpleManagedElementSet<Node>();
-		}
-
-		for (int i = 0; i < vmsByState.length; i++) {
-			vmsByState[i] = new SimpleManagedElementSet<VirtualMachine>();
-		}
-		hosted = new TIntObjectHashMap[2];
-		for (int i = 0; i < hosted.length; i++) {
-			hosted[i] = new TIntObjectHashMap<ManagedElementSet<VirtualMachine>>();
-		}
-		allNodes = new SimpleManagedElementSet<Node>();
-		allVMs = new SimpleManagedElementSet<VirtualMachine>();
-		vmPlace = new TIntObjectHashMap<Node>();
-	}
-
-	private boolean switchState(Node n, int newState) {
-		int curState = nodeState.get(n.hashCode());
-		if (curState == newState) {
-			return true;
-		}
-		if (curState > 0) {
-			nodesByState[curState + IDX_SHIFT].remove(n);
-		}
-		nodeState.put(n.hashCode(), newState);
-		return nodesByState[newState + IDX_SHIFT].add(n);
-	}
-
-	private boolean replace(VirtualMachine vm, Node newNode, int newState) {
-		Node oldNode = vmPlace.put(vm.hashCode(), newNode);
-		int oldState = vmState.get(vm.hashCode());
-		if (oldState == 0) { // Unknown VM
-			allVMs.add(vm);
-		}
-		if (oldState == 0 || oldState != newState) {
-			if (oldState != 0) {
-				vmsByState[oldState + IDX_SHIFT].remove(vm);
-			}
-			vmsByState[newState + IDX_SHIFT].add(vm);
-			vmState.put(vm.hashCode(), newState);
-		}
-
-		// Change the state
-		if (oldNode != null) {
-			hosted[oldState + IDX_SHIFT].get(oldNode.hashCode()).remove(vm);
-		}
-		hosted[newState + IDX_SHIFT].get(newNode.hashCode()).add(vm);
-		return true;
-	}
-
-	@Override
-	public boolean setRunOn(VirtualMachine vm, Node node) {
-		return nodeState.get(node.hashCode()) == ONLINES
-				&& replace(vm, node, RUNNINGS);
-	}
-
-	@Override
-	public boolean setSleepOn(VirtualMachine vm, Node node) {
-		return nodeState.get(node.hashCode()) == ONLINES
-				&& replace(vm, node, SLEEPINGS);
-	}
-
-	@Override
-	public void addWaiting(VirtualMachine vm) {
-		int curState = vmState.get(vm.hashCode());
-		if (curState == 0) { // Not in the configuration.
-			allVMs.add(vm);
-			vmState.put(vm.hashCode(), WAITINGS);
-			vmsByState[WAITINGS + IDX_SHIFT].add(vm);
-		}
-
-		if (curState > 0 && curState + IDX_SHIFT != WAITINGS) { // Already in
-			// and
-			// non-waiting
-			// Change state
-			Node oldNode = vmPlace.remove(vm.hashCode());
-			vmsByState[curState + IDX_SHIFT].remove(vm);
-			vmsByState[WAITINGS + IDX_SHIFT].add(vm);
-			vmState.put(vm.hashCode(), WAITINGS);
-			// Change hoster
-			hosted[curState + IDX_SHIFT].get(oldNode.hashCode()).remove(vm);
-		}
-	}
-
-	@Override
-	public void remove(VirtualMachine vm) {
-		int curState = vmState.remove(vm.hashCode());
-		if (curState > 0) {
-			vmsByState[curState + IDX_SHIFT].remove(vm);
-			allVMs.remove(vm);
-			Node oldNode = vmPlace.remove(vm.hashCode());
-			if (oldNode != null) {
-				hosted[curState + IDX_SHIFT].get(oldNode.hashCode()).remove(vm);
-			}
-		}
-	}
-
-	@Override
-	public boolean remove(Node n) {
-		int curState = nodeState.remove(n.hashCode());
-		if (curState > 0) {
-			if (isUsed(n)) {
-				return false;
-			}
-			for (TIntObjectHashMap<ManagedElementSet<VirtualMachine>> element : hosted) {
-				element.remove(n.hashCode());
-			}
-			nodesByState[curState + IDX_SHIFT].remove(n);
-		}
-		return true;
-	}
-
-	@Override
-	public void addOnline(Node n) {
-		if (nodeState.get(n.hashCode()) != ONLINES) {
-			hosted[RUNNINGS + IDX_SHIFT].put(n.hashCode(),
-					new SimpleManagedElementSet<VirtualMachine>());
-			hosted[SLEEPINGS + IDX_SHIFT].put(n.hashCode(),
-					new SimpleManagedElementSet<VirtualMachine>());
-		}
-		allNodes.add(n);
-		switchState(n, ONLINES);
-
-	}
-
-	/**
-	 * Check whether a node is hosting a virtual machine or not.
-	 * 
-	 * @param n
-	 *            the node to check
-	 * @return {@code true} if the node host running or sleeping virtual
-	 *         machines.
-	 */
-	private boolean isUsed(Node n) {
-		for (TIntObjectHashMap<ManagedElementSet<VirtualMachine>> element : hosted) {
-			ManagedElementSet<VirtualMachine> s = element.get(n.hashCode());
-			if (s != null && !s.isEmpty()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public boolean addOffline(Node n) {
-		if (isUsed(n)) {
-			return false;
-		}
-		hosted[RUNNINGS + IDX_SHIFT].put(n.hashCode(),
-				new SimpleManagedElementSet<VirtualMachine>());
-		hosted[SLEEPINGS + IDX_SHIFT].put(n.hashCode(),
-				new SimpleManagedElementSet<VirtualMachine>());
-		allNodes.add(n);
-		return switchState(n, OFFLINES);
-	}
-
-	@Override
-	public ManagedElementSet<Node> getOnlines() {
-		return nodesByState[ONLINES + IDX_SHIFT];
-	}
-
-	@Override
-	public ManagedElementSet<Node> getOfflines() {
-		return nodesByState[OFFLINES + IDX_SHIFT];
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getRunnings() {
-		return vmsByState[RUNNINGS + IDX_SHIFT];
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getSleepings() {
-		return vmsByState[SLEEPINGS + IDX_SHIFT];
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getWaitings() {
-		return vmsByState[WAITINGS + IDX_SHIFT];
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getSleepings(Node n) {
-		return hosted[SLEEPINGS + IDX_SHIFT].get(n.hashCode());
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getRunnings(Node n) {
-		return hosted[RUNNINGS + IDX_SHIFT].get(n.hashCode());
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getRunnings(
-			ManagedElementSet<Node> ns) {
-		ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
-		for (Node n : ns) {
-			vms.addAll(getRunnings(n));
-		}
-		return vms;
-	}
-
-	@Override
-	public ManagedElementSet<VirtualMachine> getAllVirtualMachines() {
-		return allVMs;
-	}
-
-	@Override
-	public ManagedElementSet<Node> getAllNodes() {
-		return allNodes;
-	}
-
-	@Override
-	public Node getSleepingLocation(VirtualMachine vm) {
-		return getLocation(vm);
-	}
-
-	@Override
-	public Node getRunningLocation(VirtualMachine vm) {
-		return getLocation(vm);
-	}
-
-	@Override
-	public Node getLocation(VirtualMachine vm) {
-		return vmPlace.get(vm.hashCode());
-	}
-
-	@Override
-	public boolean isOnline(Node n) {
-		return nodeState.get(n.hashCode()) == ONLINES;
-	}
-
-	@Override
-	public boolean isOffline(Node n) {
-		return nodeState.get(n.hashCode()) == OFFLINES;
-	}
-
-	@Override
-	public boolean isRunning(VirtualMachine vm) {
-		return vmState.get(vm.hashCode()) == RUNNINGS;
-	}
-
-	@Override
-	public boolean isWaiting(VirtualMachine vm) {
-		return vmState.get(vm.hashCode()) == WAITINGS;
-	}
-
-	@Override
-	public boolean isSleeping(VirtualMachine vm) {
-		return vmState.get(vm.hashCode()) == SLEEPINGS;
-	}
-
-	@Override
-	public Configuration clone() {
-		// TODO: a better implementation using internal structure should be
-		// possible
-		final SimpleConfiguration c = new SimpleConfiguration();
-		for (Node n : getOfflines()) {
-			c.addOffline(n);
-		}
-
-		for (VirtualMachine vm : getWaitings()) {
-			c.addWaiting(vm);
-		}
-
-		for (Node n : getOnlines()) {
-			c.addOnline(n);
-			for (VirtualMachine vm : getRunnings(n)) {
-				c.setRunOn(vm, n);
-			}
-			for (VirtualMachine vm : getSleepings(n)) {
-				c.setSleepOn(vm, n);
-			}
-		}
-
-		/*
-		 * c.allVMs = allVMs.clone(); c.allNodes = allNodes.clone(); c.nodeState
-		 * = (TIntIntHashMap) nodeState.clone(); c.vmState = (TIntIntHashMap)
-		 * vmState.clone(); for (int i = 0; i < hosted.length; i++) { if
-		 * (hosted[i] != null) { c.hosted[i] = hosted[i].clone(); } }
-		 * vmPlace.forEachEntry(new TIntObjectProcedure<Node>() {
-		 * 
-		 * @Override public boolean execute(int i, Node node) { c.vmPlace.put(i,
-		 * node); return true; } }); for (int i = 0; i < vmsByState.length; i++)
-		 * { c.vmsByState[i] = vmsByState[i].clone(); } for (int i = 0; i <
-		 * nodesByState.length; i++) { c.nodesByState[i] =
-		 * nodesByState[i].clone(); }
-		 */
-		return c;
-	}
-
-	@Override
-	public boolean contains(Node n) {
-		return nodeState.get(n.hashCode()) > 0;
-	}
-
-	@Override
-	public boolean contains(VirtualMachine vm) {
-		return vmState.get(vm.hashCode()) > 0;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == null) {
-			return false;
-		} else if (o == this) {
-			return true;
-		} else if (o instanceof Configuration) {
-			Configuration ref = (Configuration) o;
-			if (!ref.getOfflines().equals(getOfflines())
-					|| !ref.getOnlines().equals(getOnlines())
-					|| !ref.getWaitings().equals(getWaitings())) {
-				return false;
-			}
-			for (Node n : ref.getOnlines()) {
-				if (!ref.getRunnings(n).equals(getRunnings(n))
-						|| !ref.getSleepings(n).equals(getSleepings(n))) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Textual representation of the configuration.
-	 * 
-	 * @return the textual representation
-	 */
-	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
-		for (Node n : allNodes) {
-			if (nodeState.get(n.hashCode()) == OFFLINES) {
-				buf.append("(").append(n).append(")");
-			} else {
-				buf.append(n.getName()).append("(CPU:")
-						.append(n.getCPUCapacity()).append(";MEM:")
-						.append(n.getMemoryCapacity()).append(')');
-			}
-			buf.append(":");
-			if (this.getRunnings(n).isEmpty() && this.getSleepings(n).isEmpty()) {
-				buf.append(" - ");
-			}
-			for (VirtualMachine vm : this.getRunnings(n)) {
-				buf.append(" ");
-				buf.append(vm.getName()).append('(')
-						.append(vm.getCPUConsumption()).append(';')
-						.append(vm.getMemoryConsumption()).append(')');
-			}
-			for (VirtualMachine vm : this.getSleepings(n)) {
-				buf.append(" (");
-				buf.append(vm.getName());
-				buf.append(")");
-			}
-			buf.append("\n");
-		}
-		buf.append("FARM");
-		for (VirtualMachine vm : getWaitings()) {
-			buf.append(" ");
-			buf.append(vm.getName());
-		}
-		buf.append("\n");
-		return buf.toString();
-	}
-
-	@Override
-	public int getTotalCPUConsumption(Node n) {
-		return getTotalConsumption(n, CPUConsSpecification.INSTANCE);
-	}
-
-	@Override
-	public int getTotalConsumption(Node n, ResourceSpecification res) {
-		int ret = 0;
-		for (VirtualMachine vm : getRunnings(n)) {
-			ret += res.toUses().get(vm);
-		}
-		return ret;
-	}
-
-	@Override
-	public ManagedElement getElementByName(String name) {
-		ManagedElement ret = allNodes.get(name);
-		if (ret != null) {
-			return ret;
-		}
-		ret = allVMs.get(name);
-		return ret;
-	}
-
-	HashMap<String, ManagedElementSet<Node>> clusters = new HashMap<String, ManagedElementSet<Node>>();
-
-	@Override
-	public boolean addCluster(String name, Node... nodes) {
-		ManagedElementSet<Node> cluster = clusters.get(name);
-		boolean creation = cluster == null;
-		if (creation) {
-			cluster = new SimpleManagedElementSet<Node>();
-			clusters.put(name, cluster);
-		}
-		if (nodes != null && nodes.length > 0) {
-
-			cluster.addAll(Arrays.asList(nodes));
-		}
-		return creation;
-	}
-
-	@Override
-	public boolean addCluster(String name, Collection<Node> nodes) {
-		return addCluster(name, nodes.toArray(new Node[]{}));
-	}
-
-	@Override
-	public ManagedElementSet<Node> getCluster(String name) {
-		return clusters.get(name);
-	}
-
-	@Override
-	public Set<String> getClustersNames() {
-		return clusters.keySet();
-	}
-
-	@Override
-	public boolean delCluster(String name) {
-		return clusters.remove(name) != null;
-	}
-
-	@Override
-	public Map<String, ManagedElementSet<Node>> getBelongingClusters(Node n) {
-		HashMap<String, ManagedElementSet<Node>> ret = new HashMap<String, ManagedElementSet<Node>>();
-		for (Entry<String, ManagedElementSet<Node>> e : clusters.entrySet()) {
-			if (e.getValue().contains(n)) {
-				ret.entrySet().add(e);
-			}
-		}
-		return ret;
-	}
-
-	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
-	{
-		resources.put(CPUConsSpecification.TYPE, CPUConsSpecification.INSTANCE);
-		resources.put(MemConsSpecification.TYPE, MemConsSpecification.INSTANCE);
-	}
-
-	@Override
-	public Map<String, ResourceSpecification> resources() {
-		return resources;
-	}
+  long nextId = Long.MIN_VALUE;
+
+  protected final long id() {
+    return ++nextId;
+  }
+
+  private final TIntObjectHashMap<Node> idToNodes = new TIntObjectHashMap<>();
+
+  private final TIntObjectHashMap<VirtualMachine> idToVMs = new TIntObjectHashMap<>();
+
+  private final TObjectIntHashMap<ManagedElement> elemToId = new TObjectIntHashMap<>();
+
+  private final TIntObjectHashMap<String> idToName = new TIntObjectHashMap<>();
+
+  private final TObjectIntHashMap<String> nameToId = new TObjectIntHashMap<>();
+
+  private final Set<Node> onlines = new HashSet<>();
+
+  private final Set<Node> offlines = new HashSet<>();
+
+  private final Set<VirtualMachine> waitings = new HashSet<>();
+
+  private final Map<VirtualMachine, Node> vmLocs = new HashMap<>();
+
+  private final Map<Node, Set<VirtualMachine>> hosted = new HashMap<>();
+
+  /** Build an empty configuration. */
+  public SimpleConfiguration() {
+  }
+
+  protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
+
+  @Override
+  public Map<String, ResourceSpecification> resources() {
+    return resources;
+  }
+
+  @Override
+  public Stream<Node> getOnlines() {
+    return onlines.stream();
+  }
+
+  @Override
+  public Stream<Node> getOfflines() {
+    return offlines.stream();
+  }
+
+  @Override
+  public Stream<VirtualMachine> getRunnings() {
+    return vmLocs.keySet().stream();
+  }
+
+  @Override
+  public Stream<VirtualMachine> getWaitings() {
+    return waitings.stream();
+  }
+
+  @Override
+  public boolean isOnline(Node n) {
+    return onlines.contains(n);
+  }
+
+  @Override
+  public boolean isOffline(Node n) {
+    return offlines.contains(n);
+  }
+
+  @Override
+  public boolean isRunning(VirtualMachine vm) {
+    return vmLocs.containsKey(vm);
+  }
+
+  @Override
+  public boolean isWaiting(VirtualMachine vm) {
+    return waitings.contains(vm);
+  }
+
+  @Override
+  public Node makeNode(String name) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public Node getNode(String name) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public Node getNode(long id) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public VirtualMachine makeVM(String name) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public VirtualMachine getVM(String name) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public VirtualMachine getVM(long id) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public <T extends ManagedElement> T rename(T elem, String newString) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public boolean setHost(VirtualMachine vm, Node node) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public void setWaiting(VirtualMachine vm) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public void remove(VirtualMachine vm) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public void setOnline(Node node) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public boolean setOffline(Node node) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public boolean remove(Node n) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public Stream<VirtualMachine> getHosted(Node n) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public Node getLocation(VirtualMachine vm) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public Configuration clone() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
+
+  @Override
+  public int getTotalConsumption(Node n, ResourceSpecification res) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("implement this !");
+  }
 }
