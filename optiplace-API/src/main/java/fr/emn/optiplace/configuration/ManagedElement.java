@@ -10,26 +10,25 @@
 
 package fr.emn.optiplace.configuration;
 
-/**
- * A element managed by Entropy. Each element must have a unique name per
- * specialization used as an identifier.
- * 
- * @author Fabien Hermenier
- */
+/** An element of a configuration. It is simply an id associated to a name for
+ * representation.<br />
+ * Both those values are NOT mutable, so a {@link ManagedElement} is NOT
+ * mutable. Since the ID and String are unique among the various elements of a
+ * {@link Configuration}, a configuration MUST maintain the bijection ID-STRING,
+ * as well as ID-Element<br />
+ * Since the Id is mostly used, the equality of two managedElements is by
+ * default tested on the ID<br />
+ * The toString() method defaults to the name of the element
+ * @author Guillaume Le Louët */
 public interface ManagedElement {
 
-	/**
-	 * Get the identifier of the element.
-	 * 
-	 * @return a String
-	 */
-	String getName();
+  /**
+   * Get the identifier of the element.
+   *
+   * @return a String
+   */
+  String getName();
 
-	/**
-	 * Rename the element.
-	 * 
-	 * @param n
-	 *            the new name
-	 */
-	void rename(String n);
+  /** @return the internal ID */
+  long getId();
 }
