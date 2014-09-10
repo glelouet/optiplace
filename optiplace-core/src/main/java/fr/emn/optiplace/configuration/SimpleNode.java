@@ -16,8 +16,8 @@ public class SimpleNode extends SimpleManagedElement implements Node {
 
   /** @param name
    * @param id */
-  public SimpleNode(String name, long id) {
-    super(name, id);
+	public SimpleNode(String name) {
+		super(name);
   }
 
 }

@@ -10,16 +10,15 @@
 
 package fr.emn.optiplace.configuration;
 
-/** An element of a configuration. It is simply an id associated to a name for
- * representation.<br />
+/**
+ * An element of a configuration. It is simply a name and the class of the
+ * element.<br />
  * Both those values are NOT mutable, so a {@link ManagedElement} is NOT
- * mutable. Since the ID and String are unique among the various elements of a
- * {@link Configuration}, a configuration MUST maintain the bijection ID-STRING,
- * as well as ID-Element<br />
- * Since the Id is mostly used, the equality of two managedElements is by
- * default tested on the ID<br />
+ * mutable.<br />
  * The toString() method defaults to the name of the element
- * @author Guillaume Le Louët */
+ * 
+ * @author Guillaume Le Louët
+ */
 public interface ManagedElement {
 
   /**
@@ -28,7 +27,4 @@ public interface ManagedElement {
    * @return a String
    */
   String getName();
-
-  /** @return the internal ID */
-  long getId();
 }

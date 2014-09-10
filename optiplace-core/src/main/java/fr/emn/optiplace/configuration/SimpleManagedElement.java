@@ -10,14 +10,15 @@ public class SimpleManagedElement implements ManagedElement {
   .getLogger(SimpleManagedElement.class);
 
   public final String name;
-  public final long id;
 
   /**
    *
    */
-  public SimpleManagedElement(String name, long id) {
+	public SimpleManagedElement(String name) {
     this.name = name;
-    this.id = id;
+		if (name == null) {
+			throw new NullPointerException("creating an managed element with null name is not allowed");
+		}
   }
 
   @Override
@@ -26,17 +27,13 @@ public class SimpleManagedElement implements ManagedElement {
   }
 
   @Override
-  public long getId() {
-    return id;
-  }
-  
-  @Override
   public int hashCode() {
-    return (int) this.id;
+		return this.name.hashCode();
   }
-  
+
   @Override
   public boolean equals(Object obj) {
-    return (obj!=null && obj.getClass()==SimpleManagedElement.class && ((SimpleManagedElement) obj).id==id );
+		return obj == this || obj != null && obj instanceof SimpleManagedElement
+				&& ((SimpleManagedElement) obj).name.equals(name);
   }
 }

@@ -16,8 +16,16 @@ import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
-/** @author Fabien Hermenier
- * @author guillaume Le Louët */
+/**
+ * Node and VirtualMachine in a datacenter.<br />
+ * Vms are hosted by an online Node or waiting, and Nodes are either online or
+ * offline<br />
+ * Most methods do NOT handle the case where a Node or VM is null, although some
+ * methods may return null values.
+ *
+ * @author Fabien Hermenier
+ * @author guillaume Le Louët
+ */
 public interface Configuration {
 
   static enum VMSTATES {
@@ -69,12 +77,6 @@ public interface Configuration {
     return null;
   }
 
-  /** @param n a node
-   * @return true if the node state is specified */
-  default boolean contains(Node n) {
-    return isOnline(n) || isOffline(n);
-  }
-
   /** Test if a node is online.
    * @param n the node
    * @return true if the node is online */
@@ -98,14 +100,6 @@ public interface Configuration {
     return null;
   }
 
-  /** Indicates if a virtual machine is included in this.
-   * @param vm the virtual machine
-   * @return {@code true} if the virtual machine is in the configuration. {code
-   * false} otherwise */
-  default boolean contains(VirtualMachine vm) {
-    return isRunning(vm) || isWaiting(vm);
-  }
-
   /** Test if a virtual machine is running.
    * @param vm the virtual machine
    * @return true if the virtual machine is running */
@@ -116,118 +110,117 @@ public interface Configuration {
    * @return true if the virtual machine is waiting */
   boolean isWaiting(VirtualMachine vm);
 
-  /** create a new Node if possible, with state {@link NODESTATES.#OFFLINE}
-   * @param name the name of the Node
-   * @return a new Node with given name, or null if a Node with this name
-   * already exists */
-  Node makeNode(String name);
+	/**
+	 * check if a node is already present in this
+	 *
+	 * @param n
+	 * a Node
+	 * @return true if a node equal to this one already exist
+	 */
+	default boolean hasNode(Node n) {
+		return isOnline(n) || isOffline(n);
+	}
 
-  Node getNode(String name);
+	/**
+	 * check if a VM is already present in this
+	 *
+	 * @param vm
+	 * a VirtualMachine
+	 * @return true if a VM equal to this one already exist
+	 */
+	default boolean hasVM(VirtualMachine vm) {
+		return isRunning(vm) || isWaiting(vm);
+	}
 
-  default Node enforceNode(String name) {
-    Node ret = makeNode(name);
-    return ret != null ? ret : getNode(name);
-  }
+	/**
+	 * replace an existing VM by another one, keeping it on the same Node
+	 *
+	 * @param vm
+	 * a vm to rename
+	 * @param newVM
+	 * the new VM reference
+	 */
+	void replace(VirtualMachine vm, VirtualMachine newVM);
 
-  public Node getNode(long id);
+	/**
+	 * replaces references to a node by another node
+	 *
+	 * @param oldNode
+	 * the old node reference
+	 * @param newNode
+	 * the new node to reference
+	 */
+	void replace(Node oldNode, Node newNode);
 
-  /** create a new VM if possible, with new state {@link VMSTATES.#WAITING}
-   * @param name the name of the VM
-   * @return a new VM with given name, or null if a VM with this name already
-   * exists. */
-  VirtualMachine makeVM(String name);
-
-  VirtualMachine getVM(String name);
-
-  default VirtualMachine enforceVM(String name) {
-    VirtualMachine ret = makeVM(name);
-    return ret != null ? ret : getVM(name);
-  }
-
-  VirtualMachine getVM(long id);
-
-  default ManagedElement getElement(long id) {
-    Node ret = getNode(id);
-    return ret != null ? ret : getVM(id);
-  }
-
-  /** @param name the name of the element to return
-   * @return the only element with given name, or null. */
-  default ManagedElement getElement(String name) {
-    Node ret = getNode(name);
-    return ret != null ? ret : getVM(name);
-  }
-
-  /** @param elem an element to rename
-   * @param newString the new name of the element to use
-   * @return a new element with same id, different name created instead of elem,
-   * or elem if it already had name newString */
-  <T extends ManagedElement> T rename(T elem, String newString);
-
-  /** enforce an element has given name
-   * @param elem an element, identified by its id
-   * @return null if elem is not present or null, or an internal element with
-   * same id and given name (which could be the same) */
-  default <T extends ManagedElement> T rename(T elem) {
-    if (elem == null) {
-      return null;
-    }
-    return rename(elem, elem.getName());
-  }
-
-  /** Set a virtual machine running on a node. The node is set online whatever
-   * his previous state was. If the virtual machine is already in a other
-   * location or state in the configuration, it is updated
-   * @param vm the virtual machine
-   * @param node the node that will host the virtual machine. Must be considered
-   * as online.
-   * @return true if the vm is assigned on the node. False otherwise */
+  /**
+	 * Set a virtual machine running on a node. The node is set online whatever
+	 * his previous state was. If the virtual machine is already in a other
+	 * location or state in the configuration, it is updated
+	 *
+	 * @param vm
+	 * the virtual machine
+	 * @param node
+	 * the node that will host the virtual machine.
+	 * @return true if the vm is assigned to the node and was not before
+	 */
   boolean setHost(VirtualMachine vm, Node node);
 
   /**
-   * Set a virtual machine waiting. If the virtual machine is already in a
-   * other location or state in the configuration, it is updated
-   *
-   * @param vm
-   *            the virtual machine
-   */
-  void setWaiting(VirtualMachine vm);
+	 * Set a virtual machine waiting. If the virtual machine is already in a other
+	 * location or state in the configuration, it is updated
+	 *
+	 * @param vm
+	 * the virtual machine
+	 * @return true if the VM state changed
+	 */
+	boolean setWaiting(VirtualMachine vm);
 
   /**
-   * Remove a virtual machine.
-   *
-   * @param vm
-   *            the virtual machine to remove
-   */
-  void remove(VirtualMachine vm);
+	 * Remove a virtual machine.
+	 *
+	 * @param vm
+	 * the virtual machine to remove
+	 * @return true if this VM was present
+	 */
+	boolean remove(VirtualMachine vm);
 
   /**
-   * Set a node online. If the node is already in the configuration but in an
-   * another state, it is updated.
-   *
-   * @param node
-   *            the node to add
-   */
-  void setOnline(Node node);
+	 * Set a node online. If the node is already in the configuration but in an
+	 * another state, it is updated.
+	 *
+	 * @param node
+	 * the node to add
+	 * @return true if the node state changed
+	 */
+	boolean setOnline(Node node);
 
-  /** Set a node offline. If the node is already in the configuration but in an
-   * another state, it is updated. Any hosted VM state will be set to waiting.
-   * @param node the node
-   * @return true if the node is offline. False otherwise */
+  /**
+	 * Set a node offline. If the node is already in the configuration but in an
+	 * another state, it is updated. Any hosted VM state will be set to waiting.
+	 *
+	 * @param node
+	 * the node
+	 * @return true if the node state changed
+	 */
   boolean setOffline(Node node);
 
-  /** Remove a node. The node must not host any virtual machines
-   * @param n the node to remove
-   * @return {@code true} if the node was removed. {@code false} otherwise */
+	/**
+	 * Remove a node and set all its vms to waiting
+	 *
+	 * @param n
+	 * the node to remove
+	 * @return true if the Node was present
+	 */
   boolean remove(Node n);
 
   /**
-   * Get the virtual machines that are running on a node.
-   *
-   * @param n
-   *            the node
-   * @return a set of virtual machines, may be empty
-   */
+	 * Get the virtual machines that are running on a node.
+	 *
+	 * @param n
+	 * the node
+	 * @return a set of virtual machines, may be empty, eg if the Node is not
+	 * present or is offline
+	 */
   Stream<VirtualMachine> getHosted(Node n);
 
   /** Get all the virtual machines running on a set of nodes.
@@ -238,36 +231,59 @@ public interface Configuration {
   }
 
   /**
-   * Get the location of a running or a sleeping virtual machine.
-   *
-   * @param vm
-   *            the virtual machine
-   * @return the node hosting the virtual machine or {@code null} is the
-   *         virtual machine is not in the sleeping state nor the running
-   *         state
-   */
+	 * Get the location of a virtual machine.
+	 *
+	 * @param vm
+	 * the virtual machine
+	 * @return the node hosting the virtual machine or {@code null} is the virtual
+	 * machine is waiting
+	 */
   Node getLocation(VirtualMachine vm);
-
-  /**
-   * Shallow copy of the configuration. The state and the assignment of the
-   * element are copied but elements are not duplicated.
-   *
-   * @return a copy of the configuration
-   */
-  Configuration clone();
-
-  /**
-   * get the resource use of a node
-   *
-   * @param n
-   *            the node to consider
-   * @param res
-   *            the specification of the resources of the vms
-   * @return an int equal to the sum of the uses performed by the hosted vms
-   */
-  int getTotalConsumption(Node n, ResourceSpecification res);
 
   /** get the known list of resources specifications */
   Map<String, ResourceSpecification> resources();
+
+	static enum BasicChecks {
+
+		OFFLINE_OR_ONLINE {
+
+			@Override
+			boolean check(Configuration c) {
+				return !c.getOfflines().filter(c::isOnline).findFirst().isPresent();
+			}
+
+		},
+		RUNNING_OR_WAITING {
+
+			@Override
+			boolean check(Configuration c) {
+				return !c.getWaitings().filter(c::isRunning).findFirst().isPresent();
+			}
+
+		},
+		HOSTER_HOSTS{
+
+			@Override
+			boolean check(Configuration c) {
+				return !c.getRunnings()
+						.filter(
+								v -> !c.getHosted(c.getLocation(v)).filter(v::equals)
+										.findFirst().isPresent()).findFirst()
+						.isPresent();
+			}
+
+		};
+
+		abstract boolean check(Configuration c);
+	}
+
+	default boolean checkBasics(){
+		for( BasicChecks b : BasicChecks.values()){
+			if(!b.check(this)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

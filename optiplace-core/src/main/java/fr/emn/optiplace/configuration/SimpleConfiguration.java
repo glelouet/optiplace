@@ -10,45 +10,31 @@
 
 package fr.emn.optiplace.configuration;
 
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import gnu.trove.TIntObjectHashMap;
-import gnu.trove.TObjectIntHashMap;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
+
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
  * Default implementation of Configuration.
  *
- * @author Fabien Hermenier
+ * @author Guillaume Le Louët
  */
-public class SimpleConfiguration implements Configuration, Cloneable {
+public class SimpleConfiguration implements Configuration {
 
-  long nextId = Long.MIN_VALUE;
+	private final Set<Node> offlines = new HashSet<>();
 
-  protected final long id() {
-    return ++nextId;
-  }
+	private final Map<Node, Set<VirtualMachine>> hosted = new HashMap<>();
 
-  private final TIntObjectHashMap<Node> idToNodes = new TIntObjectHashMap<>();
-
-  private final TIntObjectHashMap<VirtualMachine> idToVMs = new TIntObjectHashMap<>();
-
-  private final TObjectIntHashMap<ManagedElement> elemToId = new TObjectIntHashMap<>();
-
-  private final TIntObjectHashMap<String> idToName = new TIntObjectHashMap<>();
-
-  private final TObjectIntHashMap<String> nameToId = new TObjectIntHashMap<>();
-
-  private final Set<Node> onlines = new HashSet<>();
-
-  private final Set<Node> offlines = new HashSet<>();
-
-  private final Set<VirtualMachine> waitings = new HashSet<>();
+	private final Set<VirtualMachine> waitings = new HashSet<>();
 
   private final Map<VirtualMachine, Node> vmLocs = new HashMap<>();
 
-  private final Map<Node, Set<VirtualMachine>> hosted = new HashMap<>();
+
 
   /** Build an empty configuration. */
   public SimpleConfiguration() {
@@ -63,12 +49,12 @@ public class SimpleConfiguration implements Configuration, Cloneable {
 
   @Override
   public Stream<Node> getOnlines() {
-    return onlines.stream();
+		return hosted.keySet().stream();
   }
 
   @Override
   public Stream<Node> getOfflines() {
-    return offlines.stream();
+		return offlines.stream();
   }
 
   @Override
@@ -78,17 +64,17 @@ public class SimpleConfiguration implements Configuration, Cloneable {
 
   @Override
   public Stream<VirtualMachine> getWaitings() {
-    return waitings.stream();
+		return waitings.stream();
   }
 
   @Override
   public boolean isOnline(Node n) {
-    return onlines.contains(n);
+		return hosted.containsKey(n);
   }
 
   @Override
   public boolean isOffline(Node n) {
-    return offlines.contains(n);
+		return offlines.contains(n);
   }
 
   @Override
@@ -98,108 +84,117 @@ public class SimpleConfiguration implements Configuration, Cloneable {
 
   @Override
   public boolean isWaiting(VirtualMachine vm) {
-    return waitings.contains(vm);
-  }
-
-  @Override
-  public Node makeNode(String name) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public Node getNode(String name) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public Node getNode(long id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public VirtualMachine makeVM(String name) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public VirtualMachine getVM(String name) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public VirtualMachine getVM(long id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
-
-  @Override
-  public <T extends ManagedElement> T rename(T elem, String newString) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		return waitings.contains(vm);
   }
 
   @Override
   public boolean setHost(VirtualMachine vm, Node node) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		if (vm == null || node == null || node.equals(vmLocs.get(vm))) {
+			return false;
+		}
+		setOnline(node);
+		waitings.remove(vm);
+		vmLocs.put(vm, node);
+		hosted.get(node).add(vm);
+		return true;
   }
 
   @Override
-  public void setWaiting(VirtualMachine vm) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+	public boolean setWaiting(VirtualMachine vm) {
+		if (isWaiting(vm)) {
+			return false;
+		}
+		Node hoster = vmLocs.remove(vm);
+		if (hoster != null) {
+			hosted.get(hoster).remove(vm);
+		}
+		waitings.add(vm);
+		return true;
   }
 
   @Override
-  public void remove(VirtualMachine vm) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+	public boolean remove(VirtualMachine vm) {
+		if (waitings.remove(vm)) {
+			return true;
+		}
+		Node hoster = vmLocs.remove(vm);
+		if (hoster != null) {
+			hosted.get(hoster).remove(vm);
+			return true;
+		}
+		return false;
   }
 
   @Override
-  public void setOnline(Node node) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+	public boolean setOnline(Node node) {
+		if (isOnline(node)) {
+			return false;
+		}
+		offlines.remove(node.getName());
+		hosted.put(node, new HashSet<>());
+		return true;
   }
 
   @Override
   public boolean setOffline(Node node) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		if (isOffline(node)) {
+			return false;
+		}
+		Set<VirtualMachine> vms = hosted.remove(node);
+		if (vms != null) {
+			for (VirtualMachine vm : vms) {
+				vmLocs.remove(vm);
+				waitings.add(vm);
+			}
+		}
+		offlines.add(node);
+		return true;
   }
 
   @Override
   public boolean remove(Node n) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		// if node offline : remove it from offlines, then it's ok
+		if (offlines.remove(n)) {
+			return true;
+		}
+		Set<VirtualMachine> vms = hosted.remove(n);
+		if (vms != null) {
+			for (VirtualMachine vm : vms) {
+				vmLocs.remove(vm);
+				waitings.add(vm);
+			}
+			return true;
+		}
+		return false;
   }
 
   @Override
   public Stream<VirtualMachine> getHosted(Node n) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		return hosted.get(n).stream();
   }
 
   @Override
   public Node getLocation(VirtualMachine vm) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
+		return vmLocs.get(vm);
   }
 
-  @Override
-  public Configuration clone() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
+	@Override
+	public void replace(VirtualMachine vm, VirtualMachine newVM) {
+		Node hoster = vmLocs.remove(vm);
+		if (hoster == null) {
+			waitings.remove(vm);
+			waitings.add(newVM);
+		} else {
+			Set<VirtualMachine> set = hosted.get(hoster);
+			set.remove(vm);
+			set.add(newVM);
+			vmLocs.put(newVM, hoster);
+		}
+	}
 
-  @Override
-  public int getTotalConsumption(Node n, ResourceSpecification res) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("implement this !");
-  }
+	@Override
+	public void replace(Node oldNode, Node newNode) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException();
+	}
 }

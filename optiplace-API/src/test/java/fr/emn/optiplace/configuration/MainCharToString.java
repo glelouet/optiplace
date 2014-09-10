@@ -14,7 +14,8 @@ public class MainCharToString {
         System.err.println("" + i + " : " + (0 + i));
       }
     }
-    System.err.println("AO".hashCode());
-    System.err.println("B0".hashCode());
+		for (String s : new String[] { "AO", "B0", "DEV", "PROD", "PRNc", "PT0D" }) {
+			System.err.println(s + " -> " + s.hashCode());
+		}
   }
 }
