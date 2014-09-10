@@ -12,6 +12,7 @@ package fr.emn.optiplace.configuration;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -40,15 +41,36 @@ public interface Configuration {
    * @return a Stream of all the nodes online in this configuration */
   Stream<Node> getOnlines();
 
+	/**
+	 * get a Stream of the nodes which are online and whom set of hosted VMs
+	 * follow one predicate. The predicate is applied to unmodifiable set, and the
+	 * VMs are unmutable so this call can not modify this
+	 *
+	 * @param pred
+	 * a predicate over the hosted VMs of a Node with no side-effect on the set.
+	 * @return The stream of node following the predicate over their hosted VMs
+	 */
+	Stream<Node> getOnlines(Predicate<Set<VirtualMachine>> pred);
+
   /** Get the nodes that are offline.
    * @return a Stream of all the nodes offline in this configuration */
   Stream<Node> getOfflines();
 
   /** Get all the nodes involved in the configuration.
    * @return a Stream, may be empty */
-  default Stream<Node> getNodes() {
+	default Stream<Node> getNodes() {
     return Stream.concat(getOnlines(), getOfflines());
   }
+
+	/**
+	 * get the number of Node with given state
+	 * 
+	 * @param state
+	 * the state of the nodes to consider, or null for all nodes
+	 * @return the number of nodes with given state if not null, or the number of
+	 * nodes if null
+	 */
+	int nbNodes(NODESTATES state);
 
   /** Get the virtual machines that are running.
    * @return a Stream of VirtualMachines, may be empty */
@@ -63,6 +85,16 @@ public interface Configuration {
   default Stream<VirtualMachine> getVMs() {
     return Stream.concat(getRunnings(), getWaitings());
   }
+
+	/**
+	 * get the number of known VMs with given state
+	 * 
+	 * @param state
+	 * the state of the VMs to count, nor null for all VMs
+	 * @return the number of VMs with the given state, or of all VMs if state is
+	 * null
+	 */
+	int nbVMs(VMSTATES state);
 
   /** @param n a Node
    * @return the state of the Node in the configuration, or null if the Node is

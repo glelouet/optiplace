@@ -10,11 +10,14 @@
 
 package fr.emn.optiplace.configuration;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -32,63 +35,91 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Set<VirtualMachine> waitings = new HashSet<>();
 
-  private final Map<VirtualMachine, Node> vmLocs = new HashMap<>();
+	private final Map<VirtualMachine, Node> vmLocs = new HashMap<>();
 
+	/** Build an empty configuration. */
+	public SimpleConfiguration() {
+	}
 
+	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
 
-  /** Build an empty configuration. */
-  public SimpleConfiguration() {
-  }
+	@Override
+	public Map<String, ResourceSpecification> resources() {
+		return resources;
+	}
 
-  protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
-
-  @Override
-  public Map<String, ResourceSpecification> resources() {
-    return resources;
-  }
-
-  @Override
-  public Stream<Node> getOnlines() {
+	@Override
+	public Stream<Node> getOnlines() {
 		return hosted.keySet().stream();
-  }
+	}
 
-  @Override
-  public Stream<Node> getOfflines() {
+	@Override
+	public Stream<Node> getOfflines() {
 		return offlines.stream();
-  }
+	}
 
-  @Override
-  public Stream<VirtualMachine> getRunnings() {
-    return vmLocs.keySet().stream();
-  }
+	@Override
+	public int nbNodes(NODESTATES state) {
+		if (state == null) {
+			return offlines.size() + hosted.size();
+		}
+		switch (state) {
+		case OFFLINE:
+			return offlines.size();
+		case ONLINE:
+			return hosted.size();
+		default:
+			throw new UnsupportedOperationException();
+		}
+	}
 
-  @Override
-  public Stream<VirtualMachine> getWaitings() {
+	@Override
+	public Stream<VirtualMachine> getRunnings() {
+		return vmLocs.keySet().stream();
+	}
+
+	@Override
+	public Stream<VirtualMachine> getWaitings() {
 		return waitings.stream();
-  }
+	}
 
-  @Override
-  public boolean isOnline(Node n) {
+	@Override
+	public int nbVMs(VMSTATES state) {
+		if (state == null) {
+			return vmLocs.size() + waitings.size();
+		}
+		switch (state) {
+		case RUNNING:
+			return vmLocs.size();
+		case WAITING:
+			return hosted.size();
+		default:
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	@Override
+	public boolean isOnline(Node n) {
 		return hosted.containsKey(n);
-  }
+	}
 
-  @Override
-  public boolean isOffline(Node n) {
+	@Override
+	public boolean isOffline(Node n) {
 		return offlines.contains(n);
-  }
+	}
 
-  @Override
-  public boolean isRunning(VirtualMachine vm) {
-    return vmLocs.containsKey(vm);
-  }
+	@Override
+	public boolean isRunning(VirtualMachine vm) {
+		return vmLocs.containsKey(vm);
+	}
 
-  @Override
-  public boolean isWaiting(VirtualMachine vm) {
+	@Override
+	public boolean isWaiting(VirtualMachine vm) {
 		return waitings.contains(vm);
-  }
+	}
 
-  @Override
-  public boolean setHost(VirtualMachine vm, Node node) {
+	@Override
+	public boolean setHost(VirtualMachine vm, Node node) {
 		if (vm == null || node == null || node.equals(vmLocs.get(vm))) {
 			return false;
 		}
@@ -97,9 +128,9 @@ public class SimpleConfiguration implements Configuration {
 		vmLocs.put(vm, node);
 		hosted.get(node).add(vm);
 		return true;
-  }
+	}
 
-  @Override
+	@Override
 	public boolean setWaiting(VirtualMachine vm) {
 		if (isWaiting(vm)) {
 			return false;
@@ -110,9 +141,9 @@ public class SimpleConfiguration implements Configuration {
 		}
 		waitings.add(vm);
 		return true;
-  }
+	}
 
-  @Override
+	@Override
 	public boolean remove(VirtualMachine vm) {
 		if (waitings.remove(vm)) {
 			return true;
@@ -123,9 +154,9 @@ public class SimpleConfiguration implements Configuration {
 			return true;
 		}
 		return false;
-  }
+	}
 
-  @Override
+	@Override
 	public boolean setOnline(Node node) {
 		if (isOnline(node)) {
 			return false;
@@ -133,10 +164,10 @@ public class SimpleConfiguration implements Configuration {
 		offlines.remove(node.getName());
 		hosted.put(node, new HashSet<>());
 		return true;
-  }
+	}
 
-  @Override
-  public boolean setOffline(Node node) {
+	@Override
+	public boolean setOffline(Node node) {
 		if (isOffline(node)) {
 			return false;
 		}
@@ -149,10 +180,10 @@ public class SimpleConfiguration implements Configuration {
 		}
 		offlines.add(node);
 		return true;
-  }
+	}
 
-  @Override
-  public boolean remove(Node n) {
+	@Override
+	public boolean remove(Node n) {
 		// if node offline : remove it from offlines, then it's ok
 		if (offlines.remove(n)) {
 			return true;
@@ -166,24 +197,30 @@ public class SimpleConfiguration implements Configuration {
 			return true;
 		}
 		return false;
-  }
+	}
 
-  @Override
-  public Stream<VirtualMachine> getHosted(Node n) {
+	@Override
+	public Stream<VirtualMachine> getHosted(Node n) {
 		return hosted.get(n).stream();
-  }
+	}
 
-  @Override
-  public Node getLocation(VirtualMachine vm) {
+	@Override
+	public Node getLocation(VirtualMachine vm) {
 		return vmLocs.get(vm);
-  }
+	}
 
 	@Override
 	public void replace(VirtualMachine vm, VirtualMachine newVM) {
+		if (vm == newVM || vm == null || newVM == null) {
+			return;
+		}
 		Node hoster = vmLocs.remove(vm);
 		if (hoster == null) {
-			waitings.remove(vm);
-			waitings.add(newVM);
+			if (waitings.remove(vm)) {
+				waitings.add(newVM);
+			} else {
+				// the VM had no hoster and was not waiting : it was not present.
+			}
 		} else {
 			Set<VirtualMachine> set = hosted.get(hoster);
 			set.remove(vm);
@@ -194,7 +231,29 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public void replace(Node oldNode, Node newNode) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		if (oldNode == newNode || oldNode == null || newNode == null) {
+			return;
+		}
+		Set<VirtualMachine> vms = hosted.remove(oldNode);
+		if (vms == null) {
+			if (offlines.remove(oldNode)) {
+				offlines.add(newNode);
+			} else {
+				// the node had a null set of VMs, and was not offline : was not
+				// present.
+			}
+		} else {
+			hosted.put(newNode, vms);
+			for (VirtualMachine vm : vms) {
+				vmLocs.put(vm, newNode);
+			}
+		}
+	}
+
+	@Override
+	public Stream<Node> getOnlines(Predicate<Set<VirtualMachine>> pred) {
+		return hosted.entrySet().stream()
+				.filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
+				.map(Entry<Node, Set<VirtualMachine>>::getKey);
 	}
 }
