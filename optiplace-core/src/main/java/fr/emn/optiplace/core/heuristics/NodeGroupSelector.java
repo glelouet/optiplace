@@ -19,7 +19,6 @@ import java.util.Set;
 import choco.kernel.common.util.iterators.DisposableIntIterator;
 import choco.kernel.solver.search.ValSelector;
 import choco.kernel.solver.variables.integer.IntDomainVar;
-import fr.emn.optiplace.configuration.ManagedElementSet;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -27,7 +26,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 /**
  * A heuristic to select a group of nodes to associate to a group of VM. Try the
  * current group if possible.
- * 
+ *
  * @author Fabien Hermenier
  */
 public class NodeGroupSelector implements ValSelector<IntDomainVar> {
@@ -47,7 +46,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 	/**
 	 * Build a selector for a specific solver.
-	 * 
+	 *
 	 * @param s
 	 *            the solver
 	 * @param o
@@ -59,18 +58,16 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 		locations = new HashMap<IntDomainVar, List<Integer>>();
 
-		Set<ManagedElementSet<Node>> groups = rp.getNodesGroups();
+		Set<Set<Node>> groups = rp.getNodesGroups();
 
 		// Get the oldLocation of each group
 		// Warn, may be on several groups !
-		for (ManagedElementSet<VirtualMachine> vmset : rp.getVMGroups()) {
+		for (Set<VirtualMachine> vmset : rp.getVMGroups()) {
 			locations.put(rp.getVMGroup(vmset), new LinkedList<Integer>());
 			for (VirtualMachine vm : vmset) {
-				for (ManagedElementSet<Node> nodeset : groups) {
+				for (Set<Node> nodeset : groups) {
 					Node hoster = null;
 					if (rp.getSourceConfiguration().isRunning(vm)) {
-						hoster = rp.getSourceConfiguration().getLocation(vm);
-					} else if (rp.getSourceConfiguration().isSleeping(vm)) {
 						hoster = rp.getSourceConfiguration().getLocation(vm);
 					}
 					if (hoster != null && nodeset.contains(hoster)) {
@@ -87,7 +84,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the biggest amount of free CPU resources
 	 * that can host the slice.
-	 * 
+	 *
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -110,7 +107,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the biggest amount of free memory
 	 * resources that can host the slice.
-	 * 
+	 *
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -134,7 +131,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the smallest amount of free memory
 	 * resources that can host the slice.
-	 * 
+	 *
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
@@ -158,7 +155,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	/**
 	 * Get the index of the node with the smallest amount of free CPU resources
 	 * that can host the slice.
-	 * 
+	 *
 	 * @param v
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node

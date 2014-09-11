@@ -39,7 +39,7 @@ import fr.emn.optiplace.view.ViewAsModule;
 
 /**
  * basic implementation of the entropy solving process.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class SolvingProcess extends OptiplaceProcess {
@@ -250,7 +250,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		} else {
 			target.setDestination(null);
 		}
-		Migrate.addMigrations(center.getSource(), target.getDestination(),
+		Migrate.extractMigrations(center.getSource(), target.getDestination(),
 				target.getActions());
 		target.setSearchBacktracks(problem.getBackTrackCount());
 		target.setSearchNodes(problem.getNodeCount());

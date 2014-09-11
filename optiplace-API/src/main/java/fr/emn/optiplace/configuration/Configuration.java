@@ -18,11 +18,24 @@ import java.util.stream.Stream;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
+ * <p>
  * Node and VirtualMachine in a datacenter.<br />
- * Vms are hosted by an online Node or waiting, and Nodes are either online or
- * offline<br />
+ * VMs are hosted by an online Node or waiting, and Nodes are either online or
+ * offline<
+ * </p>
+ * <p>
  * Most methods do NOT handle the case where a Node or VM is null, although some
  * methods may return null values.
+ * </p>
+ * <p>
+ * The VM and Node are stored in their add/state change order, meaning two
+ * iterations on the streams will return the same exact result, leading to
+ * determinism in the exploration.<br />
+ * If the list of Nodes or VMs is the same for two configuration created in the
+ * same way, the position in the list does not mean anything about the age of
+ * the Element. Actually, the full list of Nodes and VMs is a concatenation of
+ * the different state elements.
+ * </p>
  *
  * @author Fabien Hermenier
  * @author guillaume Le Louët
@@ -64,7 +77,7 @@ public interface Configuration {
 
 	/**
 	 * get the number of Node with given state
-	 * 
+	 *
 	 * @param state
 	 * the state of the nodes to consider, or null for all nodes
 	 * @return the number of nodes with given state if not null, or the number of
@@ -88,7 +101,7 @@ public interface Configuration {
 
 	/**
 	 * get the number of known VMs with given state
-	 * 
+	 *
 	 * @param state
 	 * the state of the VMs to count, nor null for all VMs
 	 * @return the number of VMs with the given state, or of all VMs if state is

@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +49,9 @@ import choco.kernel.solver.variables.Var;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import choco.kernel.solver.variables.set.SetVar;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.ManagedElementSet;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VirtualMachine;
-import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
-import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.core.choco.reified.FastIFFNEQ;
@@ -69,7 +67,7 @@ import gnu.trove.TIntIntHashMap;
  * configuration, the model create the different actions that aims to perform
  * the transition to the destination configuration. In addition, several actions
  * acting on the placement of the virtual machines can be added.
- * 
+ *
  * @author Fabien Hermenier
  */
 public final class DefaultReconfigurationProblem extends CPSolver
@@ -105,10 +103,10 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	private final List<IntDomainVar> vmGrp;
 
 	/** The group variable associated to each group of VMs. */
-	private final Map<ManagedElementSet<VirtualMachine>, IntDomainVar> vmsGrp;
+	private final Map<Set<VirtualMachine>, IntDomainVar> vmsGrp;
 
 	/** The value associated to each group of nodes. */
-	private final Map<ManagedElementSet<Node>, Integer> nodesGrp;
+	private final Map<Set<Node>, Integer> nodesGrp;
 
 	/** The groups associated to each node. */
 	private final List<TIntArrayList> nodeGrps;
@@ -117,7 +115,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	 * The group of nodes associated to each identifier. To synchronize with
 	 * nodesGrp.
 	 */
-	private final List<ManagedElementSet<Node>> revNodesGrp;
+	private final List<Set<Node>> revNodesGrp;
 
 	/** The next value to use when creating a nodeGrp. */
 	private int nextNodeGroupVal = 0;
@@ -129,7 +127,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	/**
 	 * Make a new model.
-	 * 
+	 *
 	 * @param src
 	 *            The source configuration. It must be viable.
 	 * @param run
@@ -168,27 +166,26 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		for (int i = 0; i < vms.length; i++) {
 			vmGrp.add(i, null);
 		}
-		vmsGrp = new HashMap<ManagedElementSet<VirtualMachine>, IntDomainVar>();
+		vmsGrp = new HashMap<Set<VirtualMachine>, IntDomainVar>();
 		nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
 		for (int i = 0; i < nodes.length; i++) {
 			nodeGrps.add(i, new TIntArrayList());
 		}
-		nodesGrp = new HashMap<ManagedElementSet<Node>, Integer>();
-		revNodesGrp = new ArrayList<ManagedElementSet<Node>>(MAX_NB_GRP);
+		nodesGrp = new HashMap<Set<Node>, Integer>();
+		revNodesGrp = new ArrayList<Set<Node>>(MAX_NB_GRP);
 	}
 
 	/**
 	 * store the states of the nodes and the VMs from source and dest
 	 */
 	private void makeConstantConfig() {
-		ManagedElementSet<VirtualMachine> allVMs = source
-				.getAllVirtualMachines().clone();
+		Set<VirtualMachine> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VirtualMachine[allVMs.size()]);
 		revVMs = new TIntIntHashMap(vms.length);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i].hashCode(), i);
 		}
-		ManagedElementSet<Node> ns = source.getAllNodes();
+		Set<Node> ns = source.getNodes().collect(Collectors.toSet());
 		nodes = ns.toArray(new Node[ns.size()]);
 		grpId = new int[ns.size()];
 		revNodes = new TIntIntHashMap(ns.size());
@@ -197,8 +194,8 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		}
 		currentLocation = new int[vms.length];
 		for (VirtualMachine vm : vms) {
-			currentLocation[vm(vm)] = !(source.isRunning(vm) || source
-					.isSleeping(vm)) ? -1 : node(source.getLocation(vm));
+			currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source
+					.getLocation(vm));
 		}
 	}
 
@@ -270,7 +267,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	/**
 	 * converts an array of vms to an array of index of those vms in the
 	 * problem.
-	 * 
+	 *
 	 * @param vms
 	 *            the vms to convert, all of them must belong to the problem
 	 * @return a new array of those vms.
@@ -307,22 +304,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public IntDomainVar getUsedCPU(Node n) {
-		return getUse(CPUConsSpecification.TYPE).getNodesUse()[node(n)];
-	}
-
-	@Override
-	public IntDomainVar[] getUsedCPUs() {
-		return getUse(CPUConsSpecification.TYPE).getNodesUse();
-	}
-
-	@Override
-	public IntDomainVar getUsedMem(Node n) {
-		return getUse(MemConsSpecification.TYPE).getNodesUse()[node(n)];
-	}
-
-	@Override
-	public IntDomainVar getVMGroup(ManagedElementSet<VirtualMachine> vms) {
+	public IntDomainVar getVMGroup(Set<VirtualMachine> vms) {
 		IntDomainVar v = vmsGrp.get(vms);
 		if (v != null) {
 			return v;
@@ -337,11 +319,10 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public IntDomainVar makeGroup(ManagedElementSet<VirtualMachine> vms,
-			Set<ManagedElementSet<Node>> nodes) {
+	public IntDomainVar makeGroup(Set<VirtualMachine> vms, Set<Set<Node>> nodes) {
 		int[] values = new int[nodes.size()];
 		int i = 0;
-		for (ManagedElementSet<Node> ns : nodes) {
+		for (Set<Node> ns : nodes) {
 			values[i] = getGroup(ns);
 			i++;
 		}
@@ -357,12 +338,12 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public Set<ManagedElementSet<VirtualMachine>> getVMGroups() {
+	public Set<Set<VirtualMachine>> getVMGroups() {
 		return vmsGrp.keySet();
 	}
 
 	@Override
-	public int getGroup(ManagedElementSet<Node> nodes) {
+	public int getGroup(Set<Node> nodes) {
 		if (nodesGrp.get(nodes) != null) {
 			return nodesGrp.get(nodes);
 		} else {
@@ -383,7 +364,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public Set<ManagedElementSet<Node>> getNodesGroups() {
+	public Set<Set<Node>> getNodesGroups() {
 		return nodesGrp.keySet();
 	}
 
@@ -398,7 +379,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	}
 
 	@Override
-	public ManagedElementSet<Node> getNodeGroup(int idx) {
+	public Set<Node> getNodeGroup(int idx) {
 		return revNodesGrp.get(idx);
 	}
 
@@ -951,7 +932,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	/**
 	 * get the min and max values of the inf and sup ranges of an array of
 	 * IntDomainVar
-	 * 
+	 *
 	 * @param array
 	 *            the table of VarIntDomain
 	 * @return [min(inf(array)), max(sup(array))]

@@ -11,9 +11,8 @@
 package fr.emn.optiplace.configuration;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -23,19 +22,20 @@ import java.util.stream.Stream;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
- * Default implementation of Configuration.
+ * Default implementation of Configuration. The elements are stored in
+ * linkedHashMap and LinkedHashSet to ensure the same order when iterating
  *
  * @author Guillaume Le Louët
  */
 public class SimpleConfiguration implements Configuration {
 
-	private final Set<Node> offlines = new HashSet<>();
+	private final Set<Node> offlines = new LinkedHashSet<>();
 
-	private final Map<Node, Set<VirtualMachine>> hosted = new HashMap<>();
+	private final Map<Node, Set<VirtualMachine>> hosted = new LinkedHashMap<>();
 
-	private final Set<VirtualMachine> waitings = new HashSet<>();
+	private final Set<VirtualMachine> waitings = new LinkedHashSet<>();
 
-	private final Map<VirtualMachine, Node> vmLocs = new HashMap<>();
+	private final Map<VirtualMachine, Node> vmLocs = new LinkedHashMap<>();
 
 	/** Build an empty configuration. */
 	public SimpleConfiguration() {
@@ -162,7 +162,7 @@ public class SimpleConfiguration implements Configuration {
 			return false;
 		}
 		offlines.remove(node.getName());
-		hosted.put(node, new HashSet<>());
+		hosted.put(node, new LinkedHashSet<>());
 		return true;
 	}
 

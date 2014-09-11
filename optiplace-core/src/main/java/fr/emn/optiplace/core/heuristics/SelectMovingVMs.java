@@ -12,11 +12,11 @@ package fr.emn.optiplace.core.heuristics;
 
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import choco.kernel.solver.search.integer.AbstractIntVarSelector;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.ManagedElementSet;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -25,7 +25,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * A Var selector that focuses on the currently running or sleeping VMs that
  * will be running and move because their current location is no more possible
  * (node has been ban or the VM is fenced). Non-running VMs are ignored.
- * 
+ *
  * @author Fabien Hermenier
  * @author Guillaume Le Louët[guillaume.lelouet@gmail.com]2013
  */
@@ -41,19 +41,17 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 	/**
 	 * Make a new heuristic. By default, the heuristic doesn't touch the
 	 * scheduling constraints.
-	 * 
+	 *
 	 * @param s
-	 *            the solver to use to extract the assignment variables
+	 * the solver to use to extract the assignment variables
 	 */
-	public SelectMovingVMs(ReconfigurationProblem s,
-			ManagedElementSet<VirtualMachine> vms) {
+	public SelectMovingVMs(ReconfigurationProblem s, Set<VirtualMachine> vms) {
 		super(s);
 		cfg = s.getSourceConfiguration();
 		rp = s;
 		actions = new LinkedHashMap<VirtualMachine, IntDomainVar>();
 		for (VirtualMachine vm : vms) {
-			if (rp.getSourceConfiguration().getAllVirtualMachines()
-					.contains(vm)) {
+			if (rp.getSourceConfiguration().hasVM(vm)) {
 				actions.put(vm, rp.host(vm));
 			}
 

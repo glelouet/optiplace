@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -21,8 +24,6 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.configuration.graphics.positionners.BasicPositionner;
-import fr.emn.optiplace.configuration.resources.CPUConsSpecification;
-import fr.emn.optiplace.configuration.resources.MemConsSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /** @author guillaume */
@@ -35,8 +36,7 @@ public class SVGCreator {
 
 	public SVGIcon export(Configuration cfg) {
 		ResourceSpecification x = null, y = null;
-		Iterator<ResourceSpecification> it = cfg.resources().values()
-				.iterator();
+		Iterator<ResourceSpecification> it = cfg.resources().values().iterator();
 		if (it.hasNext()) {
 			x = it.next();
 		}
@@ -44,24 +44,26 @@ public class SVGCreator {
 			y = it.next();
 		}
 		if (x == null) {
-			x = CPUConsSpecification.INSTANCE;
+			x = cfg.resources().get("CPU");
 		}
 		if (y == null) {
-			if (x instanceof CPUConsSpecification) {
-				y = MemConsSpecification.INSTANCE;
+			if ("CPU".equals(x.getType())) {
+				y = cfg.resources().get("MEM");
 			} else {
-				y = CPUConsSpecification.INSTANCE;
+				y = cfg.resources().get("MEM");
 			}
 		}
 		return export(cfg, x, y);
 	}
 	public SVGIcon export(Configuration cfg, ResourceSpecification x,
 			ResourceSpecification y) {
-		Square2D[] nodeSquares = new Square2D[cfg.getAllNodes().size()];
-		for (int i = 0; i < nodeSquares.length; i++) {
-			Node n = cfg.getAllNodes().get(i);
+		Square2D[] nodeSquares = new Square2D[cfg.nbNodes(null)];
+		AtomicInteger idx = new AtomicInteger();
+		cfg.getNodes().forEach(n -> {
+			int i = idx.get();
 			nodeSquares[i] = new Square2D(i, x.getCapacity(n), y.getCapacity(n));
-		}
+			idx.incrementAndGet();
+		});
 		Pos[] nodePos = new Pos[nodeSquares.length];
 		for (int i = 0; i < nodePos.length; i++) {
 			nodePos[i] = new Pos();
@@ -88,17 +90,16 @@ public class SVGCreator {
 			}
 		}
 		URI uri = uni.loadSVG(new StringReader("<svg width=\"" + maxX
-				+ "\" height=\"" + maxY + "\" style=\"fill:grey;\"></svg>"),
-				"myImage");
+				+ "\" height=\"" + maxY + "\" style=\"fill:grey;\"></svg>"), "myImage");
 		icon.setSvgURI(uri);
 		SVGDiagram diag = uni.getDiagram(uri);
 
+		List<Node> nodes = cfg.getOnlines().collect(Collectors.toList());
 		// for each node
 		for (int i = 0; i < squares.length; i++) {
-			Node n = cfg.getOnlines().get(i);
+			Node n = nodes.get(i);
 			try {
-				double nodeLoad = Math.max(
-						rx.getUse(cfg, n) / rx.getCapacity(n),
+				double nodeLoad = Math.max(rx.getUse(cfg, n) / rx.getCapacity(n),
 						ry.getUse(cfg, n) / ry.getCapacity(n));
 				Rect r = makeNodeRect(squares[i], pos[i], maxX, maxY,
 						makeLoadColor(nodeLoad));
@@ -108,14 +109,14 @@ public class SVGCreator {
 				int vmX = pos[i].x;
 				int vmY = pos[i].y;
 				// for each of his vms
-				for (VirtualMachine vm : cfg.getRunnings(n)) {
+				for (VirtualMachine vm : cfg.getHosted(n).collect(Collectors.toList())) {
 					int dx = rx.getUse(vm), dy = ry.getUse(vm);
-					double vmLoadx = 1.0 * dx / squares[i].dX, vmLoady = 1.0
-							* dy / squares[i].dY;
+					double vmLoadx = 1.0 * dx / squares[i].dX, vmLoady = 1.0 * dy
+							/ squares[i].dY;
 					double vmLoad = Math.max(vmLoadx, vmLoady);
 					Rect r2 = makeVMRect(vmX, dx, vmY, dy, vmLoad);
-					vmX += vm.getCPUConsumption();
-					vmY += vm.getMemoryConsumption();
+					vmX += rx.getUse(vm);
+					vmY += ry.getUse(vm);
 					if (r2 != null) {
 						diag.getRoot().loaderAddChild(null, r2);
 					}
@@ -167,8 +168,7 @@ public class SVGCreator {
 			}
 			if (strokeColor != null) {
 				ret.addAttribute("stroke", AnimationElement.AT_XML, strokeColor);
-				ret.addAttribute("stroke-width", AnimationElement.AT_XML, ""
-						+ border);
+				ret.addAttribute("stroke-width", AnimationElement.AT_XML, "" + border);
 			}
 			ret.updateTime(0.0);
 		} catch (Exception e) {
@@ -185,19 +185,16 @@ public class SVGCreator {
 			return makeColor(0, (float) Math.sqrt(load / threshold),
 					(float) Math.sqrt(1 - load / threshold));
 		} else {
-			return makeColor(
-					(float) Math.sqrt((load - threshold) / (1 - threshold)),
-					(float) Math.sqrt(1 - (load - threshold) / (1 - threshold)),
-					0);
+			return makeColor((float) Math.sqrt((load - threshold) / (1 - threshold)),
+					(float) Math.sqrt(1 - (load - threshold) / (1 - threshold)), 0);
 		}
 	}
 
-	protected final static String[] APPENDTOFILL = new String[]{"000000",
-			"00000", "0000", "000", "00", "0", ""};
+	protected final static String[] APPENDTOFILL = new String[] { "000000",
+			"00000", "0000", "000", "00", "0", "" };
 
 	public static String makeColor(float r, float g, float b) {
-		String val = Integer
-				.toHexString(new Color(r, g, b).getRGB() & 0x00ffffff);
+		String val = Integer.toHexString(new Color(r, g, b).getRGB() & 0x00ffffff);
 		return "#" + APPENDTOFILL[val.length()] + val;
 	}
 
