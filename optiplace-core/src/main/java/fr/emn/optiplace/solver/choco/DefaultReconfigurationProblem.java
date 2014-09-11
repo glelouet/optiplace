@@ -55,7 +55,6 @@ import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.core.choco.reified.FastIFFNEQ;
-import fr.emn.optiplace.core.choco.reified.IntImplies;
 import fr.emn.optiplace.solver.SolutionStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import gnu.trove.TIntArrayList;
@@ -160,7 +159,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 		makeConstantConfig();
 		makeHosters();
-		makeIsPowereds();
+		// makeIsPowereds();
 
 		vmGrp = new ArrayList<IntDomainVar>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
@@ -385,8 +384,7 @@ public final class DefaultReconfigurationProblem extends CPSolver
 
 	@Override
 	public SetVar[] getSetModels() {
-		return new SetVar[0]; // To change body of implemented methods use File
-		// | Settings | File Templates.
+		return new SetVar[0];
 	}
 
 	@Override
@@ -478,13 +476,6 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		return ret;
 	}
 
-	/** generates the value of wether a node is used or not, using its CPU load */
-	/*
-	 * protected IntDomainVar makeIsHosting2(Node node, int nodeIdx) {
-	 * IntDomainVar cpu = getUsedCPU(node); return boolenize(cpu, node.getName()
-	 * + "?hosting"); }
-	 */
-
 	public IntDomainVar isHoster(int idx) {
 		if (nodesAreHostings == null) {
 			nodesAreHostings = new IntDomainVar[nodes().length];
@@ -502,118 +493,33 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		return isHoster(node(n));
 	}
 
-	IntDomainVar[] nodesPowered = null;
-
-	protected void makeIsPowereds() {
-		nodesPowered = new IntDomainVar[nodes.length];
-		for (int idx = 0; idx < nodes.length; idx++) {
-			Node n = nodes[idx];
-			String name = n.getName() + ".powered";
-			IntDomainVar v;
-			if (n.isPowerSwitchable()) {
-				v = createBooleanVar(name);
-			} else {
-				int power = getSourceConfiguration().isOnline(n) ? 1 : 0;
-				v = createBoundIntVar(name, power, power);
-			}
-			// if the node has a vm hosted then it must be powered on.
-			// hosted ==> powered
-			post(new IntImplies(nbVMs(idx), v));
-			nodesPowered[idx] = v;
-		}
-	}
-
-	public IntDomainVar isPowered(int idx) {
-		if (nodesPowered == null) {
-			makeIsPowereds();
-		}
-		return nodesPowered[idx];
-
-	}
+	HashMap<String, IntDomainVar[]> hostUsedResources = new HashMap<>();
 
 	@Override
-	public IntDomainVar isPowered(Node n) {
-		int idx = node(n);
-		return isPowered(idx);
-	}
-
-	IntDomainVar[] nodesPowerChanged = null;
-
-	public IntDomainVar isPowerChanged(int idx) {
-		if (nodesPowerChanged == null) {
-			nodesPowerChanged = new IntDomainVar[nodes.length];
-		}
-		if (nodesPowerChanged[idx] == null) {
-			if (!nodes[idx].isPowerSwitchable()) {
-				nodesPowerChanged[idx] = createIntegerConstant(0);
-			} else {
-				nodesPowerChanged[idx] = isDifferent(isPowered(idx),
-						getSourceConfiguration().isOnline(nodes[idx]) ? 1 : 0);
-			}
-		}
-		return nodesPowerChanged[idx];
-	}
-
-	@Override
-	public IntDomainVar isPowerChanged(Node n) {
-		int idx = node(n);
-		return isPowerChanged(idx);
-	}
-
-	IntDomainVar[] vmsHostUsedCPUs = null;
-
-	public IntDomainVar getHostUsedCPU(int vmIndex) {
-		if (vmsHostUsedCPUs == null) {
-			vmsHostUsedCPUs = new IntDomainVar[vms().length];
+	public IntDomainVar getHostUse(String resource, int vmIndex) {
+		IntDomainVar[] hostedArray = hostUsedResources.get(resource);
+		if (hostedArray == null) {
+			hostedArray = new IntDomainVar[vms().length];
+			hostUsedResources.put(resource, hostedArray);
 		}
 		if (vmIndex < 0) {
 			logger.error("virtual machine " + vms[vmIndex].getName()
 					+ " not found, returning null");
 			return null;
 		}
-		IntDomainVar ret = vmsHostUsedCPUs[vmIndex];
+		IntDomainVar ret = hostedArray[vmIndex];
 		if (ret == null) {
 			ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterUsedCPU",
 					0, Choco.MAX_UPPER_BOUND);
 			onNewVar(ret);
-			nth(host(vmIndex), getUse(CPUConsSpecification.TYPE).getNodesUse(),
+			nth(host(vmIndex), getUse(resource).getNodesUse(),
 					ret);
-			vmsHostUsedCPUs[vmIndex] = ret;
+			hostedArray[vmIndex] = ret;
 		}
 		return ret;
-	}
-
-	@Override
-	public IntDomainVar getHostUsedCPU(VirtualMachine vm) {
-		return getHostUsedCPU(vm(vm));
 	}
 
 	IntDomainVar[] vmsHostMaxCPUs = null;
-
-	public IntDomainVar getHostMaxCPU(int vmIndex) {
-		if (vmsHostMaxCPUs == null) {
-			vmsHostMaxCPUs = new IntDomainVar[vms().length];
-		}
-		if (vmIndex < 0) {
-			logger.error("virtual machine " + vms[vmIndex].getName()
-					+ " not found, returning null");
-			return null;
-		}
-		IntDomainVar ret = vmsHostMaxCPUs[vmIndex];
-		if (ret == null) {
-			ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMaxCPU",
-					0, Choco.MAX_UPPER_BOUND);
-			nth(host(vmIndex), resources.get(CPUConsSpecification.TYPE)
-					.getNodesCapacities(), ret);
-			vmsHostMaxCPUs[vmIndex] = ret;
-		}
-		return ret;
-	}
-
-	@Override
-	public IntDomainVar getHostMaxCPU(VirtualMachine vm) {
-		return getHostMaxCPU(vm(vm));
-	}
 
 	IntDomainVar[] isMigrateds = null;
 
@@ -624,18 +530,13 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		for (int i = 0; i < isMigrateds.length; i++) {
 			VirtualMachine vm = vm(i);
 			Node sourceHost = getSourceConfiguration().getLocation(vm);
-			if (getSourceConfiguration().getAllVirtualMachines().contains(vm)) {
+			if (getSourceConfiguration().hasVM(vm)) {
 				isMigrateds[i] = isDifferent(host(vm), node(sourceHost));
-				if (!vm.isMigrable()
-						|| getSourceConfiguration().getRunnings().contains(vm)
-						&& !sourceHost.isLiveMigrating()) {
 					try {
 						isMigrateds[i].setVal(0);
 					} catch (ContradictionException e) {
-						// TODO Auto-generated catch block
 						throw new UnsupportedOperationException(e);
 					}
-				}
 			}
 		}
 		nbLiveMigrations = sum(isMigrateds);
@@ -861,16 +762,13 @@ public final class DefaultReconfigurationProblem extends CPSolver
 	public Configuration extractConfiguration() {
 		Configuration cfg = new SimpleConfiguration();
 		for (Node n : nodes) {
-			if (isPowered(n).canBeInstantiatedTo(0)) {
-				cfg.addOffline(n);
+			if (source.isOnline(n)) {
+				cfg.setOnline(n);
 			} else {
-				cfg.addOnline(n);
+				cfg.setOffline(n);
 			}
 		}
-		for (VirtualMachine vm : getSourceConfiguration()
-				.getAllVirtualMachines()) {
-			cfg.setRunOn(vm, node(host(vm).getVal()));
-		}
+		source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getVal())));
 		return cfg;
 	}
 

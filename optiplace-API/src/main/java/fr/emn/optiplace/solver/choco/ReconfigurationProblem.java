@@ -75,6 +75,8 @@ public interface ReconfigurationProblem extends Solver, CoreView,
 		return getResourcesHandlers().get("MEM").getNodesUsesByIndex()[node(n)];
 	}
 
+	public IntDomainVar getHostUse(String resource, int vmIndex);
+
 	/**
 	 * Get the variable associated to a group of VMs. If the group was not
 	 * defined, it is created. All the VMs must only belong to one group

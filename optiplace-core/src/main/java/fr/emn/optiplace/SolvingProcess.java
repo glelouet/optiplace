@@ -139,7 +139,9 @@ public class SolvingProcess extends OptiplaceProcess {
 			}
 		}
 		if (goalMaker == null) {
-			goalMaker = new MigrationReducerGoal();
+			ResourceSpecification spec = problem.getResourcesHandlers().get("MEM")
+					.getSpecs();
+			goalMaker = new MigrationReducerGoal(spec);
 		}
 		target.setObjective(goalMaker.getObjective(problem));
 		problem.setObjective(target.getObjective());

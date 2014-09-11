@@ -83,14 +83,4 @@ public class SimpleCoreView implements CoreView {
 	public VirtualMachine vm(int vm) {
 		return pb.vm(vm);
 	}
-
-	@Override
-	public IntDomainVar isPowerChanged(Node n) {
-		return pb.isPowerChanged(n);
-	}
-
-	@Override
-	public IntDomainVar isPowered(Node n) {
-		return pb.isPowered(n);
-	}
 }

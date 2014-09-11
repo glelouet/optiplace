@@ -78,20 +78,6 @@ public interface CoreView {
 	 */
 	public IntDomainVar isHoster(Node n);
 
-	/**
-	 * @param n
-	 *            a node of the problem
-	 * @return true if the state of the node is on
-	 */
-	public IntDomainVar isPowered(Node n);
-
-	/**
-	 * @param n
-	 *            a node of the problem
-	 * @return true if the power state of the node has changed - eg from online
-	 *         to offline.
-	 */
-	public IntDomainVar isPowerChanged(Node n);
 
 	/**
 	 * @param vm
