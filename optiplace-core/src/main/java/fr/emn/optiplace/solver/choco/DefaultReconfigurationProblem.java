@@ -509,11 +509,37 @@ public final class DefaultReconfigurationProblem extends CPSolver
 		}
 		IntDomainVar ret = hostedArray[vmIndex];
 		if (ret == null) {
-			ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterUsedCPU",
+			ret = createBoundIntVar(
+					vms[vmIndex].getName() + ".hosterUsed" + resource,
 					0, Choco.MAX_UPPER_BOUND);
 			onNewVar(ret);
 			nth(host(vmIndex), getUse(resource).getNodesUse(),
 					ret);
+			hostedArray[vmIndex] = ret;
+		}
+		return ret;
+	}
+
+	HashMap<String, IntDomainVar[]> hostCapacities = new HashMap<>();
+
+	@Override
+	public IntDomainVar getHostCapa(String resource, int vmIndex) {
+		IntDomainVar[] hostedArray = hostCapacities.get(resource);
+		if (hostedArray == null) {
+			hostedArray = new IntDomainVar[vms().length];
+			hostCapacities.put(resource, hostedArray);
+		}
+		if (vmIndex < 0) {
+			logger.error("virtual machine " + vms[vmIndex].getName()
+					+ " not found, returning null");
+			return null;
+		}
+		IntDomainVar ret = hostedArray[vmIndex];
+		if (ret == null) {
+			ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource,
+					0, Choco.MAX_UPPER_BOUND);
+			onNewVar(ret);
+			nth(host(vmIndex), resources.get(resource).getNodesCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
