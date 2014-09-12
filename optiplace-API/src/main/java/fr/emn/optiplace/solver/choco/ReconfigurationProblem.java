@@ -67,12 +67,20 @@ public interface ReconfigurationProblem extends Solver, CoreView,
 	 */
 	Configuration getSourceConfiguration();
 
+	default IntDomainVar getNodeUse(String resource, Node n) {
+		return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node(n)];
+	}
+
+	default int getNodeCap(String resource, Node n) {
+		return getResourcesHandlers().get(resource).getNodesCapacities()[node(n)];
+	}
+
 	default IntDomainVar getUsedCPU(Node n) {
-		return getResourcesHandlers().get("CPU").getNodesUsesByIndex()[node(n)];
+		return getNodeUse("CPU", n);
 	}
 
 	default IntDomainVar getUsedMem(Node n) {
-		return getResourcesHandlers().get("MEM").getNodesUsesByIndex()[node(n)];
+		return getNodeUse("MEM", n);
 	}
 
 	public IntDomainVar getHostUse(String resource, int vmIndex);

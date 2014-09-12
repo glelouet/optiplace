@@ -109,6 +109,15 @@ public interface Configuration {
 	 */
 	int nbVMs(VMSTATES state);
 
+	/**
+	 * get the number of VMs running on given node
+	 * 
+	 * @param host
+	 * the node to consider
+	 * @return the number of vms which are specified running on the node.
+	 */
+	int nbVMs(Node host);
+
   /** @param n a Node
    * @return the state of the Node in the configuration, or null if the Node is
    * not known */
@@ -223,7 +232,7 @@ public interface Configuration {
 	/**
 	 * Add a VM in this; putting it on a Node or waiting. It also map the
 	 * specified resource uses in the linkedHashMap of resources.
-	 * 
+	 *
 	 * @param vmName
 	 * the name of the VM
 	 * @param host

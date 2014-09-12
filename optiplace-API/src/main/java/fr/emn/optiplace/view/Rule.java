@@ -46,7 +46,9 @@ public interface Rule {
   /**
    * should call {@link #isSatisfied(plan.getDestination())}
    */
-  public boolean isSatisfied(ReconfigurationResult plan);
+	default boolean isSatisfied(ReconfigurationResult plan) {
+		return isSatisfied(plan.getDestination());
+	}
 
   /**
    * Get the virtual machines involved in the constraints.

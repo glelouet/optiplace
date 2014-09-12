@@ -6,16 +6,21 @@ import fr.emn.optiplace.configuration.VirtualMachine;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
- * The link between a {@link ResourceSpecification} and a
- * {@link ReconfigurationProblem}, that is, store the data related to the
- * specifications in the problem<br />
- * Construct it with its {@link ResourceSpecification}, then
- * {@link #associate(ReconfigurationProblem)} it to the problem. This is then
- * indexed by its specifications ' type in the problem's {@link
+ * <p>
+ * The link between a {@link ResourceSpecification}, which specifies the use and
+ * capacity of VMs and Nodes, and a {@link ReconfigurationProblem} which has
+ * IntDomainVar to store information<br />
+ * store the data related to the specifications in the problem
+ * </p>
+ * <p>
+ * must be constructed with its {@link ResourceSpecification}, then
+ * {@link #associate(ReconfigurationProblem)} to the problem.<br />
+ * This is then indexed by its specifications ' type in the problem's {@link
  * ReconfigurationProblem.#getUse(String)}, {@link
  * ReconfigurationProblem.#getUses()} and {@link
  * ReconfigurationProblem.#getHandlers()}
- * 
+ * </p>
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public class ResourceHandler {
@@ -45,7 +50,7 @@ public class ResourceHandler {
 
 	/**
 	 * create the variables in the problem and store them in this object.
-	 * 
+	 *
 	 * @param pb
 	 *            the {@link ReconfigurationProblem} to add the variables into
 	 */
@@ -108,7 +113,7 @@ public class ResourceHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the array of nodes capacities, indexed by the nodes index in the
 	 *         problem associated
 	 */
@@ -117,7 +122,7 @@ public class ResourceHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the array of vms consumptions, indexed by the vms index in the
 	 *         problem associated
 	 */
