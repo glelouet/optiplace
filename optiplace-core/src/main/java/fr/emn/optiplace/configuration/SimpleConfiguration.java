@@ -44,7 +44,7 @@ public class SimpleConfiguration implements Configuration {
 	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
 
 	@Override
-	public Map<String, ResourceSpecification> resources() {
+	public LinkedHashMap<String, ResourceSpecification> resources() {
 		return resources;
 	}
 
@@ -141,6 +141,25 @@ public class SimpleConfiguration implements Configuration {
 		}
 		waitings.add(vm);
 		return true;
+	}
+
+	@Override
+	public VirtualMachine addVM(String vmName, Node host, int... resources) {
+		VirtualMachine vm = new SimpleVirtualMachine(vmName);
+		if (host == null) {
+			// we requested VM to be waiting.
+			setWaiting(vm);
+		} else {
+			setHost(vm, host);
+		}
+		if (resources != null && resources.length > 0) {
+			ResourceSpecification[] specs = this.resources.values().toArray(
+					new ResourceSpecification[this.resources.size()]);
+			for (int i = 0; i < specs.length && i < resources.length; i++) {
+				specs[i].toUses().put(vm, resources[i]);
+			}
+		}
+		return vm;
 	}
 
 	@Override

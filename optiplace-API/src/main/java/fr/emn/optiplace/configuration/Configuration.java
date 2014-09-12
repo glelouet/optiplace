@@ -10,7 +10,7 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -220,6 +220,21 @@ public interface Configuration {
 	 */
 	boolean setWaiting(VirtualMachine vm);
 
+	/**
+	 * Add a VM in this; putting it on a Node or waiting. It also map the
+	 * specified resource uses in the linkedHashMap of resources.
+	 * 
+	 * @param vmName
+	 * the name of the VM
+	 * @param host
+	 * the host or null if it is waiting
+	 * @param resources
+	 * the resource use of the VM. Their must be less than {@link #resources()}
+	 * size, and any missing will be set to 0.
+	 * @return a new VM with given specifications
+	 */
+	VirtualMachine addVM(String vmName, Node host, int... resources);
+
   /**
 	 * Remove a virtual machine.
 	 *
@@ -285,8 +300,8 @@ public interface Configuration {
 	 */
   Node getLocation(VirtualMachine vm);
 
-  /** get the known list of resources specifications */
-  Map<String, ResourceSpecification> resources();
+	/** get the known list of resources specifications. It can be modified */
+	LinkedHashMap<String, ResourceSpecification> resources();
 
 	static enum BasicChecks {
 
