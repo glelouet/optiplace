@@ -9,7 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import fr.emn.optiplace.view.ViewConfiguration;
+import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.ViewConfigurationReader;
 
 /**
@@ -18,7 +18,7 @@ import fr.emn.optiplace.view.ViewConfigurationReader;
  * optional the {@link #required()} can be set to false.<br />
  * The target of this annotation must implement the
  * {@link ViewConfigurationReader} interface in order to be applied the
- * {@link ViewConfiguration}. <br />
+ * {@link ProvidedData}. <br />
  * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */

@@ -144,6 +144,6 @@ public class EmptyView implements View {
 	}
 
 	@Override
-	public void setConfig(ViewConfiguration conf) {
+	public void setConfig(ProvidedData conf) {
 	}
 }

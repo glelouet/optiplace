@@ -6,21 +6,21 @@ package fr.emn.optiplace.server.viewConfigurationProviders;
 import java.io.File;
 import java.util.HashMap;
 
-import fr.emn.optiplace.server.ViewConfigurationProvider;
-import fr.emn.optiplace.view.FileViewConfiguration;
-import fr.emn.optiplace.view.ViewConfiguration;
+import fr.emn.optiplace.server.ViewDataProvider;
+import fr.emn.optiplace.view.FileViewData;
+import fr.emn.optiplace.view.ProvidedData;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  * 
  */
-public class FileConfigurationProvider implements ViewConfigurationProvider {
+public class FileDataProvider implements ViewDataProvider {
 
-	HashMap<String, FileViewConfiguration> loaded = new HashMap<String, FileViewConfiguration>();
+	HashMap<String, FileViewData> loaded = new HashMap<String, FileViewData>();
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(FileConfigurationProvider.class);
+			.getLogger(FileDataProvider.class);
 
 	protected File[] directories = null;
 
@@ -39,7 +39,7 @@ public class FileConfigurationProvider implements ViewConfigurationProvider {
 						if (posDOT != -1) {
 							name = name.substring(0, posDOT);
 						}
-						loaded.put(name, new FileViewConfiguration(name, f));
+						loaded.put(name, new FileViewData(name, f));
 					}
 				}
 			}
@@ -47,7 +47,7 @@ public class FileConfigurationProvider implements ViewConfigurationProvider {
 	}
 
 	@Override
-	public ViewConfiguration getConfiguration(String confName) {
+	public ProvidedData getConfiguration(String confName) {
 		return loaded.get(confName);
 	}
 }

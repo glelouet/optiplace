@@ -45,7 +45,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * corresponding actions to the action graph.
  * </p>
  * <p>
- * The parameters of the view are specified using {@link ViewConfiguration}. The
+ * The parameters of the view are specified using {@link ProvidedData}. The
  * view can REQUIRE one configuration, specified using {@link
  * ViewDesc.#configURI()}, which will be translated into
  * </p>
@@ -100,7 +100,7 @@ public interface View extends ViewAsModule {
 	 *            the configuration retrieved by the core for this view, from
 	 *            its description annotation.
 	 */
-	public void setConfig(ViewConfiguration conf);
+	public void setConfig(ProvidedData conf);
 
 	/** @return the problem */
 	public ReconfigurationProblem getProblem();

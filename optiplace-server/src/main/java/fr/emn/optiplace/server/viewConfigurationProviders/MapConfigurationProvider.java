@@ -5,8 +5,8 @@ package fr.emn.optiplace.server.viewConfigurationProviders;
 
 import java.util.HashMap;
 
-import fr.emn.optiplace.server.ViewConfigurationProvider;
-import fr.emn.optiplace.view.ViewConfiguration;
+import fr.emn.optiplace.server.ViewDataProvider;
+import fr.emn.optiplace.view.ProvidedData;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -14,9 +14,9 @@ import fr.emn.optiplace.view.ViewConfiguration;
  */
 public class MapConfigurationProvider
 		extends
-			HashMap<String, ViewConfiguration>
+			HashMap<String, ProvidedData>
 		implements
-			ViewConfigurationProvider {
+			ViewDataProvider {
 
 	/**
 	 *
@@ -27,7 +27,7 @@ public class MapConfigurationProvider
 			.getLogger(MapConfigurationProvider.class);
 
 	@Override
-	public ViewConfiguration getConfiguration(String confName) {
+	public ProvidedData getConfiguration(String confName) {
 		return get(confName);
 	}
 }

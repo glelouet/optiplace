@@ -9,7 +9,7 @@ package fr.emn.optiplace.view;
  */
 public interface ViewConfigurationReader {
 
-	default void read(ViewConfiguration conf) {
+	default void read(ProvidedData conf) {
 		conf.lines().forEach(this::readLine);
 	}
 

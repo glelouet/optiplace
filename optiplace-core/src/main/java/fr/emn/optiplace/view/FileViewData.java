@@ -14,10 +14,10 @@ import java.util.stream.Stream;
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
-public class FileViewConfiguration implements ViewConfiguration {
+public class FileViewData implements ProvidedData {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(FileViewConfiguration.class);
+			.getLogger(FileViewData.class);
 
 	protected String name;
 
@@ -27,7 +27,7 @@ public class FileViewConfiguration implements ViewConfiguration {
 	 * @param name
 	 * @param f
 	 */
-	public FileViewConfiguration(String name, File f) {
+	public FileViewData(String name, File f) {
 		this.name = name;
 		this.f = f;
 	}

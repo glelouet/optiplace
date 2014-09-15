@@ -3,24 +3,24 @@
  */
 package fr.emn.optiplace.server.viewConfigurationProviders;
 
-import fr.emn.optiplace.server.ViewConfigurationProvider;
-import fr.emn.optiplace.view.ViewConfiguration;
+import fr.emn.optiplace.server.ViewDataProvider;
+import fr.emn.optiplace.view.ProvidedData;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  * 
  */
-public class PlexerProvider implements ViewConfigurationProvider {
+public class PlexerProvider implements ViewDataProvider {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(PlexerProvider.class);
 
-	ViewConfigurationProvider[] delegates = null;
+	ViewDataProvider[] delegates = null;
 
-	public void setDelegates(ViewConfigurationProvider... delegates) {
+	public void setDelegates(ViewDataProvider... delegates) {
 		if (delegates == null) {
-			delegates = new ViewConfigurationProvider[]{};
+			delegates = new ViewDataProvider[]{};
 		}
 		this.delegates = delegates;
 	}
@@ -28,15 +28,15 @@ public class PlexerProvider implements ViewConfigurationProvider {
 	public PlexerProvider() {
 	}
 
-	public PlexerProvider(ViewConfigurationProvider... delegates) {
+	public PlexerProvider(ViewDataProvider... delegates) {
 		this();
 		setDelegates(delegates);
 	}
 
 	@Override
-	public ViewConfiguration getConfiguration(String confName) {
-		for (ViewConfigurationProvider p : delegates) {
-			ViewConfiguration ret = p.getConfiguration(confName);
+	public ProvidedData getConfiguration(String confName) {
+		for (ViewDataProvider p : delegates) {
+			ProvidedData ret = p.getConfiguration(confName);
 			if (ret != null) {
 				return ret;
 			}
