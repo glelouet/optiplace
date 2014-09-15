@@ -93,6 +93,7 @@ public class MappedResourceSpecification implements ResourceSpecification,
 
 	@Override
 	public void readLine(String line) {
+		System.err.println("reading " + line);
 		if (line.startsWith(START_NODE_CAPA)) {
 			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
 			nodesCapacities.put(new SimpleNode(para[0]), Integer.parseInt(para[1]));
@@ -112,6 +113,6 @@ public class MappedResourceSpecification implements ResourceSpecification,
 		return Stream.concat(nodes, vms);
 	}
 
-	private static final String START_NODE_CAPA = "capa ";
-	private static final String START_VM_USE = "cons ";
+	public static final String START_NODE_CAPA = "capa ";
+	public static final String START_VM_USE = "cons ";
 }
