@@ -99,7 +99,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public int nbVMs(Node host) {
+	public int nbHosted(Node host) {
 		Set<VirtualMachine> vms = hosted.get(host);
 		return vms == null ? 0 : vms.size();
 	}
