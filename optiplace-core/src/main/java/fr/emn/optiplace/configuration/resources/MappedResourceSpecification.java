@@ -5,18 +5,25 @@ package fr.emn.optiplace.configuration.resources;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleNode;
+import fr.emn.optiplace.configuration.SimpleVirtualMachine;
 import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.view.ViewConfigurationReader;
 
 /**
  * Store the map of nodes capacities and vms uses in an internal structure.
- * 
+ * <p>
+ * implements the {@link ViewConfigurationReader} so that an view can require a
+ * specific resource
+ * </p>
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class MappedResourceSpecification extends GetterBasedSpecification
-		implements
-			ResourceSpecification {
+public class MappedResourceSpecification implements ResourceSpecification,
+		ViewConfigurationReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
@@ -31,7 +38,7 @@ public class MappedResourceSpecification extends GetterBasedSpecification
 
 	/**
 	 * @param type
-	 *            the type to set
+	 * the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
@@ -83,4 +90,28 @@ public class MappedResourceSpecification extends GetterBasedSpecification
 	public int getCapacity(Node n) {
 		return nodesCapacities.get(n);
 	}
+
+	@Override
+	public void readLine(String line) {
+		if (line.startsWith(START_NODE_CAPA)) {
+			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
+			nodesCapacities.put(new SimpleNode(para[0]), Integer.parseInt(para[1]));
+		} else if (line.startsWith(START_VM_USE)) {
+			String[] para = line.substring(START_VM_USE.length()).split(" = ");
+			vmsUses.put(new SimpleVirtualMachine (para[0]), Integer.parseInt(para[1]));
+		}
+	}
+
+	public Stream<String> lines() {
+		Stream<String> nodes = nodesCapacities.entrySet().stream().map(e -> {
+			return START_NODE_CAPA + e.getKey().getName() + " = " + e.getValue();
+		});
+		Stream<String> vms = vmsUses.entrySet().stream().map(e -> {
+			return START_VM_USE + e.getKey().getName() + " = " + e.getValue();
+		});
+		return Stream.concat(nodes, vms);
+	}
+
+	private static final String START_NODE_CAPA = "capa ";
+	private static final String START_VM_USE = "cons ";
 }

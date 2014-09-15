@@ -1,7 +1,9 @@
 package fr.emn.optiplace.configuration.resources;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -18,13 +20,23 @@ public interface ResourceSpecification {
 	/** @return the type of the resources, used as an ID. */
 	String getType();
 
+	int getUse(VirtualMachine vm);
+
 	/**
 	 * @param vms
 	 * the vms to get the usages. Should not contain null values.
 	 * @return the array of usages of this resource by the vms, such as
 	 * ret[i]:=usage(vms[i])
 	 */
-	int[] getUses(VirtualMachine... vms);
+	default int[] getUses(VirtualMachine... vms) {
+		int[] ret = new int[vms.length];
+		for (int i = 0; i < vms.length; i++) {
+			ret[i] = getUse(vms[i]);
+		}
+		return ret;
+	}
+
+	int getCapacity(Node n);
 
 	/**
 	 * @param nodes
@@ -32,7 +44,13 @@ public interface ResourceSpecification {
 	 * @return the array of capacities of this resource by the nodes, such as
 	 * ret[i]:=capacity(nodes[i])
 	 */
-	int[] getCapacities(Node... nodes);
+	default int[] getCapacities(Node... nodes) {
+		int[] ret = new int[nodes.length];
+		for (int i = 0; i < nodes.length; i++) {
+			ret[i] = getCapacity(nodes[i]);
+		}
+		return ret;
+	}
 
 	/**
 	 * @return a map of the usages of the vms. Should return a value even if a vm
@@ -53,23 +71,15 @@ public interface ResourceSpecification {
 	 * the virtualMachines hosted on the given node
 	 * @return the sum of the use of the vms
 	 */
-	int getUse(VirtualMachine... vms);
-
-	/**
-	 * @param n
-	 * @return
-	 */
-	int getCapacity(Node n);
-
-	/**
-	 * get the load, as vms consumption / nodes capacity, of the center relative
-	 * to this resource
-	 *
-	 * @param cfg
-	 * the center
-	 * @return sum of vms consumptions / sum of nodes capacities
-	 */
-	double getLoad(Configuration cfg);
+	default int getUse(VirtualMachine... vms) {
+		int sum = 0;
+		if (vms != null) {
+			for (VirtualMachine vm : vms) {
+				sum += getUse(vm);
+			}
+		}
+		return sum;
+	}
 
 	/**
 	 * get the use of a node in a given configuration
@@ -80,7 +90,19 @@ public interface ResourceSpecification {
 	 * the node
 	 * @return the use of the node
 	 */
-	double getUse(Configuration cfg, Node n);
+	default int getUse(Configuration cfg, Node n) {
+		return cfg.getHosted(n).collect(Collectors.summingInt(this::getUse));
+	}
+
+	/** get the total use of the VMs running in the center */
+	default int getUse(Configuration cfg) {
+		return cfg.getRunnings().mapToInt(this::getUse).sum();
+	}
+
+	/** get the total capacity of the nodes which are online */
+	default int getCapacity(Configuration cfg) {
+		return cfg.getOnlines().mapToInt(this::getCapacity).sum();
+	}
 
 	/**
 	 * check wether a vm can be hosted on given node.
@@ -91,12 +113,14 @@ public interface ResourceSpecification {
 	 * the vm
 	 * @return true if there is enough resource on n to host vm.
 	 */
-	boolean canHost(Configuration cfg, Node n, VirtualMachine vm);
+	default boolean canHost(Configuration cfg, Node n, VirtualMachine vm) {
+		return getUse(cfg, n) + getUse(vm) <= getCapacity(n);
+	}
 
 	/**
 	 * make a comparator on VMs, based on this resource's uses. this comparator
 	 * can then be used to sort collections according to the VMs' resource use
-	 * 
+	 *
 	 * @param increasing
 	 * true to make Collections.sort() sort with increasing order, false to make
 	 * decreasing order
@@ -118,6 +142,28 @@ public interface ResourceSpecification {
 				}
 			};
 		}
+	}
+
+	/**
+	 * add resource specifications to a (potential null) map
+	 * 
+	 * @param map
+	 * the map to add data inside, or null to create one
+	 * @param res
+	 * the list of resource specifications. can be null or empty
+	 * @return map if not null or a new map, into which specifications have been
+	 * added
+	 */
+	public static HashMap<String, ResourceSpecification> toMap(
+			HashMap<String, ResourceSpecification> map, ResourceSpecification... res) {
+		HashMap<String, ResourceSpecification> ret = map == null ? new HashMap<String, ResourceSpecification>()
+				: map;
+		if (res != null) {
+			for (ResourceSpecification r : res) {
+				ret.put(r.getType(), r);
+			}
+		}
+		return ret;
 	}
 
 }
