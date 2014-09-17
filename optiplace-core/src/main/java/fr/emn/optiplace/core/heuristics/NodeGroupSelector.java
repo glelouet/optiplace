@@ -20,7 +20,7 @@ import choco.kernel.common.util.iterators.DisposableIntIterator;
 import choco.kernel.solver.search.ValSelector;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -62,9 +62,9 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 		// Get the oldLocation of each group
 		// Warn, may be on several groups !
-		for (Set<VirtualMachine> vmset : rp.getVMGroups()) {
+		for (Set<VM> vmset : rp.getVMGroups()) {
 			locations.put(rp.getVMGroup(vmset), new LinkedList<Integer>());
-			for (VirtualMachine vm : vmset) {
+			for (VM vm : vmset) {
 				for (Set<Node> nodeset : groups) {
 					Node hoster = null;
 					if (rp.getSourceConfiguration().isRunning(vm)) {
@@ -92,12 +92,12 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	protected int worstFitCPU(IntDomainVar v) {
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
-		int bestCPU = rp.getUsedCPU(rp.node(bestIdx)).getInf();
+		int bestCPU = rp.getUsedCPU(rp.node2(bestIdx)).getInf();
 		while (ite.hasNext()) {
 			int possible = ite.next();
-			if (rp.getUsedCPU(rp.node(possible)).getInf() < bestCPU) {
+			if (rp.getUsedCPU(rp.node2(possible)).getInf() < bestCPU) {
 				bestIdx = possible;
-				bestCPU = rp.getUsedCPU(rp.node(possible)).getInf();
+				bestCPU = rp.getUsedCPU(rp.node2(possible)).getInf();
 			}
 		}
 		ite.dispose();
@@ -116,12 +116,12 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getInf();
+		int bestMem = rp.getUsedMem(rp.node2(bestIdx)).getInf();
 		while (ite.hasNext()) {
 			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getInf() > bestMem) {
+			if (rp.getUsedMem(rp.node2(possible)).getInf() > bestMem) {
 				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getInf();
+				bestMem = rp.getUsedMem(rp.node2(possible)).getInf();
 			}
 		}
 		ite.dispose();
@@ -140,12 +140,12 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getInf();
+		int bestMem = rp.getUsedMem(rp.node2(bestIdx)).getInf();
 		while (ite.hasNext()) {
 			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getInf() < bestMem) {
+			if (rp.getUsedMem(rp.node2(possible)).getInf() < bestMem) {
 				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getInf();
+				bestMem = rp.getUsedMem(rp.node2(possible)).getInf();
 			}
 		}
 		ite.dispose();
@@ -164,12 +164,12 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getInf();
+		int bestMem = rp.getUsedMem(rp.node2(bestIdx)).getInf();
 		while (ite.hasNext()) {
 			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getInf() < bestMem) {
+			if (rp.getUsedMem(rp.node2(possible)).getInf() < bestMem) {
 				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getInf();
+				bestMem = rp.getUsedMem(rp.node2(possible)).getInf();
 			}
 		}
 		ite.dispose();

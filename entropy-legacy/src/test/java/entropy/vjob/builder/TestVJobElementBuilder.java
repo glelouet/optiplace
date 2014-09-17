@@ -47,25 +47,25 @@ public class TestVJobElementBuilder {
   public void testVirtualMachineMatching() {
     Configuration cfg = new SimpleConfiguration();
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     MockVirtualMachineTemplateFactory m = new MockVirtualMachineTemplateFactory();
     cfg.addWaiting(vm1);
-    m.getMockBuilder().farm.add("VM2");
+    m.getMockBuilder().farm.add("VM");
     VJobElementBuilder eb = new DefaultVJobElementBuilder(null);
 
     // No vmBuilder nor configuration, so null
     Assert.assertNull(eb.matchVirtualMachine("VM1"));
-    Assert.assertNull(eb.matchVirtualMachine("VM2"));
+    Assert.assertNull(eb.matchVirtualMachine("VM"));
 
     // A configuration, so only vm1
     eb.useConfiguration(cfg);
     Assert.assertEquals(eb.matchVirtualMachine("VM1"), vm1);
-    Assert.assertNull(eb.matchVirtualMachine("VM2"));
+    Assert.assertNull(eb.matchVirtualMachine("VM"));
 
     // A vmBuilder, so only vm2
     m = new MockVirtualMachineTemplateFactory();
-    m.getMockBuilder().farm.add("VM2");
+    m.getMockBuilder().farm.add("VM");
     eb = new DefaultVJobElementBuilder(m);
-    Assert.assertEquals(eb.matchVirtualMachine("VM2", null, null), vm2);
+    Assert.assertEquals(eb.matchVirtualMachine("VM", null, null), vm2);
   }
 }

@@ -6,8 +6,8 @@ package fr.emn.optiplace.configuration.resources;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.SimpleNode;
-import fr.emn.optiplace.configuration.SimpleVirtualMachine;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -24,7 +24,7 @@ public class MappedResourceSpecificationTest {
 		MappedResourceSpecification test = new MappedResourceSpecification("test");
 		test.readLine("" + MappedResourceSpecification.START_NODE_CAPA + "nod = 25");
 		test.readLine("" + MappedResourceSpecification.START_VM_USE + "vma = 12");
-		Assert.assertEquals(test.getCapacity(new SimpleNode("nod")), 25);
-		Assert.assertEquals(test.getUse(new SimpleVirtualMachine("vma")), 12);
+		Assert.assertEquals(test.getCapacity(new Node("nod")), 25);
+		Assert.assertEquals(test.getUse(new VM("vma")), 12);
 	}
 }

@@ -6,7 +6,7 @@ package fr.emn.optiplace.actions;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
@@ -19,7 +19,7 @@ public class Migrate implements Action {
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
   .getLogger(Migrate.class);
 
-  VirtualMachine vm;
+  VM vm;
   Node from;
   Node to;
 
@@ -28,7 +28,7 @@ public class Migrate implements Action {
    * @param from
    * @param to
    */
-  public Migrate(VirtualMachine vm, Node from, Node to) {
+  public Migrate(VM vm, Node from, Node to) {
     super();
     this.vm = vm;
     this.from = from;

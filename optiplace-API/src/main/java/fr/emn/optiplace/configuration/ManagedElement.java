@@ -1,30 +1,38 @@
-/* Copyright (c) Fabien Hermenier This file is part of Entropy. Entropy is free
- * software: you can redistribute it and/or modify it under the terms of the GNU
- * Lesser General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * Entropy is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details. You should have received a copy of the GNU Lesser General Public
- * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
-
 package fr.emn.optiplace.configuration;
 
 /**
- * An element of a configuration. It is simply a name and the class of the
- * element.<br />
- * Both those values are NOT mutable, so a {@link ManagedElement} is NOT
- * mutable.<br />
- * The toString() method defaults to the name of the element
- * 
- * @author Guillaume Le Louët
+ * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
+ *
  */
-public interface ManagedElement {
+public class ManagedElement {
+  @SuppressWarnings("unused")
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+  .getLogger(ManagedElement.class);
+
+  public final String name;
 
   /**
-   * Get the identifier of the element.
    *
-   * @return a String
    */
-  String getName();
+	public ManagedElement(String name) {
+    this.name = name;
+		if (name == null) {
+			throw new NullPointerException("creating an managed element with null name is not allowed");
+		}
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public int hashCode() {
+		return this.name.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+		return obj == this || obj != null && this.getClass().equals(obj.getClass())
+				&& ((ManagedElement) obj).name.equals(name);
+  }
 }

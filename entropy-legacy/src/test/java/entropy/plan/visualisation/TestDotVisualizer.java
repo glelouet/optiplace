@@ -39,7 +39,7 @@ public class TestDotVisualizer {
       + "N2 -> N2 [label=\"suspend(VM1)\", headlabel=\"0\",taillabel=\"15\", color=\"blue\"]\n"
       + "bN0 -> N0 [label=\"boot\", headlabel=\"0\",taillabel=\"10\",color=\"blue\"]\n"
       + "bN0 [label=\"\", shape=none]\n"
-      + "N3 -> N2 [label=\"resume(VM2)\", headlabel=\"15\",taillabel=\"25\", color=\"red\"]\n"
+      + "N3 -> N2 [label=\"resume(VM)\", headlabel=\"15\",taillabel=\"25\", color=\"red\"]\n"
       + "N1 -> N0 [label=\"migrate(VM0)\", headlabel=\"10\",taillabel=\"15\",color=\"green\"]\n"
       + "N5 -> N5 [label=\"halt\", headlabel=\"3\",taillabel=\"5\", color=\"red\"]\n"
       + "N5 -> sVM5 [label=\"stop(VM5)\", headlabel=\"0\",taillabel=\"3\", color=\"blue\"]\n"

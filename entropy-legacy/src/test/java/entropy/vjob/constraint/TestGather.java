@@ -44,7 +44,7 @@ public class TestGather {
   public void testBasics() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 2, 3));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 2, 3));
+    vms.add(new SimpleVirtualMachine("VM", 1, 2, 3));
     Gather s = new Gather(vms);
     Assert.assertFalse(s.toString().contains("null"));
     Assert.assertEquals(s.getNodes().size(), 0);
@@ -54,7 +54,7 @@ public class TestGather {
     Assert.assertEquals(s, s2);
     Assert.assertEquals(s.hashCode(), s2.hashCode());
     ManagedElementSet<VirtualMachine> vms2 = vms.clone();
-    vms2.remove(vms2.get("VM2"));
+    vms2.remove(vms2.get("VM"));
     s2 = new Gather(vms2);
     Assert.assertNotEquals(s, s2);
     Assert.assertNotEquals(s.hashCode(), s2.hashCode());
@@ -66,7 +66,7 @@ public class TestGather {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 1, 1);
 
@@ -92,7 +92,7 @@ public class TestGather {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 1, 1);
 
@@ -123,7 +123,7 @@ public class TestGather {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -162,7 +162,7 @@ public class TestGather {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -199,7 +199,7 @@ public class TestGather {
     new SimpleNode("N3", 1, 5, 5);
     Node n4 = new SimpleNode("N4", 1, 10, 10);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 5, 5);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 5, 5);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 5, 5);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 1, 1);
     cfg.addOnline(n1);

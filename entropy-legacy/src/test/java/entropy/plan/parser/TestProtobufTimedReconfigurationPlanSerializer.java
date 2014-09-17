@@ -40,7 +40,7 @@ public class TestProtobufTimedReconfigurationPlanSerializer {
     cfg.addOffline(n4);
 
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 2, 3);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 2, 3);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 2, 3);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 2, 3);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 2, 3);
     VirtualMachine vm5 = new SimpleVirtualMachine("VM5", 1, 2, 3);

@@ -52,7 +52,7 @@ public class TestRoot {
   public void testBasics() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 2, 3));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 2, 3));
+    vms.add(new SimpleVirtualMachine("VM", 1, 2, 3));
     Root r = new Root(vms);
     Assert.assertFalse(r.toString().contains("null"));
     Assert.assertEquals(r.getNodes().size(), 0);
@@ -64,7 +64,7 @@ public class TestRoot {
     Assert.assertEquals(r, r2);
     Assert.assertEquals(r.hashCode(), r2.hashCode());
     ManagedElementSet<VirtualMachine> vms2 = vms.clone();
-    vms2.remove(vms2.get("VM2"));
+    vms2.remove(vms2.get("VM"));
     r2 = new Root(vms2);
     Assert.assertNotEquals(r, r2);
     Assert.assertNotEquals(r.hashCode(), r2.hashCode());
@@ -78,7 +78,7 @@ public class TestRoot {
     src.addOnline(n2);
 
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 2, 2, 2);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 2, 2, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 2, 2, 1);
     vm2.setCPUDemand(4);
     vm2.setCPUMax(5);
     src.setRunOn(vm1, n1);
@@ -120,7 +120,7 @@ public class TestRoot {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -159,7 +159,7 @@ public class TestRoot {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);

@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleNode;
-import fr.emn.optiplace.configuration.SimpleVirtualMachine;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.ViewConfigurationReader;
 
 /**
@@ -66,10 +64,10 @@ public class MappedResourceSpecification implements ResourceSpecification,
 		this.nodesCapacities = nodesCapacities;
 	}
 
-	private HashMap<VirtualMachine, Integer> vmsUses = new HashMap<VirtualMachine, Integer>();
+	private HashMap<VM, Integer> vmsUses = new HashMap<VM, Integer>();
 
 	@Override
-	public Map<VirtualMachine, Integer> toUses() {
+	public Map<VM, Integer> toUses() {
 		return vmsUses;
 	}
 
@@ -77,12 +75,12 @@ public class MappedResourceSpecification implements ResourceSpecification,
 	 * @param vmsUses
 	 *            the vmsUses to set
 	 */
-	public void setVmsUses(HashMap<VirtualMachine, Integer> vmsUses) {
+	public void setVmsUses(HashMap<VM, Integer> vmsUses) {
 		this.vmsUses = vmsUses;
 	}
 
 	@Override
-	public int getUse(VirtualMachine vm) {
+	public int getUse(VM vm) {
 		return vmsUses.get(vm);
 	}
 
@@ -96,10 +94,10 @@ public class MappedResourceSpecification implements ResourceSpecification,
 		System.err.println("reading " + line);
 		if (line.startsWith(START_NODE_CAPA)) {
 			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
-			nodesCapacities.put(new SimpleNode(para[0]), Integer.parseInt(para[1]));
+			nodesCapacities.put(new Node(para[0]), Integer.parseInt(para[1]));
 		} else if (line.startsWith(START_VM_USE)) {
 			String[] para = line.substring(START_VM_USE.length()).split(" = ");
-			vmsUses.put(new SimpleVirtualMachine (para[0]), Integer.parseInt(para[1]));
+			vmsUses.put(new VM (para[0]), Integer.parseInt(para[1]));
 		}
 	}
 

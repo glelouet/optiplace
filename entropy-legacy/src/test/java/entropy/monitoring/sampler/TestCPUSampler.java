@@ -40,7 +40,7 @@ public class TestCPUSampler {
     Assert.assertEquals(res.getOfflines().get("N4").getCPUCapacity(), 4);
 
     Assert.assertEquals(res.getRunnings().get("VM1").getCPUConsumption(), 1);
-    Assert.assertEquals(res.getRunnings().get("VM2").getCPUConsumption(), 2);
+    Assert.assertEquals(res.getRunnings().get("VM").getCPUConsumption(), 2);
     Assert.assertEquals(res.getSleepings().get("VM3").getCPUConsumption(), 3);
     Assert.assertEquals(res.getWaitings().get("VM4").getCPUConsumption(), 4);
   }

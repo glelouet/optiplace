@@ -22,7 +22,7 @@ import com.kitfox.svg.app.beans.SVGIcon;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.graphics.positionners.BasicPositionner;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
@@ -94,10 +94,10 @@ public class SVGCreator {
 		icon.setSvgURI(uri);
 		SVGDiagram diag = uni.getDiagram(uri);
 
-		List<Node> nodes = cfg.getOnlines().collect(Collectors.toList());
+		List<Node> node2s = cfg.getOnlines().collect(Collectors.toList());
 		// for each node
 		for (int i = 0; i < squares.length; i++) {
-			Node n = nodes.get(i);
+			Node n = node2s.get(i);
 			try {
 				double nodeLoad = Math.max(rx.getUse(cfg, n) / rx.getCapacity(n),
 						ry.getUse(cfg, n) / ry.getCapacity(n));
@@ -109,7 +109,7 @@ public class SVGCreator {
 				int vmX = pos[i].x;
 				int vmY = pos[i].y;
 				// for each of his vms
-				for (VirtualMachine vm : cfg.getHosted(n).collect(Collectors.toList())) {
+				for (VM vm : cfg.getHosted(n).collect(Collectors.toList())) {
 					int dx = rx.getUse(vm), dy = ry.getUse(vm);
 					double vmLoadx = 1.0 * dx / squares[i].dX, vmLoady = 1.0 * dy
 							/ squares[i].dY;

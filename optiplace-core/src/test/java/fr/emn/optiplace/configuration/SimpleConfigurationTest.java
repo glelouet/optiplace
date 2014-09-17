@@ -24,8 +24,8 @@ public class SimpleConfigurationTest {
 		SimpleConfiguration test = new SimpleConfiguration();
 		test.resources().put("CPU", new MappedResourceSpecification("CPU"));
 		test.resources().put("MEM", new MappedResourceSpecification("MEM"));
-		VirtualMachine vm1 = test.addVM("vm1", null, 2, 5);
-		VirtualMachine vm2 = test.addVM("vm2", null, 10, 20);
+		VM vm1 = test.addVM("vm1", null, 2, 5);
+		VM vm2 = test.addVM("vm2", null, 10, 20);
 		ResourceSpecification cpu = test.resources().get("CPU");
 		ResourceSpecification mem = test.resources().get("MEM");
 		Assert.assertEquals(cpu.getUse(vm1), 2);

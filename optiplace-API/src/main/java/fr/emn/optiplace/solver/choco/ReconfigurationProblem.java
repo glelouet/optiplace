@@ -21,7 +21,7 @@ import choco.kernel.solver.variables.integer.IntDomainVar;
 import choco.kernel.solver.variables.set.SetVar;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.SolutionStatistics;
@@ -57,7 +57,7 @@ VariablesManager {
    * @return an array of virtual machines.
    */
   @Override
-  VirtualMachine[] vms();
+  VM[] vms();
 
   /**
    * Get the source configuration, that is, the original configuration to
@@ -68,11 +68,11 @@ VariablesManager {
   Configuration getSourceConfiguration();
 
   default IntDomainVar getNodeUse(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node(n)];
+    return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node2(n)];
   }
 
   default int getNodeCap(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesCapacities()[node(n)];
+    return getResourcesHandlers().get(resource).getNodesCapacities()[node2(n)];
   }
 
   default IntDomainVar getUsedCPU(Node n) {
@@ -96,19 +96,19 @@ VariablesManager {
    * @return the variable associated to the group or null if at least one VM of
    * the proposed new group already belong to a group
    */
-  IntDomainVar getVMGroup(Set<VirtualMachine> vms);
+  IntDomainVar getVMGroup(Set<VM> vms);
 
   /**
    * Make a group variable.
    *
    * @param vms
    * the VMs involved in the group
-   * @param nodes
+   * @param node2s
    * the possible hosting group
    * @return a variable denoting the assignment of the VMs group to one of the
    * group of nodes
    */
-  IntDomainVar makeGroup(Set<VirtualMachine> vms, Set<Set<Node>> nodes);
+  IntDomainVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s);
 
   /**
    * Get the group variable associated to a virtual machine.
@@ -117,25 +117,25 @@ VariablesManager {
    * the virtual machine
    * @return the group variable if it exists, null otherwise
    */
-  IntDomainVar getAssociatedGroup(VirtualMachine vm);
+  IntDomainVar getAssociatedGroup(VM vm);
 
   /**
    * Get all the defined groups of virtual machines.
    *
    * @return a set of group of VMs, may be empty
    */
-  Set<Set<VirtualMachine>> getVMGroups();
+  Set<Set<VM>> getVMGroups();
 
   /**
    * Get identifier associated to a group of nodes. If the group was not
    * defined, it is created.
    *
-   * @param nodes
+   * @param node2s
    * the group to define
    * @return the value associated to the group. -1 if the maximum number of
    * group of nodes has been reached.
    */
-  int getGroup(Set<Node> nodes);
+  int getGroup(Set<Node> node2s);
 
   /**
    * Get all the defined groups of nodes.
@@ -188,17 +188,17 @@ VariablesManager {
    * @return a variable specifying on which Node the VM will be hosted
    */
   @Override
-  IntDomainVar host(VirtualMachine vm);
+  IntDomainVar host(VM vm);
 
   /**
    * get the array of VMs hosters. faster to iterate over it than using
-   * {@link #host(VirtualMachine)}
+   * {@link #host(VM)}
    *
    * @params vms the vms to filter the hosters on if specified.
    * @return the array of VM hosters, indexed by the vms indexes or the position
    * of each vm in vms if not null and not empty.
    */
-  IntDomainVar[] getHosters(VirtualMachine... vms);
+  IntDomainVar[] getHosters(VM... vms);
 
   /**
    * get the variable corresponding to the number of VMs associated to the host
@@ -249,12 +249,12 @@ VariablesManager {
    * {@link #getSourceConfiguration()} to the final configurations.
    */
   @Override
-  IntDomainVar isMigrated(VirtualMachine vm);
+  IntDomainVar isMigrated(VM vm);
 
   /**
    * get the table of boolean for the VMs.
    *
-   * @see #isMigrated(VirtualMachine)
+   * @see #isMigrated(VM)
    * @return the table of IntDomainVar, so that
    * ret[i]==isLiveMigrate(getVirtualMachine(i))
    */

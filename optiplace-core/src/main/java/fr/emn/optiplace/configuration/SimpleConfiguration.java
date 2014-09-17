@@ -31,11 +31,11 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Set<Node> offlines = new LinkedHashSet<>();
 
-	private final Map<Node, Set<VirtualMachine>> hosted = new LinkedHashMap<>();
+	private final Map<Node, Set<VM>> hosted = new LinkedHashMap<>();
 
-	private final Set<VirtualMachine> waitings = new LinkedHashSet<>();
+	private final Set<VM> waitings = new LinkedHashSet<>();
 
-	private final Map<VirtualMachine, Node> vmLocs = new LinkedHashMap<>();
+	private final Map<VM, Node> vmLocs = new LinkedHashMap<>();
 
 	/** Build an empty configuration. */
 	public SimpleConfiguration() {
@@ -74,12 +74,12 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<VirtualMachine> getRunnings() {
+	public Stream<VM> getRunnings() {
 		return vmLocs.keySet().stream();
 	}
 
 	@Override
-	public Stream<VirtualMachine> getWaitings() {
+	public Stream<VM> getWaitings() {
 		return waitings.stream();
 	}
 
@@ -100,7 +100,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public int nbHosted(Node host) {
-		Set<VirtualMachine> vms = hosted.get(host);
+		Set<VM> vms = hosted.get(host);
 		return vms == null ? 0 : vms.size();
 	}
 
@@ -115,29 +115,29 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean isRunning(VirtualMachine vm) {
+	public boolean isRunning(VM vm) {
 		return vmLocs.containsKey(vm);
 	}
 
 	@Override
-	public boolean isWaiting(VirtualMachine vm) {
+	public boolean isWaiting(VM vm) {
 		return waitings.contains(vm);
 	}
 
 	@Override
-	public boolean setHost(VirtualMachine vm, Node node) {
-		if (vm == null || node == null || node.equals(vmLocs.get(vm))) {
+	public boolean setHost(VM vm, Node node2) {
+		if (vm == null || node2 == null || node2.equals(vmLocs.get(vm))) {
 			return false;
 		}
-		setOnline(node);
+		setOnline(node2);
 		waitings.remove(vm);
-		vmLocs.put(vm, node);
-		hosted.get(node).add(vm);
+		vmLocs.put(vm, node2);
+		hosted.get(node2).add(vm);
 		return true;
 	}
 
 	@Override
-	public boolean setWaiting(VirtualMachine vm) {
+	public boolean setWaiting(VM vm) {
 		if (isWaiting(vm)) {
 			return false;
 		}
@@ -150,8 +150,8 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public VirtualMachine addVM(String vmName, Node host, int... resources) {
-		VirtualMachine vm = new SimpleVirtualMachine(vmName);
+	public VM addVM(String vmName, Node host, int... resources) {
+		VM vm = new VM(vmName);
 		if (host == null) {
 			// we requested VM to be waiting.
 			setWaiting(vm);
@@ -169,7 +169,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean remove(VirtualMachine vm) {
+	public boolean remove(VM vm) {
 		if (waitings.remove(vm)) {
 			return true;
 		}
@@ -182,28 +182,28 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean setOnline(Node node) {
-		if (isOnline(node)) {
+	public boolean setOnline(Node node2) {
+		if (isOnline(node2)) {
 			return false;
 		}
-		offlines.remove(node.getName());
-		hosted.put(node, new LinkedHashSet<>());
+		offlines.remove(node2.getName());
+		hosted.put(node2, new LinkedHashSet<>());
 		return true;
 	}
 
 	@Override
-	public boolean setOffline(Node node) {
-		if (isOffline(node)) {
+	public boolean setOffline(Node node2) {
+		if (isOffline(node2)) {
 			return false;
 		}
-		Set<VirtualMachine> vms = hosted.remove(node);
+		Set<VM> vms = hosted.remove(node2);
 		if (vms != null) {
-			for (VirtualMachine vm : vms) {
+			for (VM vm : vms) {
 				vmLocs.remove(vm);
 				waitings.add(vm);
 			}
 		}
-		offlines.add(node);
+		offlines.add(node2);
 		return true;
 	}
 
@@ -213,9 +213,9 @@ public class SimpleConfiguration implements Configuration {
 		if (offlines.remove(n)) {
 			return true;
 		}
-		Set<VirtualMachine> vms = hosted.remove(n);
+		Set<VM> vms = hosted.remove(n);
 		if (vms != null) {
-			for (VirtualMachine vm : vms) {
+			for (VM vm : vms) {
 				vmLocs.remove(vm);
 				waitings.add(vm);
 			}
@@ -225,17 +225,17 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<VirtualMachine> getHosted(Node n) {
+	public Stream<VM> getHosted(Node n) {
 		return hosted.get(n).stream();
 	}
 
 	@Override
-	public Node getLocation(VirtualMachine vm) {
+	public Node getLocation(VM vm) {
 		return vmLocs.get(vm);
 	}
 
 	@Override
-	public void replace(VirtualMachine vm, VirtualMachine newVM) {
+	public void replace(VM vm, VM newVM) {
 		if (vm == newVM || vm == null || newVM == null) {
 			return;
 		}
@@ -247,7 +247,7 @@ public class SimpleConfiguration implements Configuration {
 				// the VM had no hoster and was not waiting : it was not present.
 			}
 		} else {
-			Set<VirtualMachine> set = hosted.get(hoster);
+			Set<VM> set = hosted.get(hoster);
 			set.remove(vm);
 			set.add(newVM);
 			vmLocs.put(newVM, hoster);
@@ -259,7 +259,7 @@ public class SimpleConfiguration implements Configuration {
 		if (oldNode == newNode || oldNode == null || newNode == null) {
 			return;
 		}
-		Set<VirtualMachine> vms = hosted.remove(oldNode);
+		Set<VM> vms = hosted.remove(oldNode);
 		if (vms == null) {
 			if (offlines.remove(oldNode)) {
 				offlines.add(newNode);
@@ -269,16 +269,16 @@ public class SimpleConfiguration implements Configuration {
 			}
 		} else {
 			hosted.put(newNode, vms);
-			for (VirtualMachine vm : vms) {
+			for (VM vm : vms) {
 				vmLocs.put(vm, newNode);
 			}
 		}
 	}
 
 	@Override
-	public Stream<Node> getOnlines(Predicate<Set<VirtualMachine>> pred) {
+	public Stream<Node> getOnlines(Predicate<Set<VM>> pred) {
 		return hosted.entrySet().stream()
 				.filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
-				.map(Entry<Node, Set<VirtualMachine>>::getKey);
+				.map(Entry<Node, Set<VM>>::getKey);
 	}
 }

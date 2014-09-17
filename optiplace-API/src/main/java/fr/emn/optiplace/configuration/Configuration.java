@@ -63,7 +63,7 @@ public interface Configuration {
    * a predicate over the hosted VMs of a Node with no side-effect on the set.
    * @return The stream of node following the predicate over their hosted VMs
    */
-  Stream<Node> getOnlines(Predicate<Set<VirtualMachine>> pred);
+  Stream<Node> getOnlines(Predicate<Set<VM>> pred);
 
   /** Get the nodes that are offline.
    * @return a Stream of all the nodes offline in this configuration */
@@ -87,15 +87,15 @@ public interface Configuration {
 
   /** Get the virtual machines that are running.
    * @return a Stream of VirtualMachines, may be empty */
-  Stream<VirtualMachine> getRunnings();
+  Stream<VM> getRunnings();
 
   /** Get the virtual machines that are waiting.
    * @return a Stream, may be empty */
-  Stream<VirtualMachine> getWaitings();
+  Stream<VM> getWaitings();
 
   /** Get all the virtual machines involved in the configuration.
    * @return a Stream, may be empty */
-  default Stream<VirtualMachine> getVMs() {
+  default Stream<VM> getVMs() {
     return Stream.concat(getRunnings(), getWaitings());
   }
 
@@ -144,7 +144,7 @@ public interface Configuration {
   /** @param n a VM
    * @return the state of the VM in the configuration, or null if the VM is not
    * known */
-  default VMSTATES getState(VirtualMachine n) {
+  default VMSTATES getState(VM n) {
     if (isRunning(n)) {
       return VMSTATES.RUNNING;
     }
@@ -157,12 +157,12 @@ public interface Configuration {
   /** Test if a virtual machine is running.
    * @param vm the virtual machine
    * @return true if the virtual machine is running */
-  boolean isRunning(VirtualMachine vm);
+  boolean isRunning(VM vm);
 
   /** Test if a virtual machine is waiting.
    * @param vm the virtual machine
    * @return true if the virtual machine is waiting */
-  boolean isWaiting(VirtualMachine vm);
+  boolean isWaiting(VM vm);
 
   /**
    * check if a node is already present in this
@@ -182,7 +182,7 @@ public interface Configuration {
    * a VirtualMachine
    * @return true if a VM equal to this one already exist
    */
-  default boolean hasVM(VirtualMachine vm) {
+  default boolean hasVM(VM vm) {
     return isRunning(vm) || isWaiting(vm);
   }
 
@@ -194,7 +194,7 @@ public interface Configuration {
    * @param newVM
    * the new VM reference
    */
-  void replace(VirtualMachine vm, VirtualMachine newVM);
+  void replace(VM vm, VM newVM);
 
   /**
    * replaces references to a node by another node
@@ -213,11 +213,11 @@ public interface Configuration {
    *
    * @param vm
    * the virtual machine
-   * @param node
+   * @param node2
    * the node that will host the virtual machine.
    * @return true if the vm is assigned to the node and was not before
    */
-  boolean setHost(VirtualMachine vm, Node node);
+  boolean setHost(VM vm, Node node2);
 
   /**
    * Set a virtual machine waiting. If the virtual machine is already in a other
@@ -227,7 +227,7 @@ public interface Configuration {
    * the virtual machine
    * @return true if the VM state changed
    */
-  boolean setWaiting(VirtualMachine vm);
+  boolean setWaiting(VM vm);
 
   /**
    * Add a VM in this; putting it on a Node or waiting. It also map the
@@ -242,7 +242,7 @@ public interface Configuration {
    * size, and any missing will be set to 0.
    * @return a new VM with given specifications
    */
-  VirtualMachine addVM(String vmName, Node host, int... resources);
+  VM addVM(String vmName, Node host, int... resources);
 
   /**
    * Remove a virtual machine.
@@ -251,27 +251,27 @@ public interface Configuration {
    * the virtual machine to remove
    * @return true if this VM was present
    */
-  boolean remove(VirtualMachine vm);
+  boolean remove(VM vm);
 
   /**
    * Set a node online. If the node is already in the configuration but in an
    * another state, it is updated.
    *
-   * @param node
+   * @param node2
    * the node to add
    * @return true if the node state changed
    */
-  boolean setOnline(Node node);
+  boolean setOnline(Node node2);
 
   /**
    * Set a node offline. If the node is already in the configuration but in an
    * another state, it is updated. Any hosted VM state will be set to waiting.
    *
-   * @param node
+   * @param node2
    * the node
    * @return true if the node state changed
    */
-  boolean setOffline(Node node);
+  boolean setOffline(Node node2);
 
   /**
    * Remove a node and set all its vms to waiting
@@ -290,12 +290,12 @@ public interface Configuration {
    * @return a set of virtual machines, may be empty, eg if the Node is not
    * present or is offline
    */
-  Stream<VirtualMachine> getHosted(Node n);
+  Stream<VM> getHosted(Node n);
 
   /** Get all the virtual machines running on a set of nodes.
    * @param ns the set of nodes
    * @return a set of virtual machines, may be empty */
-  default Stream<VirtualMachine> getHosted(Set<Node> ns) {
+  default Stream<VM> getHosted(Set<Node> ns) {
     return ns.stream().map(this::getHosted).reduce(Stream::concat).get();
   }
 
@@ -307,7 +307,7 @@ public interface Configuration {
    * @return the node hosting the virtual machine or {@code null} is the virtual
    * machine is waiting
    */
-  Node getLocation(VirtualMachine vm);
+  Node getLocation(VM vm);
 
   /** get the known list of resources specifications. It can be modified */
   LinkedHashMap<String, ResourceSpecification> resources();
@@ -361,7 +361,7 @@ public interface Configuration {
    * @param vm a VM to use the resource specifications
    * @param specs the resource specifications
    * @return the minimum of capa(n)/use(VM) for each resource of specs */
-  public static double maxNBVms(Node n, VirtualMachine vm,
+  public static double maxNBVms(Node n, VM vm,
       Stream<ResourceSpecification> specs) {
     return specs.mapToDouble(s -> 1.0 * s.getCapacity(n) / s.getUse(vm))
         .min().getAsDouble();

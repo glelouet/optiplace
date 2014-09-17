@@ -18,7 +18,7 @@ import choco.kernel.solver.search.integer.AbstractIntVarSelector;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -32,7 +32,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 public class SelectMovingVMs extends AbstractIntVarSelector {
 
 	/** The demanding slices to consider. */
-	private final LinkedHashMap<VirtualMachine, IntDomainVar> actions;
+	private final LinkedHashMap<VM, IntDomainVar> actions;
 
 	private final Configuration cfg;
 
@@ -45,12 +45,12 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 	 * @param s
 	 * the solver to use to extract the assignment variables
 	 */
-	public SelectMovingVMs(ReconfigurationProblem s, Set<VirtualMachine> vms) {
+	public SelectMovingVMs(ReconfigurationProblem s, Set<VM> vms) {
 		super(s);
 		cfg = s.getSourceConfiguration();
 		rp = s;
-		actions = new LinkedHashMap<VirtualMachine, IntDomainVar>();
-		for (VirtualMachine vm : vms) {
+		actions = new LinkedHashMap<VM, IntDomainVar>();
+		for (VM vm : vms) {
 			if (rp.getSourceConfiguration().hasVM(vm)) {
 				actions.put(vm, rp.host(vm));
 			}
@@ -60,12 +60,12 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 
 	@Override
 	public IntDomainVar selectVar() {
-		for (Entry<VirtualMachine, IntDomainVar> a : actions.entrySet()) {
+		for (Entry<VM, IntDomainVar> a : actions.entrySet()) {
 			IntDomainVar hoster = a.getValue();
 			if (!hoster.isInstantiated()) {
-				VirtualMachine vm = a.getKey();
+				VM vm = a.getKey();
 				Node n = cfg.getLocation(vm);
-				if (n != null && !hoster.canBeInstantiatedTo(rp.node(n))) {
+				if (n != null && !hoster.canBeInstantiatedTo(rp.node2(n))) {
 					return hoster;
 				}
 			}

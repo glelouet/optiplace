@@ -45,7 +45,7 @@ public class TestLazySpread {
   public void testBasics() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 2, 3));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 2, 3));
+    vms.add(new SimpleVirtualMachine("VM", 1, 2, 3));
     Spread s = new LazySpread(vms);
     Assert.assertFalse(s.toString().contains("null"));
     Assert.assertEquals(s.getNodes().size(), 0);
@@ -55,7 +55,7 @@ public class TestLazySpread {
     Assert.assertEquals(s, s2);
     Assert.assertEquals(s.hashCode(), s2.hashCode());
     ManagedElementSet<VirtualMachine> vms2 = vms.clone();
-    vms2.remove(vms2.get("VM2"));
+    vms2.remove(vms2.get("VM"));
     s2 = new LazySpread(vms2);
     Assert.assertNotEquals(s, s2);
     Assert.assertNotEquals(s.hashCode(), s2.hashCode());
@@ -69,7 +69,7 @@ public class TestLazySpread {
         + "dst.txt");
     ManagedElementSet<VirtualMachine> t1 = new SimpleManagedElementSet<VirtualMachine>();
     t1.add(src.getAllVirtualMachines().get("VM1"));
-    t1.add(src.getAllVirtualMachines().get("VM2"));
+    t1.add(src.getAllVirtualMachines().get("VM"));
     ChocoCustomRP plan = new ChocoCustomRP(new MockDurationEvaluator(9, 1, 2,
         3, 4, 5, 6, 7, 8));
     List<VJob> vjobs = new ArrayList<VJob>();
@@ -85,10 +85,10 @@ public class TestLazySpread {
       Assert.assertEquals(p.size(), 2);
       Configuration res = p.getDestination();
       System.err.println(src.getAllVirtualMachines().get("VM1"));
-      System.err.println(src.getAllVirtualMachines().get("VM2"));
+      System.err.println(src.getAllVirtualMachines().get("VM"));
       Assert.assertNotSame(
           res.getLocation(src.getAllVirtualMachines().get("VM1")),
-          res.getLocation(src.getAllVirtualMachines().get("VM2")));
+          res.getLocation(src.getAllVirtualMachines().get("VM")));
       for (PlacementConstraint c : v.getConstraints()) {
         if (!c.isSatisfied(res)) {
           Assert.fail(c + " is not satisfied");
@@ -109,7 +109,7 @@ public class TestLazySpread {
         + "dst2.txt");
     ManagedElementSet<VirtualMachine> t1 = new SimpleManagedElementSet<VirtualMachine>();
     t1.add(src.getAllVirtualMachines().get("VM1"));
-    t1.add(src.getAllVirtualMachines().get("VM2"));
+    t1.add(src.getAllVirtualMachines().get("VM"));
     ChocoCustomRP plan = new ChocoCustomRP(new MockDurationEvaluator(9, 3, 2,
         3, 4, 5, 6, 7, 8));
     List<VJob> vjobs = new ArrayList<VJob>();
@@ -144,7 +144,7 @@ public class TestLazySpread {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -183,7 +183,7 @@ public class TestLazySpread {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);

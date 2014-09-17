@@ -31,7 +31,7 @@ public class TestLazySpreadBuilder {
     List<VJobElement> params = new LinkedList<VJobElement>();
     ExplodedSet<SimpleVirtualMachine> s1 = new ExplodedSet<SimpleVirtualMachine>();
     s1.add(new SimpleVirtualMachine("VM1", 1, 1, 1));
-    s1.add(new SimpleVirtualMachine("VM2", 1, 1, 1));
+    s1.add(new SimpleVirtualMachine("VM", 1, 1, 1));
     s1.add(new SimpleVirtualMachine("VM3", 1, 1, 1));
     params.add(s1);
     try {

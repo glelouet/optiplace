@@ -14,7 +14,7 @@ import java.util.Set;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ReconfigurationResult;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -55,7 +55,7 @@ public interface Rule {
    *
    * @return a set of virtual machines.
    */
-  Set<VirtualMachine> getVMs();
+  Set<VM> getVMs();
 
   /**
    * Get the nodes explicitly involved in the constraints.

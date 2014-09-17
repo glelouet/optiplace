@@ -47,7 +47,7 @@ public class TestDefaultReconfigurationProblem {
     Assert.assertEquals(model.getVirtualMachineActions().size(), 7);
     for (VirtualMachineActionModel vma : model.getVirtualMachineActions()) {
       String vmName = vma.getVirtualMachine().getName();
-      if (vmName.equals("VM1") || vmName.equals("VM2") || vmName.equals("VM3")
+      if (vmName.equals("VM1") || vmName.equals("VM") || vmName.equals("VM3")
           || vmName.equals("VM4") || vmName.equals("VM5")
           || vmName.equals("VM6") || vmName.equals("VM7")) {
         Assert.assertEquals(vma.getClass(), MigratableActionModel.class);
@@ -70,7 +70,7 @@ public class TestDefaultReconfigurationProblem {
    * Assert.assertEquals(model.getVMGroups().size(), 0);
    * ManagedElementSet<VirtualMachine> t1 = new
    * SimpleManagedElementSet<VirtualMachine>();
-   * t1.add(src.getRunnings().get("VM1")); t1.add(src.getRunnings().get("VM2"));
+   * t1.add(src.getRunnings().get("VM1")); t1.add(src.getRunnings().get("VM"));
    * IntDomainVar v1 = model.getVMGroup(t1); //One group was created
    * Assert.assertEquals(model.getVMGroups().size(), 1); for (VirtualMachine vm
    * : src.getAllVirtualMachines()) { IntDomainVar v =
@@ -366,7 +366,7 @@ public class TestDefaultReconfigurationProblem {
     src.addOnline(n1);
     src.addOnline(n2);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 2);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     src.setRunOn(vm1, src.getOnlines().get("N1"));
     src.setRunOn(vm2, src.getOnlines().get("N1"));
     try {
@@ -425,7 +425,7 @@ public class TestDefaultReconfigurationProblem {
     src.addOnline(n1);
     src.addOnline(n2);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 2);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     src.addWaiting(vm1);
     src.setRunOn(vm2, src.getOnlines().get("N1"));
     vm1.addOption("boot", "60");

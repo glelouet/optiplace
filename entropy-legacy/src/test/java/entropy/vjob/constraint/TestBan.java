@@ -66,7 +66,7 @@ public class TestBan {
       v.addVirtualMachines(src.getAllVirtualMachines());
       ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
       VirtualMachine vm1 = v.getVirtualMachines().get("VM1");
-      VirtualMachine vm2 = v.getVirtualMachines().get("VM2");
+      VirtualMachine vm2 = v.getVirtualMachines().get("VM");
       VirtualMachine vm4 = v.getVirtualMachines().get("VM4");
       vms.add(vm1);
       vms.add(vm2);
@@ -119,7 +119,7 @@ public class TestBan {
       v.addVirtualMachines(src.getAllVirtualMachines());
       ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
       VirtualMachine vm3 = v.getVirtualMachines().get("VM3");
-      VirtualMachine vm2 = v.getVirtualMachines().get("VM2");
+      VirtualMachine vm2 = v.getVirtualMachines().get("VM");
       VirtualMachine vm4 = v.getVirtualMachines().get("VM4");
       vms.add(vm3);
       vms.add(vm2);
@@ -157,7 +157,7 @@ public class TestBan {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -181,7 +181,7 @@ public class TestBan {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -223,7 +223,7 @@ public class TestBan {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);

@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -25,17 +25,17 @@ public class SimpleCoreView implements CoreView {
 	protected ReconfigurationProblem pb;
 
 	@Override
-	public Node[] nodes() {
-		return pb.nodes();
+	public Node[] node2s() {
+		return pb.node2s();
 	}
 
 	@Override
-	public VirtualMachine[] vms() {
+	public VM[] vms() {
 		return pb.vms();
 	}
 
 	@Override
-	public IntDomainVar host(VirtualMachine vm) {
+	public IntDomainVar host(VM vm) {
 		return pb.host(vm);
 	}
 
@@ -55,7 +55,7 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public IntDomainVar isMigrated(VirtualMachine vm) {
+	public IntDomainVar isMigrated(VM vm) {
 		return pb.isMigrated(vm);
 	}
 
@@ -65,22 +65,22 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public int node(Node n) {
-		return pb.node(n);
+	public int node2(Node n) {
+		return pb.node2(n);
 	}
 
 	@Override
-	public Node node(int n) {
-		return pb.node(n);
+	public Node node2(int n) {
+		return pb.node2(n);
 	}
 
 	@Override
-	public int vm(VirtualMachine vm) {
+	public int vm(VM vm) {
 		return pb.vm(vm);
 	}
 
 	@Override
-	public VirtualMachine vm(int vm) {
+	public VM vm(int vm) {
 		return pb.vm(vm);
 	}
 }

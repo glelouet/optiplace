@@ -48,7 +48,7 @@ public class TestContinuousSpread {
   public void testBasics() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 2, 3));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 2, 3));
+    vms.add(new SimpleVirtualMachine("VM", 1, 2, 3));
     Spread s = new ContinuousSpread(vms);
     Assert.assertFalse(s.toString().contains("null"));
     Assert.assertEquals(s.getNodes().size(), 0);
@@ -58,14 +58,14 @@ public class TestContinuousSpread {
     Assert.assertEquals(s, s2);
     Assert.assertEquals(s.hashCode(), s2.hashCode());
     ManagedElementSet<VirtualMachine> vms2 = vms.clone();
-    vms2.remove(vms2.get("VM2"));
+    vms2.remove(vms2.get("VM"));
     s2 = new ContinuousSpread(vms2);
     Assert.assertNotEquals(s, s2);
     Assert.assertNotEquals(s.hashCode(), s2.hashCode());
   }
 
   /** A basic test on spread. VM1 have to be hosted on N2 for resources issues.
-   * With the constraint, VM2 will have to be migrated first. */
+   * With the constraint, VM will have to be migrated first. */
   public void basicTest() {
     // ChocoLogging.setVerbosity(Verbosity.FINEST);
     Configuration src = TestHelper.readConfiguration(RESOURCES_LOCATION
@@ -74,7 +74,7 @@ public class TestContinuousSpread {
         + "dst.txt");
     ManagedElementSet<VirtualMachine> t1 = new SimpleManagedElementSet<VirtualMachine>();
     t1.add(src.getAllVirtualMachines().get("VM1"));
-    t1.add(src.getAllVirtualMachines().get("VM2"));
+    t1.add(src.getAllVirtualMachines().get("VM"));
     ChocoCustomRP plan = new ChocoCustomRP(new MockDurationEvaluator(9, 3, 2,
         3, 4, 5, 6, 7, 8));
     plan.setRepairMode(false);
@@ -94,7 +94,7 @@ public class TestContinuousSpread {
           .getAssociatedAction(src.getAllVirtualMachines().get("VM1"))
           .getDefinedAction(rp).get(0);
       Action m2 = plan.getReconfigurationProblem()
-          .getAssociatedAction(src.getAllVirtualMachines().get("VM2"))
+          .getAssociatedAction(src.getAllVirtualMachines().get("VM"))
           .getDefinedAction(rp).get(0);
       Assert.assertTrue(m1.getStartMoment() >= m2.getFinishMoment());
 
@@ -146,7 +146,7 @@ public class TestContinuousSpread {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -185,7 +185,7 @@ public class TestContinuousSpread {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);

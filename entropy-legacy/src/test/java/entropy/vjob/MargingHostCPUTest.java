@@ -45,7 +45,7 @@ public class MargingHostCPUTest {
     Assert.assertEquals(load, 30);
   }
 
-  /** generate a config with 3VMs(VM0, VM1, VM2), at cpuUsage 30, memUsage 1, and
+  /** generate a config with 3VMs(VM0, VM1, VM), at cpuUsage 30, memUsage 1, and
    * 2 nodes(N0, N1) at loadCapacity 100, memCapacity 1024 */
   public static SimpleConfiguration makeMiniConfig() {
     SimpleConfiguration ret = new SimpleConfiguration();

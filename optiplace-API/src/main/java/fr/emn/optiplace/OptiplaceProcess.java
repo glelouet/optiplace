@@ -14,7 +14,7 @@ package fr.emn.optiplace;
  * The internal methods are public available to let developers test or debug
  * easily.
  * </p>
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public abstract class OptiplaceProcess {
@@ -35,19 +35,19 @@ public abstract class OptiplaceProcess {
 	}
 
 	/** generate the elements of the problem in the solver */
-	public abstract void makeProblem();
+	protected abstract void makeProblem();
 
 	/** set the logging acording to the problem solver used */
-	public abstract void configLogging();
+	protected abstract void configLogging();
 
 	/** prepare the heuristics and the objectives */
-	public abstract void configSearch();
+	protected abstract void configSearch();
 
 	/** actually make the solver go for the solution(s) */
-	public abstract void makeSearch();
+	protected abstract void makeSearch();
 
 	/** extract the interesting data from the solver result */
-	public abstract void extractData();
+	protected abstract void extractData();
 
 	protected BaseCenter center = new BaseCenter();
 

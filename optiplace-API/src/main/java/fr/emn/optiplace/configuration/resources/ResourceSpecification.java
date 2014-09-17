@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 
 /**
  * specifies, for one resource known as its {@link #getType() type} the
@@ -20,7 +20,7 @@ public interface ResourceSpecification {
 	/** @return the type of the resources, used as an ID. */
 	String getType();
 
-	int getUse(VirtualMachine vm);
+	int getUse(VM vm);
 
 	/**
 	 * @param vms
@@ -28,7 +28,7 @@ public interface ResourceSpecification {
 	 * @return the array of usages of this resource by the vms, such as
 	 * ret[i]:=usage(vms[i])
 	 */
-	default int[] getUses(VirtualMachine... vms) {
+	default int[] getUses(VM... vms) {
 		int[] ret = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
 			ret[i] = getUse(vms[i]);
@@ -56,7 +56,7 @@ public interface ResourceSpecification {
 	 * @return a map of the usages of the vms. Should return a value even if a vm
 	 * is not present.
 	 */
-	Map<VirtualMachine, Integer> toUses();
+	Map<VM, Integer> toUses();
 
 	/**
 	 * @return a map of the capacities of the nodes. should return a value even if
@@ -71,10 +71,10 @@ public interface ResourceSpecification {
 	 * the virtualMachines hosted on the given node
 	 * @return the sum of the use of the vms
 	 */
-	default int getUse(VirtualMachine... vms) {
+	default int getUse(VM... vms) {
 		int sum = 0;
 		if (vms != null) {
-			for (VirtualMachine vm : vms) {
+			for (VM vm : vms) {
 				sum += getUse(vm);
 			}
 		}
@@ -113,7 +113,7 @@ public interface ResourceSpecification {
 	 * the vm
 	 * @return true if there is enough resource on n to host vm.
 	 */
-	default boolean canHost(Configuration cfg, Node n, VirtualMachine vm) {
+	default boolean canHost(Configuration cfg, Node n, VM vm) {
 		return getUse(cfg, n) + getUse(vm) <= getCapacity(n);
 	}
 
@@ -126,18 +126,18 @@ public interface ResourceSpecification {
 	 * decreasing order
 	 * @return a new comparator, backing to this.
 	 */
-	default Comparator<VirtualMachine> makeVMComparator(boolean increasing) {
+	default Comparator<VM> makeVMComparator(boolean increasing) {
 		if (increasing) {
-			return new Comparator<VirtualMachine>() {
+			return new Comparator<VM>() {
 				@Override
-				public int compare(VirtualMachine o1, VirtualMachine o2) {
+				public int compare(VM o1, VM o2) {
 					return getUse(o1) - getUse(o2);
 				}
 			};
 		} else {
-			return new Comparator<VirtualMachine>() {
+			return new Comparator<VM>() {
 				@Override
-				public int compare(VirtualMachine o1, VirtualMachine o2) {
+				public int compare(VM o1, VM o2) {
 					return getUse(o2) - getUse(o1);
 				}
 			};

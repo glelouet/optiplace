@@ -42,7 +42,7 @@ public class TestCPUBurningVMsSampler {
     Assert
         .assertEquals(sampled.getRunnings().get("VM1").getCPUConsumption(), 1);
     Assert
-        .assertEquals(sampled.getRunnings().get("VM2").getCPUConsumption(), 0);
+        .assertEquals(sampled.getRunnings().get("VM").getCPUConsumption(), 0);
     Assert.assertEquals(sampled.getSleepings().get("VM3").getCPUConsumption(),
         1);
     Assert

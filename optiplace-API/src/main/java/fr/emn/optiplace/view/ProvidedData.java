@@ -15,7 +15,11 @@ import java.util.stream.Stream;
  */
 public interface ProvidedData {
 
-	/** description of the configuration name */
+	/**
+	 * description of the configuration name. for a file it should be the file's
+	 * name, for a data provided to replace a view coonf, it should be that view's
+	 * file's name
+	 */
 	public String name();
 
 	/** translate the configuration as an unmodifiable list of lines */

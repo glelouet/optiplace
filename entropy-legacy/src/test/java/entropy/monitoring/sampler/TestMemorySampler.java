@@ -40,7 +40,7 @@ public class TestMemorySampler {
     Assert.assertEquals(res.getOfflines().get("N4").getMemoryCapacity(), 4);
 
     Assert.assertEquals(res.getRunnings().get("VM1").getMemoryConsumption(), 1);
-    Assert.assertEquals(res.getRunnings().get("VM2").getMemoryConsumption(), 2);
+    Assert.assertEquals(res.getRunnings().get("VM").getMemoryConsumption(), 2);
     Assert
         .assertEquals(res.getSleepings().get("VM3").getMemoryConsumption(), 3);
     Assert.assertEquals(res.getWaitings().get("VM4").getMemoryConsumption(), 4);

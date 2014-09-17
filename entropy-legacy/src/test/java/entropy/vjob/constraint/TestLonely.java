@@ -43,7 +43,7 @@ public class TestLonely {
   public void testBasics() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 2, 3));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 2, 3));
+    vms.add(new SimpleVirtualMachine("VM", 1, 2, 3));
     Lonely l = new Lonely(vms);
     Assert.assertFalse(l.toString().contains("null"));
     Assert.assertEquals(l.getNodes().size(), 0);
@@ -53,7 +53,7 @@ public class TestLonely {
     Assert.assertEquals(l, l2);
     Assert.assertEquals(l.hashCode(), l2.hashCode());
     ManagedElementSet<VirtualMachine> vms2 = vms.clone();
-    vms2.remove(vms2.get("VM2"));
+    vms2.remove(vms2.get("VM"));
     l2 = new Lonely(vms2);
     Assert.assertNotEquals(l, l2);
     Assert.assertNotEquals(l.hashCode(), l2.hashCode());
@@ -62,7 +62,7 @@ public class TestLonely {
   public void testInstantiation() {
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(new SimpleVirtualMachine("VM1", 1, 1, 1));
-    vms.add(new SimpleVirtualMachine("VM2", 1, 1, 1));
+    vms.add(new SimpleVirtualMachine("VM", 1, 1, 1));
     vms.add(new SimpleVirtualMachine("VM3", 1, 1, 1));
     Lonely l = new Lonely(vms);
     Assert.assertEquals(l.getAllVirtualMachines(), vms);
@@ -92,7 +92,7 @@ public class TestLonely {
     ManagedElementSet<VirtualMachine> s2 = new SimpleManagedElementSet<VirtualMachine>();
     s2.add(cfg.getRunnings().get("VM0"));
     s2.add(cfg.getRunnings().get("VM1"));
-    s2.add(cfg.getRunnings().get("VM2"));
+    s2.add(cfg.getRunnings().get("VM"));
     s2.add(cfg.getRunnings().get("VM7"));
     Lonely l2 = new Lonely(s2);
     Assert.assertFalse(l2.isSatisfied(cfg));
@@ -124,11 +124,11 @@ public class TestLonely {
     s2.add(cfg.getRunnings().get("VM1"));
     s2.add(cfg.getRunnings().get("VM10"));
     s2.add(cfg.getRunnings().get("VM11"));
-    s2.add(cfg.getRunnings().get("VM2"));
+    s2.add(cfg.getRunnings().get("VM"));
     s2.add(cfg.getRunnings().get("VM7"));
     Lonely l2 = new Lonely(s2);
     ManagedElementSet<VirtualMachine> bads = new SimpleManagedElementSet<VirtualMachine>();
-    bads.add(cfg.getRunnings().get("VM2"));
+    bads.add(cfg.getRunnings().get("VM"));
     bads.add(cfg.getRunnings().get("VM7"));
     Assert.assertEquals(l2.getMisPlaced(cfg), bads);
   }
@@ -184,7 +184,7 @@ public class TestLonely {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -223,7 +223,7 @@ public class TestLonely {
     Node n1 = new SimpleNode("N1", 1, 1, 1);
     Node n2 = new SimpleNode("N2", 1, 1, 1);
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);

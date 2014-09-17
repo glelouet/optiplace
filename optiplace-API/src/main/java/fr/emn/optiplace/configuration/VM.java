@@ -15,13 +15,12 @@ package fr.emn.optiplace.configuration;
  *
  * @author Guillaume Le Louët
  */
-public class SimpleVirtualMachine extends SimpleManagedElement implements
-		VirtualMachine {
+public class VM extends ManagedElement {
 
 	/**
 	 * @param name
 	 */
-	public SimpleVirtualMachine(String name) {
+	public VM(String name) {
 		super(name);
 	}
 

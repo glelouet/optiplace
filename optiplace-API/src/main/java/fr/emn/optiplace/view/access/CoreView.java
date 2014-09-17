@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 
 /**
@@ -24,45 +24,45 @@ public interface CoreView {
 	/**
 	 * @return an array of the nodes of the problem, each at its index position
 	 */
-	public Node[] nodes();
+	public Node[] node2s();
 
 	/**
 	 * @param n
 	 *            a node of the problem
 	 * @return the index of the node in the problem, or -1
 	 */
-	public int node(Node n);
+	public int node2(Node n);
 
 	/**
 	 * @param idx
 	 * @return the node at given position, or null
 	 */
-	public Node node(int idx);
+	public Node node2(int idx);
 
 	/**
 	 * @return the array of vm of this problem, each vm being on its index
 	 */
-	public VirtualMachine[] vms();
+	public VM[] vms();
 
 	/**
 	 * @param vm
 	 *            a virtual machine of this problem
 	 * @return the internal index for this vm, or -1
 	 */
-	public int vm(VirtualMachine vm);
+	public int vm(VM vm);
 
 	/**
 	 * @param idx
 	 * @return the vm at given pos, or null
 	 */
-	public VirtualMachine vm(int idx);
+	public VM vm(int idx);
 
 	/**
 	 * @param vm
 	 *            a virtual machine of the problem
 	 * @return the index of the node hosting this vm
 	 */
-	public IntDomainVar host(VirtualMachine vm);
+	public IntDomainVar host(VM vm);
 
 	/**
 	 * @param n
@@ -84,7 +84,7 @@ public interface CoreView {
 	 *            a vm of the problem
 	 * @return true if the vm change host from source to target
 	 */
-	public IntDomainVar isMigrated(VirtualMachine vm);
+	public IntDomainVar isMigrated(VM vm);
 
 	/**
 	 * @return the number of migrations performed to pass from source to target

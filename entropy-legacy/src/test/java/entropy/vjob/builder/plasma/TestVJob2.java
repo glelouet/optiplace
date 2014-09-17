@@ -62,7 +62,7 @@ public class TestVJob2 {
     Assert.assertTrue(v.getVirtualMachineSets().contains(t2));
     Assert.assertEquals(v.getVirtualMachines().size(), 10);
     Assert.assertEquals(v.getVariable("$T1"), t1);
-    Assert.assertEquals(v.toString(), "$T1 = {VM0, VM2, VM4, VM6, VM8};");
+    Assert.assertEquals(v.toString(), "$T1 = {VM0, VM, VM4, VM6, VM8};");
   }
 
   /** Add a multiset of virtual machines, get it, check the variables and

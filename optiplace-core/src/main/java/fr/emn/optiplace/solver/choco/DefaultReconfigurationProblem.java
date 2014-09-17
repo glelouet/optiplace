@@ -35,7 +35,7 @@ import choco.kernel.solver.variables.set.SetVar;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.core.choco.reified.FastIFFNEQ;
@@ -70,7 +70,7 @@ ReconfigurationProblem {
   private int[] currentLocation;
 
   /** All the nodes managed by the model. */
-  private Node[] nodes;
+  private Node[] node2s;
 
   private TObjectIntHashMap<Node> revNodes;
 
@@ -78,15 +78,15 @@ ReconfigurationProblem {
   private SetVar[] sets;
 
   /** All the virtual machines managed by the model. */
-  private VirtualMachine[] vms;
+  private VM[] vms;
 
-  private TObjectIntHashMap<VirtualMachine>revVMs;
+  private TObjectIntHashMap<VM>revVMs;
 
   /** The group variable associated to each virtual machine. */
   private final List<IntDomainVar> vmGrp;
 
   /** The group variable associated to each group of VMs. */
-  private final Map<Set<VirtualMachine>, IntDomainVar> vmsGrp;
+  private final Map<Set<VM>, IntDomainVar> vmsGrp;
 
   /** The value associated to each group of nodes. */
   private final Map<Set<Node>, Integer> nodesGrp;
@@ -149,9 +149,9 @@ ReconfigurationProblem {
     for (int i = 0; i < vms.length; i++) {
       vmGrp.add(i, null);
     }
-    vmsGrp = new HashMap<Set<VirtualMachine>, IntDomainVar>();
-    nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
-    for (int i = 0; i < nodes.length; i++) {
+    vmsGrp = new HashMap<Set<VM>, IntDomainVar>();
+    nodeGrps = new ArrayList<TIntArrayList>(node2s.length);
+    for (int i = 0; i < node2s.length; i++) {
       nodeGrps.add(i, new TIntArrayList());
     }
     nodesGrp = new HashMap<Set<Node>, Integer>();
@@ -162,22 +162,22 @@ ReconfigurationProblem {
    * store the states of the nodes and the VMs from source
    */
   private void makeConstantConfig() {
-    Set<VirtualMachine> allVMs = source.getVMs().collect(Collectors.toSet());
-    vms = allVMs.toArray(new VirtualMachine[allVMs.size()]);
+    Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
+    vms = allVMs.toArray(new VM[allVMs.size()]);
     revVMs = new TObjectIntHashMap<>(vms.length);
     for (int i = 0; i < vms.length; i++) {
       revVMs.put(vms[i], i);
     }
     Set<Node> ns = source.getNodes().collect(Collectors.toSet());
-    nodes = ns.toArray(new Node[ns.size()]);
-    grpId = new int[nodes.length];
-    revNodes = new TObjectIntHashMap<>(nodes.length);
-    for (int i = 0; i < nodes.length; i++) {
-      revNodes.put(nodes[i], i);
+    node2s = ns.toArray(new Node[ns.size()]);
+    grpId = new int[node2s.length];
+    revNodes = new TObjectIntHashMap<>(node2s.length);
+    for (int i = 0; i < node2s.length; i++) {
+      revNodes.put(node2s[i], i);
     }
     currentLocation = new int[vms.length];
-    for (VirtualMachine vm : vms) {
-      currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source
+    for (VM vm : vms) {
+      currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node2(source
           .getLocation(vm));
     }
   }
@@ -200,10 +200,10 @@ ReconfigurationProblem {
   private void makeSetModel() {
     if (sets == null) {
       // A set variable for each future online nodes
-      sets = new SetVar[nodes.length];
+      sets = new SetVar[node2s.length];
 
       for (int i = 0; i < sets.length; i++) {
-        SetVar s = createEnumSetVar("host(" + nodes[i].getName() + ")",
+        SetVar s = createEnumSetVar("host(" + node2s[i].getName() + ")",
             0, vms.length - 1);
         sets[i] = s;
       }
@@ -215,12 +215,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public Node[] nodes() {
-    return nodes;
+  public Node[] node2s() {
+    return node2s;
   }
 
   @Override
-  public VirtualMachine[] vms() {
+  public VM[] vms() {
     return vms;
   }
 
@@ -230,7 +230,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public int vm(VirtualMachine vm) {
+  public int vm(VM vm) {
     int v = revVMs.get(vm);
     if (v == 0 && !vms[0].equals(vm)) {
       return -1;
@@ -239,7 +239,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public VirtualMachine vm(int idx) {
+  public VM vm(int idx) {
     if (idx < vms.length && idx >= 0) {
       return vms[idx];
     }
@@ -254,7 +254,7 @@ ReconfigurationProblem {
    *            the vms to convert, all of them must belong to the problem
    * @return a new array of those vms.
    */
-  public int[] vms(VirtualMachine... vms) {
+  public int[] vms(VM... vms) {
     if (vms == null || vms.length == 0) {
       return null;
     }
@@ -266,18 +266,18 @@ ReconfigurationProblem {
   }
 
   @Override
-  public int node(Node n) {
+  public int node2(Node n) {
     int v = revNodes.get(n);
-    if (v == 0 && !nodes[0].equals(n)) {
+    if (v == 0 && !node2s[0].equals(n)) {
       return -1;
     }
     return v;
   }
 
   @Override
-  public Node node(int idx) {
-    if (idx < nodes.length && idx >= 0) {
-      return nodes[idx];
+  public Node node2(int idx) {
+    if (idx < node2s.length && idx >= 0) {
+      return node2s[idx];
     } else {
       logger.warn("getting no node at pos " + idx);
       return null;
@@ -285,14 +285,14 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar getVMGroup(Set<VirtualMachine> vms) {
+  public IntDomainVar getVMGroup(Set<VM> vms) {
     IntDomainVar v = vmsGrp.get(vms);
     if (v != null) {
       return v;
     }
 
     v = createEnumIntVar("vmset" + vms.toString(), 0, MAX_NB_GRP);
-    for (VirtualMachine vm : vms) {
+    for (VM vm : vms) {
       vmGrp.set(vm(vm), v);
     }
     vmsGrp.put(vms, v);
@@ -300,10 +300,10 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar makeGroup(Set<VirtualMachine> vms, Set<Set<Node>> nodes) {
-    int[] values = new int[nodes.size()];
+  public IntDomainVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s) {
+    int[] values = new int[node2s.size()];
     int i = 0;
-    for (Set<Node> ns : nodes) {
+    for (Set<Node> ns : node2s) {
       values[i] = getGroup(ns);
       i++;
     }
@@ -314,30 +314,30 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar getAssociatedGroup(VirtualMachine vm) {
+  public IntDomainVar getAssociatedGroup(VM vm) {
     return vmGrp.get(vm(vm));
   }
 
   @Override
-  public Set<Set<VirtualMachine>> getVMGroups() {
+  public Set<Set<VM>> getVMGroups() {
     return vmsGrp.keySet();
   }
 
   @Override
-  public int getGroup(Set<Node> nodes) {
-    if (nodesGrp.get(nodes) != null) {
-      return nodesGrp.get(nodes);
+  public int getGroup(Set<Node> node2s) {
+    if (nodesGrp.get(node2s) != null) {
+      return nodesGrp.get(node2s);
     } else {
       if (nextNodeGroupVal > MAX_NB_GRP) {
         return -1;
       }
       int v = nextNodeGroupVal++;
-      nodesGrp.put(nodes, v);
-      revNodesGrp.add(v, nodes);
-      for (Node n : nodes) {
-        TIntArrayList l = nodeGrps.get(node(n));
+      nodesGrp.put(node2s, v);
+      revNodesGrp.add(v, node2s);
+      for (Node n : node2s) {
+        TIntArrayList l = nodeGrps.get(node2(n));
         l.add(v);
-        grpId[node(n)] = v;
+        grpId[node2(n)] = v;
       }
       // Set the group of the nodes
       return v;
@@ -351,7 +351,7 @@ ReconfigurationProblem {
 
   @Override
   public TIntArrayList getAssociatedGroups(Node n) {
-    return nodeGrps.get(node(n));
+    return nodeGrps.get(node2(n));
   }
 
   @Override
@@ -374,7 +374,7 @@ ReconfigurationProblem {
     if (sets == null) {
       makeSetModel();
     }
-    int idx = node(n);
+    int idx = node2(n);
     if (idx < 0) {
       return null;
     }
@@ -390,9 +390,9 @@ ReconfigurationProblem {
   protected void makeHosters() {
     hosters = new IntDomainVar[vms.length];
     for (int i = 0; i < vms.length; i++) {
-      VirtualMachine vm = vm(i);
+      VM vm = vm(i);
       hosters[i] = createEnumIntVar(vm.getName() + ".hoster", 0,
-          nodes.length - 1);
+          node2s.length - 1);
     }
   }
 
@@ -401,12 +401,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar host(VirtualMachine vm) {
+  public IntDomainVar host(VM vm) {
     return host(vm(vm));
   }
 
   @Override
-  public IntDomainVar[] getHosters(VirtualMachine... vms) {
+  public IntDomainVar[] getHosters(VM... vms) {
     if (vms == null || vms.length == 0) {
       return hosters;
     } else {
@@ -420,11 +420,11 @@ ReconfigurationProblem {
 
   private void makeCards() {
     if (cards == null) {
-      cards = new IntDomainVar[nodes.length];
+      cards = new IntDomainVar[node2s.length];
       for (int i = 0; i < cards.length; i++) {
         cards[i] = createBoundIntVar("nb#" + i, 0, vms.length);
       }
-      post(new BoundGccVar(getHosters(), cards, 0, nodes.length - 1,
+      post(new BoundGccVar(getHosters(), cards, 0, node2s.length - 1,
           getEnvironment()));
 
     }
@@ -437,7 +437,7 @@ ReconfigurationProblem {
 
   @Override
   public IntDomainVar nbVMs(Node n) {
-    return nbVMs(node(n));
+    return nbVMs(node2(n));
   }
 
   @Override
@@ -453,14 +453,14 @@ ReconfigurationProblem {
    * number of vms on it.
    */
   protected IntDomainVar makeIsHosting(int nodeIdx) {
-    IntDomainVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
+    IntDomainVar ret = boolenize(nbVMs(nodeIdx), node2s[nodeIdx].getName()
         + "?hosting");
     return ret;
   }
 
   public IntDomainVar isHoster(int idx) {
     if (nodesAreHostings == null) {
-      nodesAreHostings = new IntDomainVar[nodes().length];
+      nodesAreHostings = new IntDomainVar[node2s().length];
     }
     IntDomainVar ret = nodesAreHostings[idx];
     if (ret == null) {
@@ -472,7 +472,7 @@ ReconfigurationProblem {
 
   @Override
   public IntDomainVar isHoster(Node n) {
-    return isHoster(node(n));
+    return isHoster(node2(n));
   }
 
   HashMap<String, IntDomainVar[]> hostUsedResources = new HashMap<>();
@@ -536,10 +536,10 @@ ReconfigurationProblem {
   protected void makeIsMigrateds() {
     isMigrateds = new IntDomainVar[vms().length];
     for (int i = 0; i < isMigrateds.length; i++) {
-      VirtualMachine vm = vm(i);
+      VM vm = vm(i);
       Node sourceHost = getSourceConfiguration().getLocation(vm);
       if (getSourceConfiguration().hasVM(vm)) {
-        isMigrateds[i] = isDifferent(host(vm), node(sourceHost));
+        isMigrateds[i] = isDifferent(host(vm), node2(sourceHost));
         try {
           isMigrateds[i].setVal(0);
         } catch (ContradictionException e) {
@@ -558,7 +558,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar isMigrated(VirtualMachine vm) {
+  public IntDomainVar isMigrated(VM vm) {
     return isMigrated(vm(vm));
   }
 
@@ -769,14 +769,14 @@ ReconfigurationProblem {
   @Override
   public Configuration extractConfiguration() {
     Configuration cfg = new SimpleConfiguration();
-    for (Node n : nodes) {
+    for (Node n : node2s) {
       if (source.isOnline(n)) {
         cfg.setOnline(n);
       } else {
         cfg.setOffline(n);
       }
     }
-    source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getVal())));
+    source.getVMs().forEach(vm -> cfg.setHost(vm, node2(host(vm).getVal())));
     return cfg;
   }
 

@@ -69,7 +69,7 @@ public class TestQuarantine {
     ns.remove(ns.get("N1"));
     ns.remove(ns.get("N2"));
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     vm2.setCPUDemand(3);
     cfg.setRunOn(vm1, ns.get("N3"));
@@ -103,7 +103,7 @@ public class TestQuarantine {
     ns.remove(ns.get("N1"));
     ns.remove(ns.get("N2"));
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     vm1.setCPUDemand(4);
     cfg.setRunOn(vm1, ns.get("N3"));

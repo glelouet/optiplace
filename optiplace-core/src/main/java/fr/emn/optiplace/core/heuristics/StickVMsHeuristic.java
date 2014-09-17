@@ -8,7 +8,7 @@ import java.util.List;
 import choco.cp.solver.search.integer.branching.AssignOrForbidIntVarVal;
 import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
 import choco.kernel.solver.variables.integer.IntDomainVar;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
@@ -24,9 +24,9 @@ import fr.emn.optiplace.view.SearchHeuristic;
 public class StickVMsHeuristic implements SearchHeuristic {
 
 	/** the comparator to define in which order to assign the vms */
-	private final Comparator<VirtualMachine> cmp;
+	private final Comparator<VM> cmp;
 
-	public StickVMsHeuristic(Comparator<VirtualMachine> cmp) {
+	public StickVMsHeuristic(Comparator<VM> cmp) {
 		this.cmp = cmp;
 	}
 
@@ -39,7 +39,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 	}
 
 	/** @return the cmp */
-	public Comparator<VirtualMachine> getCmp() {
+	public Comparator<VM> getCmp() {
 		return cmp;
 	}
 
@@ -47,7 +47,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 	public List<AbstractIntBranchingStrategy> getHeuristics(
 			ReconfigurationProblem rp) {
 		List<AbstractIntBranchingStrategy> ret = new ArrayList<AbstractIntBranchingStrategy>();
-		VirtualMachine[] vms = rp.vms().clone();
+		VM[] vms = rp.vms().clone();
 		if (vms == null || vms.length == 0) {
 			return ret;
 		}
@@ -55,7 +55,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 		int[] correspondingNodes = new int[vms.length];
 		IntDomainVar[] sortedHosters = new IntDomainVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			correspondingNodes[i] = rp.node(rp.getSourceConfiguration().getLocation(
+			correspondingNodes[i] = rp.node2(rp.getSourceConfiguration().getLocation(
 					vms[i]));
 			sortedHosters[i] = rp.host(vms[i]);
 		}

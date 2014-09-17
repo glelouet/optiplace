@@ -42,7 +42,7 @@ public class TestAmong {
     Node n4 = new SimpleNode("N4", 1, 1, 1);
 
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
 
     cfg.addOnline(n1);
@@ -101,7 +101,7 @@ public class TestAmong {
         + "dst.txt");
     ManagedElementSet<VirtualMachine> t1 = new SimpleManagedElementSet<VirtualMachine>();
     VirtualMachine vm1 = src.getAllVirtualMachines().get("VM1");
-    VirtualMachine vm2 = src.getAllVirtualMachines().get("VM2");
+    VirtualMachine vm2 = src.getAllVirtualMachines().get("VM");
     t1.add(vm1);
     t1.add(vm2);
     ManagedElementSet<Node> g1 = new SimpleManagedElementSet<Node>();
@@ -151,7 +151,7 @@ public class TestAmong {
         + "dst.txt");
     ManagedElementSet<VirtualMachine> t1 = new SimpleManagedElementSet<VirtualMachine>();
     VirtualMachine vm1 = src.getAllVirtualMachines().get("VM1");
-    VirtualMachine vm2 = src.getAllVirtualMachines().get("VM2");
+    VirtualMachine vm2 = src.getAllVirtualMachines().get("VM");
     VirtualMachine vm3 = src.getAllVirtualMachines().get("VM3");
     t1.add(vm1);
     t1.add(vm2);
@@ -228,7 +228,7 @@ public class TestAmong {
     grps.add(grp2);
 
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 1, 1);
 

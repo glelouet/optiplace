@@ -48,7 +48,7 @@ public class TestXMLVJobBuilderBuilder {
       Assert.assertEquals(v.getVirtualMachines().size(), 60);
 
       // Check some options
-      VirtualMachine vm = v.getVirtualMachines().get("clients.bar.VM28");
+      VirtualMachine vm = v.getVirtualMachines().get("clients.bar.VM8");
       Assert.assertEquals(vm.getOptions().size(), 2);
       Assert.assertTrue(vm.checkOption("volatile"));
       Assert.assertTrue(vm.checkOption("stop"));

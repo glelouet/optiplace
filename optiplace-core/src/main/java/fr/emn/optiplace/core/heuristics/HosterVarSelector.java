@@ -15,7 +15,7 @@ import choco.kernel.memory.IStateInt;
 import choco.kernel.solver.branch.VarSelector;
 import choco.kernel.solver.search.integer.AbstractIntVarSelector;
 import choco.kernel.solver.variables.integer.IntDomainVar;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -37,7 +37,7 @@ public class HosterVarSelector extends AbstractIntVarSelector {
 	 * @param vms
 	 *            the VMs to considers the hoster's
 	 */
-	public HosterVarSelector(ReconfigurationProblem solver, VirtualMachine[] vms) {
+	public HosterVarSelector(ReconfigurationProblem solver, VM[] vms) {
 		super(solver, solver.getHosters(vms));
 		last = solver.getEnvironment().makeInt(-1);
 	}

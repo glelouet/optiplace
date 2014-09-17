@@ -54,7 +54,7 @@ public class TestDefaultConstraintsCatalog {
             new SimpleVirtualMachine("VM1", 1, 1, 1))));
     e.add(new ExplodedSet<SimpleVirtualMachine>(
         new SimpleManagedElementSet<SimpleVirtualMachine>(
-            new SimpleVirtualMachine("VM2", 1, 1, 1))));
+            new SimpleVirtualMachine("VM", 1, 1, 1))));
     List<VJobElement> params = new LinkedList<VJobElement>();
     params.add(e);
     try {

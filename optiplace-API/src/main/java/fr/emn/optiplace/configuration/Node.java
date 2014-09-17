@@ -10,7 +10,13 @@
 
 package fr.emn.optiplace.configuration;
 
-/** a Node is one of the two types of ManagedElements
- * @author Guillaume Le Louët */
-public interface Node extends ManagedElement {
+
+/** @author Fabien Hermenier */
+public class Node extends ManagedElement {
+
+	/** @param name */
+	public Node(String name) {
+		super(name);
+  }
+
 }

@@ -123,7 +123,7 @@ public class ProtobufVJobBuilderTest {
   // ManagedElementSet<VirtualMachine> t1 = new
   // SimpleManagedElementSet<VirtualMachine>();
   // t1.add(cfg.getAllVirtualMachines().get("vappHA.VM1"));
-  // t1.add(cfg.getAllVirtualMachines().get("vappHA.VM2"));
+  // t1.add(cfg.getAllVirtualMachines().get("vappHA.VM"));
   // t1.add(cfg.getAllVirtualMachines().get("vappHA.VM3"));
   // v.addConstraint(new ContinuousSpread(t1));
   // v.addVirtualMachine(cfg.getAllVirtualMachines().get("vappHA.VM10"));

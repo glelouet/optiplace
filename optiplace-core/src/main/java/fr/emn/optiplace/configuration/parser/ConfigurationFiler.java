@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.SimpleNode;
-import fr.emn.optiplace.configuration.SimpleVirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -88,11 +87,11 @@ public class ConfigurationFiler {
 		if (nodeName == null) {
 			return;
 		}
-		Node n = new SimpleNode(nodeName);
+		Node n = new Node(nodeName);
 		if (online) {
 			cfg.setOnline(n);
 			for (String s : vms) {
-				cfg.setHost(new SimpleVirtualMachine(s), n);
+				cfg.setHost(new VM(s), n);
 			}
 		}
 	}

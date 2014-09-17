@@ -2,7 +2,7 @@ package fr.emn.optiplace.configuration.resources;
 
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VirtualMachine;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -60,8 +60,8 @@ public class ResourceHandler {
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
 		AssociatedPb = pb;
-		Node[] nodes = pb.nodes();
-		VirtualMachine[] vms = pb.vms();
+		Node[] nodes = pb.node2s();
+		VM[] vms = pb.vms();
 		vmsUsesByIndex = new IntDomainVar[vms.length];
 		nodesUsesByIndex = new IntDomainVar[nodes.length];
 		vmsUses = new int[vms.length];

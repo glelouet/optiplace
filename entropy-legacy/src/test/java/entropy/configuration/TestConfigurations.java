@@ -41,7 +41,7 @@ public class TestConfigurations {
 
     c.setRunOn(new SimpleVirtualMachine("VM1", 1, 1, 1),
         c.getOnlines().get("N1"));
-    c.setRunOn(new SimpleVirtualMachine("VM2", 1, 1, 1),
+    c.setRunOn(new SimpleVirtualMachine("VM", 1, 1, 1),
         c.getOnlines().get("N2"));
     c.setRunOn(new SimpleVirtualMachine("VM3", 1, 1, 1, 2, 2), c.getOnlines()
         .get("N3"));
@@ -118,7 +118,7 @@ public class TestConfigurations {
     ns.add(cfg.getAllNodes().get("N11"));
     ManagedElementSet<VirtualMachine> vms = new SimpleManagedElementSet<VirtualMachine>();
     vms.add(cfg.getAllVirtualMachines().get("VM1"));
-    vms.add(cfg.getAllVirtualMachines().get("VM2"));
+    vms.add(cfg.getAllVirtualMachines().get("VM"));
     vms.add(cfg.getAllVirtualMachines().get("VM10"));
     vms.add(cfg.getAllVirtualMachines().get("VM3"));
     vms.add(cfg.getAllVirtualMachines().get("VM8"));

@@ -32,7 +32,7 @@ public class TestTimedReconfigurationExecuter {
     Configuration cfg = new SimpleConfiguration();
 
     VirtualMachine vm1 = new SimpleVirtualMachine("VM1", 1, 1, 1);
-    VirtualMachine vm2 = new SimpleVirtualMachine("VM2", 1, 1, 1);
+    VirtualMachine vm2 = new SimpleVirtualMachine("VM", 1, 1, 1);
     VirtualMachine vm3 = new SimpleVirtualMachine("VM3", 1, 1, 1);
     VirtualMachine vm4 = new SimpleVirtualMachine("VM4", 1, 1, 1);
     Node n1 = new SimpleNode("N1", 1, 1, 1);

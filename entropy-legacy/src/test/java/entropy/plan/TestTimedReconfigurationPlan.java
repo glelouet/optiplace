@@ -38,7 +38,7 @@ public class Testentropy.plan.ReconfigurationResult {
   private void fill(entropy.plan.ReconfigurationResult plan) {
     Configuration src = plan.getSource();
     VirtualMachine vm1 = src.getRunnings().get("VM1");
-    VirtualMachine vm2 = src.getRunnings().get("VM2");
+    VirtualMachine vm2 = src.getRunnings().get("VM");
     VirtualMachine vm3 = src.getRunnings().get("VM3");
     VirtualMachine vm4 = src.getRunnings().get("VM4");
     Node n1 = src.getOnlines().get("N1");
@@ -67,7 +67,7 @@ public class Testentropy.plan.ReconfigurationResult {
     Configuration src = plan.getSource();
 
     VirtualMachine vm1 = src.getRunnings().get("VM1");
-    VirtualMachine vm2 = src.getRunnings().get("VM2");
+    VirtualMachine vm2 = src.getRunnings().get("VM");
 
     Node n1 = src.getOnlines().get("N1");
     Node n2 = src.getOnlines().get("N2");
