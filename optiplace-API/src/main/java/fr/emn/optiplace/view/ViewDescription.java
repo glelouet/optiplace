@@ -34,10 +34,10 @@ public class ViewDescription {
 	 * keys are fields for the view which need to be configured, configuration is
 	 * in the associated value. eg (att1 - file1.txt)
 	 */
-	protected Map<String, String> requiredConf;
+	protected Set<String> requiredConf;
 
 	/** same as {@link #requiredConf} but for optional configured fields */
-	protected Map<String, String> optionalConf;
+	protected Set<String> optionalConf;
 
 	/** list of views this view depends on. */
 	protected Set<String> depends;
@@ -66,11 +66,11 @@ public class ViewDescription {
 			return;
 		}
 		if (line.startsWith(REQCONFPARAM)) {
-			requiredConf = translateStringToMap(line.substring(REQCONFPARAM.length()));
+			requiredConf = translateStringToSet(line.substring(REQCONFPARAM.length()));
 			return;
 		}
 		if (line.startsWith(OPTCONFPARAM)) {
-			optionalConf = translateStringToMap(line.substring(OPTCONFPARAM.length()));
+			optionalConf = translateStringToSet(line.substring(OPTCONFPARAM.length()));
 			return;
 		}
 		if (line.startsWith(DEPPARAM)) {
@@ -105,6 +105,10 @@ public class ViewDescription {
 		return ret;
 	}
 
+	public static HashSet<String> translateStringToSet(String line) {
+		return new HashSet<>(Arrays.asList(line.split(", ")));
+	}
+
 	public void read(BufferedReader reader) {
 		reader.lines().forEach(this::handleLine);
 	}
@@ -128,6 +132,15 @@ public class ViewDescription {
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 		}
+	}
+
+	public static void main(String[] args) {
+		HashSet<String> s = new HashSet<>();
+		s.add("lol");
+		s.add("mais");
+		s.add("choux");
+		s.add("bruxelle");
+		System.err.println(s);
 	}
 
 }

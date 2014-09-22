@@ -6,7 +6,6 @@ package fr.emn.optiplace.view;
 import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.testng.Assert;
@@ -29,9 +28,9 @@ public class ViewDescriptionTest {
 		test.depends = new HashSet<String>();
 		test.depends.add("dep1");
 		test.depends.add("dep2");
-		test.requiredConf = new HashMap<String, String>();
-		test.requiredConf.put("att1", "att1confFile");
-		test.requiredConf.put("att2", "att2confFile");
+		test.requiredConf = new HashSet<String>();
+		test.requiredConf.add("att1confFile");
+		test.requiredConf.add("att2confFile");
 		CharArrayWriter buff = new CharArrayWriter();
 		test.write(buff);
 

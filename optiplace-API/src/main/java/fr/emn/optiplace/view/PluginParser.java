@@ -1,12 +1,9 @@
 package fr.emn.optiplace.view;
 
-import static java.util.stream.Collectors.toMap;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,7 +82,7 @@ public class PluginParser extends AbstractProcessor {
 	 * fields, or null to extract both
 	 * @return a new Map specifying which attributes require which conf file
 	 */
-	public static Map<String, String> extractConfs(Element el,
+	public static Set<String> extractConfs(Element el,
 			RoundEnvironment roundEnv, Boolean required) {
 		Set<? extends Element> parameters = roundEnv
 				.getElementsAnnotatedWith(Parameter.class);
@@ -95,9 +92,8 @@ public class PluginParser extends AbstractProcessor {
 						e -> parameters.contains(e)
 								&& (required == null || e.getAnnotation(Parameter.class)
 										.required() == required))
-				.collect(
-						toMap(e -> e.getSimpleName().toString(),
-								e -> e.getAnnotation(Parameter.class).confName()));
+				.map(e -> e.getAnnotation(Parameter.class).confName())
+				.collect(Collectors.toSet());
 	}
 
 	/**
