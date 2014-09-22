@@ -1,9 +1,8 @@
 /**
  *
  */
-package fr.emn.optiplace.server;
+package fr.emn.optiplace.view;
 
-import fr.emn.optiplace.view.ProvidedData;
 
 /**
  * a class implementing this interface can provide a data associated to a name.

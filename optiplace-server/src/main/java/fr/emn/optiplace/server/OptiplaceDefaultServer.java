@@ -3,7 +3,10 @@
  */
 package fr.emn.optiplace.server;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.OptiplaceServer;
@@ -12,6 +15,9 @@ import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
 import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
 import fr.emn.optiplace.server.viewDataProviders.PlexerProvider;
 import fr.emn.optiplace.view.ProvidedData;
+import fr.emn.optiplace.view.View;
+import fr.emn.optiplace.view.ViewDataProvider;
+import fr.emn.optiplace.view.ViewDescription;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -34,7 +40,7 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 		return confProvider;
 	}
 
-	protected ArrayList<AvailableView> views = new ArrayList<>();
+	protected Map<View, ViewDescription> views = new HashMap<>();
 
 	@Override
 	public DeducedTarget solve(Configuration source,
@@ -48,6 +54,24 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 
 		// TODO
 		throw new UnsupportedOperationException();
+	}
+
+	public LinkedHashSet<View> findAvailableViews() {
+		LinkedHashSet<View> ret = new LinkedHashSet<>();
+
+		boolean change = false;
+		do {
+			change = false;
+			for (Entry<View, ViewDescription> e : views.entrySet()) {
+				View v = e.getKey();
+				if (ret.contains(v)) {
+					continue;
+				}
+				throw new UnsupportedOperationException();
+				// TODO
+			}
+		} while (change);
+		return ret;
 	}
 
 }

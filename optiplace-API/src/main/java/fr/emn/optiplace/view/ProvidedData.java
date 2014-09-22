@@ -3,6 +3,7 @@
  */
 package fr.emn.optiplace.view;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -31,6 +32,17 @@ public interface ProvidedData {
 	 *
 	 * @return
 	 */
-	public Map<String, String> toStringMap();
+	default Map<String, String> toStringMap() {
+		Map<String, String> ret = new HashMap<String, String>();
+		lines().forEach(
+				s -> {
+					int posEQUAL = s.indexOf('=');
+					if (posEQUAL != -1) {
+						ret.put(s.substring(0, posEQUAL),
+								s.substring(posEQUAL + 2, s.length() - 1));
+					}
+				});
+		return ret;
+	}
 
 }

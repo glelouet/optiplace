@@ -29,7 +29,6 @@ import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.FastBinPacker;
 import fr.emn.optiplace.solver.ObjectiveReducer;
-import fr.emn.optiplace.solver.OptiplaceProcess;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.MultiSolutionDisplayer;

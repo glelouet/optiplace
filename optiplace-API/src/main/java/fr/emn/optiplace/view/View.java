@@ -1,11 +1,18 @@
 package fr.emn.optiplace.view;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import choco.kernel.solver.constraints.SConstraint;
 import choco.kernel.solver.variables.Var;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.view.annotations.Depends;
+import fr.emn.optiplace.view.annotations.Parameter;
 
 /**
  * <p>
@@ -49,14 +56,16 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * view can REQUIRE one configuration, specified using {@link
  * ViewDesc.#configURI()}, which will be translated into
  * </p>
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public interface View extends ViewAsModule {
 
+	static final Logger logger = LoggerFactory.getLogger(View.class);
+
 	/**
 	 * shortcut for {@link #getRequestedRules()}.add(cst)
-	 * 
+	 *
 	 * @param cst
 	 */
 	public void addRule(Rule cst);
@@ -64,7 +73,7 @@ public interface View extends ViewAsModule {
 	/**
 	 * add a constraint to the problem, if not already added, and store it in
 	 * the list of added constraints.
-	 * 
+	 *
 	 * @param eq
 	 *            the constraint to add to the problem
 	 */
@@ -74,7 +83,7 @@ public interface View extends ViewAsModule {
 	 * Declares a new variable has been created by this view. Only variables
 	 * directly created by the view should be declared, i.e. the views must not
 	 * declare the variables created by other views.
-	 * 
+	 *
 	 * @param var
 	 */
 	public void onNewVar(Var var);
@@ -95,7 +104,7 @@ public interface View extends ViewAsModule {
 	 * set the required configuration. If this implementation does not require a
 	 * configuration, such as having no specification in {@link
 	 * ViewDesc.#configURI()}, this should do nothing.
-	 * 
+	 *
 	 * @param conf
 	 *            the configuration retrieved by the core for this view, from
 	 *            its description annotation.
@@ -104,5 +113,66 @@ public interface View extends ViewAsModule {
 
 	/** @return the problem */
 	public ReconfigurationProblem getProblem();
+
+	/**
+	 * provides view to fulfill the dependencies.
+	 *
+	 * @param activatedViews
+	 * a map of view name to views.
+	 * @return true if all dependencies were satisfied
+	 */
+	default boolean setDependencies(Map<String, View> activatedViews) {
+		for (Field f : getClass().getDeclaredFields()) {
+			if (f.getAnnotation(Depends.class) != null) {
+			System.err.println("working on field " + f.getName());
+				View v = activatedViews.get(f.getType().getName());
+				if (v == null) {
+					System.err.println(" X can't set dependency : "
+							+ f.getType().getName() + " as we have " + activatedViews);
+					return false;
+				}
+				f.setAccessible(true);
+				try {
+					f.set(this, v);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					logger.warn("", e);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * set the data used in this view. The fields annotated with {@link Parameter}
+	 * are found by reflection, their object is then cast to a ProvidedDataReader
+	 * which then reads the data .
+	 *
+	 * @param prv
+	 * the provider of ViewData
+	 * @return true if all the required configurations were satisfied.
+	 */
+	default boolean setConfs(ViewDataProvider prv) {
+		for (Field f : getClass().getDeclaredFields()) {
+			Parameter a = f.getAnnotation(Parameter.class);
+			if (a != null) {
+				System.err.println("working on field " + f.getName());
+				ProvidedData d = prv.getData(a.confName());
+				if (d == null && a.required()) {
+					return false;
+				}
+				try {
+					ProvidedDataReader pdr = (ProvidedDataReader) f.get(this);
+					pdr.read(d);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					logger.warn("", e);
+					if (a.required()) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 
 }

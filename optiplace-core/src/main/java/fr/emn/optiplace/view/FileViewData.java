@@ -7,8 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -45,19 +43,5 @@ public class FileViewData implements ProvidedData {
 			logger.warn("", e);
 			return null;
 		}
-	}
-
-	@Override
-	public Map<String, String> toStringMap() {
-		Map<String, String> ret = new HashMap<String, String>();
-		lines().forEach(
-				s -> {
-					int posEQUAL = s.indexOf('=');
-					if (posEQUAL != -1) {
-						ret.put(s.substring(0, posEQUAL),
-								s.substring(posEQUAL + 2, s.length() - 1));
-					}
-				});
-		return ret;
 	}
 }

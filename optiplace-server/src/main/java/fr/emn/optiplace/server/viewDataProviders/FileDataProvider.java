@@ -6,9 +6,9 @@ package fr.emn.optiplace.server.viewDataProviders;
 import java.io.File;
 import java.util.HashMap;
 
-import fr.emn.optiplace.server.ViewDataProvider;
 import fr.emn.optiplace.view.FileViewData;
 import fr.emn.optiplace.view.ProvidedData;
+import fr.emn.optiplace.view.ViewDataProvider;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

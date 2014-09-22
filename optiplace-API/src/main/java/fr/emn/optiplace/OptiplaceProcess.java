@@ -1,15 +1,20 @@
 /**
  *
  */
-package fr.emn.optiplace.solver;
+package fr.emn.optiplace;
 
-import fr.emn.optiplace.DeducedTarget;
+import fr.emn.optiplace.solver.BaseCenter;
+import fr.emn.optiplace.solver.ConfigStrat;
 
 /**
  * <p>
- * Main process to solve a problem. <el>
- * <li>specify the {@link #center} to work on</li>
- * <li>specify the {@link #strat} to have searching strategy</li>
+ * Main process to solve a problem. This class should be created by the
+ * optiplaceServer each time it has a problem to solve. to use it you need to
+ * <el>
+ * <li>specify the {@link #center} to work on, that is, the source configuration
+ * and the views to integrate.</li>
+ * <li>specify the {@link #strat} to have searching parameters, passed to the
+ * choco solver.</li>
  * <li>call {@link #solve()}</li> </el>
  * </p>
  * <p>

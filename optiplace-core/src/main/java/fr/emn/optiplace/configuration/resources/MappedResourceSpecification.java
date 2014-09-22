@@ -9,19 +9,19 @@ import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.view.ViewConfigurationReader;
+import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
  * Store the map of nodes capacities and vms uses in an internal structure.
  * <p>
- * implements the {@link ViewConfigurationReader} so that an view can require a
+ * implements the {@link ProvidedDataReader} so that an view can require a
  * specific resource
  * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class MappedResourceSpecification implements ResourceSpecification,
-		ViewConfigurationReader {
+		ProvidedDataReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
