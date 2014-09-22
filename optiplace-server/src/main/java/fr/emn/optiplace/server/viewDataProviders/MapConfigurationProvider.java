@@ -1,7 +1,7 @@
 /**
  *
  */
-package fr.emn.optiplace.server.viewConfigurationProviders;
+package fr.emn.optiplace.server.viewDataProviders;
 
 import java.util.HashMap;
 
@@ -27,7 +27,7 @@ public class MapConfigurationProvider
 			.getLogger(MapConfigurationProvider.class);
 
 	@Override
-	public ProvidedData getConfiguration(String confName) {
+	public ProvidedData getData(String confName) {
 		return get(confName);
 	}
 }

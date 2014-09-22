@@ -1,7 +1,7 @@
 /**
  *
  */
-package fr.emn.optiplace.server.viewConfigurationProviders;
+package fr.emn.optiplace.server.viewDataProviders;
 
 import java.io.File;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class FileDataProvider implements ViewDataProvider {
 	}
 
 	@Override
-	public ProvidedData getConfiguration(String confName) {
+	public ProvidedData getData(String confName) {
 		return loaded.get(confName);
 	}
 }

@@ -5,12 +5,12 @@ package fr.emn.optiplace.server;
 
 import java.util.ArrayList;
 
-import fr.emn.optiplace.view.PluginParser;
 import fr.emn.optiplace.view.View;
+import fr.emn.optiplace.view.ViewDescription;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
- * 
+ *
  */
 public class AvailableView {
 
@@ -21,7 +21,7 @@ public class AvailableView {
 	public AvailableView() {
 	}
 
-	public AvailableView(PluginParser pl, View v) {
+	public AvailableView(ViewDescription desc, View v) {
 		this.v = v;
 	}
 
@@ -32,6 +32,10 @@ public class AvailableView {
 	protected ArrayList<String> provides = new ArrayList<String>();
 
 	protected View v;
+
+	public View getView() {
+		return v;
+	}
 
 	/**
 	 * @return the name

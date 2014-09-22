@@ -27,12 +27,19 @@ public class ViewDescription {
 
 	public String name;
 
+	/** full class name of the view, necessary to retrieve it from a jar */
 	public String clazz;
 
+	/**
+	 * keys are fields for the view which need to be configured, configuration is
+	 * in the associated value. eg (att1 - file1.txt)
+	 */
 	protected Map<String, String> requiredConf;
 
+	/** same as {@link #requiredConf} but for optional configured fields */
 	protected Map<String, String> optionalConf;
 
+	/** list of views this view depends on. */
 	protected Set<String> depends;
 
 	public static final String CLASSPARAM = "class=";
@@ -99,18 +106,7 @@ public class ViewDescription {
 	}
 
 	public void read(BufferedReader reader) {
-		boolean stop = false;
-		do {
-			String line;
-			try {
-				line = reader.readLine();
-				stop = line == null;
-				handleLine(line);
-			} catch (IOException e) {
-				logger.warn("", e);
-				return;
-			}
-		} while (!stop);
+		reader.lines().forEach(this::handleLine);
 	}
 
 	protected void write(Writer w) {

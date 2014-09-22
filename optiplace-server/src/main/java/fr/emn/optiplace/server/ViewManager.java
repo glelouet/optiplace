@@ -12,7 +12,12 @@ import java.util.jar.JarFile;
 
 import fr.emn.optiplace.view.ViewDescription;
 
-/** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
+/**
+ * generates a list of view and their description from the jar files in a
+ * folder.
+ * 
+ * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
+ */
 public class ViewManager {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory

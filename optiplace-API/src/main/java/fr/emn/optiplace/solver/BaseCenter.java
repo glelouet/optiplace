@@ -1,7 +1,7 @@
 /**
  *
  */
-package fr.emn.optiplace;
+package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
@@ -10,11 +10,24 @@ import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewAsModule;
 
 /**
- * Informations on a center we want to manage<br />
- * A center is first, the {@link #source} configuration, with the {@link #rules}
- * requested by the administrator. Since the constraints can be linked to views,
- * the {@link #views} are also specified. Finally, modifications to the state of
- * the elements should go in {@link #states}
+ * <p>
+ * Informations on a center we want to optimize
+ * </p>
+ * <p>
+ * A center is first, the {@link #source} configuration, meaning its VMs and
+ * Nodes to manage. This configuration also provides some resources
+ * informations, such as the common CPU and MEM resource
+ * <p>
+ * <p>
+ * This center also has specific informations, rules, which are represented by
+ * configured views.
+ * </p>
+ * <p>
+ * finally, the administrator can change any information through the use of a
+ * baseView which has higher priority than the other view, thus able to change
+ * resources specifications, objectives and search heuristics to use while
+ * solving the optimization problem.
+ * </p>
  * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */

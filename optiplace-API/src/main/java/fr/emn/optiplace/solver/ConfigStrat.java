@@ -1,16 +1,17 @@
 /**
  *
  */
-package fr.emn.optiplace;
+package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
 import choco.kernel.common.logging.Verbosity;
 import choco.kernel.solver.search.ISolutionDisplay;
-import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
+ * How to create and explore a problems.
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class ConfigStrat {

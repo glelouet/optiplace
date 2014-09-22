@@ -1,7 +1,7 @@
 /**
  *
  */
-package fr.emn.optiplace.server.viewConfigurationProviders;
+package fr.emn.optiplace.server.viewDataProviders;
 
 import fr.emn.optiplace.server.ViewDataProvider;
 import fr.emn.optiplace.view.ProvidedData;
@@ -34,9 +34,9 @@ public class PlexerProvider implements ViewDataProvider {
 	}
 
 	@Override
-	public ProvidedData getConfiguration(String confName) {
+	public ProvidedData getData(String confName) {
 		for (ViewDataProvider p : delegates) {
-			ProvidedData ret = p.getConfiguration(confName);
+			ProvidedData ret = p.getData(confName);
 			if (ret != null) {
 				return ret;
 			}

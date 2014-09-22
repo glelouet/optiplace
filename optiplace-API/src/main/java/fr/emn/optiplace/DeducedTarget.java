@@ -3,7 +3,6 @@
  */
 package fr.emn.optiplace;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -27,7 +26,7 @@ public class DeducedTarget {
 
 	private ReconfigurationProblem problem;
 
-	private IntDomainVar objective;
+	private int objective;
 
 	private int searchNodes;
 
@@ -108,7 +107,7 @@ public class DeducedTarget {
 	}
 
 	/** @return the objective */
-	public IntDomainVar getObjective() {
+	public int getObjective() {
 		return objective;
 	}
 
@@ -116,7 +115,7 @@ public class DeducedTarget {
 	 * @param objective
 	 *            the objective to set
 	 */
-	public void setObjective(IntDomainVar objective) {
+	public void setObjective(int objective) {
 		this.objective = objective;
 	}
 

@@ -29,6 +29,7 @@ import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.FastBinPacker;
 import fr.emn.optiplace.solver.ObjectiveReducer;
+import fr.emn.optiplace.solver.OptiplaceProcess;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.MultiSolutionDisplayer;
@@ -143,8 +144,7 @@ public class SolvingProcess extends OptiplaceProcess {
 					.getSpecs();
 			goalMaker = new MigrationReducerGoal(spec);
 		}
-		target.setObjective(goalMaker.getObjective(problem));
-		problem.setObjective(target.getObjective());
+		problem.setObjective(goalMaker.getObjective(problem));
 
 		// add all the heuristics.
 		// first heuristic : the global goal heuristic
@@ -179,7 +179,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (strat.getMaxSearchTime() > 0) {
 			problem.setTimeLimit((int) strat.getMaxSearchTime());
 		}
-		if (target.getObjective() != null
+		if (problem.getObjective() != null
 				&& (strat.getReducer() == null || strat.getReducer() == ObjectiveReducer.IDENTITY)) {
 			problem.getConfiguration().putBoolean(
 					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION,
@@ -200,7 +200,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void makeSearch() {
 		long st = System.currentTimeMillis();
-		if (target.getObjective() == null || strat.getReducer() == null
+		if (problem.getObjective() == null || strat.getReducer() == null
 				|| strat.getReducer() == ObjectiveReducer.IDENTITY) {
 			problem.launch();
 		} else {
@@ -226,7 +226,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		Solution s = null;
 		if (problem.isFeasible() == Boolean.TRUE) {
 			do {
-				int objVal = target.getObjective().getVal();
+				int objVal = ((IntDomainVar) problem.getObjective()).getVal();
 				s = problem.getSearchStrategy().getSolutionPool()
 						.getBestSolution();
 				int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
@@ -249,6 +249,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	public void extractData() {
 		if (problem.isFeasible()) {
 			target.setDestination(problem.extractConfiguration());
+			target.setObjective((int) problem.getObjectiveValue());
 		} else {
 			target.setDestination(null);
 		}
