@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Nouveau document 1">
+   sodipodi:docname="global objective.svg">
   <defs
      id="defs4">
     <marker
@@ -40,7 +40,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
      inkscape:cx="490.49819"
-     inkscape:cy="488.67143"
+     inkscape:cy="407.85923"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -120,19 +120,18 @@
     <rect
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect4605"
-       width="98.326332"
-       height="104.87744"
-       x="131.67368"
-       y="184.09448"
+       width="49.838989"
+       height="36.187061"
+       x="133.69398"
+       y="252.78485"
        transform="translate(0,308.26769)" />
     <rect
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect4607"
-       width="74.285713"
-       height="45.714287"
-       x="230"
-       y="138.3802"
-       transform="translate(0,308.26769)" />
+       width="48.021744"
+       height="27.53154"
+       x="181.51268"
+       y="533.521" />
     <rect
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect4603-6"
@@ -150,10 +149,10 @@
     <rect
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect4607-0"
-       width="50.042061"
-       height="73.998566"
-       x="231.42857"
-       y="755.2193"
+       width="48.021763"
+       height="43.694019"
+       x="233.44888"
+       y="785.52386"
        ry="0" />
     <text
        xml:space="preserve"
@@ -170,39 +169,36 @@
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="241.42645"
-       y="463.27206"
+       x="239.40614"
+       y="809.92554"
        id="text4639"
-       sodipodi:linespacing="125%"
-       transform="translate(0,308.26769)"><tspan
+       sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4641"
-         x="241.42645"
-         y="463.27206">vm4</tspan></text>
+         x="239.40614"
+         y="809.92554">vm4</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="156.57364"
-       y="206.69333"
+       x="142.4315"
+       y="581.6311"
        id="text4643"
-       sodipodi:linespacing="125%"
-       transform="translate(0,308.26769)"><tspan
+       sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4645"
-         x="156.57364"
-         y="206.69333">vm1</tspan></text>
+         x="142.4315"
+         y="581.6311">vm1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="249.50768"
-       y="164.26692"
+       x="186.87822"
+       y="551.32654"
        id="text4647"
-       sodipodi:linespacing="125%"
-       transform="translate(0,308.26769)"><tspan
+       sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4649"
-         x="249.50768"
-         y="164.26692">vm2</tspan></text>
+         x="186.87822"
+         y="551.32654">vm2</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"

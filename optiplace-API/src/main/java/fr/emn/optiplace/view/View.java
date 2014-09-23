@@ -1,18 +1,11 @@
 package fr.emn.optiplace.view;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import choco.kernel.solver.constraints.SConstraint;
 import choco.kernel.solver.variables.Var;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
-import fr.emn.optiplace.view.annotations.Depends;
-import fr.emn.optiplace.view.annotations.Parameter;
 
 /**
  * <p>
@@ -60,8 +53,6 @@ import fr.emn.optiplace.view.annotations.Parameter;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public interface View extends ViewAsModule {
-
-	static final Logger logger = LoggerFactory.getLogger(View.class);
 
 	/**
 	 * shortcut for {@link #getRequestedRules()}.add(cst)
@@ -113,66 +104,5 @@ public interface View extends ViewAsModule {
 
 	/** @return the problem */
 	public ReconfigurationProblem getProblem();
-
-	/**
-	 * provides view to fulfill the dependencies.
-	 *
-	 * @param activatedViews
-	 * a map of view name to views.
-	 * @return true if all dependencies were satisfied
-	 */
-	default boolean setDependencies(Map<String, View> activatedViews) {
-		for (Field f : getClass().getDeclaredFields()) {
-			if (f.getAnnotation(Depends.class) != null) {
-				System.err.println("working on field " + f.getName());
-				View v = activatedViews.get(f.getType().getName());
-				if (v == null) {
-					System.err.println(" X can't set dependency : "
-							+ f.getType().getName() + " as we have " + activatedViews);
-					return false;
-				}
-				f.setAccessible(true);
-				try {
-					f.set(this, v);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					logger.warn("", e);
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * set the data used in this view. The fields annotated with {@link Parameter}
-	 * are found by reflection, their object is then cast to a ProvidedDataReader
-	 * which then reads the data .
-	 *
-	 * @param prv
-	 * the provider of ViewData
-	 * @return true if all the required configurations were satisfied.
-	 */
-	default boolean setConfs(ViewDataProvider prv) {
-		for (Field f : getClass().getDeclaredFields()) {
-			Parameter a = f.getAnnotation(Parameter.class);
-			if (a != null) {
-				System.err.println("working on field " + f.getName());
-				ProvidedData d = prv.getData(a.confName());
-				if (d == null && a.required()) {
-					return false;
-				}
-				try {
-					ProvidedDataReader pdr = (ProvidedDataReader) f.get(this);
-					pdr.read(d);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					logger.warn("", e);
-					if (a.required()) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
 
 }

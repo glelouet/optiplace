@@ -27,6 +27,9 @@ public class ConfView extends HollowView {
 
 	}
 
+	@Parameter(confName = "conf2", required = false)
+	public FakeReader conf2 = new FakeReader();
+
 	@Parameter(confName="conf1")
 	public FakeReader conf = new FakeReader();
 
