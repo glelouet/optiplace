@@ -52,9 +52,9 @@ import fr.emn.optiplace.view.annotations.Parameter;
  * corresponding actions to the action graph.
  * </p>
  * <p>
- * The parameters of the view are specified using {@link ProvidedData}. The
- * view can REQUIRE one configuration, specified using {@link
- * ViewDesc.#configURI()}, which will be translated into
+ * The parameters of the view are specified using {@link ProvidedData}. The view
+ * can REQUIRE one configuration, specified using {@link ViewDesc.#configURI()},
+ * which will be translated into
  * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
@@ -71,11 +71,11 @@ public interface View extends ViewAsModule {
 	public void addRule(Rule cst);
 
 	/**
-	 * add a constraint to the problem, if not already added, and store it in
-	 * the list of added constraints.
+	 * add a constraint to the problem, if not already added, and store it in the
+	 * list of added constraints.
 	 *
 	 * @param eq
-	 *            the constraint to add to the problem
+	 * the constraint to add to the problem
 	 */
 	public void post(SConstraint<? extends Var> eq);
 
@@ -90,13 +90,13 @@ public interface View extends ViewAsModule {
 
 	/**
 	 * @return an unmodifiable list of the variables that have been added to the
-	 *         model by this view
+	 * model by this view
 	 */
 	public List<Var> getAddedVars();
 
 	/**
 	 * @return an unmodifiable list of the constraints that have been posted to
-	 *         the model by this view
+	 * the model by this view
 	 */
 	public List<SConstraint<? extends Var>> getAddedConstraints();
 
@@ -106,8 +106,8 @@ public interface View extends ViewAsModule {
 	 * ViewDesc.#configURI()}, this should do nothing.
 	 *
 	 * @param conf
-	 *            the configuration retrieved by the core for this view, from
-	 *            its description annotation.
+	 * the configuration retrieved by the core for this view, from its description
+	 * annotation.
 	 */
 	public void setConfig(ProvidedData conf);
 
@@ -124,7 +124,7 @@ public interface View extends ViewAsModule {
 	default boolean setDependencies(Map<String, View> activatedViews) {
 		for (Field f : getClass().getDeclaredFields()) {
 			if (f.getAnnotation(Depends.class) != null) {
-			System.err.println("working on field " + f.getName());
+				System.err.println("working on field " + f.getName());
 				View v = activatedViews.get(f.getType().getName());
 				if (v == null) {
 					System.err.println(" X can't set dependency : "
