@@ -109,6 +109,17 @@ public class ViewDescription {
 		return new HashSet<>(Arrays.asList(line.split(", ")));
 	}
 
+	public ViewDescription() {
+	}
+
+	public ViewDescription(View v) {
+		depends = v.extractDependencies();
+		clazz = v.getClass().getName();
+		optionalConf = v.extractConfigurations(false);
+		requiredConf = v.extractConfigurations(true);
+		name = v.getClass().getSimpleName();
+	}
+
 	public void read(BufferedReader reader) {
 		reader.lines().forEach(this::handleLine);
 	}
@@ -132,15 +143,6 @@ public class ViewDescription {
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 		}
-	}
-
-	public static void main(String[] args) {
-		HashSet<String> s = new HashSet<>();
-		s.add("lol");
-		s.add("mais");
-		s.add("choux");
-		s.add("bruxelle");
-		System.err.println(s);
 	}
 
 }

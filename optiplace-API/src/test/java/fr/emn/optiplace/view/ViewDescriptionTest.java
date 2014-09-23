@@ -6,10 +6,13 @@ package fr.emn.optiplace.view;
 import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import fr.emn.optiplace.view.fakes.ConfDepView;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -39,6 +42,16 @@ public class ViewDescriptionTest {
 		Assert.assertEquals(result.clazz, test.clazz);
 		Assert.assertEquals(result.depends, test.depends);
 		Assert.assertEquals(result.requiredConf, test.requiredConf);
+	}
+
+	@Test
+	public void testCreateFromView() {
+		ConfDepView cdv = new ConfDepView();
+		ViewDescription vd = new ViewDescription(cdv);
+		Assert.assertEquals(vd.optionalConf, Collections.singleton("confOpt"));
+		Assert.assertEquals(vd.requiredConf, Collections.singleton("confReq"));
+		Assert.assertEquals(vd.depends,
+				Collections.singleton("fr.emn.optiplace.view.fakes.HollowView"));
 	}
 
 }

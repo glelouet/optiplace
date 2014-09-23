@@ -10,7 +10,7 @@ import fr.emn.optiplace.view.ViewDataProvider;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
- * 
+ *
  */
 public class MapConfigurationProvider
 		extends
@@ -29,5 +29,9 @@ public class MapConfigurationProvider
 	@Override
 	public ProvidedData getData(String confName) {
 		return get(confName);
+	}
+
+	public void add(ProvidedData pd) {
+		put(pd.name(), pd);
 	}
 }

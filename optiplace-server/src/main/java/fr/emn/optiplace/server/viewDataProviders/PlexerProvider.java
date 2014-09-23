@@ -8,7 +8,7 @@ import fr.emn.optiplace.view.ViewDataProvider;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
- * 
+ *
  */
 public class PlexerProvider implements ViewDataProvider {
 
@@ -19,8 +19,8 @@ public class PlexerProvider implements ViewDataProvider {
 	ViewDataProvider[] delegates = null;
 
 	public void setDelegates(ViewDataProvider... delegates) {
-		if (delegates == null) {
-			delegates = new ViewDataProvider[]{};
+		if (delegates == null|| delegates.length==0) {
+			delegates = new ViewDataProvider[] {};
 		}
 		this.delegates = delegates;
 	}
@@ -29,7 +29,6 @@ public class PlexerProvider implements ViewDataProvider {
 	}
 
 	public PlexerProvider(ViewDataProvider... delegates) {
-		this();
 		setDelegates(delegates);
 	}
 
