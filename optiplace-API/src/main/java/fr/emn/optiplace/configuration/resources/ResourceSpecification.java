@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
  * specifies, for one resource known as its {@link #getType() type} the
@@ -15,7 +16,7 @@ import fr.emn.optiplace.configuration.VM;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
-public interface ResourceSpecification {
+public interface ResourceSpecification extends ProvidedDataReader {
 
 	/** @return the type of the resources, used as an ID. */
 	String getType();
@@ -133,6 +134,11 @@ public interface ResourceSpecification {
 				public int compare(VM o1, VM o2) {
 					return getUse(o1) - getUse(o2);
 				}
+
+				@Override
+				public String toString() {
+					return "VMCOMP:" + getType();
+				};
 			};
 		} else {
 			return new Comparator<VM>() {
@@ -140,13 +146,18 @@ public interface ResourceSpecification {
 				public int compare(VM o1, VM o2) {
 					return getUse(o2) - getUse(o1);
 				}
+
+				@Override
+				public String toString() {
+					return "VMCOMP:" + getType();
+				};
 			};
 		}
 	}
 
 	/**
 	 * add resource specifications to a (potential null) map
-	 * 
+	 *
 	 * @param map
 	 * the map to add data inside, or null to create one
 	 * @param res

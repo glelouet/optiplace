@@ -74,4 +74,9 @@ public class StickVMsHeuristic implements SearchHeuristic {
 		return ret;
 	}
 
+	@Override
+	public String toString() {
+		return "StickVMsHeuristic(" + cmp + ")";
+	}
+
 }

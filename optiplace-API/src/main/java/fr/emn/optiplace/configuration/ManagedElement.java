@@ -35,4 +35,9 @@ public class ManagedElement {
 		return obj == this || obj != null && this.getClass().equals(obj.getClass())
 				&& ((ManagedElement) obj).name.equals(name);
   }
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

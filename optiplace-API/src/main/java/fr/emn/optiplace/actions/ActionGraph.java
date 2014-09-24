@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import fr.emn.optiplace.configuration.ManagedElement;
 
 /**
- * a graph of actions. This graph should be created by specifying the
- * dependencies between actions.
+ * a graph of actions. Created by specifying the dependencies between actions.
+ * Each action depends on a set of other actions.
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
@@ -135,4 +135,9 @@ public class ActionGraph {
   public LinkedHashSet<Action> getAllActions() {
     return new LinkedHashSet<>(dependencies.keySet());
   }
+
+	@Override
+	public String toString() {
+		return dependencies.toString();
+	}
 }

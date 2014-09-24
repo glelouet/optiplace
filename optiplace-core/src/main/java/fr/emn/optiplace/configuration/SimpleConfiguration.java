@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
@@ -37,8 +38,13 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Map<VM, Node> vmLocs = new LinkedHashMap<>();
 
-	/** Build an empty configuration. */
-	public SimpleConfiguration() {
+	public SimpleConfiguration(String... resources) {
+		if (resources == null || resources.length == 0) {
+		} else {
+			for (String r : resources) {
+				this.resources.put(r, new MappedResourceSpecification(r));
+			}
+		}
 	}
 
 	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
@@ -192,6 +198,20 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
+	public Node addOnline(String name, int... resources) {
+		Node n = new Node(name);
+		setOnline(n);
+		if (resources != null && resources.length > 0) {
+			ResourceSpecification[] specs = this.resources.values().toArray(
+					new ResourceSpecification[this.resources.size()]);
+			for (int i = 0; i < specs.length && i < resources.length; i++) {
+				specs[i].toCapacities().put(n, resources[i]);
+			}
+		}
+		return n;
+	}
+
+	@Override
 	public boolean setOffline(Node node2) {
 		if (isOffline(node2)) {
 			return false;
@@ -280,5 +300,18 @@ public class SimpleConfiguration implements Configuration {
 		return hosted.entrySet().stream()
 				.filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
 				.map(Entry<Node, Set<VM>>::getKey);
+	}
+
+	@Override
+	public String toString() {
+		return "onlines : "
+				+ hosted
+				+ "\nofflines : "
+				+ offlines
+				+ "\nwaitings : "
+				+ waitings
+				+ "\nresources : "
+				+ resources.entrySet().stream().map(e -> " " + e.getValue())
+						.reduce("", (s, t) -> s + "\n" + t);
 	}
 }

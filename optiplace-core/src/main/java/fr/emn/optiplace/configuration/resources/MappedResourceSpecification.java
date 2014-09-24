@@ -20,8 +20,7 @@ import fr.emn.optiplace.view.ProvidedDataReader;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class MappedResourceSpecification implements ResourceSpecification,
-		ProvidedDataReader {
+public class MappedResourceSpecification implements ResourceSpecification {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
@@ -113,4 +112,9 @@ public class MappedResourceSpecification implements ResourceSpecification,
 
 	public static final String START_NODE_CAPA = "capa ";
 	public static final String START_VM_USE = "cons ";
+
+	@Override
+	public String toString() {
+		return type + nodesCapacities + vmsUses;
+	}
 }

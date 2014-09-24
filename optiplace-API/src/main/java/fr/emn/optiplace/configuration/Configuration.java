@@ -254,24 +254,26 @@ public interface Configuration {
   boolean remove(VM vm);
 
   /**
-   * Set a node online. If the node is already in the configuration but in an
-   * another state, it is updated.
-   *
-   * @param node2
-   * the node to add
-   * @return true if the node state changed
-   */
-  boolean setOnline(Node node2);
+	 * Set a node online. If the node is already in the configuration but in an
+	 * another state, it is updated.
+	 *
+	 * @param node
+	 * the node to add
+	 * @return true if the node state changed
+	 */
+	boolean setOnline(Node node);
+
+	Node addOnline(String name, int... resources);
 
   /**
-   * Set a node offline. If the node is already in the configuration but in an
-   * another state, it is updated. Any hosted VM state will be set to waiting.
-   *
-   * @param node2
-   * the node
-   * @return true if the node state changed
-   */
-  boolean setOffline(Node node2);
+	 * Set a node offline. If the node is already in the configuration but in an
+	 * another state, it is updated. Any hosted VM state will be set to waiting.
+	 *
+	 * @param node
+	 * the node
+	 * @return true if the node state changed
+	 */
+	boolean setOffline(Node node);
 
   /**
    * Remove a node and set all its vms to waiting

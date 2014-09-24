@@ -87,11 +87,12 @@ public class SolvingProcess extends OptiplaceProcess {
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
 		// constraint.
-		for (SConstraint<IntDomainVar> c : packer.pack(
-				problem.getEnvironment(), problem.getHosters(),
-				problem.getUses())) {
+		System.err.println("packing");
+		for (SConstraint<IntDomainVar> c : packer.pack(problem.getEnvironment(),
+				problem.getHosters(), problem.getUses())) {
 			problem.post(c);
 		}
+		System.err.println("packed");
 		for (ViewAsModule view : views) {
 			for (Rule cc : view.getRequestedRules()) {
 				cc.inject(problem);
@@ -115,8 +116,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			if (displayers.size() == 1) {
 				problem.setSolutionDisplay(displayers.get(0));
 			} else {
-				problem.setSolutionDisplay(new MultiSolutionDisplayer(
-						displayers));
+				problem.setSolutionDisplay(new MultiSolutionDisplayer(displayers));
 			}
 			if (strat.getChocoVerbosity() == null
 					|| strat.getChocoVerbosity().intValue() < Verbosity.SOLUTION
@@ -139,8 +139,11 @@ public class SolvingProcess extends OptiplaceProcess {
 			}
 		}
 		if (goalMaker == null) {
-			ResourceSpecification spec = problem.getResourcesHandlers().get("MEM")
-					.getSpecs();
+			ResourceHandler handler = problem.getResourcesHandlers().get("MEM");
+			if (handler == null) {
+				handler = problem.getResourcesHandlers().values().iterator().next();
+			}
+			ResourceSpecification spec = handler.getSpecs();
 			goalMaker = new MigrationReducerGoal(spec);
 		}
 		problem.setObjective(goalMaker.getObjective(problem));
@@ -163,14 +166,13 @@ public class SolvingProcess extends OptiplaceProcess {
 			heuristicsGenerators.add(new StickVMsHeuristic(problem
 					.getResourcesHandlers().get("MEM").getSpecs()));
 		}
+		heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
 
 		System.err.println(heuristicsGenerators);
-		heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
 
 		// all the heuristics are generated and added in the problem here.
 		for (SearchHeuristic hg : heuristicsGenerators) {
-			List<AbstractIntBranchingStrategy> heuristics = hg
-					.getHeuristics(problem);
+			List<AbstractIntBranchingStrategy> heuristics = hg.getHeuristics(problem);
 			for (AbstractIntBranchingStrategy h : heuristics) {
 				problem.addGoal(h);
 			}
@@ -181,12 +183,10 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.getObjective() != null
 				&& (strat.getReducer() == null || strat.getReducer() == ObjectiveReducer.IDENTITY)) {
 			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION,
-					false);
+					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, false);
 		} else {
 			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION,
-					true);
+					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, true);
 		}
 
 		problem.generateSearchStrategy();
@@ -226,8 +226,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.isFeasible() == Boolean.TRUE) {
 			do {
 				int objVal = ((IntDomainVar) problem.getObjective()).getVal();
-				s = problem.getSearchStrategy().getSolutionPool()
-						.getBestSolution();
+				s = problem.getSearchStrategy().getSolutionPool().getBestSolution();
 				int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
 				if (f != null) {
 					try {
@@ -249,16 +248,16 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.isFeasible()) {
 			target.setDestination(problem.extractConfiguration());
 			target.setObjective((int) problem.getObjectiveValue());
+			Migrate.extractMigrations(center.getSource(), target.getDestination(),
+					target.getActions());
+			for (ViewAsModule v : center.getViews()) {
+				v.endSolving(target.getActions());
+			}
 		} else {
 			target.setDestination(null);
 		}
-		Migrate.extractMigrations(center.getSource(), target.getDestination(),
-				target.getActions());
 		target.setSearchBacktracks(problem.getBackTrackCount());
 		target.setSearchNodes(problem.getNodeCount());
 		target.setSearchSolutions(problem.getNbSolutions());
-		for (ViewAsModule v : center.getViews()) {
-			v.endSolving(target.getActions());
-		}
 	}
 }

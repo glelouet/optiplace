@@ -12,6 +12,7 @@ package fr.emn.optiplace.core.packers;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.stream.Stream;
 
 import choco.cp.solver.variables.integer.IntVarEvent;
 import choco.kernel.common.logging.ChocoLogging;
@@ -44,7 +45,7 @@ import choco.kernel.solver.variables.integer.IntDomainVar;
  * for each bin according to its initial capacity, but as items are ordered, the
  * list can also be maintained dynamically for almost free at each item
  * assignment/removal ({@code BigItemsPolicy.DYNAMIC})
- * 
+ *
  * @author Sophie Demassey, Fabien Hermenier
  * @see choco.cp.solver.constraints.global.pack.PackSConstraint
  */
@@ -120,7 +121,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * constructor of the FastBinPacking global constraint
-	 * 
+	 *
 	 * @param environment
 	 *            the solver environment
 	 * @param loads
@@ -166,7 +167,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * constructor of the FastBinPacking global constraint without the
 	 * "big items" optimization
-	 * 
+	 *
 	 * @param environment
 	 *            the solver environment
 	 * @param binsLoads
@@ -235,7 +236,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * is the "big items" optimization active ?
-	 * 
+	 *
 	 * @return {@code true} if active (static or dynamic)
 	 */
 	public boolean doBigItemsOpt() {
@@ -244,7 +245,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * is the "big items" optimization active ?
-	 * 
+	 *
 	 * @return current policy
 	 */
 	public BigItemsPolicy getBigItemsPolicy() {
@@ -253,7 +254,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * set "big items" optimization
-	 * 
+	 *
 	 * @param bigItemsPolicy
 	 *            wanted policy
 	 */
@@ -263,7 +264,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * print the list of candidate items for a given bin
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return list of the item indices, between braces, separated by spaces
@@ -552,7 +553,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * update the candidate and check to decrease the load UB of each removed
 	 * bins: binLoad <= binTotalLoad 2) if item is assigned: update the required
 	 * and check to increase the load LB of the bin: binLoad >= binRequiredLoad
-	 * 
+	 *
 	 * @throws ContradictionException
 	 *             on the load variables
 	 */
@@ -583,7 +584,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * the item from the candidate list of the bin and balance its size from the
 	 * candidate to the required load of the bin check to update the LB of
 	 * load[bin]
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -609,7 +610,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * synchronize the internal data when an item is removed from a bin: remove
 	 * the item from the candidate list of the bin and reduce the candidate load
 	 * of the bin check to update the UB of load[bin]
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -633,7 +634,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * increase the LB of the bin load and the sum of the bin load LBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoadInf
@@ -658,7 +659,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * decrease the UB of the bin load and the sum of the bin load UBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoadSup
@@ -689,7 +690,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * according to the decreasing order of the item sizes. the loads are also
 	 * filtered within this constraint (rather in the propagate loop) because
 	 * considered bins eventually become unavailable
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return {@code true} if at least one item is removed or packed.
@@ -740,7 +741,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * the assignment variables: for each bin: sumAssignedItemSizes ==
 	 * binRequiredLoad, sumAllPossibleItemSizes == binTotalLoad rule 3, for each
 	 * bin: binRequiredLoad <= binLoad <= binTotalLoad
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkLoadConsistency() {
@@ -824,7 +825,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * Check that the candidate lists are aligned with the assignment variables:
 	 * item is in candidates[bin] iff bin is in bins[item]
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkCandidatesConsistency() {
@@ -870,7 +871,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * decrement for a given bin s.t. all candidates < firstSmall are mutually
 	 * exclusive ("big candidates") thus: binLoad <= sumSmallCandidateSizes +
 	 * maxBigCandidateSizes
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return the candidate load decrement = maxBigCandidateSizes -
@@ -886,7 +887,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * find new big candidates (from previous firstSmall) and compute the
 	 * candidate load decrement for a given bin
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param firstB
@@ -926,7 +927,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * was the biggest candidate => max term iSizes[item] remains unchanged else
 	 * => max term iSizes[biggest] becomes iSizes[item] (all other big items
 	 * will be removed in propagate)
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -950,7 +951,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * remove all other big candidates and update binTotalLoad if the new
 	 * assigned item was a big candidate, then update firstSmall and
 	 * binTotalLoad by searching for new big candidates
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -1004,7 +1005,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 * biggest candidate => the max term iSizes[item] becomes iSizes[newBiggest]
 	 * else if item was not the biggest candidate => the max term
 	 * iSizes[biggest] remains unchanged (and iSizes[item] must be readded)
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -1028,7 +1029,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * update binTotalLoad if the new removed item is a big candidate and update
 	 * firstSmall if it is the removed item and if only one small item remains
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -1062,12 +1063,17 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	@Override
 	public String toString() {
-		StringBuilder sizesString = new StringBuilder("[");
+		StringBuilder ret = new StringBuilder(getClass().getSimpleName()
+				+ ":M[");
+		ret.append(Stream.of(bins).map(IntDomainVar::pretty)
+						.reduce((s1, s2) -> s1 + ";" + s2).get()).append("]⋅t[");
 		for (int i : iSizes) {
-			sizesString.append(sizesString.length() == 1 ? "" : ";").append(i);
+			ret.append("," + i);
 		}
-		sizesString.append(']');
-		return getClass().getSimpleName() + ":M" + Arrays.asList(bins) + "⋅t"
-				+ sizesString + "==" + Arrays.asList(loads);
+		ret.append("]==[")
+				.append(
+		Stream.of(loads).map(IntDomainVar::pretty)
+								.reduce((s1, s2) -> s1 + ";" + s2).get()).append("]");
+		return ret.toString();
 	}
 }

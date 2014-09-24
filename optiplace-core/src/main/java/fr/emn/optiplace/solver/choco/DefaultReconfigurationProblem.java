@@ -10,7 +10,14 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -19,7 +26,16 @@ import org.slf4j.LoggerFactory;
 import choco.Choco;
 import choco.cp.solver.CPSolver;
 import choco.cp.solver.constraints.global.BoundGccVar;
-import choco.cp.solver.constraints.integer.*;
+import choco.cp.solver.constraints.integer.Element;
+import choco.cp.solver.constraints.integer.ElementV;
+import choco.cp.solver.constraints.integer.EqualXYC;
+import choco.cp.solver.constraints.integer.EuclideanDivisionXYZ;
+import choco.cp.solver.constraints.integer.GreaterOrEqualXC;
+import choco.cp.solver.constraints.integer.LessOrEqualXC;
+import choco.cp.solver.constraints.integer.MaxOfAList;
+import choco.cp.solver.constraints.integer.MinOfAList;
+import choco.cp.solver.constraints.integer.NotEqualXYC;
+import choco.cp.solver.constraints.integer.TimesXYZ;
 import choco.cp.solver.constraints.reified.ReifiedFactory;
 import choco.cp.solver.constraints.set.InverseSetInt;
 import choco.cp.solver.variables.integer.IntTerm;
@@ -70,7 +86,7 @@ ReconfigurationProblem {
   private int[] currentLocation;
 
   /** All the nodes managed by the model. */
-  private Node[] node2s;
+	private Node[] nodes;
 
   private TObjectIntHashMap<Node> revNodes;
 
@@ -150,8 +166,8 @@ ReconfigurationProblem {
       vmGrp.add(i, null);
     }
     vmsGrp = new HashMap<Set<VM>, IntDomainVar>();
-    nodeGrps = new ArrayList<TIntArrayList>(node2s.length);
-    for (int i = 0; i < node2s.length; i++) {
+		nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
+		for (int i = 0; i < nodes.length; i++) {
       nodeGrps.add(i, new TIntArrayList());
     }
     nodesGrp = new HashMap<Set<Node>, Integer>();
@@ -169,11 +185,11 @@ ReconfigurationProblem {
       revVMs.put(vms[i], i);
     }
     Set<Node> ns = source.getNodes().collect(Collectors.toSet());
-    node2s = ns.toArray(new Node[ns.size()]);
-    grpId = new int[node2s.length];
-    revNodes = new TObjectIntHashMap<>(node2s.length);
-    for (int i = 0; i < node2s.length; i++) {
-      revNodes.put(node2s[i], i);
+		nodes = ns.toArray(new Node[ns.size()]);
+		grpId = new int[nodes.length];
+		revNodes = new TObjectIntHashMap<>(nodes.length);
+		for (int i = 0; i < nodes.length; i++) {
+			revNodes.put(nodes[i], i);
     }
     currentLocation = new int[vms.length];
     for (VM vm : vms) {
@@ -200,10 +216,10 @@ ReconfigurationProblem {
   private void makeSetModel() {
     if (sets == null) {
       // A set variable for each future online nodes
-      sets = new SetVar[node2s.length];
+			sets = new SetVar[nodes.length];
 
       for (int i = 0; i < sets.length; i++) {
-        SetVar s = createEnumSetVar("host(" + node2s[i].getName() + ")",
+				SetVar s = createEnumSetVar("host(" + nodes[i].getName() + ")",
             0, vms.length - 1);
         sets[i] = s;
       }
@@ -215,8 +231,8 @@ ReconfigurationProblem {
   }
 
   @Override
-  public Node[] node2s() {
-    return node2s;
+  public Node[] nodes() {
+		return nodes;
   }
 
   @Override
@@ -268,7 +284,7 @@ ReconfigurationProblem {
   @Override
   public int node2(Node n) {
     int v = revNodes.get(n);
-    if (v == 0 && !node2s[0].equals(n)) {
+		if (v == 0 && !nodes[0].equals(n)) {
       return -1;
     }
     return v;
@@ -276,8 +292,8 @@ ReconfigurationProblem {
 
   @Override
   public Node node2(int idx) {
-    if (idx < node2s.length && idx >= 0) {
-      return node2s[idx];
+		if (idx < nodes.length && idx >= 0) {
+			return nodes[idx];
     } else {
       logger.warn("getting no node at pos " + idx);
       return null;
@@ -392,7 +408,8 @@ ReconfigurationProblem {
     for (int i = 0; i < vms.length; i++) {
       VM vm = vm(i);
       hosters[i] = createEnumIntVar(vm.getName() + ".hoster", 0,
-          node2s.length - 1);
+					nodes.length - 1);
+			System.err.println("vm" + i + " has hoster " + hosters[i].pretty());
     }
   }
 
@@ -420,11 +437,11 @@ ReconfigurationProblem {
 
   private void makeCards() {
     if (cards == null) {
-      cards = new IntDomainVar[node2s.length];
+			cards = new IntDomainVar[nodes.length];
       for (int i = 0; i < cards.length; i++) {
         cards[i] = createBoundIntVar("nb#" + i, 0, vms.length);
       }
-      post(new BoundGccVar(getHosters(), cards, 0, node2s.length - 1,
+			post(new BoundGccVar(getHosters(), cards, 0, nodes.length - 1,
           getEnvironment()));
 
     }
@@ -453,14 +470,14 @@ ReconfigurationProblem {
    * number of vms on it.
    */
   protected IntDomainVar makeIsHosting(int nodeIdx) {
-    IntDomainVar ret = boolenize(nbVMs(nodeIdx), node2s[nodeIdx].getName()
+		IntDomainVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
         + "?hosting");
     return ret;
   }
 
   public IntDomainVar isHoster(int idx) {
     if (nodesAreHostings == null) {
-      nodesAreHostings = new IntDomainVar[node2s().length];
+      nodesAreHostings = new IntDomainVar[nodes().length];
     }
     IntDomainVar ret = nodesAreHostings[idx];
     if (ret == null) {
@@ -769,7 +786,7 @@ ReconfigurationProblem {
   @Override
   public Configuration extractConfiguration() {
     Configuration cfg = new SimpleConfiguration();
-    for (Node n : node2s) {
+		for (Node n : nodes) {
       if (source.isOnline(n)) {
         cfg.setOnline(n);
       } else {
@@ -1031,13 +1048,8 @@ ReconfigurationProblem {
 
   @Override
   public ResourceUse[] getUses() {
-    ResourceUse[] ret = new ResourceUse[resources.size()];
-    int offset = 0;
-    for (ResourceHandler handler : resources.values()) {
-      ret[offset] = handler.getResourceUse();
-      offset++;
-    }
-    return ret;
+		return resources.values().stream().map(ResourceHandler::getResourceUse)
+				.collect(Collectors.toList()).toArray(new ResourceUse[] {});
   }
 
   @Override

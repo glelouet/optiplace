@@ -25,8 +25,8 @@ public class SimpleCoreView implements CoreView {
 	protected ReconfigurationProblem pb;
 
 	@Override
-	public Node[] node2s() {
-		return pb.node2s();
+	public Node[] nodes() {
+		return pb.nodes();
 	}
 
 	@Override

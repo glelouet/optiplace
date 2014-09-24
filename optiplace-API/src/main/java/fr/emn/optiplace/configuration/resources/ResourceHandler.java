@@ -60,7 +60,7 @@ public class ResourceHandler {
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
 		AssociatedPb = pb;
-		Node[] nodes = pb.node2s();
+		Node[] nodes = pb.nodes();
 		VM[] vms = pb.vms();
 		vmsUsesByIndex = new IntDomainVar[vms.length];
 		nodesUsesByIndex = new IntDomainVar[nodes.length];
@@ -73,6 +73,7 @@ public class ResourceHandler {
 			}
 			int use = iuse;
 			vmsUses[i] = use;
+			System.err.println("vm " + i + " has use " + use);
 			if (maxVMUse < use) {
 				maxVMUse = use;
 			}
@@ -86,6 +87,7 @@ public class ResourceHandler {
 			Node n = nodes[i];
 			int capa = specs.toCapacities().get(n);
 			nodesCapacities[i] = capa;
+			System.err.println("node " + i + " has capacity " + capa);
 			if (maxNodeCapa < capa) {
 				maxNodeCapa = capa;
 			}

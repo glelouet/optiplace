@@ -24,7 +24,7 @@ public interface CoreView {
 	/**
 	 * @return an array of the nodes of the problem, each at its index position
 	 */
-	public Node[] node2s();
+	public Node[] nodes();
 
 	/**
 	 * @param n

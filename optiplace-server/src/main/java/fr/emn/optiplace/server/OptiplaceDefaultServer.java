@@ -15,6 +15,7 @@ import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
 import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
 import fr.emn.optiplace.server.viewDataProviders.PlexerProvider;
 import fr.emn.optiplace.solver.BaseCenter;
+import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
@@ -27,6 +28,17 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(OptiplaceDefaultServer.class);
+
+	protected ConfigStrat strat = null;
+
+	public ConfigStrat addStrat() {
+		strat = new ConfigStrat();
+		return strat;
+	}
+
+	public void setStrat(ConfigStrat strat) {
+		this.strat = strat;
+	}
 
 	protected MapConfigurationProvider mapConfs = new MapConfigurationProvider();
 
@@ -97,6 +109,9 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 		center.getViews().addAll(views.values());
 		SolvingProcess sp = new SolvingProcess();
 		sp.center(center);
+		if (strat != null) {
+			sp.strat(strat);
+		}
 		sp.solve();
 		return sp.getTarget();
 	}
