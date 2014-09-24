@@ -193,7 +193,7 @@ ReconfigurationProblem {
     }
     currentLocation = new int[vms.length];
     for (VM vm : vms) {
-      currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node2(source
+      currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source
           .getLocation(vm));
     }
   }
@@ -282,7 +282,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public int node2(Node n) {
+  public int node(Node n) {
     int v = revNodes.get(n);
 		if (v == 0 && !nodes[0].equals(n)) {
       return -1;
@@ -351,9 +351,9 @@ ReconfigurationProblem {
       nodesGrp.put(node2s, v);
       revNodesGrp.add(v, node2s);
       for (Node n : node2s) {
-        TIntArrayList l = nodeGrps.get(node2(n));
+        TIntArrayList l = nodeGrps.get(node(n));
         l.add(v);
-        grpId[node2(n)] = v;
+        grpId[node(n)] = v;
       }
       // Set the group of the nodes
       return v;
@@ -367,7 +367,7 @@ ReconfigurationProblem {
 
   @Override
   public TIntArrayList getAssociatedGroups(Node n) {
-    return nodeGrps.get(node2(n));
+    return nodeGrps.get(node(n));
   }
 
   @Override
@@ -390,7 +390,7 @@ ReconfigurationProblem {
     if (sets == null) {
       makeSetModel();
     }
-    int idx = node2(n);
+    int idx = node(n);
     if (idx < 0) {
       return null;
     }
@@ -409,7 +409,6 @@ ReconfigurationProblem {
       VM vm = vm(i);
       hosters[i] = createEnumIntVar(vm.getName() + ".hoster", 0,
 					nodes.length - 1);
-			System.err.println("vm" + i + " has hoster " + hosters[i].pretty());
     }
   }
 
@@ -454,7 +453,7 @@ ReconfigurationProblem {
 
   @Override
   public IntDomainVar nbVMs(Node n) {
-    return nbVMs(node2(n));
+    return nbVMs(node(n));
   }
 
   @Override
@@ -489,7 +488,7 @@ ReconfigurationProblem {
 
   @Override
   public IntDomainVar isHoster(Node n) {
-    return isHoster(node2(n));
+    return isHoster(node(n));
   }
 
   HashMap<String, IntDomainVar[]> hostUsedResources = new HashMap<>();
@@ -555,14 +554,11 @@ ReconfigurationProblem {
     for (int i = 0; i < isMigrateds.length; i++) {
       VM vm = vm(i);
       Node sourceHost = getSourceConfiguration().getLocation(vm);
-      if (getSourceConfiguration().hasVM(vm)) {
-        isMigrateds[i] = isDifferent(host(vm), node2(sourceHost));
-        try {
-          isMigrateds[i].setVal(0);
-        } catch (ContradictionException e) {
-          throw new UnsupportedOperationException(e);
-        }
-      }
+			if (sourceHost != null) {
+				isMigrateds[i] = isDifferent(host(i), node(sourceHost));
+			} else {
+				isMigrateds[i]=createIntegerConstant(1);
+			}
     }
     nbLiveMigrations = sum(isMigrateds);
   }

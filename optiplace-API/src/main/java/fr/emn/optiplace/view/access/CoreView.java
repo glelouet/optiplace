@@ -31,7 +31,7 @@ public interface CoreView {
 	 *            a node of the problem
 	 * @return the index of the node in the problem, or -1
 	 */
-	public int node2(Node n);
+	public int node(Node n);
 
 	/**
 	 * @param idx

@@ -37,7 +37,6 @@ public class FastBinPacker implements ChocoResourcePacker {
 					sortedVMsPos.add(index, binAssign[i]);
 				}
 			}
-			// System.err.println("sorted VMs Usage : " + sortedVMsUses);
 			FastBinPacking pack = new FastBinPacking(environment,
 					ru.getNodesUse(),
 					sortedVMsUses.toArray(new IntDomainVar[]{}),

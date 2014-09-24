@@ -65,7 +65,7 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 			if (!hoster.isInstantiated()) {
 				VM vm = a.getKey();
 				Node n = cfg.getLocation(vm);
-				if (n != null && !hoster.canBeInstantiatedTo(rp.node2(n))) {
+				if (n != null && !hoster.canBeInstantiatedTo(rp.node(n))) {
 					return hoster;
 				}
 			}

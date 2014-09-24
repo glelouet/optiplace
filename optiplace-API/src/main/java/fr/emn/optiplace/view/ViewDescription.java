@@ -78,7 +78,7 @@ public class ViewDescription {
 			depends = new HashSet<>(Arrays.asList(line.split(", ")));
 			return;
 		}
-		System.err.println("dropped " + line);
+		logger.warn("dropped " + line);
 	}
 
 	/**

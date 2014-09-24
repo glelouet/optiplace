@@ -63,9 +63,6 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
 				@Override
 				public IntDomainVar selectVar() {
 					IntDomainVar ret = super.selectVar();
-					if (ret != null) {
-						System.err.println("dummy selected " + ret.pretty());
-					}
 					return ret;
 				}
 			}, new MinVal()));

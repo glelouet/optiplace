@@ -68,11 +68,11 @@ VariablesManager {
   Configuration getSourceConfiguration();
 
   default IntDomainVar getNodeUse(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node2(n)];
+    return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node(n)];
   }
 
   default int getNodeCap(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesCapacities()[node2(n)];
+    return getResourcesHandlers().get(resource).getNodesCapacities()[node(n)];
   }
 
   default IntDomainVar getUsedCPU(Node n) {

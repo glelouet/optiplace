@@ -26,7 +26,7 @@ public class OptiplaceDefaultServerTest {
 	public void testSimpleSolve() {
 		OptiplaceDefaultServer test = new OptiplaceDefaultServer();
 		ConfigStrat strat = test.addStrat();
-		strat.setChocoVerbosity(Verbosity.VERBOSE);
+		strat.setChocoVerbosity(Verbosity.FINEST);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU");
 		Node n1 = cfg.addOnline("n1", 1);
 		Node n2 = cfg.addOnline("n2", 10);

@@ -65,8 +65,8 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public int node2(Node n) {
-		return pb.node2(n);
+	public int node(Node n) {
+		return pb.node(n);
 	}
 
 	@Override

@@ -8,14 +8,14 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * inject constraints linking this variable to its formal representation.<br />
  * can provide heuristics that MAY be used IFF the search request does not
  * provide its own heuristics.
- * 
+ *
  * @author Guillaume Le Louët
  */
 public interface SearchGoal {
 
 	/**
 	 * Produces a formal expression of the objective variable in a model
-	 * 
+	 *
 	 * @param rp
 	 *            the solver to add constraints into and extract global cost
 	 *            from
@@ -25,7 +25,10 @@ public interface SearchGoal {
 
 	/**
 	 * @return the heuristics associated with the objective to reduce. Can be
-	 *         null, or an empty array, if no heuristic is interesting.
+	 * null, or an empty array, if no heuristic is interesting. Default
+	 * implementation is null
 	 */
-	public SearchHeuristic[] getHeuristics();
+	default SearchHeuristic[] getHeuristics() {
+		return null;
+	}
 }

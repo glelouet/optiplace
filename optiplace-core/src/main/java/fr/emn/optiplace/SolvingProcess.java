@@ -6,6 +6,7 @@ package fr.emn.optiplace;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import choco.cp.solver.search.BranchAndBound;
@@ -28,6 +29,7 @@ import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.FastBinPacker;
+import fr.emn.optiplace.goals.NBMigrationsCost;
 import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
@@ -87,12 +89,10 @@ public class SolvingProcess extends OptiplaceProcess {
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
 		// constraint.
-		System.err.println("packing");
 		for (SConstraint<IntDomainVar> c : packer.pack(problem.getEnvironment(),
 				problem.getHosters(), problem.getUses())) {
 			problem.post(c);
 		}
-		System.err.println("packed");
 		for (ViewAsModule view : views) {
 			for (Rule cc : view.getRequestedRules()) {
 				cc.inject(problem);
@@ -140,11 +140,12 @@ public class SolvingProcess extends OptiplaceProcess {
 		}
 		if (goalMaker == null) {
 			ResourceHandler handler = problem.getResourcesHandlers().get("MEM");
-			if (handler == null) {
-				handler = problem.getResourcesHandlers().values().iterator().next();
+			if (handler != null) {
+				goalMaker = new MigrationReducerGoal(handler.getSpecs());
+			} else {
+				goalMaker = NBMigrationsCost.INSTANCE;
 			}
-			ResourceSpecification spec = handler.getSpecs();
-			goalMaker = new MigrationReducerGoal(spec);
+
 		}
 		problem.setObjective(goalMaker.getObjective(problem));
 
@@ -167,8 +168,6 @@ public class SolvingProcess extends OptiplaceProcess {
 					.getResourcesHandlers().get("MEM").getSpecs()));
 		}
 		heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
-
-		System.err.println(heuristicsGenerators);
 
 		// all the heuristics are generated and added in the problem here.
 		for (SearchHeuristic hg : heuristicsGenerators) {
@@ -198,6 +197,11 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	@Override
 	public void makeSearch() {
+		System.err.println("contraints added to the problem : ");
+		for (@SuppressWarnings("rawtypes")
+		Iterator<SConstraint> it = problem.getConstraintIterator(); it.hasNext();) {
+			System.err.println(" " + it.next().pretty());
+		}
 		long st = System.currentTimeMillis();
 		if (problem.getObjective() == null || strat.getReducer() == null
 				|| strat.getReducer() == ObjectiveReducer.IDENTITY) {

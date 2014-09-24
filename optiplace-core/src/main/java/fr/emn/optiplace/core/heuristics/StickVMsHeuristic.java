@@ -55,7 +55,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 		int[] correspondingNodes = new int[vms.length];
 		IntDomainVar[] sortedHosters = new IntDomainVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			correspondingNodes[i] = rp.node2(rp.getSourceConfiguration().getLocation(
+			correspondingNodes[i] = rp.node(rp.getSourceConfiguration().getLocation(
 					vms[i]));
 			sortedHosters[i] = rp.host(vms[i]);
 		}
@@ -64,9 +64,6 @@ public class StickVMsHeuristic implements SearchHeuristic {
 			@Override
 			public IntDomainVar selectVar() {
 				IntDomainVar var = super.selectVar();
-				// if (var != null) {
-				// System.err.println("stickVM selected " + var);
-				// }
 				return var;
 			}
 		};

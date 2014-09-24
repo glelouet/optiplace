@@ -73,7 +73,6 @@ public class ResourceHandler {
 			}
 			int use = iuse;
 			vmsUses[i] = use;
-			System.err.println("vm " + i + " has use " + use);
 			if (maxVMUse < use) {
 				maxVMUse = use;
 			}
@@ -87,7 +86,6 @@ public class ResourceHandler {
 			Node n = nodes[i];
 			int capa = specs.toCapacities().get(n);
 			nodesCapacities[i] = capa;
-			System.err.println("node " + i + " has capacity " + capa);
 			if (maxNodeCapa < capa) {
 				maxNodeCapa = capa;
 			}

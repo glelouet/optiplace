@@ -90,7 +90,6 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	@Override
 	public void readLine(String line) {
-		System.err.println("reading " + line);
 		if (line.startsWith(START_NODE_CAPA)) {
 			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
 			nodesCapacities.put(new Node(para[0]), Integer.parseInt(para[1]));

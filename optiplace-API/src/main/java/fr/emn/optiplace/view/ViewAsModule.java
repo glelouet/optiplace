@@ -82,11 +82,8 @@ public interface ViewAsModule {
 	default boolean setDependencies(Map<String, View> activatedViews) {
 		for (Field f : getClass().getDeclaredFields()) {
 			if (f.getAnnotation(Depends.class) != null) {
-				System.err.println("working on field " + f.getName());
 				View v = activatedViews.get(f.getType().getName());
 				if (v == null) {
-					System.err.println(" X can't set dependency : "
-							+ f.getType().getName() + " as we have " + activatedViews);
 					return false;
 				}
 				f.setAccessible(true);
@@ -130,7 +127,6 @@ public interface ViewAsModule {
 		for (Field f : getClass().getDeclaredFields()) {
 			Parameter a = f.getAnnotation(Parameter.class);
 			if (a != null) {
-				System.err.println("working on field " + f.getName());
 				ProvidedData d = prv.getData(a.confName());
 				if (d == null) {
 					if( a.required()) {

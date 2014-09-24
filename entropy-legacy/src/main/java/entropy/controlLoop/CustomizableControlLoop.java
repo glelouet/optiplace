@@ -104,7 +104,6 @@ public class CustomizableControlLoop extends ControlLoop implements Runnable {
     try {
       // cur = monitoring.getConfiguration();
 
-      // System.err.println(this.masterVJobFile);
       List<VJob> vjobs;
       synchronized (refreshLock) {
         expected = currentExpected.clone();
@@ -112,8 +111,6 @@ public class CustomizableControlLoop extends ControlLoop implements Runnable {
       }
 
       builder.useConfiguration(expected);
-
-      // System.err.println("Expected: \n" + expected);
       getLogger().debug(
           "Offlines: " + expected.getOfflines().size() + ", onlines: "
               + expected.getOnlines().size() + ", overloaded nodes: "
