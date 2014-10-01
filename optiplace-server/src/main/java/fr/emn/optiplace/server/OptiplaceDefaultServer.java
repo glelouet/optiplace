@@ -102,7 +102,8 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 			}
 		}
 		if (!rejectedViews.isEmpty()) {
-			logger.warn("cannot solve configure the views : " + rejectedViews);
+			logger.warn("cannot solve, need to configure the views : "
+					+ rejectedViews);
 		}
 		BaseCenter center = new BaseCenter();
 		center.setSource(source);

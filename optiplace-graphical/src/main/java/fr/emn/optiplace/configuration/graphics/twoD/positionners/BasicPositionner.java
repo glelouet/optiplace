@@ -1,17 +1,17 @@
-package fr.emn.optiplace.configuration.graphics.positionners;
+package fr.emn.optiplace.configuration.graphics.twoD.positionners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import fr.emn.optiplace.configuration.graphics.Pos;
-import fr.emn.optiplace.configuration.graphics.Positionner;
-import fr.emn.optiplace.configuration.graphics.Square2D;
+import fr.emn.optiplace.configuration.graphics.twoD.Pos;
+import fr.emn.optiplace.configuration.graphics.twoD.Positionner;
+import fr.emn.optiplace.configuration.graphics.twoD.Square2D;
 
 /**
  * basic positionner. moves every element so it does ot overlap with previous
  * elements, in a recursive way
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  */
 
@@ -20,7 +20,7 @@ public class BasicPositionner implements Positionner {
 	 * reorders the elements of vals1 in vals2, so that keys1[i]==keys2[j] =>
 	 * vals1[i]==vals2[j] <br />
 	 * The only modified parameter is vals2
-	 * 
+	 *
 	 * @param keys1
 	 *            array of keys of map1, all different
 	 * @param vals1
@@ -67,7 +67,7 @@ public class BasicPositionner implements Positionner {
 
 	/**
 	 * moves a square so it does not overlap with the previous squares.
-	 * 
+	 *
 	 * @param square2d
 	 *            the square to move
 	 * @param squares

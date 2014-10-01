@@ -6,7 +6,6 @@ package fr.emn.optiplace;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import choco.cp.solver.search.BranchAndBound;
@@ -197,11 +196,12 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	@Override
 	public void makeSearch() {
-		System.err.println("contraints added to the problem : ");
-		for (@SuppressWarnings("rawtypes")
-		Iterator<SConstraint> it = problem.getConstraintIterator(); it.hasNext();) {
-			System.err.println(" " + it.next().pretty());
-		}
+		// System.err.println("contraints added to the problem : ");
+		// for (@SuppressWarnings("rawtypes")
+		// Iterator<SConstraint> it = problem.getConstraintIterator();
+		// it.hasNext();) {
+		// System.err.println(" " + it.next().pretty());
+		// }
 		long st = System.currentTimeMillis();
 		if (problem.getObjective() == null || strat.getReducer() == null
 				|| strat.getReducer() == ObjectiveReducer.IDENTITY) {

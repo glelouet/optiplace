@@ -1,4 +1,4 @@
-package fr.emn.optiplace.configuration.graphics;
+package fr.emn.optiplace.configuration.graphics.twoD;
 
 /** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
 public class Disposition {

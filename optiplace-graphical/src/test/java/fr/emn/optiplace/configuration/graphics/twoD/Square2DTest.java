@@ -1,12 +1,14 @@
-package fr.emn.optiplace.configuration.graphics;
+package fr.emn.optiplace.configuration.graphics.twoD;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.graphics.twoD.Square2D;
+
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
- * 
+ *
  */
 public class Square2DTest {
 	@SuppressWarnings("unused")
@@ -16,10 +18,10 @@ public class Square2DTest {
 	/** square,surface, perimeter */
 	@DataProvider(name = "squares")
 	Object[][] squares() {
-		return new Object[][]{{new Square2D(0, 1, 2), 2, 6},
-				{new Square2D(1, 2, 3), 6, 10},
-				{new Square2D(2, -1, -2), 0, 0},
-				{new Square2D(3, 10, 100), 1000, 220}};
+		return new Object[][] { { new Square2D("0", 1, 2), 2, 6 },
+				{ new Square2D("1", 2, 3), 6, 10 },
+				{ new Square2D("2", -1, -2), 0, 0 },
+				{ new Square2D("3", 10, 100), 1000, 220 } };
 	}
 
 	@Test(dataProvider = "squares")
@@ -30,8 +32,8 @@ public class Square2DTest {
 
 	@Test
 	public void testSort() {
-		Square2D[] base = {new Square2D(0, 2, 2), new Square2D(1, 1, 1),
-				new Square2D(2, 3, 3)};
+		Square2D[] base = { new Square2D("0", 2, 2), new Square2D("1", 1, 1),
+				new Square2D("2", 3, 3) };
 		Square2D[] sorted = Square2D.sortBySurface(base);
 		Assert.assertEquals(sorted, new Square2D[]{base[2], base[0], base[1]});
 	}

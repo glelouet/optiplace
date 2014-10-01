@@ -1,4 +1,4 @@
-package fr.emn.optiplace.configuration.graphics;
+package fr.emn.optiplace.configuration.graphics.twoD;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -10,16 +10,16 @@ import java.util.Comparator;
  */
 public class Square2D {
 	public int dX, dY;
-	public final long id;
+	public final String id;
 
 	/**
-   * 
+   *
    */
-	public Square2D(long id) {
+	public Square2D(String id) {
 		this.id = id;
 	}
 
-	public Square2D(long id, int dX, int dY) {
+	public Square2D(String id, int dX, int dY) {
 		this.id = id;
 		this.dX = dX;
 		this.dY = dY;

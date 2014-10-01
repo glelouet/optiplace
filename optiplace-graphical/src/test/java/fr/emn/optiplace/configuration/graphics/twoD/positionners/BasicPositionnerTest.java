@@ -1,11 +1,11 @@
-package fr.emn.optiplace.configuration.graphics.positionners;
+package fr.emn.optiplace.configuration.graphics.twoD.positionners;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
- * 
+ *
  */
 public class BasicPositionnerTest {
 	@SuppressWarnings("unused")

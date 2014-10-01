@@ -1,4 +1,4 @@
-package fr.emn.optiplace.configuration.graphics;
+package fr.emn.optiplace.configuration.graphics.twoD;
 
 /**
  * moves the elements so they dont overlap
