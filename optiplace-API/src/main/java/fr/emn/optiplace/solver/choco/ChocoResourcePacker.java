@@ -1,15 +1,15 @@
 package fr.emn.optiplace.solver.choco;
 
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import memory.IEnvironment;
+import solver.constraints.IntConstraint;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 
 public interface ChocoResourcePacker {
 
 	/**
 	 * create a constraint to add to the solver
-	 * 
+	 *
 	 * @param environment
 	 *            the solver's environment
 	 * @param binAssign
@@ -19,7 +19,7 @@ public interface ChocoResourcePacker {
 	 *            the bins
 	 * @return
 	 */
-	public SConstraint<IntDomainVar>[] pack(IEnvironment environment,
-			IntDomainVar[] binAssign, ResourceUse... resourceUse);
+	public IntConstraint<IntVar>[] pack(IEnvironment environment,
+			IntVar[] binAssign, ResourceUse... resourceUse);
 
 }

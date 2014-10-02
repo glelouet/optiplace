@@ -14,21 +14,21 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.stream.Stream;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateBool;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.constraints.integer.AbstractLargeIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.integer.IntVarEvent;
+import common.logging.ChocoLogging;
+import common.util.iterators.DisposableIntIterator;
+import common.util.tools.ArrayUtils;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateBool;
+import memory.IStateInt;
+import solver.ContradictionException;
+import solver.constraints.integer.AbstractLargeIntSConstraint;
+import solver.variables.IntVar;
 
 /**
  * A bin packing constraint similar to
- * {@link choco.cp.solver.constraints.global.pack.PackSConstraint} but oriented
+ * {@link solver.constraints.global.pack.PackSConstraint} but oriented
  * satisfaction rather than optimization as the number of empty bins is not
  * considered here. It enforces a list of constant-size items (in decreasing
  * order of size) to be packed into bins of limited capacities (their maximum
@@ -47,7 +47,7 @@ import choco.kernel.solver.variables.integer.IntDomainVar;
  * assignment/removal ({@code BigItemsPolicy.DYNAMIC})
  *
  * @author Sophie Demassey, Fabien Hermenier
- * @see choco.cp.solver.constraints.global.pack.PackSConstraint
+ * @see solver.constraints.global.pack.PackSConstraint
  */
 public class FastBinPacking extends AbstractLargeIntSConstraint
 		implements
@@ -60,7 +60,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	private final int nbBins;
 
 	/** The bin assigned to each item. */
-	protected final IntDomainVar[] bins;
+	protected final IntVar[] bins;
 
 	/** The constant size of each item in decreasing order. */
 	protected final int[] iSizes;
@@ -69,7 +69,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	private final long sumISizes;
 
 	/** The load of each bin. */
-	protected final IntDomainVar[] loads;
+	protected final IntVar[] loads;
 
 	/** The candidate items for each bin (possible but not required assignments) */
 	private IStateBitSet[] candidates;
@@ -137,8 +137,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 *            {@code IGNORE, STATIC, DYNAMIC} the policy to optimize the
 	 *            load upper bounding according to big items
 	 */
-	public FastBinPacking(IEnvironment environment, IntDomainVar[] loads,
-			IntDomainVar[] sizes, IntDomainVar[] bins,
+	public FastBinPacking(IEnvironment environment, IntVar[] loads,
+			IntVar[] sizes, IntVar[] bins,
 			BigItemsPolicy bigItemsFlag) {
 		super(ArrayUtils.append(bins, loads));
 		assert checkArgs(loads, sizes, bins);
@@ -180,8 +180,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 *            array of nbItems variables, each figuring the possible bins an
 	 *            item can be assigned to, usually initialized to [0, nbBins-1]
 	 */
-	public FastBinPacking(IEnvironment environment, IntDomainVar[] binsLoads,
-			IntDomainVar[] itemSizesDecreasing, IntDomainVar[] binsAssign) {
+	public FastBinPacking(IEnvironment environment, IntVar[] binsLoads,
+			IntVar[] itemSizesDecreasing, IntVar[] binsAssign) {
 		this(environment, binsLoads, itemSizesDecreasing, binsAssign,
 				DEFAULT_BIG_ITEMS_POLICY);
 		// "
@@ -189,8 +189,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		// Arrays.asList(binsAssign));
 	}
 
-	public boolean checkArgs(IntDomainVar[] loads, IntDomainVar[] sizes,
-			IntDomainVar[] bins) {
+	public boolean checkArgs(IntVar[] loads, IntVar[] sizes,
+			IntVar[] bins) {
 		// if (!bins[0].hasEnumeratedDomain()) return false;
 		for (int i = 1; i < sizes.length; i++) {
 			if (!sizes[i].isInstantiated()
@@ -815,7 +815,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 					+ sumLoadInf + ")");
 			System.out.println("Sum Load UB = " + this.sumLoadSup.get() + " ("
 					+ sumLoadSup + ")");
-			for (IntDomainVar bin : bins) {
+			for (IntVar bin : bins) {
 				System.out.println(bin.pretty());
 			}
 		}
@@ -1065,14 +1065,14 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	public String toString() {
 		StringBuilder ret = new StringBuilder(getClass().getSimpleName()
 				+ ":M[");
-		ret.append(Stream.of(bins).map(IntDomainVar::pretty)
+		ret.append(Stream.of(bins).map(IntVar::pretty)
 						.reduce((s1, s2) -> s1 + ";" + s2).get()).append("]⋅t[");
 		for (int i : iSizes) {
 			ret.append("," + i);
 		}
 		ret.append("]==[")
 				.append(
-		Stream.of(loads).map(IntDomainVar::pretty)
+		Stream.of(loads).map(IntVar::pretty)
 								.reduce((s1, s2) -> s1 + ";" + s2).get()).append("]");
 		return ret.toString();
 	}

@@ -5,7 +5,7 @@ package fr.emn.optiplace.view.access;
 
 import java.util.HashMap;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -35,7 +35,7 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public IntDomainVar host(VM vm) {
+	public IntVar host(VM vm) {
 		return pb.host(vm);
 	}
 
@@ -45,22 +45,22 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public IntDomainVar nbVMs(Node n) {
+	public IntVar nbVMs(Node n) {
 		return pb.nbVMs(n);
 	}
 
 	@Override
-	public IntDomainVar isHoster(Node n) {
+	public IntVar isHoster(Node n) {
 		return pb.isHoster(n);
 	}
 
 	@Override
-	public IntDomainVar isMigrated(VM vm) {
+	public IntVar isMigrated(VM vm) {
 		return pb.isMigrated(vm);
 	}
 
 	@Override
-	public IntDomainVar nbMigrations() {
+	public IntVar nbMigrations() {
 		return pb.nbMigrations();
 	}
 

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import choco.kernel.common.logging.Verbosity;
+import common.logging.Verbosity;
 import entropy.configuration.*;
 import entropy.plan.*;
 import entropy.plan.durationEvaluator.DurationEvaluator;

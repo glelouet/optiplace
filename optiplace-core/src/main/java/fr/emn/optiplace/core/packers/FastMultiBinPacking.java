@@ -5,16 +5,16 @@ package fr.emn.optiplace.core.packers;/* Created by IntelliJ IDEA. User:
 
 import java.util.BitSet;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.constraints.integer.AbstractLargeIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.integer.IntVarEvent;
+import common.logging.ChocoLogging;
+import common.util.iterators.DisposableIntIterator;
+import common.util.tools.ArrayUtils;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateInt;
+import solver.ContradictionException;
+import solver.constraints.integer.AbstractLargeIntSConstraint;
+import solver.variables.IntVar;
 
 /** @author Sophie Demassey */
 public class FastMultiBinPacking extends AbstractLargeIntSConstraint
@@ -24,7 +24,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	private IEnvironment env;
 
 	/** The bin assigned to each item [I]. */
-	protected final IntDomainVar[] bins;
+	protected final IntVar[] bins;
 
 	/** The constant size of each item on each dimension [DxI]. */
 	protected final int[][] iSizes;
@@ -33,7 +33,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	private final long[] sumISizes;
 
 	/** The load of each bin on each dimension [DxB]. */
-	protected final IntDomainVar[][] loads;
+	protected final IntVar[][] loads;
 
 	/**
 	 * The candidate items for each bin (possible but not required assignments)
@@ -85,7 +85,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 *            item can be assigned to, usually initialized to [0, nbBins-1]
 	 */
 	public FastMultiBinPacking(IEnvironment environment,
-			IntDomainVar[][] loads, int[][] sizes, IntDomainVar[] bins) {
+			IntVar[][] loads, int[][] sizes, IntVar[] bins) {
 		super(ArrayUtils.append(bins, ArrayUtils.flatten(loads)));
 		nbDims = sizes.length;
 		nbBins = loads[0].length;

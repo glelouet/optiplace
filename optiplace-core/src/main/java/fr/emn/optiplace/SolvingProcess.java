@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import choco.cp.solver.search.BranchAndBound;
-import choco.cp.solver.search.integer.objective.IntObjectiveManager;
-import choco.cp.solver.search.integer.objective.MinIntObjManager;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.logging.Verbosity;
-import choco.kernel.solver.Solution;
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.search.ISolutionDisplay;
-import choco.kernel.solver.search.ISolutionPool;
-import choco.kernel.solver.search.SolutionPoolFactory;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.search.BranchAndBound;
+import solver.search.integer.objective.IntObjectiveManager;
+import solver.search.integer.objective.MinIntObjManager;
+import common.logging.ChocoLogging;
+import common.logging.Verbosity;
+import solver.Solution;
+import solver.branch.AbstractIntBranchingStrategy;
+import solver.constraints.SConstraint;
+import solver.search.ISolutionDisplay;
+import solver.search.ISolutionPool;
+import solver.search.SolutionPoolFactory;
+import solver.variables.IntVar;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -88,7 +88,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
 		// constraint.
-		for (SConstraint<IntDomainVar> c : packer.pack(problem.getEnvironment(),
+		for (SConstraint<IntVar> c : packer.pack(problem.getEnvironment(),
 				problem.getHosters(), problem.getUses())) {
 			problem.post(c);
 		}
@@ -181,10 +181,10 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.getObjective() != null
 				&& (strat.getReducer() == null || strat.getReducer() == ObjectiveReducer.IDENTITY)) {
 			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, false);
+					solver.Configuration.STOP_AT_FIRST_SOLUTION, false);
 		} else {
 			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, true);
+					solver.Configuration.STOP_AT_FIRST_SOLUTION, true);
 		}
 
 		problem.generateSearchStrategy();
@@ -229,7 +229,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		Solution s = null;
 		if (problem.isFeasible() == Boolean.TRUE) {
 			do {
-				int objVal = ((IntDomainVar) problem.getObjective()).getVal();
+				int objVal = ((IntVar) problem.getObjective()).getVal();
 				s = problem.getSearchStrategy().getSolutionPool().getBestSolution();
 				int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
 				if (f != null) {

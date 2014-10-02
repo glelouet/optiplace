@@ -1,7 +1,7 @@
 package fr.emn.optiplace.core.choco.reified;
 
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.ContradictionException;
+import solver.variables.IntVar;
 
 /**
  * implementation of B <=> X!=CST
@@ -22,7 +22,7 @@ public class FastIFFNEQ extends FastIFFEq {
 	 * @param constante
 	 *            the constante var can be equal to
 	 */
-	public FastIFFNEQ(IntDomainVar b, IntDomainVar var, int constante) {
+	public FastIFFNEQ(IntVar b, IntVar var, int constante) {
 		super(b, var, constante);
 	}
 

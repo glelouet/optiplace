@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.solver.search.ValSelector;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import common.util.iterators.DisposableIntIterator;
+import solver.search.ValSelector;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -29,7 +29,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  *
  * @author Fabien Hermenier
  */
-public class NodeGroupSelector implements ValSelector<IntDomainVar> {
+public class NodeGroupSelector implements ValSelector<IntVar> {
 
 	public enum Option {
 		wfMem, wfCPU, inf, bfMem, bfCPU
@@ -42,7 +42,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	private final ReconfigurationProblem rp;
 
 	/** The previous location of the running VMs. */
-	private final Map<IntDomainVar, List<Integer>> locations;
+	private final Map<IntVar, List<Integer>> locations;
 
 	/**
 	 * Build a selector for a specific solver.
@@ -56,7 +56,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 		// opt = o;
 		rp = s;
 
-		locations = new HashMap<IntDomainVar, List<Integer>>();
+		locations = new HashMap<IntVar, List<Integer>>();
 
 		Set<Set<Node>> groups = rp.getNodesGroups();
 
@@ -89,7 +89,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
 	 */
-	protected int worstFitCPU(IntDomainVar v) {
+	protected int worstFitCPU(IntVar v) {
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
 		int bestCPU = rp.getUsedCPU(rp.node2(bestIdx)).getInf();
@@ -112,7 +112,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
 	 */
-	protected int worstFitMem(IntDomainVar v) {
+	protected int worstFitMem(IntVar v) {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
@@ -136,7 +136,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
 	 */
-	protected int bestFitMem(IntDomainVar v) {
+	protected int bestFitMem(IntVar v) {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
@@ -160,7 +160,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	 *            the assignment variable of the demanding slice
 	 * @return the index of the node
 	 */
-	protected int bestFitCPU(IntDomainVar v) {
+	protected int bestFitCPU(IntVar v) {
 
 		DisposableIntIterator ite = v.getDomain().getIterator();
 		int bestIdx = ite.next();
@@ -177,7 +177,7 @@ public class NodeGroupSelector implements ValSelector<IntDomainVar> {
 	}
 
 	@Override
-	public int getBestVal(IntDomainVar var) {
+	public int getBestVal(IntVar var) {
 		int v = -1;
 		if (locations.containsKey(var)) {
 			for (int i : locations.get(var)) {

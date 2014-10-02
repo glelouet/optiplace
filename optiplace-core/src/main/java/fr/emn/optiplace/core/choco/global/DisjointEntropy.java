@@ -23,15 +23,15 @@ package fr.emn.optiplace.core.choco.global;
 
 import java.util.BitSet;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.constraints.integer.AbstractLargeIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.integer.IntVarEvent;
+import common.util.iterators.DisposableIntIterator;
+import common.util.tools.ArrayUtils;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateInt;
+import solver.ContradictionException;
+import solver.constraints.integer.AbstractLargeIntSConstraint;
+import solver.variables.IntVar;
 
 /**
  * Enforces two sets of variables values to be disjoint created sofdem -
@@ -68,8 +68,8 @@ public class DisjointEntropy extends AbstractLargeIntSConstraint {
 	 * @param nbValues
 	 *            max variable value + 1
 	 */
-	public DisjointEntropy(IEnvironment environment, IntDomainVar[] x,
-			IntDomainVar[] y, int nbValues) {
+	public DisjointEntropy(IEnvironment environment, IntVar[] x,
+			IntVar[] y, int nbValues) {
 		super(ArrayUtils.append(x, y));
 		nbX = x.length;
 		this.nbValues = nbValues;
@@ -96,7 +96,7 @@ public class DisjointEntropy extends AbstractLargeIntSConstraint {
 	 * @param group
 	 *            variable group
 	 */
-	private void initVar(IntDomainVar var, int group) {
+	private void initVar(IntVar var, int group) {
 		if (var.isInstantiated()) {
 			required[group].set(var.getVal());
 		} else {

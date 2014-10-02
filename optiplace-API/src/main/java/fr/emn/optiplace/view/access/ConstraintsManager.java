@@ -1,8 +1,8 @@
 package fr.emn.optiplace.view.access;
 
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.Var;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.constraints.SConstraint;
+import solver.variables.Var;
+import solver.variables.IntVar;
 
 /**
  * grant access to the management of constraints in a view
@@ -32,19 +32,19 @@ public interface ConstraintsManager {
 	 * @param b
 	 *            a constant int
 	 */
-	public void linear(IntDomainVar y, int a, IntDomainVar x, int b);
+	public void linear(IntVar y, int a, IntVar x, int b);
 
 	/**
 	 * post a new constraint, y=b+a⋅sum(vars).<br />
 	 * Multi-dimension form of
-	 * {@link #linear(IntDomainVar, int, IntDomainVar, int)}
+	 * {@link #linear(IntVar, int, IntVar, int)}
 	 * 
 	 * @param y
 	 * @param a
 	 * @param b
 	 * @param vars
 	 */
-	public void linear(IntDomainVar y, int a, int b, IntDomainVar... vars);
+	public void linear(IntVar y, int a, int b, IntVar... vars);
 
 	/**
 	 * post a constraint specifying y=sum(a[i]⋅x[i]) +b
@@ -54,18 +54,18 @@ public interface ConstraintsManager {
 	 * @param x
 	 * @param b
 	 */
-	public void linear(IntDomainVar y, int[] a, IntDomainVar[] x, int b);
+	public void linear(IntVar y, int[] a, IntVar[] x, int b);
 
 	/**
 	 * post a new constraint specifying y[i]=a[i]⋅x[i]+b[i].<br />
-	 * scalar version of {@link #linear(IntDomainVar, int, IntDomainVar, int)}
+	 * scalar version of {@link #linear(IntVar, int, IntVar, int)}
 	 * 
 	 * @param y
 	 * @param a
 	 * @param x
 	 * @param b
 	 */
-	public void scalar(IntDomainVar[] y, int[] a, IntDomainVar[] x, int[] b);
+	public void scalar(IntVar[] y, int[] a, IntVar[] x, int[] b);
 
 	/**
 	 * post a new constraint, z=a(x-b)(y-c)
@@ -77,18 +77,18 @@ public interface ConstraintsManager {
 	 * @param y
 	 * @param c
 	 */
-	public void mult(IntDomainVar z, int a, IntDomainVar x, int b,
-			IntDomainVar y, int c);
+	public void mult(IntVar z, int a, IntVar x, int b,
+			IntVar y, int c);
 
 	/**
-	 * shortcut for {@link #mult(IntDomainVar, 0, IntDomainVar, 0, IntDomainVar,
+	 * shortcut for {@link #mult(IntVar, 0, IntVar, 0, IntVar,
 	 * 0)}
 	 * 
 	 * @param z
 	 * @param x
 	 * @param y
 	 */
-	public void mult(IntDomainVar z, IntDomainVar x, IntDomainVar y);
+	public void mult(IntVar z, IntVar x, IntVar y);
 
 	/**
 	 * post a new constraint specifying x≥y
@@ -96,6 +96,6 @@ public interface ConstraintsManager {
 	 * @param x
 	 * @param y
 	 */
-	public void geq(IntDomainVar x, IntDomainVar y);
+	public void geq(IntVar x, IntVar y);
 
 }

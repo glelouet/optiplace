@@ -5,7 +5,7 @@ package fr.emn.optiplace.view.access;
 
 import java.util.HashMap;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -62,21 +62,21 @@ public interface CoreView {
 	 *            a virtual machine of the problem
 	 * @return the index of the node hosting this vm
 	 */
-	public IntDomainVar host(VM vm);
+	public IntVar host(VM vm);
 
 	/**
 	 * @param n
 	 *            a node of the problem
 	 * @return the number of vms hosted on this node
 	 */
-	public IntDomainVar nbVMs(Node n);
+	public IntVar nbVMs(Node n);
 
 	/**
 	 * @param n
 	 *            a node of the problem
 	 * @return the boolean presence of a vm to host on the node
 	 */
-	public IntDomainVar isHoster(Node n);
+	public IntVar isHoster(Node n);
 
 
 	/**
@@ -84,12 +84,12 @@ public interface CoreView {
 	 *            a vm of the problem
 	 * @return true if the vm change host from source to target
 	 */
-	public IntDomainVar isMigrated(VM vm);
+	public IntVar isMigrated(VM vm);
 
 	/**
 	 * @return the number of migrations performed to pass from source to target
 	 */
-	public IntDomainVar nbMigrations();
+	public IntVar nbMigrations();
 
 	/**
 	 * @return the map of types to the associated resource handlers

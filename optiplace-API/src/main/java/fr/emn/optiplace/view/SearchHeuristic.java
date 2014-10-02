@@ -2,7 +2,7 @@ package fr.emn.optiplace.view;
 
 import java.util.List;
 
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
+import solver.branch.AbstractIntBranchingStrategy;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**

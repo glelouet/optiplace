@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace.goals;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 
@@ -20,7 +20,7 @@ public class NBMigrationsCost implements SearchGoal {
 			.getLogger(NBMigrationsCost.class);
 
 	@Override
-	public IntDomainVar getObjective(ReconfigurationProblem rp) {
+	public IntVar getObjective(ReconfigurationProblem rp) {
 		return rp.nbMigrations();
 	}
 }

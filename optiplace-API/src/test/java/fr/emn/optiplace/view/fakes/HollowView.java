@@ -5,8 +5,8 @@ package fr.emn.optiplace.view.fakes;
 
 import java.util.List;
 
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.Var;
+import solver.constraints.SConstraint;
+import solver.variables.Var;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;

@@ -15,30 +15,30 @@ import gnu.trove.TIntProcedure;
 
 import java.util.Arrays;
 
-import choco.cp.solver.constraints.global.pack.IPackSConstraint;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.opres.nosum.NoSumList;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.memory.IStateIntVector;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.SolverException;
-import choco.kernel.solver.constraints.set.AbstractLargeSetIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import solver.constraints.global.pack.IPackSConstraint;
+import common.logging.ChocoLogging;
+import common.opres.nosum.NoSumList;
+import common.util.iterators.DisposableIntIterator;
+import common.util.tools.ArrayUtils;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateInt;
+import memory.IStateIntVector;
+import solver.ContradictionException;
+import solver.SolverException;
+import solver.constraints.set.AbstractLargeSetIntSConstraint;
+import solver.variables.IntVar;
+import solver.variables.set.SetVar;
 
 /**
  * A simplified version of
- * {@link choco.cp.solver.constraints.global.pack.PackSConstraint}. Required and
+ * {@link solver.constraints.global.pack.PackSConstraint}. Required and
  * candidate loads are computed incrementally while some coding tips speeds up
  * computation. The constraint does not however support all the options in
- * {@link choco.cp.solver.constraints.global.pack.PackSConstraint}
+ * {@link solver.constraints.global.pack.PackSConstraint}
  * 
  * @author Fabien Hermenier
- * @see choco.cp.solver.constraints.global.pack.PackSConstraint
+ * @see solver.constraints.global.pack.PackSConstraint
  */
 public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 		implements
@@ -55,10 +55,10 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	protected final int[] iSizes;
 
 	/** The loads of the bins. */
-	protected final IntDomainVar[] loads;
+	protected final IntVar[] loads;
 
 	/** The bin of each item. */
-	protected final IntDomainVar[] bins;
+	protected final IntVar[] bins;
 
 	private SetVar[] bSets;
 
@@ -69,10 +69,10 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	private IEnvironment env;
 
 	public SimpleBinPacking(IEnvironment environment, SetVar[] itemSets,
-			IntDomainVar[] loads, IntDomainVar[] sizes, IntDomainVar[] bins,
-			IntDomainVar nbNonEmpty) {
+			IntVar[] loads, IntVar[] sizes, IntVar[] bins,
+			IntVar nbNonEmpty) {
 		super(ArrayUtils.append(loads, sizes, bins,
-				new IntDomainVar[]{nbNonEmpty}), itemSets);
+				new IntVar[]{nbNonEmpty}), itemSets);
 		this.loads = loads;
 		env = environment;
 		iSizes = new int[sizes.length];
@@ -131,7 +131,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	}
 
 	@Override
-	public final IntDomainVar[] getBins() {
+	public final IntVar[] getBins() {
 		return bins;
 	}
 
@@ -158,7 +158,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	}
 
 	@Override
-	public final IntDomainVar[] getLoads() {
+	public final IntVar[] getLoads() {
 		return loads;
 	}
 

@@ -3,10 +3,10 @@
  */
 package fr.emn.optiplace.core.choco.reified;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.constraints.integer.AbstractBinIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.integer.IntVarEvent;
+import solver.ContradictionException;
+import solver.constraints.integer.AbstractBinIntSConstraint;
+import solver.variables.IntVar;
 
 /**
  * a constraint specifying that if x is true, then y is also true.<br />
@@ -31,7 +31,7 @@ public class IntImplies extends AbstractBinIntSConstraint {
 	 * @param x1
 	 *            boolean value.
 	 */
-	public IntImplies(IntDomainVar x0, IntDomainVar x1) {
+	public IntImplies(IntVar x0, IntVar x1) {
 		super(x0, x1);
 	}
 

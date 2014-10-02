@@ -16,13 +16,13 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import choco.cp.solver.search.integer.branching.AssignVar;
-import choco.cp.solver.search.integer.valselector.MinVal;
-import choco.cp.solver.search.integer.varselector.StaticVarOrder;
-import choco.cp.solver.search.set.StaticSetVarOrder;
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import solver.search.integer.branching.AssignVar;
+import solver.search.integer.valselector.MinVal;
+import solver.search.integer.varselector.StaticVarOrder;
+import solver.search.set.StaticSetVarOrder;
+import solver.branch.AbstractIntBranchingStrategy;
+import solver.variables.IntVar;
+import solver.variables.set.SetVar;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
 
@@ -45,8 +45,8 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
 			ReconfigurationProblem m) {
 		ArrayList<AbstractIntBranchingStrategy> ret = new ArrayList<AbstractIntBranchingStrategy>();
 
-		LinkedHashSet<IntDomainVar> vars = new LinkedHashSet<>();
-		for (IntDomainVar v : m.getHosters()) {
+		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
+		for (IntVar v : m.getHosters()) {
 			vars.add(v);
 		}
 		for (int i = 0; i < m.getNbIntVars(); i++) {
@@ -59,10 +59,10 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
 		}
 		if (vars.size() > 0) {
 			ret.add(new AssignVar(new StaticVarOrder(m, vars
-					.toArray(new IntDomainVar[]{})) {
+					.toArray(new IntVar[]{})) {
 				@Override
-				public IntDomainVar selectVar() {
-					IntDomainVar ret = super.selectVar();
+				public IntVar selectVar() {
+					IntVar ret = super.selectVar();
 					return ret;
 				}
 			}, new MinVal()));

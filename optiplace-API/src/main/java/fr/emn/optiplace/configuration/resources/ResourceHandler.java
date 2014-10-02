@@ -1,6 +1,6 @@
 package fr.emn.optiplace.configuration.resources;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -9,7 +9,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * <p>
  * The link between a {@link ResourceSpecification}, which specifies the use and
  * capacity of VMs and Nodes, and a {@link ReconfigurationProblem} which has
- * IntDomainVar to store information<br />
+ * IntVar to store information<br />
  * store the data related to the specifications in the problem
  * </p>
  * <p>
@@ -32,8 +32,8 @@ public class ResourceHandler {
 		return specs;
 	}
 
-	protected IntDomainVar[] vmsUsesByIndex = null;
-	protected IntDomainVar[] nodesUsesByIndex = null;
+	protected IntVar[] vmsUsesByIndex = null;
+	protected IntVar[] nodesUsesByIndex = null;
 	protected int minVMUse = Integer.MAX_VALUE;
 	protected int maxVMUse = Integer.MAX_VALUE;
 	protected int minNodeCapa = Integer.MAX_VALUE;
@@ -62,8 +62,8 @@ public class ResourceHandler {
 		AssociatedPb = pb;
 		Node[] nodes = pb.nodes();
 		VM[] vms = pb.vms();
-		vmsUsesByIndex = new IntDomainVar[vms.length];
-		nodesUsesByIndex = new IntDomainVar[nodes.length];
+		vmsUsesByIndex = new IntVar[vms.length];
+		nodesUsesByIndex = new IntVar[nodes.length];
 		vmsUses = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
 			Integer iuse = specs.toUses().get(vms[i]);
@@ -103,12 +103,12 @@ public class ResourceHandler {
 	}
 
 	/** @return the vmsUsagesByIndex */
-	public IntDomainVar[] getVmsUsesByIndex() {
+	public IntVar[] getVmsUsesByIndex() {
 		return vmsUsesByIndex;
 	}
 
 	/** @return the nodesUsagesByIndex */
-	public IntDomainVar[] getNodesUsesByIndex() {
+	public IntVar[] getNodesUsesByIndex() {
 		return nodesUsesByIndex;
 	}
 

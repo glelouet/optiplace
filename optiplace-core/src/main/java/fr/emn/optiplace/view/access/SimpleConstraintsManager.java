@@ -2,9 +2,9 @@ package fr.emn.optiplace.view.access;
 
 import java.util.LinkedHashSet;
 
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.Var;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.constraints.SConstraint;
+import solver.variables.Var;
+import solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -38,43 +38,43 @@ public class SimpleConstraintsManager implements ConstraintsManager {
 	}
 
 	@Override
-	public void linear(IntDomainVar y, int a, IntDomainVar x, int b) {
+	public void linear(IntVar y, int a, IntVar x, int b) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void linear(IntDomainVar y, int a, int b, IntDomainVar... vars) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("implement this !");
-	}
-
-	@Override
-	public void linear(IntDomainVar y, int[] a, IntDomainVar[] x, int b) {
+	public void linear(IntVar y, int a, int b, IntVar... vars) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("implement this !");
 	}
 
 	@Override
-	public void scalar(IntDomainVar[] y, int[] a, IntDomainVar[] x, int[] b) {
+	public void linear(IntVar y, int[] a, IntVar[] x, int b) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("implement this !");
 	}
 
 	@Override
-	public void mult(IntDomainVar z, int a, IntDomainVar x, int b,
-			IntDomainVar y, int c) {
+	public void scalar(IntVar[] y, int[] a, IntVar[] x, int[] b) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("implement this !");
 	}
 
 	@Override
-	public void mult(IntDomainVar z, IntDomainVar x, IntDomainVar y) {
+	public void mult(IntVar z, int a, IntVar x, int b,
+			IntVar y, int c) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("implement this !");
 	}
 
 	@Override
-	public void geq(IntDomainVar x, IntDomainVar y) {
+	public void mult(IntVar z, IntVar x, IntVar y) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("implement this !");
+	}
+
+	@Override
+	public void geq(IntVar x, IntVar y) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("implement this !");
 	}

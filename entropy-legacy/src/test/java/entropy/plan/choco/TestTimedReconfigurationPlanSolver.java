@@ -13,10 +13,10 @@ package entropy.plan.choco;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import choco.cp.solver.search.integer.valselector.MinVal;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.logging.Verbosity;
-import choco.kernel.solver.ContradictionException;
+import solver.search.integer.valselector.MinVal;
+import common.logging.ChocoLogging;
+import common.logging.Verbosity;
+import solver.ContradictionException;
 import entropy.TestHelper;
 import entropy.configuration.*;
 import entropy.plan.entropy.plan.ReconfigurationResult;

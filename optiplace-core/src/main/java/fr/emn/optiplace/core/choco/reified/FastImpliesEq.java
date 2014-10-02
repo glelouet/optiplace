@@ -20,11 +20,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package fr.emn.optiplace.core.choco.reified;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.SolverException;
-import choco.kernel.solver.constraints.integer.AbstractBinIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.integer.IntVarEvent;
+import solver.ContradictionException;
+import solver.SolverException;
+import solver.constraints.integer.AbstractBinIntSConstraint;
+import solver.variables.IntVar;
 
 /**
  * A fast implementation for BVAR <=> VAR = CSTE <br/>
@@ -36,7 +36,7 @@ public class FastImpliesEq extends AbstractBinIntSConstraint {
 
 	private final int constante;
 
-	public FastImpliesEq(IntDomainVar b, IntDomainVar var, int constante) {
+	public FastImpliesEq(IntVar b, IntVar var, int constante) {
 		super(b, var);
 		if (!b.hasBooleanDomain()) {
 			throw new SolverException(b.getName()

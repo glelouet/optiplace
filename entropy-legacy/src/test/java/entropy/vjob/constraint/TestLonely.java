@@ -17,7 +17,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import choco.kernel.common.logging.ChocoLogging;
+import common.logging.ChocoLogging;
 import entropy.configuration.*;
 import entropy.plan.entropy.plan.ReconfigurationResult;
 import entropy.plan.choco.ChocoCustomRP;

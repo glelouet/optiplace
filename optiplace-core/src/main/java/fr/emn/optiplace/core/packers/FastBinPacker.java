@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import memory.IEnvironment;
+import solver.constraints.SConstraint;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
@@ -21,17 +21,17 @@ public class FastBinPacker implements ChocoResourcePacker {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SConstraint<IntDomainVar>[] pack(IEnvironment environment,
-			IntDomainVar[] binAssign, ResourceUse... resourceUses) {
-		ArrayList<SConstraint<IntDomainVar>> ret = new ArrayList<SConstraint<IntDomainVar>>();
+	public SConstraint<IntVar>[] pack(IEnvironment environment,
+			IntVar[] binAssign, ResourceUse... resourceUses) {
+		ArrayList<SConstraint<IntVar>> ret = new ArrayList<SConstraint<IntVar>>();
 		for (ResourceUse ru : resourceUses) {
 			// we need to sort the VMs vy decreasing resource consumption. we
 			// remove the VMs with 0 consumption BTW.
-			ArrayList<IntDomainVar> sortedVMsUses = new ArrayList<IntDomainVar>();
-			ArrayList<IntDomainVar> sortedVMsPos = new ArrayList<IntDomainVar>();
-			IntDomainVar[] vmsUses = ru.getVMsUses();
+			ArrayList<IntVar> sortedVMsUses = new ArrayList<IntVar>();
+			ArrayList<IntVar> sortedVMsPos = new ArrayList<IntVar>();
+			IntVar[] vmsUses = ru.getVMsUses();
 			for (int i = 0; i < vmsUses.length; i++) {
-				IntDomainVar use = vmsUses[i];
+				IntVar use = vmsUses[i];
 				if (use.getVal() != 0) {
 					int index = insertDescreasing(sortedVMsUses, use);
 					sortedVMsPos.add(index, binAssign[i]);
@@ -39,15 +39,15 @@ public class FastBinPacker implements ChocoResourcePacker {
 			}
 			FastBinPacking pack = new FastBinPacking(environment,
 					ru.getNodesUse(),
-					sortedVMsUses.toArray(new IntDomainVar[]{}),
-					sortedVMsPos.toArray(new IntDomainVar[]{}));
+					sortedVMsUses.toArray(new IntVar[]{}),
+					sortedVMsPos.toArray(new IntVar[]{}));
 			ret.add(pack);
 		}
 		return ret.toArray(new SConstraint[]{});
 	}
 
 	/**
-	 * compare two IntDomainVars values. the result is positive IF the first is
+	 * compare two IntVars values. the result is positive IF the first is
 	 * lesser than the second.<br />
 	 * So this is the opposite order of a comparator. As such, I can be used in
 	 * binarysearch to find in a list sorted by decreasing order.
@@ -57,12 +57,12 @@ public class FastBinPacker implements ChocoResourcePacker {
 	 */
 	public static class InstantiatedDomainVarComparatorDecreasing
 			implements
-				Comparator<IntDomainVar> {
+				Comparator<IntVar> {
 
 		public static final InstantiatedDomainVarComparatorDecreasing INSTANCE = new InstantiatedDomainVarComparatorDecreasing();
 
 		@Override
-		public int compare(IntDomainVar o1, IntDomainVar o2) {
+		public int compare(IntVar o1, IntVar o2) {
 			int ret = o2.getVal() - o1.getVal();
 			return ret;
 		}
@@ -78,8 +78,8 @@ public class FastBinPacker implements ChocoResourcePacker {
 	 *            the value to add
 	 * @return the index the value was added
 	 */
-	public static int insertDescreasing(ArrayList<IntDomainVar> sortedUSes,
-			IntDomainVar val) {
+	public static int insertDescreasing(ArrayList<IntVar> sortedUSes,
+			IntVar val) {
 		return insertDescreasing(sortedUSes, val,
 				InstantiatedDomainVarComparatorDecreasing.INSTANCE);
 	}

@@ -1,6 +1,6 @@
 package fr.emn.optiplace.view;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -21,7 +21,7 @@ public interface SearchGoal {
 	 *            from
 	 * @return the expression of the added formal cost of the model
 	 */
-	public IntDomainVar getObjective(ReconfigurationProblem rp);
+	public IntVar getObjective(ReconfigurationProblem rp);
 
 	/**
 	 * @return the heuristics associated with the objective to reduce. Can be

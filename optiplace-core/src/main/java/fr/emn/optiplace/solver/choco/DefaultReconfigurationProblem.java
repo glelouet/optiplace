@@ -24,30 +24,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import choco.Choco;
-import choco.cp.solver.CPSolver;
-import choco.cp.solver.constraints.global.BoundGccVar;
-import choco.cp.solver.constraints.integer.Element;
-import choco.cp.solver.constraints.integer.ElementV;
-import choco.cp.solver.constraints.integer.EqualXYC;
-import choco.cp.solver.constraints.integer.EuclideanDivisionXYZ;
-import choco.cp.solver.constraints.integer.GreaterOrEqualXC;
-import choco.cp.solver.constraints.integer.LessOrEqualXC;
-import choco.cp.solver.constraints.integer.MaxOfAList;
-import choco.cp.solver.constraints.integer.MinOfAList;
-import choco.cp.solver.constraints.integer.NotEqualXYC;
-import choco.cp.solver.constraints.integer.TimesXYZ;
-import choco.cp.solver.constraints.reified.ReifiedFactory;
-import choco.cp.solver.constraints.set.InverseSetInt;
-import choco.cp.solver.variables.integer.IntTerm;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.Solution;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.constraints.integer.IntExp;
-import choco.kernel.solver.search.measure.IMeasures;
-import choco.kernel.solver.variables.Var;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import solver.CPSolver;
+import solver.constraints.global.BoundGccVar;
+import solver.constraints.integer.Element;
+import solver.constraints.integer.ElementV;
+import solver.constraints.integer.EqualXYC;
+import solver.constraints.integer.EuclideanDivisionXYZ;
+import solver.constraints.integer.GreaterOrEqualXC;
+import solver.constraints.integer.LessOrEqualXC;
+import solver.constraints.integer.MaxOfAList;
+import solver.constraints.integer.MinOfAList;
+import solver.constraints.integer.NotEqualXYC;
+import solver.constraints.integer.TimesXYZ;
+import solver.constraints.reified.ReifiedFactory;
+import solver.constraints.set.InverseSetInt;
+import solver.variables.integer.IntTerm;
+import common.util.tools.ArrayUtils;
+import solver.ContradictionException;
+import solver.Solution;
+import solver.constraints.SConstraint;
+import solver.constraints.integer.IntExp;
+import solver.search.measure.IMeasures;
+import solver.variables.Var;
+import solver.variables.IntVar;
+import solver.variables.set.SetVar;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -99,10 +99,10 @@ ReconfigurationProblem {
   private TObjectIntHashMap<VM>revVMs;
 
   /** The group variable associated to each virtual machine. */
-  private final List<IntDomainVar> vmGrp;
+  private final List<IntVar> vmGrp;
 
   /** The group variable associated to each group of VMs. */
-  private final Map<Set<VM>, IntDomainVar> vmsGrp;
+  private final Map<Set<VM>, IntVar> vmsGrp;
 
   /** The value associated to each group of nodes. */
   private final Map<Set<Node>, Integer> nodesGrp;
@@ -161,11 +161,11 @@ ReconfigurationProblem {
     makeHosters();
     // makeIsPowereds();
 
-    vmGrp = new ArrayList<IntDomainVar>(vms.length);
+    vmGrp = new ArrayList<IntVar>(vms.length);
     for (int i = 0; i < vms.length; i++) {
       vmGrp.add(i, null);
     }
-    vmsGrp = new HashMap<Set<VM>, IntDomainVar>();
+    vmsGrp = new HashMap<Set<VM>, IntVar>();
 		nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
 		for (int i = 0; i < nodes.length; i++) {
       nodeGrps.add(i, new TIntArrayList());
@@ -301,8 +301,8 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar getVMGroup(Set<VM> vms) {
-    IntDomainVar v = vmsGrp.get(vms);
+  public IntVar getVMGroup(Set<VM> vms) {
+    IntVar v = vmsGrp.get(vms);
     if (v != null) {
       return v;
     }
@@ -316,21 +316,21 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s) {
+  public IntVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s) {
     int[] values = new int[node2s.size()];
     int i = 0;
     for (Set<Node> ns : node2s) {
       values[i] = getGroup(ns);
       i++;
     }
-    IntDomainVar v = createEnumIntVar(""/* "vmset" + vms.toString() */,
+    IntVar v = createEnumIntVar(""/* "vmset" + vms.toString() */,
         values);
     vmsGrp.put(vms, v);
     return v;
   }
 
   @Override
-  public IntDomainVar getAssociatedGroup(VM vm) {
+  public IntVar getAssociatedGroup(VM vm) {
     return vmGrp.get(vm(vm));
   }
 
@@ -398,13 +398,13 @@ ReconfigurationProblem {
   }
 
   /** number of VMs hosted on each node, indexed by node index */
-  private IntDomainVar[] cards;
+  private IntVar[] cards;
 
   /** for each vm, the index of its hosting node */
-  protected IntDomainVar[] hosters = null;
+  protected IntVar[] hosters = null;
 
   protected void makeHosters() {
-    hosters = new IntDomainVar[vms.length];
+    hosters = new IntVar[vms.length];
     for (int i = 0; i < vms.length; i++) {
       VM vm = vm(i);
       hosters[i] = createEnumIntVar(vm.getName() + ".hoster", 0,
@@ -412,21 +412,21 @@ ReconfigurationProblem {
     }
   }
 
-  public IntDomainVar host(int idx) {
+  public IntVar host(int idx) {
     return hosters[idx];
   }
 
   @Override
-  public IntDomainVar host(VM vm) {
+  public IntVar host(VM vm) {
     return host(vm(vm));
   }
 
   @Override
-  public IntDomainVar[] getHosters(VM... vms) {
+  public IntVar[] getHosters(VM... vms) {
     if (vms == null || vms.length == 0) {
       return hosters;
     } else {
-      IntDomainVar[] ret = new IntDomainVar[vms.length];
+      IntVar[] ret = new IntVar[vms.length];
       for (int i = 0; i < vms.length; i++) {
         ret[i] = hosters[vm(vms[i])];
       }
@@ -436,7 +436,7 @@ ReconfigurationProblem {
 
   private void makeCards() {
     if (cards == null) {
-			cards = new IntDomainVar[nodes.length];
+			cards = new IntVar[nodes.length];
       for (int i = 0; i < cards.length; i++) {
         cards[i] = createBoundIntVar("nb#" + i, 0, vms.length);
       }
@@ -446,39 +446,39 @@ ReconfigurationProblem {
     }
   }
 
-  public IntDomainVar nbVMs(int idx) {
+  public IntVar nbVMs(int idx) {
     makeCards();
     return cards[idx];
   }
 
   @Override
-  public IntDomainVar nbVMs(Node n) {
+  public IntVar nbVMs(Node n) {
     return nbVMs(node(n));
   }
 
   @Override
-  public IntDomainVar[] getNbHosted() {
+  public IntVar[] getNbHosted() {
     makeCards();
     return cards;
   }
 
-  IntDomainVar[] nodesAreHostings = null;
+  IntVar[] nodesAreHostings = null;
 
   /**
    * generate the boolean value of wether a node is used or not, using the
    * number of vms on it.
    */
-  protected IntDomainVar makeIsHosting(int nodeIdx) {
-		IntDomainVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
+  protected IntVar makeIsHosting(int nodeIdx) {
+		IntVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
         + "?hosting");
     return ret;
   }
 
-  public IntDomainVar isHoster(int idx) {
+  public IntVar isHoster(int idx) {
     if (nodesAreHostings == null) {
-      nodesAreHostings = new IntDomainVar[nodes().length];
+      nodesAreHostings = new IntVar[nodes().length];
     }
-    IntDomainVar ret = nodesAreHostings[idx];
+    IntVar ret = nodesAreHostings[idx];
     if (ret == null) {
       ret = makeIsHosting(idx);
       nodesAreHostings[idx] = ret;
@@ -487,17 +487,17 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar isHoster(Node n) {
+  public IntVar isHoster(Node n) {
     return isHoster(node(n));
   }
 
-  HashMap<String, IntDomainVar[]> hostUsedResources = new HashMap<>();
+  HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();
 
   @Override
-  public IntDomainVar getHostUse(String resource, int vmIndex) {
-    IntDomainVar[] hostedArray = hostUsedResources.get(resource);
+  public IntVar getHostUse(String resource, int vmIndex) {
+    IntVar[] hostedArray = hostUsedResources.get(resource);
     if (hostedArray == null) {
-      hostedArray = new IntDomainVar[vms().length];
+      hostedArray = new IntVar[vms().length];
       hostUsedResources.put(resource, hostedArray);
     }
     if (vmIndex < 0) {
@@ -505,7 +505,7 @@ ReconfigurationProblem {
           + " not found, returning null");
       return null;
     }
-    IntDomainVar ret = hostedArray[vmIndex];
+    IntVar ret = hostedArray[vmIndex];
     if (ret == null) {
       ret = createBoundIntVar(
           vms[vmIndex].getName() + ".hosterUsed" + resource,
@@ -518,13 +518,13 @@ ReconfigurationProblem {
     return ret;
   }
 
-  HashMap<String, IntDomainVar[]> hostCapacities = new HashMap<>();
+  HashMap<String, IntVar[]> hostCapacities = new HashMap<>();
 
   @Override
-  public IntDomainVar getHostCapa(String resource, int vmIndex) {
-    IntDomainVar[] hostedArray = hostCapacities.get(resource);
+  public IntVar getHostCapa(String resource, int vmIndex) {
+    IntVar[] hostedArray = hostCapacities.get(resource);
     if (hostedArray == null) {
-      hostedArray = new IntDomainVar[vms().length];
+      hostedArray = new IntVar[vms().length];
       hostCapacities.put(resource, hostedArray);
     }
     if (vmIndex < 0) {
@@ -532,7 +532,7 @@ ReconfigurationProblem {
           + " not found, returning null");
       return null;
     }
-    IntDomainVar ret = hostedArray[vmIndex];
+    IntVar ret = hostedArray[vmIndex];
     if (ret == null) {
       ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource,
           0, Choco.MAX_UPPER_BOUND);
@@ -543,14 +543,14 @@ ReconfigurationProblem {
     return ret;
   }
 
-  IntDomainVar[] vmsHostMaxCPUs = null;
+  IntVar[] vmsHostMaxCPUs = null;
 
-  IntDomainVar[] isMigrateds = null;
+  IntVar[] isMigrateds = null;
 
-  IntDomainVar nbLiveMigrations = null;
+  IntVar nbLiveMigrations = null;
 
   protected void makeIsMigrateds() {
-    isMigrateds = new IntDomainVar[vms().length];
+    isMigrateds = new IntVar[vms().length];
     for (int i = 0; i < isMigrateds.length; i++) {
       VM vm = vm(i);
       Node sourceHost = getSourceConfiguration().getLocation(vm);
@@ -563,7 +563,7 @@ ReconfigurationProblem {
     nbLiveMigrations = sum(isMigrateds);
   }
 
-  public IntDomainVar isMigrated(int idx) {
+  public IntVar isMigrated(int idx) {
     if (isMigrateds == null) {
       makeIsMigrateds();
     }
@@ -571,12 +571,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar isMigrated(VM vm) {
+  public IntVar isMigrated(VM vm) {
     return isMigrated(vm(vm));
   }
 
   @Override
-  public IntDomainVar[] getIsMigrateds() {
+  public IntVar[] getIsMigrateds() {
     if (isMigrateds == null) {
       makeIsMigrateds();
     }
@@ -584,7 +584,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar nbMigrations() {
+  public IntVar nbMigrations() {
     if (nbLiveMigrations == null) {
       makeIsMigrateds();
     }
@@ -601,41 +601,41 @@ ReconfigurationProblem {
 
   @Override
   /** add a constraint such as array[index]=value */
-  public void nth(IntDomainVar index, IntDomainVar[] array, IntDomainVar var) {
-    post(new ElementV(ArrayUtils.append(array, new IntDomainVar[]{index,
+  public void nth(IntVar index, IntVar[] array, IntVar var) {
+    post(new ElementV(ArrayUtils.append(array, new IntVar[]{index,
         var}), 0, getEnvironment()));
   }
 
   @Override
   /** add a constraint such as array[index]=value */
-  public void nth(IntDomainVar index, int[] array, IntDomainVar var) {
+  public void nth(IntVar index, int[] array, IntVar var) {
     post(new Element(index, array, var));
   }
 
   @Override
-  public IntDomainVar nth(IntDomainVar index, IntDomainVar[] array) {
+  public IntVar nth(IntVar index, IntVar[] array) {
     int[] minmax = getMinMax(array);
-    IntDomainVar ret = createBoundIntVar(foldSetNames(array), minmax[0],
+    IntVar ret = createBoundIntVar(foldSetNames(array), minmax[0],
         minmax[1]);
     nth(index, array, ret);
     return ret;
   }
 
   @Override
-  public IntDomainVar plus(IntDomainVar left, IntDomainVar right) {
-    IntDomainVar ret = createBoundIntVar("(" + left + ")+(" + right + ')',
+  public IntVar plus(IntVar left, IntVar right) {
+    IntVar ret = createBoundIntVar("(" + left + ")+(" + right + ')',
         left.getInf() + right.getInf(), left.getSup() + right.getSup());
     plus(left, right, ret);
     return ret;
   }
 
   @Override
-  public void plus(IntDomainVar left, IntDomainVar right, IntDomainVar sum) {
+  public void plus(IntVar left, IntVar right, IntVar sum) {
     post(eq(sum, super.plus(right, left)));
   }
 
   @Override
-  public IntDomainVar sum(IntDomainVar... vars) {
+  public IntVar sum(IntVar... vars) {
     if (vars == null || vars.length == 0) {
       return createIntegerConstant(0);
     }
@@ -649,13 +649,13 @@ ReconfigurationProblem {
       sup += vars[i].getSup();
     }
     IntTerm sum = (IntTerm) super.sum(vars);
-    IntDomainVar ret = createBoundIntVar(sum.pretty(), inf, sup);
+    IntVar ret = createBoundIntVar(sum.pretty(), inf, sup);
     post(eq(sum, ret));
     return ret;
   }
 
   @Override
-  public IntDomainVar mult(IntDomainVar left, IntDomainVar right) {
+  public IntVar mult(IntVar left, IntVar right) {
     if (left.isInstantiatedTo(0) || right.isInstantiatedTo(0)) {
       return createIntegerConstant(0);
     }
@@ -675,18 +675,18 @@ ReconfigurationProblem {
         max = prod;
       }
     }
-    IntDomainVar ret = createBoundIntVar("(" + left.getName() + ")*("
+    IntVar ret = createBoundIntVar("(" + left.getName() + ")*("
         + right.getName() + ")", min, max);
     mult(left, right, ret);
     return ret;
   }
 
   @Override
-  public IntDomainVar mult(IntDomainVar left, int right) {
+  public IntVar mult(IntVar left, int right) {
     if (left.isInstantiated()) {
       return createIntegerConstant(left.getVal() * right);
     }
-    IntDomainVar ret = null;
+    IntVar ret = null;
     if (left.getInf() == 0 && left.getSup() == 1) {
       ret = createEnumIntVar("(" + left.getName() + ")*" + right,
           new int[]{0, right});
@@ -707,17 +707,17 @@ ReconfigurationProblem {
   }
 
   /** add a constraint, left*right==product */
-  public void mult(IntDomainVar left, IntDomainVar right, IntDomainVar product) {
+  public void mult(IntVar left, IntVar right, IntVar product) {
     post(new TimesXYZ(left, right, product));
   }
 
   @Override
-  public IntDomainVar div(IntDomainVar var, int i) {
+  public IntVar div(IntVar var, int i) {
     int a = var.getInf() / i;
     int b = var.getSup() / i;
     int min = Math.min(a, b);
     int max = Math.max(a, b);
-    IntDomainVar ret = createBoundIntVar("(" + var.getName() + ")/" + i,
+    IntVar ret = createBoundIntVar("(" + var.getName() + ")/" + i,
         min, max);
     post(new EuclideanDivisionXYZ(var, createIntegerConstant("" + i, i),
         ret));
@@ -725,7 +725,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar scalar(IntDomainVar[] pos, double[] weights) {
+  public IntVar scalar(IntVar[] pos, double[] weights) {
     assert pos.length == weights.length;
     double granularity = 1;
     for (double weight : weights) {
@@ -736,33 +736,33 @@ ReconfigurationProblem {
       mults[i] = (int) (weights[i] * granularity);
     }
     IntExp thescalar = scalar(pos, mults);
-    IntDomainVar granularsum = createBoundIntVar("granularScalar",
+    IntVar granularsum = createBoundIntVar("granularScalar",
         Choco.MIN_LOWER_BOUND, Choco.MAX_UPPER_BOUND);
     post(eq(thescalar, granularsum));
     return div(granularsum, (int) granularity);
   }
 
   @Override
-  public IntDomainVar isSame(IntDomainVar x, IntDomainVar y) {
+  public IntVar isSame(IntVar x, IntVar y) {
     EqualXYC eq = new EqualXYC(x, y, 0);
     NotEqualXYC neq = new NotEqualXYC(x, y, 0);
-    IntDomainVar ret = createBooleanVar("(" + x + "?=" + y + ")");
+    IntVar ret = createBooleanVar("(" + x + "?=" + y + ")");
     ReifiedFactory.builder(ret, eq, neq, this);
     return ret;
   }
 
   @Override
-  public IntDomainVar isDifferent(IntDomainVar x, IntDomainVar y) {
+  public IntVar isDifferent(IntVar x, IntVar y) {
     EqualXYC eq = new EqualXYC(x, y, 0);
     NotEqualXYC neq = new NotEqualXYC(x, y, 0);
-    IntDomainVar ret = createBooleanVar("(" + x + "?!" + y + ")");
+    IntVar ret = createBooleanVar("(" + x + "?!" + y + ")");
     ReifiedFactory.builder(ret, neq, eq, this);
     return ret;
   }
 
   @Override
-  public IntDomainVar isDifferent(IntDomainVar x, int y) {
-    IntDomainVar ret = createBooleanVar("(" + x + "?=" + y + ")");
+  public IntVar isDifferent(IntVar x, int y) {
+    IntVar ret = createBooleanVar("(" + x + "?=" + y + ")");
     try {
       if (x.getInf() > y || x.getSup() < y) {
         ret.setVal(1);
@@ -834,10 +834,10 @@ ReconfigurationProblem {
     }
   };
 
-  /** print an array of IntDomainVar as {var0, var1, var2, var3} */
-  protected static String foldSetNames(IntDomainVar[] values) {
+  /** print an array of IntVar as {var0, var1, var2, var3} */
+  protected static String foldSetNames(IntVar[] values) {
     StringBuilder sb = null;
-    for (IntDomainVar idv : values) {
+    for (IntVar idv : values) {
       if (sb == null) {
         sb = new StringBuilder("{");
       } else {
@@ -850,15 +850,15 @@ ReconfigurationProblem {
 
   /**
    * get the min and max values of the inf and sup ranges of an array of
-   * IntDomainVar
+   * IntVar
    *
    * @param array
    *            the table of VarIntDomain
    * @return [min(inf(array)), max(sup(array))]
    */
-  protected static int[] getMinMax(IntDomainVar[] array) {
+  protected static int[] getMinMax(IntVar[] array) {
     int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-    for (IntDomainVar idv : array) {
+    for (IntVar idv : array) {
       if (idv.getInf() < min) {
         min = idv.getInf();
       }
@@ -870,19 +870,19 @@ ReconfigurationProblem {
   }
 
   /** add a constraint, such as max = max(values) */
-  public void maxOfList(IntDomainVar max, IntDomainVar... values) {
+  public void maxOfList(IntVar max, IntVar... values) {
     post(new MaxOfAList(getEnvironment(), ArrayUtils.append(
-        new IntDomainVar[]{max}, values)));
+        new IntVar[]{max}, values)));
   }
 
   /** add a constraint, such as min = min(values) */
-  public void minOfList(IntDomainVar min, IntDomainVar... values) {
+  public void minOfList(IntVar min, IntVar... values) {
     post(new MinOfAList(getEnvironment(), ArrayUtils.append(
-        new IntDomainVar[]{min}, values)));
+        new IntVar[]{min}, values)));
   }
 
   @Override
-  public IntDomainVar max(IntDomainVar... values) {
+  public IntVar max(IntVar... values) {
     if (values == null || values.length == 0) {
       logger.error("cannot make the maximum of an empty array of values");
     }
@@ -890,18 +890,18 @@ ReconfigurationProblem {
       return values[0];
     }
     int[] minmax = getMinMax(values);
-    IntDomainVar ret = createBoundIntVar("max(" + foldSetNames(values)
+    IntVar ret = createBoundIntVar("max(" + foldSetNames(values)
         + ")", minmax[0], minmax[1]);
     maxOfList(ret, values);
     return ret;
   }
 
   @Override
-  public IntDomainVar boolenize(IntDomainVar x, String name) {
+  public IntVar boolenize(IntVar x, String name) {
     if (name == null) {
       name = x.getName() + ">0";
     }
-    IntDomainVar ret = createBooleanVar(name);
+    IntVar ret = createBooleanVar(name);
     try {
       if (x.getInf() > 0) {
         ret.setVal(1);
@@ -920,7 +920,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar min(IntDomainVar... values) {
+  public IntVar min(IntVar... values) {
     if (values == null || values.length == 0) {
       logger.error("cannot make the minimum of an empty array of values");
     }
@@ -932,7 +932,7 @@ ReconfigurationProblem {
     int mininstantiated = Integer.MAX_VALUE;
     int instantiatedCount = 0;
     // count the constant expressions, and their values
-    for (IntDomainVar v : values) {
+    for (IntVar v : values) {
       if (v.isInstantiated()) {
         instantiatedCount++;
         if (v.getVal() < mininstantiated) {
@@ -942,10 +942,10 @@ ReconfigurationProblem {
     }
     // remove constant expressions
     if (instantiatedCount > 0) {
-      IntDomainVar[] vars = new IntDomainVar[values.length - instantiatedCount];
+      IntVar[] vars = new IntVar[values.length - instantiatedCount];
       int dec = 0;
       for (int i = 0; i < values.length; i++) {
-        IntDomainVar v = values[i];
+        IntVar v = values[i];
         if (v.isInstantiated()) {
           dec--;
         } else {
@@ -957,7 +957,7 @@ ReconfigurationProblem {
     </code>
      */
     int[] minmax = getMinMax(values);
-    IntDomainVar ret = createBoundIntVar("min(" + foldSetNames(values)
+    IntVar ret = createBoundIntVar("min(" + foldSetNames(values)
         + ")", minmax[0], minmax[1]);
     minOfList(ret, values);
 
@@ -965,21 +965,21 @@ ReconfigurationProblem {
   }
 
   // @Override
-  // public IntExp explodedSum(IntDomainVar[] vars, int step, boolean post) {
+  // public IntExp explodedSum(IntVar[] vars, int step, boolean post) {
   // int s = vars.length > step ? step : vars.length;
-  // IntDomainVar[] subSum = new IntDomainVar[s];
+  // IntVar[] subSum = new IntVar[s];
   // int nbSubs = (int) Math.ceil(vars.length / step);
   // if (vars.length % step != 0) {
   // nbSubs++;
   // }
-  // IntDomainVar[] ress = new IntDomainVar[nbSubs];
+  // IntVar[] ress = new IntVar[nbSubs];
   //
   // int curRes = 0;
   // int shiftedX = 0;
   // for (int i = 0; i < vars.length; i++) {
   // subSum[shiftedX++] = vars[i];
   // if (shiftedX == subSum.length) {
-  // IntDomainVar subRes = createBoundIntVar("subSum[" + (i - shiftedX + 1)
+  // IntVar subRes = createBoundIntVar("subSum[" + (i - shiftedX + 1)
   // + ".." + i + "]", 0, ReconfigurationProblem.MAX_TIME);
   // SConstraint<?> c = eq(subRes, sum(subSum));
   // if (post) {
@@ -991,7 +991,7 @@ ReconfigurationProblem {
   // if (i != vars.length - 1) {
   // int remainder = vars.length - (i + 1);
   // s = remainder > step ? step : remainder;
-  // subSum = new IntDomainVar[s];
+  // subSum = new IntVar[s];
   // }
   // shiftedX = 0;
   // }
@@ -1012,12 +1012,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar createIntegerConstant(int val) {
+  public IntVar createIntegerConstant(int val) {
     return super.createIntegerConstant("" + val, val);
   }
 
   @Override
-  public IntDomainVar createBoundIntVar(String name) {
+  public IntVar createBoundIntVar(String name) {
     return createBoundIntVar(name, Choco.MIN_LOWER_BOUND,
         Choco.MAX_UPPER_BOUND);
 
@@ -1058,7 +1058,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntDomainVar isOnline(Node n) {
+  public IntVar isOnline(Node n) {
     return createIntegerConstant(1);
   }
 

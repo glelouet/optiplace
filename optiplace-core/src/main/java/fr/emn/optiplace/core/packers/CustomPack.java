@@ -11,7 +11,7 @@
 
 package fr.emn.optiplace.core.packers;
 
-import choco.kernel.memory.IStateBitSet;
+import memory.IStateBitSet;
 
 /** Interface to get remaining space on a no. */
 public interface CustomPack {

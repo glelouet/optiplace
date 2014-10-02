@@ -5,8 +5,8 @@ package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
-import choco.kernel.common.logging.Verbosity;
-import choco.kernel.solver.search.ISolutionDisplay;
+import common.logging.Verbosity;
+import solver.search.ISolutionDisplay;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**

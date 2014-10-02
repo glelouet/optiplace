@@ -3,7 +3,7 @@ package fr.emn.optiplace.solver.choco;
 import java.util.Arrays;
 import java.util.Collection;
 
-import choco.kernel.solver.search.ISolutionDisplay;
+import solver.search.ISolutionDisplay;
 
 /**
  * {@link ISolutionDisplay} that concatenates several other's entries associated
