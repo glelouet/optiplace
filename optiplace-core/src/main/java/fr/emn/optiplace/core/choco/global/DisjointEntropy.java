@@ -23,23 +23,23 @@ package fr.emn.optiplace.core.choco.global;
 
 import java.util.BitSet;
 
-import solver.variables.integer.IntVarEvent;
-import common.util.iterators.DisposableIntIterator;
-import common.util.tools.ArrayUtils;
 import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateInt;
-import solver.ContradictionException;
-import solver.constraints.integer.AbstractLargeIntSConstraint;
+import solver.constraints.Constraint;
+import solver.exception.ContradictionException;
 import solver.variables.IntVar;
+import util.iterators.DisposableIntIterator;
+import util.tools.ArrayUtils;
 
 /**
  * Enforces two sets of variables values to be disjoint created sofdem -
  * 08/09/11
- * 
+ *
  * @author Sophie Demassey
  */
-public class DisjointEntropy extends AbstractLargeIntSConstraint {
+@SuppressWarnings("serial")
+public class DisjointEntropy extends Constraint {
 
 	/** number of variables in the first set (group 0) */
 	final int nbX;
@@ -90,7 +90,7 @@ public class DisjointEntropy extends AbstractLargeIntSConstraint {
 
 	/**
 	 * init the internal data according to the domain of a variable
-	 * 
+	 *
 	 * @param var
 	 *            variable
 	 * @param group
@@ -134,7 +134,7 @@ public class DisjointEntropy extends AbstractLargeIntSConstraint {
 	 * 1) fail if a variable in the other group is already instantiated to this
 	 * value 2) remove the value of the domains of all the variables of the
 	 * other group
-	 * 
+	 *
 	 * @param val
 	 *            the new assigned value
 	 * @param group

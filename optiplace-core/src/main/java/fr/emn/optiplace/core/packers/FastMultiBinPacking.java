@@ -12,7 +12,7 @@ import common.util.tools.ArrayUtils;
 import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateInt;
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import solver.constraints.integer.AbstractLargeIntSConstraint;
 import solver.variables.IntVar;
 
@@ -114,7 +114,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	}
 
 	public final int getRemainingSpace(int dim, int bin) {
-		return loads[dim][bin].getSup() - bRLoads[dim][bin].get();
+		return loads[dim][bin].getUB() - bRLoads[dim][bin].get();
 	}
 
 	@Override
@@ -206,9 +206,9 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 				bRLoads[d][b] = env.makeInt(rLoads[d][b]);
 				bTLoads[d][b] = env.makeInt(rLoads[d][b] + cLoads[d][b]);
 				loads[d][b].updateInf(rLoads[d][b], this, false);
-				sumLoadInf += loads[d][b].getInf();
+				sumLoadInf += loads[d][b].getLB();
 				loads[d][b].updateSup(rLoads[d][b] + cLoads[d][b], this, false);
-				sumLoadSup += loads[d][b].getSup();
+				sumLoadSup += loads[d][b].getUB();
 				if (!candidates[b].isEmpty() && d == 0) {
 					availableBins.set(b);
 				}
@@ -248,13 +248,13 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 							b,
 							Math.max(bRLoads[d][b].get(),
 									(int) sumISizes[d] - sumLoadSup[d].get()
-											+ loads[d][b].getSup()));
+											+ loads[d][b].getUB()));
 					noFixPoint |= loadSupFiltering(
 							d,
 							b,
 							Math.min(bTLoads[d][b].get(),
 									(int) sumISizes[d] - sumLoadInf[d].get()
-											+ loads[d][b].getInf()));
+											+ loads[d][b].getLB()));
 				}
 				noFixPoint |= propagateMultiKnapsack(b);
 			}
@@ -393,7 +393,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean loadInfFiltering(int dim, int bin, int newLoadInf)
 			throws ContradictionException {
-		int inc = newLoadInf - loads[dim][bin].getInf();
+		int inc = newLoadInf - loads[dim][bin].getLB();
 		if (inc > 0) {
 			loads[dim][bin].updateInf(newLoadInf, this, false);
 			sumLoadInf[dim].add(inc);
@@ -437,7 +437,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean loadSupFiltering(int dim, int bin, int newLoadSup)
 			throws ContradictionException {
-		int dec = newLoadSup - loads[dim][bin].getSup();
+		int dec = newLoadSup - loads[dim][bin].getUB();
 		if (dec < 0) {
 			loads[dim][bin].updateSup(newLoadSup, this, false);
 			sumLoadSup[dim].add(dec);
@@ -470,7 +470,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 			up = false;
 			for (d = 0; d < nbDims
 					&& iSizes[d][item] + bRLoads[d][bin].get() <= loads[d][bin]
-							.getSup(); d++) {
+							.getUB(); d++) {
 				;
 			}
 			if (d < nbDims && updateRemoveItemFromBin(item, bin)) {
@@ -485,7 +485,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 			}
 			for (d = 0; d < nbDims
 					&& bTLoads[d][bin].get() - iSizes[d][item] >= loads[d][bin]
-							.getInf(); d++) {
+							.getLB(); d++) {
 				;
 			}
 			if (d < nbDims && updatePackItemToBin(item, bin)) {
@@ -564,19 +564,19 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 									+ (rs[b] + cs[b]));
 					check = false;
 				}
-				if (loads[d][b].getInf() < rs[b]) {
+				if (loads[d][b].getLB() < rs[b]) {
 					ChocoLogging.getBranchingLogger().warning(
 							loads[d][b].pretty() + " LB expected >=" + rs[b]);
 					check = false;
 				}
-				if (loads[d][b].getSup() > rs[b] + cs[b]) {
+				if (loads[d][b].getUB() > rs[b] + cs[b]) {
 					ChocoLogging.getBranchingLogger().warning(
 							loads[d][b].pretty() + " UB expected <="
 									+ (rs[b] + cs[b]));
 					check = false;
 				}
-				sumLoadInf += loads[d][b].getInf();
-				sumLoadSup += loads[d][b].getSup();
+				sumLoadInf += loads[d][b].getLB();
+				sumLoadSup += loads[d][b].getUB();
 			}
 			if (this.sumLoadInf[d].get() != sumLoadInf) {
 				ChocoLogging.getBranchingLogger().warning(

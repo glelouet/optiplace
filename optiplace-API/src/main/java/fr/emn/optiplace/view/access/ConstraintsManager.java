@@ -1,12 +1,11 @@
 package fr.emn.optiplace.view.access;
 
-import solver.constraints.SConstraint;
-import solver.variables.Var;
+import solver.constraints.Constraint;
 import solver.variables.IntVar;
 
 /**
  * grant access to the management of constraints in a view
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public interface ConstraintsManager {
@@ -14,15 +13,15 @@ public interface ConstraintsManager {
 	/**
 	 * add a constraint to the problem, if not already added, and store it in
 	 * the list of added constraints.
-	 * 
+	 *
 	 * @param eq
 	 *            the constraint to add to the problem
 	 */
-	public void post(SConstraint<? extends Var> eq);
+	public void post(Constraint eq);
 
 	/**
 	 * post a new constraint specifying y=a⋅x+b
-	 * 
+	 *
 	 * @param y
 	 *            a variable
 	 * @param a
@@ -38,7 +37,7 @@ public interface ConstraintsManager {
 	 * post a new constraint, y=b+a⋅sum(vars).<br />
 	 * Multi-dimension form of
 	 * {@link #linear(IntVar, int, IntVar, int)}
-	 * 
+	 *
 	 * @param y
 	 * @param a
 	 * @param b
@@ -48,7 +47,7 @@ public interface ConstraintsManager {
 
 	/**
 	 * post a constraint specifying y=sum(a[i]⋅x[i]) +b
-	 * 
+	 *
 	 * @param y
 	 * @param a
 	 * @param x
@@ -59,7 +58,7 @@ public interface ConstraintsManager {
 	/**
 	 * post a new constraint specifying y[i]=a[i]⋅x[i]+b[i].<br />
 	 * scalar version of {@link #linear(IntVar, int, IntVar, int)}
-	 * 
+	 *
 	 * @param y
 	 * @param a
 	 * @param x
@@ -69,7 +68,7 @@ public interface ConstraintsManager {
 
 	/**
 	 * post a new constraint, z=a(x-b)(y-c)
-	 * 
+	 *
 	 * @param z
 	 * @param a
 	 * @param x
@@ -83,7 +82,7 @@ public interface ConstraintsManager {
 	/**
 	 * shortcut for {@link #mult(IntVar, 0, IntVar, 0, IntVar,
 	 * 0)}
-	 * 
+	 *
 	 * @param z
 	 * @param x
 	 * @param y
@@ -92,7 +91,7 @@ public interface ConstraintsManager {
 
 	/**
 	 * post a new constraint specifying x≥y
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 */

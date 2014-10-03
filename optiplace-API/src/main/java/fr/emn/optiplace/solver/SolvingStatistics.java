@@ -12,7 +12,7 @@ package fr.emn.optiplace.solver;
 
 /**
  * Statistics about the solving process of a RP.
- * 
+ *
  * @author Fabien Hermenier
  */
 public class SolvingStatistics implements Cloneable {
@@ -21,47 +21,47 @@ public class SolvingStatistics implements Cloneable {
 			false);
 
 	/** The number of opened nodes. */
-	private int nbNodes;
+	private final long nbNodes;
 
 	/** The number of backtracks. */
-	private int nbBacktracks;
+	private final long nbBacktracks;
 
 	/** The moment the solution was computed. */
-	private int timeCount;
+	private final long timeCount;
 
 	/** Indicates whether or not the solver has hit the timeout. */
-	private boolean timeout;
+	private final boolean timeout;
 
 	/**
 	 * Make new statistics
-	 * 
-	 * @param nbNodes
-	 *            the number of opened nodes
-	 * @param nbBacktracks
-	 *            the number of backtracks
-	 * @param timeCount
-	 *            the timeCount of the solution
+	 *
+	 * @param l
+	 * the number of opened nodes
+	 * @param m
+	 * the number of backtracks
+	 * @param f
+	 * the timeCount of the solution
 	 */
-	public SolvingStatistics(int nbNodes, int nbBacktracks, int timeCount,
+	public SolvingStatistics(long l, long m, long f,
 			boolean timeout) {
-		this.nbNodes = nbNodes;
-		this.nbBacktracks = nbBacktracks;
-		this.timeCount = timeCount;
+		this.nbNodes = l;
+		this.nbBacktracks = m;
+		this.timeCount = f;
 		this.timeout = timeout;
 	}
 
 	/** @return the number of opened nodes. */
-	public int getNbNodes() {
+	public long getNbNodes() {
 		return nbNodes;
 	}
 
 	/** @return the number of backtracks. */
-	public int getNbBacktracks() {
+	public long getNbBacktracks() {
 		return nbBacktracks;
 	}
 
 	/** @return the moment the solution was computed. */
-	public int getTimeCount() {
+	public long getTimeCount() {
 		return timeCount;
 	}
 
@@ -82,7 +82,7 @@ public class SolvingStatistics implements Cloneable {
 	 * are separated by space. First is the objective, second the number of
 	 * opened nodes, third is the number of backtracks. Last is the time then
 	 * the timeout
-	 * 
+	 *
 	 * @return a String
 	 */
 	public String toRawData() {

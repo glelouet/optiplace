@@ -5,8 +5,8 @@ package fr.emn.optiplace.view.fakes;
 
 import java.util.List;
 
-import solver.constraints.SConstraint;
-import solver.variables.Var;
+import solver.constraints.Constraint;
+import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -59,22 +59,22 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public void post(SConstraint<? extends Var> eq) {
+	public void post(Constraint eq) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void onNewVar(Var var) {
+	public void onNewVar(Variable var) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public List<Var> getAddedVars() {
+	public List<Variable> getAddedVars() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public List<SConstraint<? extends Var>> getAddedConstraints() {
+	public List<Constraint> getAddedConstraints() {
 		throw new UnsupportedOperationException();
 	}
 

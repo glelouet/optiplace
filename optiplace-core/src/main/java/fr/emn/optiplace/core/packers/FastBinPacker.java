@@ -5,15 +5,15 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import memory.IEnvironment;
-import solver.constraints.SConstraint;
+import solver.constraints.Constraint;
 import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
- * 
+ *
  */
 public class FastBinPacker implements ChocoResourcePacker {
 
@@ -21,9 +21,9 @@ public class FastBinPacker implements ChocoResourcePacker {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SConstraint<IntVar>[] pack(IEnvironment environment,
+	public Constraint[] pack(IEnvironment environment,
 			IntVar[] binAssign, ResourceUse... resourceUses) {
-		ArrayList<SConstraint<IntVar>> ret = new ArrayList<SConstraint<IntVar>>();
+		ArrayList<Constraint> ret = new ArrayList<Constraint>();
 		for (ResourceUse ru : resourceUses) {
 			// we need to sort the VMs vy decreasing resource consumption. we
 			// remove the VMs with 0 consumption BTW.
@@ -32,7 +32,7 @@ public class FastBinPacker implements ChocoResourcePacker {
 			IntVar[] vmsUses = ru.getVMsUses();
 			for (int i = 0; i < vmsUses.length; i++) {
 				IntVar use = vmsUses[i];
-				if (use.getVal() != 0) {
+				if (use.getValue() != 0) {
 					int index = insertDescreasing(sortedVMsUses, use);
 					sortedVMsPos.add(index, binAssign[i]);
 				}
@@ -43,7 +43,7 @@ public class FastBinPacker implements ChocoResourcePacker {
 					sortedVMsPos.toArray(new IntVar[]{}));
 			ret.add(pack);
 		}
-		return ret.toArray(new SConstraint[]{});
+		return ret.toArray(new Constraint[] {});
 	}
 
 	/**
@@ -51,9 +51,9 @@ public class FastBinPacker implements ChocoResourcePacker {
 	 * lesser than the second.<br />
 	 * So this is the opposite order of a comparator. As such, I can be used in
 	 * binarysearch to find in a list sorted by decreasing order.
-	 * 
+	 *
 	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
-	 * 
+	 *
 	 */
 	public static class InstantiatedDomainVarComparatorDecreasing
 			implements
@@ -63,7 +63,7 @@ public class FastBinPacker implements ChocoResourcePacker {
 
 		@Override
 		public int compare(IntVar o1, IntVar o2) {
-			int ret = o2.getVal() - o1.getVal();
+			int ret = o2.getValue() - o1.getValue();
 			return ret;
 		}
 	}
@@ -71,7 +71,7 @@ public class FastBinPacker implements ChocoResourcePacker {
 	/**
 	 * insert a value in the arraylist to keep the decreasing order of the
 	 * IntdomainVars'sup value
-	 * 
+	 *
 	 * @param sortedUSes
 	 *            the already sorted by decreasing order vars
 	 * @param val
@@ -87,9 +87,9 @@ public class FastBinPacker implements ChocoResourcePacker {
 	/**
 	 * insert a value in the arraylist to keep the decreasing order with regard
 	 * to the comparator provided
-	 * 
+	 *
 	 * @param <T>
-	 * 
+	 *
 	 * @param sortedValues
 	 *            the already sorted by decreasing order array of T
 	 * @param newValue

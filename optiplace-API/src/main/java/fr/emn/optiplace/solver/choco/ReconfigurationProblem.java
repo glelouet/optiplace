@@ -16,19 +16,20 @@ import java.util.List;
 import java.util.Set;
 
 import solver.Solver;
-import solver.constraints.SConstraint;
+import solver.constraints.Constraint;
+import solver.variables.BoolVar;
 import solver.variables.IntVar;
-import solver.variables.set.SetVar;
+import solver.variables.SetVar;
+import solver.variables.VariableFactory;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
-import fr.emn.optiplace.solver.SolutionStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Specification of a reconfiguration problem.
@@ -36,11 +37,48 @@ import gnu.trove.TIntArrayList;
  * @author Fabien Hermenier
  * @author Guillaume Le Louët
  */
-public interface ReconfigurationProblem extends Solver, CoreView,
-VariablesManager {
+public interface ReconfigurationProblem extends CoreView, VariablesManager {
 
   /** The maximum number of group of nodes. */
   Integer MAX_NB_GRP = 100;
+
+	public Solver getSolver();
+
+	@Override
+	default IntVar createIntegerConstant(int val) {
+		return VariableFactory.fixed(val, getSolver());
+	}
+
+	@Override
+	default BoolVar createBoolVar(String name) {
+		return VariableFactory.bool(name, getSolver());
+	}
+
+	@Override
+	default IntVar createEnumIntVar(String name, int... sortedValues) {
+		return VariableFactory.enumerated(name, sortedValues, getSolver());
+	}
+
+	@Override
+	default IntVar createEnumIntVar(String name, int min, int max) {
+		return VariableFactory.enumerated(name, min, max, getSolver());
+	}
+
+	/** creates an int variable whom range goes from min to max */
+	@Override
+	default IntVar createBoundIntVar(String name, int min, int max) {
+		return VariableFactory.bounded(name, min, max, getSolver());
+	}
+
+	@Override
+	default SetVar createEnumSetVar(String name, int... values) {
+		return VariableFactory.set(name, values, getSolver());
+	}
+
+	@Override
+	default SetVar createRangeSetVar(String name, int min, int max) {
+		return VariableFactory.set(name, min, max, getSolver());
+	}
 
   /**
    * Get the current location of a running or a sleeping VM.
@@ -165,22 +203,6 @@ VariablesManager {
   int[] getNodesGroupId();
 
   /**
-   * Get the set model of the nodes. One set per nodes
-   *
-   * @return an array of set
-   */
-  SetVar[] getSetModels();
-
-  /**
-   * Get the set associated to a node.
-   *
-   * @param n
-   * the node
-   * @return the associated set if exists, {@code null} otherwise
-   */
-  SetVar getSetModel(Node n);
-
-  /**
    * get the variables of the hoster of the VM in the end configuration.
    *
    * @param vm
@@ -267,13 +289,6 @@ VariablesManager {
   IntVar nbMigrations();
 
   /**
-   * Get statistics about computed solutions.
-   *
-   * @return a list of statistics that may me empty.
-   */
-  List<SolutionStatistics> getSolutionsStatistics();
-
-  /**
    * Get statistics about the solving process
    *
    * @return some statistics
@@ -281,8 +296,7 @@ VariablesManager {
   SolvingStatistics getSolvingStatistics();
 
   /** get the internal list of cost constraints */
-  @SuppressWarnings("rawtypes")
-  public List<SConstraint> getCostConstraints();
+	public List<Constraint> getCostConstraints();
 
   /**
    * @param left
@@ -348,7 +362,7 @@ VariablesManager {
    * @return a new variable constrained to ret=1 if x and y are instancied to
    * the same value
    */
-  IntVar isSame(IntVar x, IntVar y);
+	BoolVar isSame(IntVar x, IntVar y);
 
   /**
    * creates a new var z constrained by z =(x==y)
@@ -358,12 +372,12 @@ VariablesManager {
    * @return a new variable constrained to ret=1 if x and y are instancied to
    * different value
    */
-  IntVar isDifferent(IntVar x, IntVar y);
+	BoolVar isDifferent(IntVar x, IntVar y);
 
   /**
    * @return a new variables constrained to ret == x?!=y
    */
-  IntVar isDifferent(IntVar x, int y);
+	BoolVar isDifferent(IntVar x, int y);
 
   /**
    * @param values
@@ -433,7 +447,7 @@ VariablesManager {
    * the name of the variable to return, or null to let it create the name
    * @return a new variable constrained to 1 if x>0, 0 either way.
    */
-  IntVar boolenize(IntVar x, String name);
+	BoolVar boolenize(IntVar x, String name);
 
   /**
    * Extract the result destination configuration.

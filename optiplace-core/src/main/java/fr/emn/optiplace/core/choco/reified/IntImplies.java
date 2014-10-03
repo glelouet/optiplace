@@ -4,7 +4,7 @@
 package fr.emn.optiplace.core.choco.reified;
 
 import solver.variables.integer.IntVarEvent;
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import solver.constraints.integer.AbstractBinIntSConstraint;
 import solver.variables.IntVar;
 

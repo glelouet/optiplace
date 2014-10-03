@@ -14,17 +14,18 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.stream.Stream;
 
-import solver.variables.integer.IntVarEvent;
-import common.logging.ChocoLogging;
-import common.util.iterators.DisposableIntIterator;
-import common.util.tools.ArrayUtils;
 import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateBool;
 import memory.IStateInt;
-import solver.ContradictionException;
-import solver.constraints.integer.AbstractLargeIntSConstraint;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import solver.exception.ContradictionException;
 import solver.variables.IntVar;
+import util.iterators.DisposableIntIterator;
+import util.tools.ArrayUtils;
 
 /**
  * A bin packing constraint similar to
@@ -52,6 +53,9 @@ import solver.variables.IntVar;
 public class FastBinPacking extends AbstractLargeIntSConstraint
 		implements
 			CustomPack {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(FastBinPacking.class);
 
 	/** The solver environment. */
 	private final IEnvironment env;
@@ -149,7 +153,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		iSizes = new int[sizes.length];
 		long sum = 0;
 		for (int i = 0; i < sizes.length; i++) {
-			iSizes[i] = sizes[i].getVal();
+			iSizes[i] = sizes[i].getValue();
 			sum += iSizes[i];
 		}
 		sumISizes = sum;
@@ -194,13 +198,13 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		// if (!bins[0].hasEnumeratedDomain()) return false;
 		for (int i = 1; i < sizes.length; i++) {
 			if (!sizes[i].isInstantiated()
-					|| sizes[i - 1].getVal() < sizes[i].getVal()) {
+					|| sizes[i - 1].getValue() < sizes[i].getValue()) {
 				System.err.println("pos "
 						+ i
 						+ (!sizes[i].isInstantiated()
 								? " : not instantiated."
-								: " : val i-1 : " + sizes[i - 1].getVal()
-										+ " ; val i : " + sizes[i].getVal())
+								: " : val i-1 : " + sizes[i - 1].getValue() + " ; val i : "
+										+ sizes[i].getValue())
 						+ " in " + Arrays.asList(sizes));
 				return false;
 			}
@@ -210,7 +214,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 
 	@Override
 	public final int getRemainingSpace(int bin) {
-		return loads[bin].getSup() - bRLoads[bin].get();
+		return loads[bin].getUB() - bRLoads[bin].get();
 	}
 
 	@Override
@@ -224,9 +228,9 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		int[] l = new int[nbBins];
 		for (int i = 0; i < bins.length; i++) { // Assignment variable
 			if (bins[i].isInstantiated()) {
-				int v = bins[i].getVal();
+				int v = bins[i].getValue();
 				l[v] += iSizes[i];
-				if (l[v] > loads[v].getSup()) {
+				if (l[v] > loads[v].getUB()) {
 					return false;
 				}
 			}
@@ -303,7 +307,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		}
 		for (int b = 0; b < nbBins; b++) {
 			if (tuple[b + bins.length] != l[b]) {
-				ChocoLogging.getBranchingLogger().warning(
+				logger.warn(
 						"Bad load of " + b + " = " + tuple[b + bins.length]
 								+ " expected =" + l[b]);
 				return false;
@@ -332,7 +336,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 			bins[i].updateInf(0, this, false);
 			bins[i].updateSup(nbBins - 1, this, false);
 			if (bins[i].isInstantiated()) {
-				rLoads[bins[i].getVal()] += iSizes[i];
+				rLoads[bins[i].getValue()] += iSizes[i];
 			} else {
 				DisposableIntIterator it = bins[i].getDomain().getIterator();
 				try {
@@ -364,8 +368,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 					}
 				}
 			}
-			sumLoadInf += loads[b].getInf();
-			sumLoadSup += loads[b].getSup();
+			sumLoadInf += loads[b].getLB();
+			sumLoadSup += loads[b].getUB();
 		}
 		this.sumLoadInf = env.makeInt(sumLoadInf);
 		this.sumLoadSup = env.makeInt(sumLoadSup);
@@ -403,13 +407,13 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 						Math.max(
 								bRLoads[b].get(),
 								(int) sumISizes - sumLoadSup.get()
-										+ loads[b].getSup()));
+										+ loads[b].getUB()));
 				noFixPoint |= filterLoadSup(
 						b,
 						Math.min(
 								bTLoads[b].get(),
 								(int) sumISizes - sumLoadInf.get()
-										+ loads[b].getInf()));
+										+ loads[b].getLB()));
 				// if (bigItemsPolicy == BigItemsPolicy.DYNAMIC) noFixPoint |=
 				// bigItemsKnapsackAdditionalFiltering(b);
 				noFixPoint |= propagateKnapsack(b);
@@ -430,8 +434,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		int sumLoadInf = 0;
 		int sumLoadSup = 0;
 		for (int b = 0; b < nbBins; b++) {
-			sumLoadInf += loads[b].getInf();
-			sumLoadSup += loads[b].getSup();
+			sumLoadInf += loads[b].getLB();
+			sumLoadSup += loads[b].getUB();
 		}
 
 		this.sumLoadInf.set(sumLoadInf);
@@ -454,8 +458,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	// */
 	// public void awakeOnBounds(int varIdx) throws ContradictionException {
 	// varIdx -= bins.length;
-	// int oldInf = loads[varIdx].getInf();
-	// int oldSup = loads[varIdx].getSup();
+	// int oldInf = loads[varIdx].getLB();
+	// int oldSup = loads[varIdx].getUB();
 	// DisposableIntIterator it = loads[varIdx].getDomain().getDeltaIterator();
 	// try {
 	// while (it.hasNext()) {
@@ -469,14 +473,14 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	// } finally {
 	// it.dispose();
 	// }
-	// int varInf = loads[varIdx].getInf()-oldInf;
+	// int varInf = loads[varIdx].getLB()-oldInf;
 	// if (varInf > 0) {
 	// sumLoadInf.add(varInf);
 	// if (sumISizes < sumLoadInf.get()) {
 	// fail();
 	// }
 	// }
-	// int varSup = loads[varIdx].getSup()-oldSup;
+	// int varSup = loads[varIdx].getUB()-oldSup;
 	// if (varSup < 0) {
 	// sumLoadSup.add(varSup);
 	// if (sumISizes > sumLoadSup.get()) {
@@ -503,7 +507,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	// } finally {
 	// it.dispose();
 	// }
-	// int r = sumLoadInf.add(loads[varIdx].getInf() - oldInf);
+	// int r = sumLoadInf.add(loads[varIdx].getLB() - oldInf);
 	// if (sumISizes < r) {
 	// fail();
 	// }
@@ -527,7 +531,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	// } finally {
 	// it.dispose();
 	// }
-	// int r = sumLoadSup.add(loads[varIdx].getSup() - oldSup);
+	// int r = sumLoadSup.add(loads[varIdx].getUB() - oldSup);
 	// if (sumISizes > r) {
 	// fail();
 	// }
@@ -568,8 +572,8 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		} finally {
 			deltaDomain.dispose();
 		}
-		if (/* vars[iIdx].isInstantiated() */vars[iIdx].getInf() == vars[iIdx]
-				.getSup()) {
+		if (/* vars[iIdx].isInstantiated() */vars[iIdx].getLB() == vars[iIdx]
+				.getUB()) {
 			assignItem(iIdx, vars[iIdx].getVal());
 		}
 		constAwake(false);
@@ -645,7 +649,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean filterLoadInf(int bin, int newLoadInf)
 			throws ContradictionException {
-		int inc = newLoadInf - loads[bin].getInf();
+		int inc = newLoadInf - loads[bin].getLB();
 		if (inc > 0) {
 			loads[bin].updateInf(newLoadInf, this, false);
 			int r = sumLoadInf.add(inc);
@@ -670,7 +674,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean filterLoadSup(int bin, int newLoadSup)
 			throws ContradictionException {
-		int dec = newLoadSup - loads[bin].getSup();
+		int dec = newLoadSup - loads[bin].getUB();
 		if (dec < 0) {
 			loads[bin].updateSup(newLoadSup, this, false);
 			int r = sumLoadSup.add(dec);
@@ -701,14 +705,14 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		boolean ret = false;
 		for (int item = candidates[bin].nextSetBit(0); item >= 0; item = candidates[bin]
 				.nextSetBit(item + 1)) {
-			if (iSizes[item] + bRLoads[bin].get() > loads[bin].getSup()) {
+			if (iSizes[item] + bRLoads[bin].get() > loads[bin].getUB()) {
 				removeItem(item, bin);
 				bins[item].removeVal(bin, this, false);
 				if (bins[item].isInstantiated()) {
 					assignItem(item, bins[item].getVal());
 				}
 				ret = true;
-			} else if (bTLoads[bin].get() - iSizes[item] < loads[bin].getInf()
+			} else if (bTLoads[bin].get() - iSizes[item] < loads[bin].getLB()
 					&& (!doBigItemsOpt() || item >= firstSmall[bin].get())) {
 				assignItem(item, bin);
 				DisposableIntIterator domain = bins[item].getDomain()
@@ -777,20 +781,20 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 								+ " expected=" + (rs[b] + cs[b]));
 				check = false;
 			}
-			if (loads[b].getInf() < rs[b]) {
+			if (loads[b].getLB() < rs[b]) {
 				ChocoLogging.getBranchingLogger().warning(
 						loads[b].pretty() + " LB expected >=" + rs[b]);
 				check = false;
 			}
-			if (loads[b].getSup() > rs[b] + cs[b]) {
+			if (loads[b].getUB() > rs[b] + cs[b]) {
 				ChocoLogging.getBranchingLogger()
 						.warning(
 								loads[b].pretty() + " UB expected <="
 										+ (rs[b] + cs[b]));
 				check = false;
 			}
-			sumLoadInf += loads[b].getInf();
-			sumLoadSup += loads[b].getSup();
+			sumLoadInf += loads[b].getLB();
+			sumLoadSup += loads[b].getUB();
 		}
 		if (this.sumLoadInf.get() != sumLoadInf) {
 			ChocoLogging.getBranchingLogger().warning(
@@ -899,7 +903,7 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private int bigItemsUpdateBigs(int bin, int firstB, int firstS) {
 		int decLoad = 0;
-		int maxSpace = loads[bin].getSup() - bRLoads[bin].get();
+		int maxSpace = loads[bin].getUB() - bRLoads[bin].get();
 		int i = candidates[bin].nextSetBit(firstS + 1);
 		while (i >= 0 && iSizes[firstS] + iSizes[i] > maxSpace) {
 			decLoad -= iSizes[firstS];

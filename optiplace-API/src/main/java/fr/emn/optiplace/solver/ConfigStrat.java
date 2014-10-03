@@ -5,8 +5,7 @@ package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
-import common.logging.Verbosity;
-import solver.search.ISolutionDisplay;
+import solver.search.loop.monitors.ISearchMonitor;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
@@ -26,11 +25,9 @@ public class ConfigStrat {
 
 	private ChocoResourcePacker packer = null;
 
-	private Verbosity chocoVerbosity = null;
-
 	private int chocoLoggingDepth = -1;
 
-	private ArrayList<ISolutionDisplay> displayers = new ArrayList<ISolutionDisplay>();
+	private ArrayList<ISearchMonitor> displayers = new ArrayList<ISearchMonitor>();
 
 	/**
 	 * @return the maxSearchTime
@@ -78,21 +75,6 @@ public class ConfigStrat {
 	}
 
 	/**
-	 * @return the chocoVerbosity
-	 */
-	public Verbosity getChocoVerbosity() {
-		return chocoVerbosity;
-	}
-
-	/**
-	 * @param chocoVerbosity
-	 *            the chocoVerbosity to set
-	 */
-	public void setChocoVerbosity(Verbosity chocoVerbosity) {
-		this.chocoVerbosity = chocoVerbosity;
-	}
-
-	/**
 	 * @return the chocoLoggingDepth
 	 */
 	public int getChocoLoggingDepth() {
@@ -110,7 +92,7 @@ public class ConfigStrat {
 	/**
 	 * @return the displayers
 	 */
-	public ArrayList<ISolutionDisplay> getDisplayers() {
+	public ArrayList<ISearchMonitor> getDisplayers() {
 		return displayers;
 	}
 
@@ -118,7 +100,7 @@ public class ConfigStrat {
 	 * @param displayers
 	 *            the displayers to set
 	 */
-	public void setDisplayers(ArrayList<ISolutionDisplay> displayers) {
+	public void setDisplayers(ArrayList<ISearchMonitor> displayers) {
 		this.displayers = displayers;
 	}
 

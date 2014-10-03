@@ -26,7 +26,7 @@ public class FastMultiBinPacker extends FastBinPacker {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SConstraint<IntVar>[] pack(IEnvironment environment,
+	public Constraint[] pack(IEnvironment environment,
 			IntVar[] binAssign, ResourceUse... resourceUse) {
 		int nbVMs = binAssign != null ? binAssign.length : 0;
 		int nbNodes = -1;

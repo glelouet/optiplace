@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import solver.search.integer.valselector.MinVal;
 import common.logging.ChocoLogging;
 import common.logging.Verbosity;
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import entropy.TestHelper;
 import entropy.configuration.*;
 import entropy.plan.entropy.plan.ReconfigurationResult;

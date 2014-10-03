@@ -24,7 +24,7 @@ import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateInt;
 import memory.IStateIntVector;
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import solver.SolverException;
 import solver.constraints.set.AbstractLargeSetIntSConstraint;
 import solver.variables.IntVar;
@@ -113,7 +113,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 
 	@Override
 	public final int getRemainingSpace(int bin) {
-		return loads[bin].getSup() - getRequiredSpace(bin);
+		return loads[bin].getUB() - getRequiredSpace(bin);
 	}
 
 	protected final boolean isSetEvent(final int varIdx) {
@@ -205,7 +205,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 			 * iter.dispose(); }
 			 */
 			// remove from other env
-			for (int b = bins[item].getInf(); b <= bins[item].getSup(); b = bins[item]
+			for (int b = bins[item].getLB(); b <= bins[item].getUB(); b = bins[item]
 					.getNextDomainValue(b)) {
 				if (bin != b) {
 					// ChocoLogging.getSearchLogger().finest("Remove " + item +
@@ -243,7 +243,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 			 * this, true); } } } finally { iter.dispose(); }
 			 */
 			// remove from other env
-			for (int b = bins[item].getInf(); b <= bins[item].getSup(); b = bins[item]
+			for (int b = bins[item].getLB(); b <= bins[item].getUB(); b = bins[item]
 					.getNextDomainValue(b)) {
 				if (bin != b) {
 					// ChocoLogging.getSearchLogger().finest("Remove " + item +
@@ -702,7 +702,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 				} else {
 					// the bins is used by the modified lower bound
 					binsMLB.add(b);
-					remainingSpace[b] += loads[b].getSup();
+					remainingSpace[b] += loads[b].getUB();
 					capacityMLB = Math.max(capacityMLB, remainingSpace[b]);
 					if (svars[b].getKernelDomainSize() > 0) {
 						// partially filled
@@ -748,7 +748,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 					}
 					computeMinimumNumberOfNewBins();
 				}
-				if (getMinimumNumberOfBins() > ivars[ivars.length - 1].getSup()) {
+				if (getMinimumNumberOfBins() > ivars[ivars.length - 1].getUB()) {
 					return false; // the continuous bound prove infeasibility
 				}
 			}

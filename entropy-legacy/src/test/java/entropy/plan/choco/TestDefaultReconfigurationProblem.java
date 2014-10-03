@@ -442,9 +442,9 @@ public class TestDefaultReconfigurationProblem {
               2, 3, 4, 5, 6, 7, 8));
 
       Assert
-          .assertEquals(m.getAssociatedAction(vm1).getDuration().getInf(), 60);
+          .assertEquals(m.getAssociatedAction(vm1).getDuration().getLB(), 60);
       Assert
-          .assertEquals(m.getAssociatedAction(vm2).getDuration().getInf(), 30);
+          .assertEquals(m.getAssociatedAction(vm2).getDuration().getLB(), 30);
       m.solve();
       Boolean ret = m.isFeasible();
       Assert.assertTrue(ret);

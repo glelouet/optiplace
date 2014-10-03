@@ -13,7 +13,7 @@ package fr.emn.optiplace.core.packers;
 import common.logging.ChocoLogging;
 import common.util.iterators.DisposableIntIterator;
 import memory.IStateIntVector;
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import solver.SolverException;
 import solver.variables.IntVar;
 import solver.variables.set.SetVar;
@@ -243,8 +243,8 @@ public final class SimpleBinPackingFiltering {
 	protected void singleItemEliminationAndCommitment(final int bin)
 			throws ContradictionException {
 		DisposableIntIterator iter = setBin.getDomain().getOpenDomainIterator();
-		final int lInf = loads[bin].getInf();
-		final int lSup = loads[bin].getSup();
+		final int lInf = loads[bin].getLB();
+		final int lSup = loads[bin].getUB();
 		try {
 			while (iter.hasNext()) {
 				final int iIdx = iter.next();
@@ -326,14 +326,14 @@ public final class SimpleBinPackingFiltering {
 			sumMinusInfs = sum;
 			sumMinusSups = sum;
 			for (int i = 0; i < size; i++) {
-				sumMinusInfs -= vars[i].getInf();
-				sumMinusSups -= vars[i].getSup();
+				sumMinusInfs -= vars[i].getLB();
+				sumMinusSups -= vars[i].getUB();
 			}
 		}
 
 		public void updateBounds(int idx) {
-			boundInf = sumMinusSups + vars[idx].getSup();
-			boundSup = sumMinusInfs + vars[idx].getInf();
+			boundInf = sumMinusSups + vars[idx].getUB();
+			boundSup = sumMinusInfs + vars[idx].getLB();
 		}
 	}
 }

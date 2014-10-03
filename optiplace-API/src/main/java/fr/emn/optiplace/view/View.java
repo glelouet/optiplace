@@ -2,8 +2,8 @@ package fr.emn.optiplace.view;
 
 import java.util.List;
 
-import solver.constraints.SConstraint;
-import solver.variables.Var;
+import solver.constraints.Constraint;
+import solver.variables.Variable;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -68,7 +68,7 @@ public interface View extends ViewAsModule {
 	 * @param eq
 	 * the constraint to add to the problem
 	 */
-	public void post(SConstraint<? extends Var> eq);
+	public void post(Constraint eq);
 
 	/**
 	 * Declares a new variable has been created by this view. Only variables
@@ -77,19 +77,19 @@ public interface View extends ViewAsModule {
 	 *
 	 * @param var
 	 */
-	public void onNewVar(Var var);
+	public void onNewVar(Variable var);
 
 	/**
 	 * @return an unmodifiable list of the variables that have been added to the
 	 * model by this view
 	 */
-	public List<Var> getAddedVars();
+	public List<Variable> getAddedVars();
 
 	/**
 	 * @return an unmodifiable list of the constraints that have been posted to
 	 * the model by this view
 	 */
-	public List<SConstraint<? extends Var>> getAddedConstraints();
+	public List<Constraint> getAddedConstraints();
 
 	/**
 	 * set the required configuration. If this implementation does not require a

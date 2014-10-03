@@ -1,6 +1,6 @@
 package fr.emn.optiplace.core.choco.reified;
 
-import solver.ContradictionException;
+import solver.exception.ContradictionException;
 import solver.variables.IntVar;
 
 /**
