@@ -1,10 +1,10 @@
 package fr.emn.optiplace.core.heuristics;
 
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.branch.VarSelector;
-import choco.kernel.solver.search.ValSelector;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import memory.IEnvironment;
+import memory.IStateInt;
+import solver.branch.VarSelector;
+import solver.search.ValSelector;
+import solver.variables.IntVar;
 
 /**
  * select vars in the given order and try to assign them to their provided
@@ -15,14 +15,14 @@ import choco.kernel.solver.variables.integer.IntDomainVar;
  */
 public class Var2ValSelector
 		implements
-			VarSelector<IntDomainVar>,
-			ValSelector<IntDomainVar> {
+			VarSelector<IntVar>,
+			ValSelector<IntVar> {
 
-	private final IntDomainVar[] vars;
+	private final IntVar[] vars;
 	private final int[] vals;
 	private final IStateInt last;
 
-	public Var2ValSelector(IEnvironment env, IntDomainVar[] vars, int[] vals) {
+	public Var2ValSelector(IEnvironment env, IntVar[] vars, int[] vals) {
 		assert vars.length == vals.length;
 		last = env.makeInt(-1);
 		this.vars = vars;
@@ -30,12 +30,12 @@ public class Var2ValSelector
 	}
 
 	@Override
-	public int getBestVal(IntDomainVar x) {
+	public int getBestVal(IntVar x) {
 		return vals[last.get()];
 	}
 
 	@Override
-	public IntDomainVar selectVar() {
+	public IntVar selectVar() {
 		for (int i = last.get() + 1; i < vars.length; i++) {
 			if (!vars[i].isInstantiated()
 					&& vars[i].canBeInstantiatedTo(vals[i])) {

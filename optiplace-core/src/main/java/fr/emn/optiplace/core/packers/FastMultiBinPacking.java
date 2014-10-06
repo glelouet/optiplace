@@ -5,26 +5,19 @@ package fr.emn.optiplace.core.packers;/* Created by IntelliJ IDEA. User:
 
 import java.util.BitSet;
 
-import choco.cp.solver.variables.integer.IntVarEvent;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.constraints.integer.AbstractLargeIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateInt;
+import solver.exception.ContradictionException;
+import solver.variables.IntVar;
+import util.iterators.DisposableIntIterator;
 
 /** @author Sophie Demassey */
-public class FastMultiBinPacking extends AbstractLargeIntSConstraint
-		implements
-			CustomPack {
-
-	private IEnvironment env;
+public class FastMultiBinPacking extends AbstractLargeIntSConstraint {
+	private final IEnvironment env;
 
 	/** The bin assigned to each item [I]. */
-	protected final IntDomainVar[] bins;
+	protected final IntVar[] bins;
 
 	/** The constant size of each item on each dimension [DxI]. */
 	protected final int[][] iSizes;
@@ -33,7 +26,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	private final long[] sumISizes;
 
 	/** The load of each bin on each dimension [DxB]. */
-	protected final IntDomainVar[][] loads;
+	protected final IntVar[][] loads;
 
 	/**
 	 * The candidate items for each bin (possible but not required assignments)
@@ -45,19 +38,19 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * The total size of the candidate + required items for each bin on each
 	 * dimension [DxB].
 	 */
-	private IStateInt[][] bTLoads;
+	private final IStateInt[][] bTLoads;
 
 	/**
 	 * The total size of the required items for each bin on each dimension
 	 * [DxB].
 	 */
-	private IStateInt[][] bRLoads;
+	private final IStateInt[][] bRLoads;
 
 	/** The sum of the bin load LBs on each dimension [D]. */
-	private IStateInt[] sumLoadInf;
+	private final IStateInt[] sumLoadInf;
 
 	/** The sum of the bin load UBs on each dimension [D]. */
-	private IStateInt[] sumLoadSup;
+	private final IStateInt[] sumLoadSup;
 
 	/** The remaining available bins (having candidate items). */
 	private IStateBitSet availableBins;
@@ -70,7 +63,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * constructor of the FastBinPacking global constraint
-	 * 
+	 *
 	 * @param environment
 	 *            the solver environment
 	 * @param loads
@@ -85,7 +78,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 *            item can be assigned to, usually initialized to [0, nbBins-1]
 	 */
 	public FastMultiBinPacking(IEnvironment environment,
-			IntDomainVar[][] loads, int[][] sizes, IntDomainVar[] bins) {
+			IntVar[][] loads, int[][] sizes, IntVar[] bins) {
 		super(ArrayUtils.append(bins, ArrayUtils.flatten(loads)));
 		nbDims = sizes.length;
 		nbBins = loads[0].length;
@@ -107,17 +100,15 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 		this.bins = bins;
 	}
 
-	@Override
 	public final int getRemainingSpace(int bin) {
 		throw new UnsupportedOperationException(
 				"the dimension must be specified.");
 	}
 
 	public final int getRemainingSpace(int dim, int bin) {
-		return loads[dim][bin].getSup() - bRLoads[dim][bin].get();
+		return loads[dim][bin].getUB() - bRLoads[dim][bin].get();
 	}
 
-	@Override
 	public IStateBitSet getCandidates(int bin) {
 		return candidates[bin];
 	}
@@ -126,7 +117,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	// ********* Events ***********************************************//
 	// ****************************************************************//
 
-	@Override
 	public int getFilteredEventMask(int idx) {
 		if (idx < bins.length) {
 			return IntVarEvent.REMVAL_MASK;
@@ -134,7 +124,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 		return IntVarEvent.BOUNDS_MASK;
 	}
 
-	@Override
 	public boolean isSatisfied(int[] tuple) {
 		int[][] l = new int[nbDims][nbBins];
 		int[] c = new int[nbBins];
@@ -206,9 +195,9 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 				bRLoads[d][b] = env.makeInt(rLoads[d][b]);
 				bTLoads[d][b] = env.makeInt(rLoads[d][b] + cLoads[d][b]);
 				loads[d][b].updateInf(rLoads[d][b], this, false);
-				sumLoadInf += loads[d][b].getInf();
+				sumLoadInf += loads[d][b].getLB();
 				loads[d][b].updateSup(rLoads[d][b] + cLoads[d][b], this, false);
-				sumLoadSup += loads[d][b].getSup();
+				sumLoadSup += loads[d][b].getUB();
 				if (!candidates[b].isEmpty() && d == 0) {
 					availableBins.set(b);
 				}
@@ -248,13 +237,13 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 							b,
 							Math.max(bRLoads[d][b].get(),
 									(int) sumISizes[d] - sumLoadSup[d].get()
-											+ loads[d][b].getSup()));
+											+ loads[d][b].getUB()));
 					noFixPoint |= loadSupFiltering(
 							d,
 							b,
 							Math.min(bTLoads[d][b].get(),
 									(int) sumISizes[d] - sumLoadInf[d].get()
-											+ loads[d][b].getInf()));
+											+ loads[d][b].getLB()));
 				}
 				noFixPoint |= propagateMultiKnapsack(b);
 			}
@@ -312,7 +301,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * update the internal data corresponding to the assignment of an item to a
 	 * bin: remove the item from the candidate list of the bin and balance its
 	 * size from the candidate to the required load of the bin
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -337,7 +326,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * update the internal data corresponding to the removal of an item from a
 	 * bin: remove the item from the candidate list of the bin and reduce the
 	 * candidate load of the bin
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -360,7 +349,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * increase the LB of the bin load and the sum of the bin load LBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoads
@@ -380,7 +369,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * increase the LB of the bin load and the sum of the bin load LBs
-	 * 
+	 *
 	 * @param dim
 	 *            dimension index
 	 * @param bin
@@ -393,7 +382,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean loadInfFiltering(int dim, int bin, int newLoadInf)
 			throws ContradictionException {
-		int inc = newLoadInf - loads[dim][bin].getInf();
+		int inc = newLoadInf - loads[dim][bin].getLB();
 		if (inc > 0) {
 			loads[dim][bin].updateInf(newLoadInf, this, false);
 			sumLoadInf[dim].add(inc);
@@ -404,7 +393,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * decrease the UB of the bin load and the sum of the bin load UBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoads
@@ -424,7 +413,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * decrease the UB of the bin load and the sum of the bin load UBs
-	 * 
+	 *
 	 * @param dim
 	 *            dimension index
 	 * @param bin
@@ -437,7 +426,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 */
 	private boolean loadSupFiltering(int dim, int bin, int newLoadSup)
 			throws ContradictionException {
-		int dec = newLoadSup - loads[dim][bin].getSup();
+		int dec = newLoadSup - loads[dim][bin].getUB();
 		if (dec < 0) {
 			loads[dim][bin].updateSup(newLoadSup, this, false);
 			sumLoadSup[dim].add(dec);
@@ -453,7 +442,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * load LB (when binTotalLoad - itemSize < binLoadInf). the loads are also
 	 * filtered within this constraint (rather in the propagate loop) because
 	 * considered bins are eventually became unavailable
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return {@code true} if at least one item is removed or packed.
@@ -470,7 +459,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 			up = false;
 			for (d = 0; d < nbDims
 					&& iSizes[d][item] + bRLoads[d][bin].get() <= loads[d][bin]
-							.getSup(); d++) {
+							.getUB(); d++) {
 				;
 			}
 			if (d < nbDims && updateRemoveItemFromBin(item, bin)) {
@@ -485,7 +474,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 			}
 			for (d = 0; d < nbDims
 					&& bTLoads[d][bin].get() - iSizes[d][item] >= loads[d][bin]
-							.getInf(); d++) {
+							.getLB(); d++) {
 				;
 			}
 			if (d < nbDims && updatePackItemToBin(item, bin)) {
@@ -522,7 +511,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * the assignment variables: for each bin: sumAssignedItemSizes ==
 	 * binRequiredLoad, sumPossibleItemSizes == binTotalLoad rule 3, for each
 	 * bin: binRequiredLoad <= binLoad <= binTotalLoad
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkLoadConsistency() {
@@ -564,19 +553,19 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 									+ (rs[b] + cs[b]));
 					check = false;
 				}
-				if (loads[d][b].getInf() < rs[b]) {
+				if (loads[d][b].getLB() < rs[b]) {
 					ChocoLogging.getBranchingLogger().warning(
 							loads[d][b].pretty() + " LB expected >=" + rs[b]);
 					check = false;
 				}
-				if (loads[d][b].getSup() > rs[b] + cs[b]) {
+				if (loads[d][b].getUB() > rs[b] + cs[b]) {
 					ChocoLogging.getBranchingLogger().warning(
 							loads[d][b].pretty() + " UB expected <="
 									+ (rs[b] + cs[b]));
 					check = false;
 				}
-				sumLoadInf += loads[d][b].getInf();
-				sumLoadSup += loads[d][b].getSup();
+				sumLoadInf += loads[d][b].getLB();
+				sumLoadSup += loads[d][b].getUB();
 			}
 			if (this.sumLoadInf[d].get() != sumLoadInf) {
 				ChocoLogging.getBranchingLogger().warning(
@@ -598,7 +587,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * Check that the candidate lists are aligned with the assignment variables:
 	 * item is in candidates[bin] iff bin is in bins[item]
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkCandidatesConsistency() {
@@ -636,7 +625,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * print the list of candidate items for a given bin
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return list of item indices, between braces, separated by spaces

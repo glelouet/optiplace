@@ -15,8 +15,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import choco.kernel.solver.search.ISolutionPool;
-import choco.kernel.solver.search.SolutionPoolFactory;
+import solver.search.ISolutionPool;
+import solver.search.SolutionPoolFactory;
 import entropy.TestHelper;
 import entropy.configuration.*;
 import entropy.plan.*;
@@ -71,12 +71,12 @@ public class TestDefaultReconfigurationProblem {
    * ManagedElementSet<VirtualMachine> t1 = new
    * SimpleManagedElementSet<VirtualMachine>();
    * t1.add(src.getRunnings().get("VM1")); t1.add(src.getRunnings().get("VM"));
-   * IntDomainVar v1 = model.getVMGroup(t1); //One group was created
+   * IntVar v1 = model.getVMGroup(t1); //One group was created
    * Assert.assertEquals(model.getVMGroups().size(), 1); for (VirtualMachine vm
-   * : src.getAllVirtualMachines()) { IntDomainVar v =
+   * : src.getAllVirtualMachines()) { IntVar v =
    * model.getAssociatedGroup(vm); if (t1.contains(vm)) {
    * Assert.assertNotNull(v); } else { Assert.assertNull(v); } } //No group was
-   * created IntDomainVar v2 = model.getVMGroup(t1);
+   * created IntVar v2 = model.getVMGroup(t1);
    * Assert.assertEquals(model.getVMGroups().size(), 1); Assert.assertEquals(v1,
    * v2); for (VirtualMachine vm : t1) {
    * Assert.assertEquals(model.getAssociatedGroup(vm), v1); } //new group,
@@ -84,7 +84,7 @@ public class TestDefaultReconfigurationProblem {
    * SimpleManagedElementSet<VirtualMachine>();
    * t2.add(src.getRunnings().get("VM3")); t2.add(src.getRunnings().get("VM4"));
    * v2 = model.getVMGroup(t2); for (VirtualMachine vm :
-   * src.getAllVirtualMachines()) { IntDomainVar v =
+   * src.getAllVirtualMachines()) { IntVar v =
    * model.getAssociatedGroup(vm); if (t1.contains(vm) || t2.contains(vm)) {
    * Assert.assertNotNull(v); } else { Assert.assertNull(v); } } //New group was
    * created Assert.assertEquals(model.getVMGroups().size(), 2);
@@ -442,9 +442,9 @@ public class TestDefaultReconfigurationProblem {
               2, 3, 4, 5, 6, 7, 8));
 
       Assert
-          .assertEquals(m.getAssociatedAction(vm1).getDuration().getInf(), 60);
+          .assertEquals(m.getAssociatedAction(vm1).getDuration().getLB(), 60);
       Assert
-          .assertEquals(m.getAssociatedAction(vm2).getDuration().getInf(), 30);
+          .assertEquals(m.getAssociatedAction(vm2).getDuration().getLB(), 30);
       m.solve();
       Boolean ret = m.isFeasible();
       Assert.assertTrue(ret);

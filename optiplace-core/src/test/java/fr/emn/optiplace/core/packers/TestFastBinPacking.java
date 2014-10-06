@@ -5,16 +5,16 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import choco.cp.solver.CPSolver;
-import choco.cp.solver.constraints.integer.ElementV;
-import choco.cp.solver.search.BranchingFactory;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.logging.Verbosity;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.solver.Configuration;
-import choco.kernel.solver.Solver;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.CPSolver;
+import solver.constraints.integer.ElementV;
+import solver.search.BranchingFactory;
+import common.logging.ChocoLogging;
+import common.logging.Verbosity;
+import common.util.tools.ArrayUtils;
+import solver.Configuration;
+import solver.Solver;
+import solver.constraints.SConstraint;
+import solver.variables.IntVar;
 import fr.emn.optiplace.core.packers.FastBinPacking;
 
 /**
@@ -25,9 +25,9 @@ import fr.emn.optiplace.core.packers.FastBinPacking;
 public class TestFastBinPacking {
 
 	Solver s;
-	IntDomainVar[] loads;
-	IntDomainVar[] sizes;
-	IntDomainVar[] bins;
+	IntVar[] loads;
+	IntVar[] sizes;
+	IntVar[] bins;
 
 	public void modelPack(int nBins, int capa, int nItems, int height) {
 		int[] heights = new int[nItems];
@@ -45,9 +45,9 @@ public class TestFastBinPacking {
 		int nBins = capa.length;
 		int nItems = height.length;
 		s = new CPSolver();
-		loads = new IntDomainVar[nBins];
-		sizes = new IntDomainVar[nItems];
-		bins = new IntDomainVar[nItems];
+		loads = new IntVar[nBins];
+		sizes = new IntVar[nItems];
+		bins = new IntVar[nItems];
 		for (int i = 0; i < nBins; i++) {
 			loads[i] = s.createBoundIntVar("l" + i, 0, capa[i]);
 		}
@@ -82,16 +82,16 @@ public class TestFastBinPacking {
 	@Test(groups = {"unit"})
 	public void testGuillaume() {
 		modelPack(2, 100, 3, 30);
-		IntDomainVar margeLoad = s.createBoundIntVar("margeLoad", 0, 50);
+		IntVar margeLoad = s.createBoundIntVar("margeLoad", 0, 50);
 		s.post(nth(bins[0], loads, margeLoad));
 		ChocoLogging.setVerbosity(Verbosity.SILENT);
 		testPack(2);
 	}
 
 	/** var = array[index] */
-	public SConstraint<?> nth(IntDomainVar index, IntDomainVar[] array,
-			IntDomainVar var) {
-		return new ElementV(ArrayUtils.append(array, new IntDomainVar[]{index,
+	public SConstraint<?> nth(IntVar index, IntVar[] array,
+			IntVar var) {
+		return new ElementV(ArrayUtils.append(array, new IntVar[]{index,
 				var}), 0, s.getEnvironment());
 	}
 

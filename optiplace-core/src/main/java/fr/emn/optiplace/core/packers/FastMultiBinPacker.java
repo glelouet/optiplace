@@ -5,9 +5,9 @@ package fr.emn.optiplace.core.packers;
 
 import java.util.ArrayList;
 
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import memory.IEnvironment;
+import solver.constraints.SConstraint;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 
 /**
@@ -26,8 +26,8 @@ public class FastMultiBinPacker extends FastBinPacker {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SConstraint<IntDomainVar>[] pack(IEnvironment environment,
-			IntDomainVar[] binAssign, ResourceUse... resourceUse) {
+	public Constraint[] pack(IEnvironment environment,
+			IntVar[] binAssign, ResourceUse... resourceUse) {
 		int nbVMs = binAssign != null ? binAssign.length : 0;
 		int nbNodes = -1;
 		for (ResourceUse element : resourceUse) {
@@ -43,16 +43,16 @@ public class FastMultiBinPacker extends FastBinPacker {
 		if (resourceUse.length == 1) {
 			return super.pack(environment, binAssign, resourceUse);
 		}
-		IntDomainVar[][] nodesUses = new IntDomainVar[resourceUse.length][];
+		IntVar[][] nodesUses = new IntVar[resourceUse.length][];
 		for (int i = 0; i < resourceUse.length; i++) {
 			nodesUses[i] = resourceUse[i].getNodesUse();
 		}
 
 		// we sort the args by the first resource Use of the elems
-		ArrayList<IntDomainVar> sortedHosters = new ArrayList<IntDomainVar>();
-		ArrayList<IntDomainVar>[] sortedSizes = new ArrayList[resourceUse.length];
+		ArrayList<IntVar> sortedHosters = new ArrayList<IntVar>();
+		ArrayList<IntVar>[] sortedSizes = new ArrayList[resourceUse.length];
 		for (int i = 0; i < resourceUse.length; i++) {
-			sortedSizes[i] = new ArrayList<IntDomainVar>();
+			sortedSizes[i] = new ArrayList<IntVar>();
 		}
 		// for each vm in the first resource Use : sort it, and propagate its
 		// position to the other resources
@@ -73,7 +73,7 @@ public class FastMultiBinPacker extends FastBinPacker {
 				sizes[i][j] = sortedSizes[i].get(j).getVal();
 			}
 		}
-		IntDomainVar[] bins = sortedHosters.toArray(new IntDomainVar[]{});
+		IntVar[] bins = sortedHosters.toArray(new IntVar[]{});
 		return new SConstraint[]{new FastMultiBinPacking(environment,
 				nodesUses, sizes, bins)};
 	}

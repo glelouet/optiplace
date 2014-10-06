@@ -10,22 +10,22 @@
 
 package fr.emn.optiplace.core.packers;
 
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.memory.IStateIntVector;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.SolverException;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import common.logging.ChocoLogging;
+import common.util.iterators.DisposableIntIterator;
+import memory.IStateIntVector;
+import solver.exception.ContradictionException;
+import solver.SolverException;
+import solver.variables.IntVar;
+import solver.variables.set.SetVar;
 
 /**
  * Simplified version of
- * {@link choco.cp.solver.constraints.global.pack.PackFiltering}. An assertion
+ * {@link solver.constraints.global.pack.PackFiltering}. An assertion
  * checks the consistency of the loads with the set model. So take care of
  * disabling assertions when benching
  * 
  * @author Fabien Hermenier
- * @see choco.cp.solver.constraints.global.pack.PackFiltering
+ * @see solver.constraints.global.pack.PackFiltering
  */
 public final class SimpleBinPackingFiltering {
 
@@ -35,7 +35,7 @@ public final class SimpleBinPackingFiltering {
 	protected final int[] iSizes;
 
 	/** The loads of the bins. */
-	protected final IntDomainVar[] loads;
+	protected final IntVar[] loads;
 
 	private SetVar setBin;
 
@@ -243,8 +243,8 @@ public final class SimpleBinPackingFiltering {
 	protected void singleItemEliminationAndCommitment(final int bin)
 			throws ContradictionException {
 		DisposableIntIterator iter = setBin.getDomain().getOpenDomainIterator();
-		final int lInf = loads[bin].getInf();
-		final int lSup = loads[bin].getSup();
+		final int lInf = loads[bin].getLB();
+		final int lSup = loads[bin].getUB();
 		try {
 			while (iter.hasNext()) {
 				final int iIdx = iter.next();
@@ -301,7 +301,7 @@ public final class SimpleBinPackingFiltering {
 	static final class SumDataStruct {
 
 		/** variables to sum */
-		protected final IntDomainVar[] vars;
+		protected final IntVar[] vars;
 
 		/** the constant sum. */
 		public final int sum;
@@ -315,7 +315,7 @@ public final class SimpleBinPackingFiltering {
 
 		private int size;
 
-		public SumDataStruct(IntDomainVar[] vars, int sum) {
+		public SumDataStruct(IntVar[] vars, int sum) {
 			super();
 			this.vars = vars;
 			this.sum = sum;
@@ -326,14 +326,14 @@ public final class SimpleBinPackingFiltering {
 			sumMinusInfs = sum;
 			sumMinusSups = sum;
 			for (int i = 0; i < size; i++) {
-				sumMinusInfs -= vars[i].getInf();
-				sumMinusSups -= vars[i].getSup();
+				sumMinusInfs -= vars[i].getLB();
+				sumMinusSups -= vars[i].getUB();
 			}
 		}
 
 		public void updateBounds(int idx) {
-			boundInf = sumMinusSups + vars[idx].getSup();
-			boundSup = sumMinusInfs + vars[idx].getInf();
+			boundInf = sumMinusSups + vars[idx].getUB();
+			boundSup = sumMinusInfs + vars[idx].getLB();
 		}
 	}
 }

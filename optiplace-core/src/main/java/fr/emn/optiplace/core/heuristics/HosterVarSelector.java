@@ -10,11 +10,11 @@
 
 package fr.emn.optiplace.core.heuristics;
 
-import choco.cp.solver.search.integer.varselector.StaticVarOrder;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.solver.branch.VarSelector;
-import choco.kernel.solver.search.integer.AbstractIntVarSelector;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.search.integer.varselector.StaticVarOrder;
+import memory.IStateInt;
+import solver.branch.VarSelector;
+import solver.search.integer.AbstractIntVarSelector;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
@@ -49,7 +49,7 @@ public class HosterVarSelector extends AbstractIntVarSelector {
 	 * @return
 	 */
 	@Override
-	public IntDomainVar selectVar() {
+	public IntVar selectVar() {
 		// <hca> it starts at last.get() and not last.get() +1 to be
 		// robust to restart search loop
 		for (int i = last.get() + 1; i < vars.length; i++) {

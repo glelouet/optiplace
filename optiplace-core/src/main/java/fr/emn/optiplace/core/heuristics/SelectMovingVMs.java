@@ -14,8 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import choco.kernel.solver.search.integer.AbstractIntVarSelector;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.search.integer.AbstractIntVarSelector;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
@@ -32,7 +32,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 public class SelectMovingVMs extends AbstractIntVarSelector {
 
 	/** The demanding slices to consider. */
-	private final LinkedHashMap<VM, IntDomainVar> actions;
+	private final LinkedHashMap<VM, IntVar> actions;
 
 	private final Configuration cfg;
 
@@ -49,7 +49,7 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 		super(s);
 		cfg = s.getSourceConfiguration();
 		rp = s;
-		actions = new LinkedHashMap<VM, IntDomainVar>();
+		actions = new LinkedHashMap<VM, IntVar>();
 		for (VM vm : vms) {
 			if (rp.getSourceConfiguration().hasVM(vm)) {
 				actions.put(vm, rp.host(vm));
@@ -59,9 +59,9 @@ public class SelectMovingVMs extends AbstractIntVarSelector {
 	}
 
 	@Override
-	public IntDomainVar selectVar() {
-		for (Entry<VM, IntDomainVar> a : actions.entrySet()) {
-			IntDomainVar hoster = a.getValue();
+	public IntVar selectVar() {
+		for (Entry<VM, IntVar> a : actions.entrySet()) {
+			IntVar hoster = a.getValue();
 			if (!hoster.isInstantiated()) {
 				VM vm = a.getKey();
 				Node n = cfg.getLocation(vm);

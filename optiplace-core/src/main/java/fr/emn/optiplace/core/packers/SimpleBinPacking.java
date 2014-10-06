@@ -10,69 +10,63 @@
 
 package fr.emn.optiplace.core.packers;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntProcedure;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.procedure.TIntProcedure;
 
 import java.util.Arrays;
 
-import choco.cp.solver.constraints.global.pack.IPackSConstraint;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.opres.nosum.NoSumList;
-import choco.kernel.common.util.iterators.DisposableIntIterator;
-import choco.kernel.common.util.tools.ArrayUtils;
-import choco.kernel.memory.IEnvironment;
-import choco.kernel.memory.IStateBitSet;
-import choco.kernel.memory.IStateInt;
-import choco.kernel.memory.IStateIntVector;
-import choco.kernel.solver.ContradictionException;
-import choco.kernel.solver.SolverException;
-import choco.kernel.solver.constraints.set.AbstractLargeSetIntSConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import memory.IEnvironment;
+import memory.IStateBitSet;
+import memory.IStateInt;
+import memory.IStateIntVector;
+import solver.exception.ContradictionException;
+import solver.exception.SolverException;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
+import util.iterators.DisposableIntIterator;
 
 /**
  * A simplified version of
- * {@link choco.cp.solver.constraints.global.pack.PackSConstraint}. Required and
+ * {@link solver.constraints.global.pack.PackSConstraint}. Required and
  * candidate loads are computed incrementally while some coding tips speeds up
  * computation. The constraint does not however support all the options in
- * {@link choco.cp.solver.constraints.global.pack.PackSConstraint}
- * 
+ * {@link solver.constraints.global.pack.PackSConstraint}
+ *
  * @author Fabien Hermenier
- * @see choco.cp.solver.constraints.global.pack.PackSConstraint
+ * @see solver.constraints.global.pack.PackSConstraint
  */
 public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 		implements
-			IPackSConstraint,
-			CustomPack {
+		IPackSConstraint {
 
 	public final SimpleBinPackingFiltering filtering;
 
 	protected final BoundNumberOfBins bounds;
 
-	private IStateIntVector availableBins;
+	private final IStateIntVector availableBins;
 
 	/** The constant size of each item. */
 	protected final int[] iSizes;
 
 	/** The loads of the bins. */
-	protected final IntDomainVar[] loads;
+	protected final IntVar[] loads;
 
 	/** The bin of each item. */
-	protected final IntDomainVar[] bins;
+	protected final IntVar[] bins;
 
-	private SetVar[] bSets;
+	private final SetVar[] bSets;
 
-	private IStateInt[] bCLoads;
+	private final IStateInt[] bCLoads;
 
-	private IStateInt[] bRLoads;
+	private final IStateInt[] bRLoads;
 
-	private IEnvironment env;
+	private final IEnvironment env;
 
 	public SimpleBinPacking(IEnvironment environment, SetVar[] itemSets,
-			IntDomainVar[] loads, IntDomainVar[] sizes, IntDomainVar[] bins,
-			IntDomainVar nbNonEmpty) {
+			IntVar[] loads, IntVar[] sizes, IntVar[] bins,
+			IntVar nbNonEmpty) {
 		super(ArrayUtils.append(loads, sizes, bins,
-				new IntDomainVar[]{nbNonEmpty}), itemSets);
+				new IntVar[]{nbNonEmpty}), itemSets);
 		this.loads = loads;
 		env = environment;
 		iSizes = new int[sizes.length];
@@ -111,9 +105,8 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 		return bRLoads[bin].get();
 	}
 
-	@Override
 	public final int getRemainingSpace(int bin) {
-		return loads[bin].getSup() - getRequiredSpace(bin);
+		return loads[bin].getUB() - getRequiredSpace(bin);
 	}
 
 	protected final boolean isSetEvent(final int varIdx) {
@@ -131,7 +124,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	}
 
 	@Override
-	public final IntDomainVar[] getBins() {
+	public final IntVar[] getBins() {
 		return bins;
 	}
 
@@ -158,7 +151,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	}
 
 	@Override
-	public final IntDomainVar[] getLoads() {
+	public final IntVar[] getLoads() {
 		return loads;
 	}
 
@@ -205,7 +198,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 			 * iter.dispose(); }
 			 */
 			// remove from other env
-			for (int b = bins[item].getInf(); b <= bins[item].getSup(); b = bins[item]
+			for (int b = bins[item].getLB(); b <= bins[item].getUB(); b = bins[item]
 					.getNextDomainValue(b)) {
 				if (bin != b) {
 					// ChocoLogging.getSearchLogger().finest("Remove " + item +
@@ -243,7 +236,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 			 * this, true); } } } finally { iter.dispose(); }
 			 */
 			// remove from other env
-			for (int b = bins[item].getInf(); b <= bins[item].getSup(); b = bins[item]
+			for (int b = bins[item].getLB(); b <= bins[item].getUB(); b = bins[item]
 					.getNextDomainValue(b)) {
 				if (bin != b) {
 					// ChocoLogging.getSearchLogger().finest("Remove " + item +
@@ -702,7 +695,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 				} else {
 					// the bins is used by the modified lower bound
 					binsMLB.add(b);
-					remainingSpace[b] += loads[b].getSup();
+					remainingSpace[b] += loads[b].getUB();
 					capacityMLB = Math.max(capacityMLB, remainingSpace[b]);
 					if (svars[b].getKernelDomainSize() > 0) {
 						// partially filled
@@ -748,7 +741,7 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 					}
 					computeMinimumNumberOfNewBins();
 				}
-				if (getMinimumNumberOfBins() > ivars[ivars.length - 1].getSup()) {
+				if (getMinimumNumberOfBins() > ivars[ivars.length - 1].getUB()) {
 					return false; // the continuous bound prove infeasibility
 				}
 			}

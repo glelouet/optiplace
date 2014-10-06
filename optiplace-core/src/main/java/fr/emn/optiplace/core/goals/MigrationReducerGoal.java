@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace.core.goals;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -35,7 +35,7 @@ public class MigrationReducerGoal implements SearchGoal {
 	}
 
 	@Override
-	public IntDomainVar getObjective(ReconfigurationProblem rp) {
+	public IntVar getObjective(ReconfigurationProblem rp) {
 		return rp.nbMigrations();
 	}
 

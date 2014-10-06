@@ -11,25 +11,21 @@
 package fr.emn.optiplace.core.heuristics;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import choco.cp.solver.search.integer.branching.AssignVar;
-import choco.cp.solver.search.integer.valselector.MinVal;
-import choco.cp.solver.search.integer.varselector.StaticVarOrder;
-import choco.cp.solver.search.set.StaticSetVarOrder;
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
+import solver.variables.Variable;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
 
 /**
  * A dummy placement heuristic. Branch on all the variables in a static manner,
  * and select the minimum value for each selected variable.
- * 
+ *
  * @author Fabien Hermenier
  * @author Guillaume Le Louët[guillaume.lelouet@gmail.com]2013
  */
@@ -41,31 +37,31 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
 	public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
 
 	@Override
-	public List<AbstractIntBranchingStrategy> getHeuristics(
+	public List<AbstractStrategy<? extends Variable>> getHeuristics(
 			ReconfigurationProblem m) {
-		ArrayList<AbstractIntBranchingStrategy> ret = new ArrayList<AbstractIntBranchingStrategy>();
+		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
-		LinkedHashSet<IntDomainVar> vars = new LinkedHashSet<>();
-		for (IntDomainVar v : m.getHosters()) {
+		ArrayList<IntVar> vars = new ArrayList<>();
+		for (IntVar v : m.getHosters()) {
 			vars.add(v);
 		}
-		for (int i = 0; i < m.getNbIntVars(); i++) {
-			vars.add(m.getIntVarQuick(i));
-		}
-
-		SetVar[] bar = new SetVar[m.getNbSetVars()];
-		for (int i = 0; i < bar.length; i++) {
-			bar[i] = m.getSetVarQuick(i);
+		for (IntVar v : m.getSolver().retrieveIntVars()) {
+			vars.add(v);
 		}
 		if (vars.size() > 0) {
-			ret.add(new AssignVar(new StaticVarOrder(m, vars
-					.toArray(new IntDomainVar[]{})) {
-				@Override
-				public IntDomainVar selectVar() {
-					IntDomainVar ret = super.selectVar();
-					return ret;
-				}
-			}, new MinVal()));
+			ret.add(new AssignVar(
+					new StaticVarOrder(m, vars.toArray(new IntVar[] {})) {
+						@Override
+						public IntVar selectVar() {
+							IntVar ret = super.selectVar();
+							return ret;
+						}
+					}, new MinVal()));
+		}
+
+		ArrayList<SetVar> bar = new ArrayList<>();
+		for (SetVar v : m.getSolver().retrieveSetVars()) {
+			bar.add(v);
 		}
 		if (bar.length > 0) {
 			ret.add(new AssignVar(new StaticSetVarOrder(m, bar), new MinVal()));

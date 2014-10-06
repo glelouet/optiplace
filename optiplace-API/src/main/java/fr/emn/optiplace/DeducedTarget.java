@@ -35,11 +35,11 @@ public class DeducedTarget {
 
 	private int objective;
 
-	private int searchNodes;
+	private long searchNodes;
 
-	private int searchBacktracks;
+	private long searchBacktracks;
 
-	private int searchSolutions;
+	private long searchSolutions;
 
 	/** @return the destination */
 	public Configuration getDestination() {
@@ -127,33 +127,33 @@ public class DeducedTarget {
 	}
 
 	/** @return the searchNodes */
-	public int getSearchNodes() {
+	public long getSearchNodes() {
 		return searchNodes;
 	}
 
 	/**
-	 * @param searchNodes
-	 *            the searchNodes to set
+	 * @param l
+	 * the searchNodes to set
 	 */
-	public void setSearchNodes(int searchNodes) {
-		this.searchNodes = searchNodes;
+	public void setSearchNodes(long l) {
+		this.searchNodes = l;
 	}
 
 	/** @return the searchBacktracks */
-	public int getSearchBacktracks() {
+	public long getSearchBacktracks() {
 		return searchBacktracks;
 	}
 
 	/**
-	 * @param searchBacktracks
-	 *            the searchBacktracks to set
+	 * @param l
+	 * the searchBacktracks to set
 	 */
-	public void setSearchBacktracks(int searchBacktracks) {
-		this.searchBacktracks = searchBacktracks;
+	public void setSearchBacktracks(long l) {
+		this.searchBacktracks = l;
 	}
 
 	/** @return the searchSolutions */
-	public int getSearchSolutions() {
+	public long getSearchSolutions() {
 		return searchSolutions;
 	}
 
@@ -161,7 +161,7 @@ public class DeducedTarget {
 	 * @param searchSolutions
 	 *            the searchSolutions to set
 	 */
-	public void setSearchSolutions(int searchSolutions) {
+	public void setSearchSolutions(long searchSolutions) {
 		this.searchSolutions = searchSolutions;
 	}
 }

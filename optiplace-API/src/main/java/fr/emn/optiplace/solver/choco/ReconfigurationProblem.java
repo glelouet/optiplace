@@ -15,20 +15,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import choco.kernel.solver.Solver;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.variables.integer.IntDomainVar;
-import choco.kernel.solver.variables.set.SetVar;
+import solver.Solver;
+import solver.constraints.Constraint;
+import solver.variables.BoolVar;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
+import solver.variables.VariableFactory;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
-import fr.emn.optiplace.solver.SolutionStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Specification of a reconfiguration problem.
@@ -36,11 +37,48 @@ import gnu.trove.TIntArrayList;
  * @author Fabien Hermenier
  * @author Guillaume Le Louët
  */
-public interface ReconfigurationProblem extends Solver, CoreView,
-VariablesManager {
+public interface ReconfigurationProblem extends CoreView, VariablesManager {
 
   /** The maximum number of group of nodes. */
   Integer MAX_NB_GRP = 100;
+
+	public Solver getSolver();
+
+	@Override
+	default IntVar createIntegerConstant(int val) {
+		return VariableFactory.fixed(val, getSolver());
+	}
+
+	@Override
+	default BoolVar createBoolVar(String name) {
+		return VariableFactory.bool(name, getSolver());
+	}
+
+	@Override
+	default IntVar createEnumIntVar(String name, int... sortedValues) {
+		return VariableFactory.enumerated(name, sortedValues, getSolver());
+	}
+
+	@Override
+	default IntVar createEnumIntVar(String name, int min, int max) {
+		return VariableFactory.enumerated(name, min, max, getSolver());
+	}
+
+	/** creates an int variable whom range goes from min to max */
+	@Override
+	default IntVar createBoundIntVar(String name, int min, int max) {
+		return VariableFactory.bounded(name, min, max, getSolver());
+	}
+
+	@Override
+	default SetVar createEnumSetVar(String name, int... values) {
+		return VariableFactory.set(name, values, getSolver());
+	}
+
+	@Override
+	default SetVar createRangeSetVar(String name, int min, int max) {
+		return VariableFactory.set(name, min, max, getSolver());
+	}
 
   /**
    * Get the current location of a running or a sleeping VM.
@@ -67,7 +105,7 @@ VariablesManager {
    */
   Configuration getSourceConfiguration();
 
-  default IntDomainVar getNodeUse(String resource, Node n) {
+  default IntVar getNodeUse(String resource, Node n) {
     return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node(n)];
   }
 
@@ -75,17 +113,17 @@ VariablesManager {
     return getResourcesHandlers().get(resource).getNodesCapacities()[node(n)];
   }
 
-  default IntDomainVar getUsedCPU(Node n) {
+  default IntVar getUsedCPU(Node n) {
     return getNodeUse("CPU", n);
   }
 
-  default IntDomainVar getUsedMem(Node n) {
+  default IntVar getUsedMem(Node n) {
     return getNodeUse("MEM", n);
   }
 
-  public IntDomainVar getHostUse(String resource, int vmIndex);
+  public IntVar getHostUse(String resource, int vmIndex);
 
-  public IntDomainVar getHostCapa(String resource, int vmIndex);
+  public IntVar getHostCapa(String resource, int vmIndex);
 
   /**
    * Get the variable associated to a group of VMs. If the group was not
@@ -96,7 +134,7 @@ VariablesManager {
    * @return the variable associated to the group or null if at least one VM of
    * the proposed new group already belong to a group
    */
-  IntDomainVar getVMGroup(Set<VM> vms);
+  IntVar getVMGroup(Set<VM> vms);
 
   /**
    * Make a group variable.
@@ -108,7 +146,7 @@ VariablesManager {
    * @return a variable denoting the assignment of the VMs group to one of the
    * group of nodes
    */
-  IntDomainVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s);
+  IntVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s);
 
   /**
    * Get the group variable associated to a virtual machine.
@@ -117,7 +155,7 @@ VariablesManager {
    * the virtual machine
    * @return the group variable if it exists, null otherwise
    */
-  IntDomainVar getAssociatedGroup(VM vm);
+  IntVar getAssociatedGroup(VM vm);
 
   /**
    * Get all the defined groups of virtual machines.
@@ -165,22 +203,6 @@ VariablesManager {
   int[] getNodesGroupId();
 
   /**
-   * Get the set model of the nodes. One set per nodes
-   *
-   * @return an array of set
-   */
-  SetVar[] getSetModels();
-
-  /**
-   * Get the set associated to a node.
-   *
-   * @param n
-   * the node
-   * @return the associated set if exists, {@code null} otherwise
-   */
-  SetVar getSetModel(Node n);
-
-  /**
    * get the variables of the hoster of the VM in the end configuration.
    *
    * @param vm
@@ -188,7 +210,7 @@ VariablesManager {
    * @return a variable specifying on which Node the VM will be hosted
    */
   @Override
-  IntDomainVar host(VM vm);
+  IntVar host(VM vm);
 
   /**
    * get the array of VMs hosters. faster to iterate over it than using
@@ -198,7 +220,7 @@ VariablesManager {
    * @return the array of VM hosters, indexed by the vms indexes or the position
    * of each vm in vms if not null and not empty.
    */
-  IntDomainVar[] getHosters(VM... vms);
+  IntVar[] getHosters(VM... vms);
 
   /**
    * get the variable corresponding to the number of VMs associated to the host
@@ -210,7 +232,7 @@ VariablesManager {
    * the node at the end of the reconfiguration plan.
    */
   @Override
-  IntDomainVar nbVMs(Node n);
+  IntVar nbVMs(Node n);
 
   /**
    * get the table {@link #nbVMs(Node)} , indexed by the nodes index (
@@ -218,7 +240,7 @@ VariablesManager {
    *
    * @return
    */
-  IntDomainVar[] getNbHosted();
+  IntVar[] getNbHosted();
 
   /**
    * get the boolean variable set to 1 IFF at least one VM is assigned to this
@@ -229,14 +251,14 @@ VariablesManager {
    * @return
    */
   @Override
-  IntDomainVar isHoster(Node n);
+  IntVar isHoster(Node n);
 
   /** get the variable representing the power state of a node in the resulting
    * configuration
    * @param n a node
-   * @return a Boolean {@link IntDomainVar} , set to true if the node is
+   * @return a Boolean {@link IntVar} , set to true if the node is
    * supposed to be online. */
-  IntDomainVar isOnline(Node n);
+  IntVar isOnline(Node n);
 
   /**
    * get the boolean variable constrained to the migrated state of the VM. A VM
@@ -249,29 +271,22 @@ VariablesManager {
    * {@link #getSourceConfiguration()} to the final configurations.
    */
   @Override
-  IntDomainVar isMigrated(VM vm);
+  IntVar isMigrated(VM vm);
 
   /**
    * get the table of boolean for the VMs.
    *
    * @see #isMigrated(VM)
-   * @return the table of IntDomainVar, so that
+   * @return the table of IntVar, so that
    * ret[i]==isLiveMigrate(getVirtualMachine(i))
    */
-  IntDomainVar[] getIsMigrateds();
+  IntVar[] getIsMigrateds();
 
   /**
    * @return a variable constrained to the number of live migrations to realize
    */
   @Override
-  IntDomainVar nbMigrations();
-
-  /**
-   * Get statistics about computed solutions.
-   *
-   * @return a list of statistics that may me empty.
-   */
-  List<SolutionStatistics> getSolutionsStatistics();
+  IntVar nbMigrations();
 
   /**
    * Get statistics about the solving process
@@ -281,15 +296,14 @@ VariablesManager {
   SolvingStatistics getSolvingStatistics();
 
   /** get the internal list of cost constraints */
-  @SuppressWarnings("rawtypes")
-  public List<SConstraint> getCostConstraints();
+	public List<Constraint> getCostConstraints();
 
   /**
    * @param left
    * @param right
    * @return a new variable constrained to ret=left+right
    */
-  IntDomainVar plus(IntDomainVar left, IntDomainVar right);
+  IntVar plus(IntVar left, IntVar right);
 
   /**
    * add a constraint : sum=left+right
@@ -298,13 +312,13 @@ VariablesManager {
    * @param right
    * @param sum
    */
-  public void plus(IntDomainVar left, IntDomainVar right, IntDomainVar sum);
+  public void plus(IntVar left, IntVar right, IntVar sum);
 
   /**
    * @param vars
    * @return a new variable constrained to the sum of the elements of vars
    */
-  public IntDomainVar sum(IntDomainVar... vars);
+  public IntVar sum(IntVar... vars);
 
   /**
    * @param left
@@ -312,21 +326,21 @@ VariablesManager {
    * @return a variable constrained to ret=left*min. if left is a boolean ( =
    * [0..1] ) var, the variable domain is an enum containing {0,min}
    */
-  IntDomainVar mult(IntDomainVar left, int right);
+  IntVar mult(IntVar left, int right);
 
   /**
    * @param left
    * @param right
    * @return a variable constrained to ret=left * right
    */
-  IntDomainVar mult(IntDomainVar left, IntDomainVar right);
+  IntVar mult(IntVar left, IntVar right);
 
   /**
    * @param var
    * @param i
    * @return a variable constrained to ret=var/i
    */
-  IntDomainVar div(IntDomainVar var, int i);
+  IntVar div(IntVar var, int i);
 
   /**
    * make a variable constrained to the scalar product of the elements. The
@@ -338,7 +352,7 @@ VariablesManager {
    * the weight of each dimensions
    * @return the scalar product of the positions to the weights
    */
-  public IntDomainVar scalar(IntDomainVar[] pos, double[] weights);
+  public IntVar scalar(IntVar[] pos, double[] weights);
 
   /**
    * creates a new var z constrained by z =(x==y)
@@ -348,7 +362,7 @@ VariablesManager {
    * @return a new variable constrained to ret=1 if x and y are instancied to
    * the same value
    */
-  IntDomainVar isSame(IntDomainVar x, IntDomainVar y);
+	BoolVar isSame(IntVar x, IntVar y);
 
   /**
    * creates a new var z constrained by z =(x==y)
@@ -358,24 +372,24 @@ VariablesManager {
    * @return a new variable constrained to ret=1 if x and y are instancied to
    * different value
    */
-  IntDomainVar isDifferent(IntDomainVar x, IntDomainVar y);
+	BoolVar isDifferent(IntVar x, IntVar y);
 
   /**
    * @return a new variables constrained to ret == x?!=y
    */
-  IntDomainVar isDifferent(IntDomainVar x, int y);
+	BoolVar isDifferent(IntVar x, int y);
 
   /**
    * @param values
    * @return a variable constrained to the maximum value reached in values
    */
-  IntDomainVar max(IntDomainVar... values);
+  IntVar max(IntVar... values);
 
   /**
    * @param values
    * @return a variable constrained to the min values reached in values
    */
-  IntDomainVar min(IntDomainVar... values);
+  IntVar min(IntVar... values);
 
   /**
    * Legacy code
@@ -389,14 +403,14 @@ VariablesManager {
    * {@link #getCostConstraints()} to be added later ?
    * @return a variable constrained to the sum of the variables in vars
    */
-  // IntExp explodedSum(IntDomainVar[] vars, int step, boolean post);
+  // IntExp explodedSum(IntVar[] vars, int step, boolean post);
 
   /**
    * @param index
    * @param array
    * @return a new variable constrained by ret=array[index]
    */
-  IntDomainVar nth(IntDomainVar index, IntDomainVar[] array);
+  IntVar nth(IntVar index, IntVar[] array);
 
   /**
    * ensures var belongs to array[index], ie var.inf>=array[index].min and
@@ -409,7 +423,7 @@ VariablesManager {
    * @param var
    * variable
    */
-  void nth(IntDomainVar index, IntDomainVar[] array, IntDomainVar var);
+  void nth(IntVar index, IntVar[] array, IntVar var);
 
   /**
    * ensures var belongs to array[index], ie var.inf>=array[index].min and
@@ -422,7 +436,7 @@ VariablesManager {
    * @param var
    * variable
    */
-  void nth(IntDomainVar index, int[] array, IntDomainVar var);
+  void nth(IntVar index, int[] array, IntVar var);
 
   /**
    * get a boolean value of an int value
@@ -433,7 +447,7 @@ VariablesManager {
    * the name of the variable to return, or null to let it create the name
    * @return a new variable constrained to 1 if x>0, 0 either way.
    */
-  IntDomainVar boolenize(IntDomainVar x, String name);
+	BoolVar boolenize(IntVar x, String name);
 
   /**
    * Extract the result destination configuration.

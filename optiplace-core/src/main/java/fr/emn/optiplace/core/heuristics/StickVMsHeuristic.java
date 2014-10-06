@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import choco.cp.solver.search.integer.branching.AssignOrForbidIntVarVal;
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.search.integer.branching.AssignOrForbidIntVarVal;
+import solver.branch.AbstractIntBranchingStrategy;
+import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -53,7 +53,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 		}
 		Arrays.sort(vms, cmp);
 		int[] correspondingNodes = new int[vms.length];
-		IntDomainVar[] sortedHosters = new IntDomainVar[vms.length];
+		IntVar[] sortedHosters = new IntVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
 			correspondingNodes[i] = rp.node(rp.getSourceConfiguration().getLocation(
 					vms[i]));
@@ -62,8 +62,8 @@ public class StickVMsHeuristic implements SearchHeuristic {
 		Var2ValSelector heuristic = new Var2ValSelector(rp.getEnvironment(),
 				sortedHosters, correspondingNodes) {
 			@Override
-			public IntDomainVar selectVar() {
-				IntDomainVar var = super.selectVar();
+			public IntVar selectVar() {
+				IntVar var = super.selectVar();
 				return var;
 			}
 		};

@@ -3,23 +3,21 @@
  */
 package fr.emn.optiplace;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import choco.cp.solver.search.BranchAndBound;
-import choco.cp.solver.search.integer.objective.IntObjectiveManager;
-import choco.cp.solver.search.integer.objective.MinIntObjManager;
-import choco.kernel.common.logging.ChocoLogging;
-import choco.kernel.common.logging.Verbosity;
-import choco.kernel.solver.Solution;
-import choco.kernel.solver.branch.AbstractIntBranchingStrategy;
-import choco.kernel.solver.constraints.SConstraint;
-import choco.kernel.solver.search.ISolutionDisplay;
-import choco.kernel.solver.search.ISolutionPool;
-import choco.kernel.solver.search.SolutionPoolFactory;
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.ResolutionPolicy;
+import solver.constraints.Constraint;
+import solver.exception.ContradictionException;
+import solver.objective.ObjectiveManager;
+import solver.search.loop.monitors.SearchMonitorFactory;
+import solver.search.measure.IMeasures;
+import solver.search.solution.Solution;
+import solver.search.strategy.IntStrategyFactory;
+import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.IntVar;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -32,7 +30,6 @@ import fr.emn.optiplace.goals.NBMigrationsCost;
 import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
-import fr.emn.optiplace.solver.choco.MultiSolutionDisplayer;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.SearchHeuristic;
@@ -88,9 +85,9 @@ public class SolvingProcess extends OptiplaceProcess {
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
 		// constraint.
-		for (SConstraint<IntDomainVar> c : packer.pack(problem.getEnvironment(),
+		for (Constraint c : packer.pack(problem.getSolver().getEnvironment(),
 				problem.getHosters(), problem.getUses())) {
-			problem.post(c);
+			problem.getSolver().post(c);
 		}
 		for (ViewAsModule view : views) {
 			for (Rule cc : view.getRequestedRules()) {
@@ -104,27 +101,10 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	@Override
 	public void configLogging() {
-		if (strat.getChocoLoggingDepth() >= 0) {
-			ChocoLogging.setLoggingMaxDepth(strat.getChocoLoggingDepth());
-		}
-		if (strat.getChocoVerbosity() != null) {
-			ChocoLogging.setVerbosity(strat.getChocoVerbosity());
-		}
-		ArrayList<ISolutionDisplay> displayers = strat.getDisplayers();
-		if (displayers.size() > 0) {
-			if (displayers.size() == 1) {
-				problem.setSolutionDisplay(displayers.get(0));
-			} else {
-				problem.setSolutionDisplay(new MultiSolutionDisplayer(displayers));
-			}
-			if (strat.getChocoVerbosity() == null
-					|| strat.getChocoVerbosity().intValue() < Verbosity.SOLUTION
-							.intValue()) {
-				ChocoLogging.toSolution();
-			}
-		}
+		strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void configSearch() {
 		long st = System.currentTimeMillis();
@@ -146,7 +126,9 @@ public class SolvingProcess extends OptiplaceProcess {
 			}
 
 		}
-		problem.setObjective(goalMaker.getObjective(problem));
+		problem.getSolver().set(
+				new ObjectiveManager(goalMaker.getObjective(problem),
+						ResolutionPolicy.MINIMIZE, true));
 
 		// add all the heuristics.
 		// first heuristic : the global goal heuristic
@@ -169,45 +151,29 @@ public class SolvingProcess extends OptiplaceProcess {
 		heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
 
 		// all the heuristics are generated and added in the problem here.
-		for (SearchHeuristic hg : heuristicsGenerators) {
-			List<AbstractIntBranchingStrategy> heuristics = hg.getHeuristics(problem);
-			for (AbstractIntBranchingStrategy h : heuristics) {
-				problem.addGoal(h);
-			}
-		}
+		List<AbstractStrategy<IntVar>> strats = heuristicsGenerators.stream()
+				.map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream())
+				.collect(Collectors.toList());
+		problem.getSolver().set(
+				IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0])));
+
 		if (strat.getMaxSearchTime() > 0) {
-			problem.setTimeLimit((int) strat.getMaxSearchTime());
-		}
-		if (problem.getObjective() != null
-				&& (strat.getReducer() == null || strat.getReducer() == ObjectiveReducer.IDENTITY)) {
-			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, false);
-		} else {
-			problem.getConfiguration().putBoolean(
-					choco.kernel.solver.Configuration.STOP_AT_FIRST_SOLUTION, true);
+			SearchMonitorFactory.limitTime(problem.getSolver(),
+					strat.getMaxSearchTime());
 		}
 
-		problem.generateSearchStrategy();
-		ISolutionPool sp = SolutionPoolFactory.makeInfiniteSolutionPool(problem
-				.getSearchStrategy());
-		problem.getSearchStrategy().setSolutionPool(sp);
 		target.setConfigTime(System.currentTimeMillis() - st);
 	}
 
 	@Override
 	public void makeSearch() {
-		// System.err.println("contraints added to the problem : ");
-		// for (@SuppressWarnings("rawtypes")
-		// Iterator<SConstraint> it = problem.getConstraintIterator();
-		// it.hasNext();) {
-		// System.err.println(" " + it.next().pretty());
-		// }
 		long st = System.currentTimeMillis();
-		if (problem.getObjective() == null || strat.getReducer() == null
+		if (problem.getSolver().getObjectiveManager().getObjective() == null
+				|| strat.getReducer() == null
 				|| strat.getReducer() == ObjectiveReducer.IDENTITY) {
-			problem.launch();
+			problem.getSolver().findSolution();
 		} else {
-			searchAndReduce();
+			problem.getSolver().findAllSolutions();
 		}
 		target.setSearchTime(System.currentTimeMillis() - st);
 	}
@@ -215,43 +181,54 @@ public class SolvingProcess extends OptiplaceProcess {
 	/**
    *
    */
-	private void searchAndReduce() {
-		BranchAndBound bb = (BranchAndBound) problem.getSearchStrategy();
-		MinIntObjManager obj = (MinIntObjManager) bb.getObjectiveManager();
-		Field f = null;
-		try {
-			f = IntObjectiveManager.class.getDeclaredField("targetBound");
-			f.setAccessible(true);
-		} catch (Exception e) {
-			logger.warn("while getting the field", e);
-		}
-		problem.launch();
-		Solution s = null;
-		if (problem.isFeasible() == Boolean.TRUE) {
-			do {
-				int objVal = ((IntDomainVar) problem.getObjective()).getVal();
-				s = problem.getSearchStrategy().getSolutionPool().getBestSolution();
-				int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
-				if (f != null) {
-					try {
-						f.set(obj, new Integer(newMax));
-					} catch (Exception e) {
-						logger.warn("", e);
-					}
-				}
-			} while (problem.nextSolution() == Boolean.TRUE);
-		} else {
-			return;
-		}
-		problem.worldPopUntil(problem.getSearchStrategy().baseWorld);
-		problem.restoreSolution(s);
-	}
+	// Commented to pass from choc 2 to choco 3
+	// TODO implement this in choco 3
+	// private void searchAndReduce() {
+	// BranchAndBound bb = (BranchAndBound) problem.getSearchStrategy();
+	// MinIntObjManager obj = (MinIntObjManager) bb.getObjectiveManager();
+	// Field f = null;
+	// try {
+	// f = IntObjectiveManager.class.getDeclaredField("targetBound");
+	// f.setAccessible(true);
+	// } catch (Exception e) {
+	// logger.warn("while getting the field", e);
+	// }
+	// problem.launch();
+	// Solution s = null;
+	// if (problem.isFeasible() == Boolean.TRUE) {
+	// do {
+	// int objVal = ((IntVar) problem.getObjective()).getVal();
+	// s = problem.getSearchStrategy().getSolutionPool().getBestSolution();
+	// int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
+	// if (f != null) {
+	// try {
+	// f.set(obj, new Integer(newMax));
+	// } catch (Exception e) {
+	// logger.warn("", e);
+	// }
+	// }
+	// } while (problem.nextSolution() == Boolean.TRUE);
+	// } else {
+	// return;
+	// }
+	// problem.worldPopUntil(problem.getSearchStrategy().baseWorld);
+	// problem.restoreSolution(s);
+	// }
 
 	@Override
 	public void extractData() {
-		if (problem.isFeasible()) {
+		Solution s = problem.getSolver().getSolutionRecorder().getLastSolution();
+		IMeasures m = problem.getSolver().getMeasures();
+		if (s != null) {
+			try {
+				problem.getSolver().getSearchLoop().restoreRootNode();
+				s.restore();
+			} catch (ContradictionException e) {
+				logger.warn("", e);
+			}
 			target.setDestination(problem.extractConfiguration());
-			target.setObjective((int) problem.getObjectiveValue());
+			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager()
+					.getObjective()).getValue());
 			Migrate.extractMigrations(center.getSource(), target.getDestination(),
 					target.getActions());
 			for (ViewAsModule v : center.getViews()) {
@@ -260,8 +237,9 @@ public class SolvingProcess extends OptiplaceProcess {
 		} else {
 			target.setDestination(null);
 		}
-		target.setSearchBacktracks(problem.getBackTrackCount());
-		target.setSearchNodes(problem.getNodeCount());
-		target.setSearchSolutions(problem.getNbSolutions());
+		target.setSearchBacktracks(m.getBackTrackCount());
+		target.setSearchNodes(m.getNodeCount());
+		target.setSearchSolutions(problem.getSolutionRecorder().getSolutions()
+				.size());
 	}
 }

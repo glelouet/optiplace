@@ -5,7 +5,8 @@ package fr.emn.optiplace.view.access;
 
 import java.util.HashMap;
 
-import choco.kernel.solver.variables.integer.IntDomainVar;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -13,7 +14,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
  * delegate the calls to a reconfiguration problem
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class SimpleCoreView implements CoreView {
@@ -35,7 +36,7 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public IntDomainVar host(VM vm) {
+	public IntVar host(VM vm) {
 		return pb.host(vm);
 	}
 
@@ -45,22 +46,22 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public IntDomainVar nbVMs(Node n) {
+	public IntVar nbVMs(Node n) {
 		return pb.nbVMs(n);
 	}
 
 	@Override
-	public IntDomainVar isHoster(Node n) {
+	public IntVar isHoster(Node n) {
 		return pb.isHoster(n);
 	}
 
 	@Override
-	public IntDomainVar isMigrated(VM vm) {
+	public IntVar isMigrated(VM vm) {
 		return pb.isMigrated(vm);
 	}
 
 	@Override
-	public IntDomainVar nbMigrations() {
+	public IntVar nbMigrations() {
 		return pb.nbMigrations();
 	}
 
@@ -70,8 +71,8 @@ public class SimpleCoreView implements CoreView {
 	}
 
 	@Override
-	public Node node2(int n) {
-		return pb.node2(n);
+	public Node node(int n) {
+		return pb.node(n);
 	}
 
 	@Override
@@ -82,5 +83,15 @@ public class SimpleCoreView implements CoreView {
 	@Override
 	public VM vm(int vm) {
 		return pb.vm(vm);
+	}
+
+	@Override
+	public SetVar vms(Node n) {
+		return pb.vms(n);
+	}
+
+	@Override
+	public SetVar[] hosteds() {
+		return pb.hosteds();
 	}
 }
