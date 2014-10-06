@@ -10,11 +10,8 @@ import java.util.stream.Collectors;
 
 import solver.ResolutionPolicy;
 import solver.constraints.Constraint;
-import solver.exception.ContradictionException;
-import solver.objective.ObjectiveManager;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.measure.IMeasures;
-import solver.search.solution.Solution;
 import solver.search.strategy.IntStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
@@ -28,7 +25,6 @@ import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.FastBinPacker;
 import fr.emn.optiplace.goals.NBMigrationsCost;
-import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
@@ -36,15 +32,13 @@ import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.SearchHeuristic;
 import fr.emn.optiplace.view.ViewAsModule;
 
-/**
- * basic implementation of the entropy solving process.
- *
- * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
- */
+/** basic implementation of the entropy solving process.
+ * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013 */
 public class SolvingProcess extends OptiplaceProcess {
 
+  @SuppressWarnings("unused")
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-      .getLogger(SolvingProcess.class);
+  .getLogger(SolvingProcess.class);
 
   /** the core problem, modified by the views */
   protected DefaultReconfigurationProblem problem;
@@ -105,7 +99,6 @@ public class SolvingProcess extends OptiplaceProcess {
     strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public void configSearch() {
     long st = System.currentTimeMillis();
@@ -127,9 +120,7 @@ public class SolvingProcess extends OptiplaceProcess {
       }
 
     }
-    problem.getSolver().set(
-        new ObjectiveManager(goalMaker.getObjective(problem),
-            ResolutionPolicy.MINIMIZE, true));
+    problem.setObjective(goalMaker.getObjective(problem));
 
     // add all the heuristics.
     // first heuristic : the global goal heuristic
@@ -152,9 +143,8 @@ public class SolvingProcess extends OptiplaceProcess {
         heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
 
         // all the heuristics are generated and added in the problem here.
-    List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators
-        .stream()
-            .map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream())
+        List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators
+            .stream().map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream())
             .collect(Collectors.toList());
         problem.getSolver().set(
             IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0])));
@@ -170,13 +160,9 @@ public class SolvingProcess extends OptiplaceProcess {
   @Override
   public void makeSearch() {
     long st = System.currentTimeMillis();
-    if (problem.getSolver().getObjectiveManager().getObjective() == null
-        || strat.getReducer() == null
-        || strat.getReducer() == ObjectiveReducer.IDENTITY) {
-      problem.getSolver().findSolution();
-    } else {
-      problem.getSolver().findAllSolutions();
-    }
+    problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE,
+        problem.getObjective());
+    // TODO what to do with an ObjectiveReducer ?
     target.setSearchTime(System.currentTimeMillis() - st);
   }
 
@@ -219,26 +205,16 @@ public class SolvingProcess extends OptiplaceProcess {
 
   @Override
   public void extractData() {
-    Solution s = problem.getSolver().getSolutionRecorder().getLastSolution();
     IMeasures m = problem.getSolver().getMeasures();
-    if (s != null) {
-      try {
-        problem.getSolver().getSearchLoop().restoreRootNode();
-        s.restore();
-      } catch (ContradictionException e) {
-        logger.warn("", e);
-      }
-      target.setDestination(problem.extractConfiguration());
-      target.setObjective(((IntVar) problem.getSolver().getObjectiveManager()
-          .getObjective()).getValue());
-      Migrate.extractMigrations(center.getSource(), target.getDestination(),
-          target.getActions());
-      for (ViewAsModule v : center.getViews()) {
-        v.endSolving(target.getActions());
-      }
-    } else {
-      target.setDestination(null);
+    target.setDestination(problem.extractConfiguration());
+    target.setObjective(((IntVar) problem.getSolver().getObjectiveManager()
+        .getObjective()).getValue());
+    Migrate.extractMigrations(center.getSource(), target.getDestination(),
+        target.getActions());
+    for (ViewAsModule v : center.getViews()) {
+      v.endSolving(target.getActions());
     }
+
     target.setSearchBacktracks(m.getBackTrackCount());
     target.setSearchNodes(m.getNodeCount());
     target.setSearchSolutions(problem.getSolutionRecorder().getSolutions()

@@ -10,15 +10,11 @@
 
 package fr.emn.optiplace.core.heuristics;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import common.util.iterators.DisposableIntIterator;
-import solver.search.ValSelector;
+import solver.search.strategy.selectors.IntValueSelector;
 import solver.variables.IntVar;
+import util.iterators.DisposableValueIterator;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -29,172 +25,172 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  *
  * @author Fabien Hermenier
  */
-public class NodeGroupSelector implements ValSelector<IntVar> {
+public class NodeGroupSelector implements IntValueSelector {
 
-	public enum Option {
-		wfMem, wfCPU, inf, bfMem, bfCPU
-	}
+  private static final long serialVersionUID = 1L;
 
-	;
+  public static enum Option {
+    wfMem, wfCPU, inf, bfMem, bfCPU
+  };
 
-	// private Option opt;
+  // private Option opt;
 
-	private final ReconfigurationProblem rp;
+  private final ReconfigurationProblem rp;
 
-	/** The previous location of the running VMs. */
-	private final Map<IntVar, List<Integer>> locations;
+  /** The previous location of the running VMs. */
+  private final Map<IntVar, List<Integer>> locations;
 
-	/**
-	 * Build a selector for a specific solver.
-	 *
-	 * @param s
-	 *            the solver
-	 * @param o
-	 *            the option to customize the heuristic
-	 */
-	public NodeGroupSelector(ReconfigurationProblem s, Option o) {
-		// opt = o;
-		rp = s;
+  /**
+   * Build a selector for a specific solver.
+   *
+   * @param s
+   *            the solver
+   * @param o
+   *            the option to customize the heuristic
+   */
+  public NodeGroupSelector(ReconfigurationProblem s, Option o) {
+    // opt = o;
+    rp = s;
 
-		locations = new HashMap<IntVar, List<Integer>>();
+    locations = new HashMap<IntVar, List<Integer>>();
 
-		Set<Set<Node>> groups = rp.getNodesGroups();
+    Set<Set<Node>> groups = rp.getNodesGroups();
 
-		// Get the oldLocation of each group
-		// Warn, may be on several groups !
-		for (Set<VM> vmset : rp.getVMGroups()) {
-			locations.put(rp.getVMGroup(vmset), new LinkedList<Integer>());
-			for (VM vm : vmset) {
-				for (Set<Node> nodeset : groups) {
-					Node hoster = null;
-					if (rp.getSourceConfiguration().isRunning(vm)) {
-						hoster = rp.getSourceConfiguration().getLocation(vm);
-					}
-					if (hoster != null && nodeset.contains(hoster)) {
-						List<Integer> l = locations.get(rp.getVMGroup(vmset));
-						if (!l.contains(rp.getGroup(nodeset))) {
-							l.add(rp.getGroup(nodeset));
-						}
-					}
-				}
-			}
-		}
-	}
+    // Get the oldLocation of each group
+    // Warn, may be on several groups !
+    for (Set<VM> vmset : rp.getVMGroups()) {
+      locations.put(rp.getVMGroup(vmset), new LinkedList<Integer>());
+      for (VM vm : vmset) {
+        for (Set<Node> nodeset : groups) {
+          Node hoster = null;
+          if (rp.getSourceConfiguration().isRunning(vm)) {
+            hoster = rp.getSourceConfiguration().getLocation(vm);
+          }
+          if (hoster != null && nodeset.contains(hoster)) {
+            List<Integer> l = locations.get(rp.getVMGroup(vmset));
+            if (!l.contains(rp.getGroup(nodeset))) {
+              l.add(rp.getGroup(nodeset));
+            }
+          }
+        }
+      }
+    }
+  }
 
-	/**
-	 * Get the index of the node with the biggest amount of free CPU resources
-	 * that can host the slice.
-	 *
-	 * @param v
-	 *            the assignment variable of the demanding slice
-	 * @return the index of the node
-	 */
-	protected int worstFitCPU(IntVar v) {
-		DisposableIntIterator ite = v.getDomain().getIterator();
-		int bestIdx = ite.next();
-		int bestCPU = rp.getUsedCPU(rp.node(bestIdx)).getLB();
-		while (ite.hasNext()) {
-			int possible = ite.next();
-			if (rp.getUsedCPU(rp.node(possible)).getLB() < bestCPU) {
-				bestIdx = possible;
-				bestCPU = rp.getUsedCPU(rp.node(possible)).getLB();
-			}
-		}
-		ite.dispose();
-		return bestIdx;
-	}
+  /**
+   * Get the index of the node with the biggest amount of free CPU resources
+   * that can host the slice.
+   *
+   * @param v
+   *            the assignment variable of the demanding slice
+   * @return the index of the node
+   */
+  protected int worstFitCPU(IntVar v) {
+    DisposableValueIterator ite = v.getValueIterator(true);
+    int bestIdx = ite.next();
+    int bestCPU = rp.getUsedCPU(rp.node(bestIdx)).getLB();
+    while (ite.hasNext()) {
+      int possible = ite.next();
+      if (rp.getUsedCPU(rp.node(possible)).getLB() < bestCPU) {
+        bestIdx = possible;
+        bestCPU = rp.getUsedCPU(rp.node(possible)).getLB();
+      }
+    }
+    ite.dispose();
+    return bestIdx;
+  }
 
-	/**
-	 * Get the index of the node with the biggest amount of free memory
-	 * resources that can host the slice.
-	 *
-	 * @param v
-	 *            the assignment variable of the demanding slice
-	 * @return the index of the node
-	 */
-	protected int worstFitMem(IntVar v) {
+  /**
+   * Get the index of the node with the biggest amount of free memory
+   * resources that can host the slice.
+   *
+   * @param v
+   *            the assignment variable of the demanding slice
+   * @return the index of the node
+   */
+  protected int worstFitMem(IntVar v) {
 
-		DisposableIntIterator ite = v.getDomain().getIterator();
-		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
-		while (ite.hasNext()) {
-			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getLB() > bestMem) {
-				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getLB();
-			}
-		}
-		ite.dispose();
-		return bestIdx;
-	}
+    DisposableValueIterator ite = v.getValueIterator(true);
+    int bestIdx = ite.next();
+    int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
+    while (ite.hasNext()) {
+      int possible = ite.next();
+      if (rp.getUsedMem(rp.node(possible)).getLB() > bestMem) {
+        bestIdx = possible;
+        bestMem = rp.getUsedMem(rp.node(possible)).getLB();
+      }
+    }
+    ite.dispose();
+    return bestIdx;
+  }
 
-	/**
-	 * Get the index of the node with the smallest amount of free memory
-	 * resources that can host the slice.
-	 *
-	 * @param v
-	 *            the assignment variable of the demanding slice
-	 * @return the index of the node
-	 */
-	protected int bestFitMem(IntVar v) {
+  /**
+   * Get the index of the node with the smallest amount of free memory
+   * resources that can host the slice.
+   *
+   * @param v
+   *            the assignment variable of the demanding slice
+   * @return the index of the node
+   */
+  protected int bestFitMem(IntVar v) {
 
-		DisposableIntIterator ite = v.getDomain().getIterator();
-		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
-		while (ite.hasNext()) {
-			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getLB() < bestMem) {
-				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getLB();
-			}
-		}
-		ite.dispose();
-		return bestIdx;
-	}
+    DisposableValueIterator ite = v.getValueIterator(true);
+    int bestIdx = ite.next();
+    int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
+    while (ite.hasNext()) {
+      int possible = ite.next();
+      if (rp.getUsedMem(rp.node(possible)).getLB() < bestMem) {
+        bestIdx = possible;
+        bestMem = rp.getUsedMem(rp.node(possible)).getLB();
+      }
+    }
+    ite.dispose();
+    return bestIdx;
+  }
 
-	/**
-	 * Get the index of the node with the smallest amount of free CPU resources
-	 * that can host the slice.
-	 *
-	 * @param v
-	 *            the assignment variable of the demanding slice
-	 * @return the index of the node
-	 */
-	protected int bestFitCPU(IntVar v) {
+  /**
+   * Get the index of the node with the smallest amount of free CPU resources
+   * that can host the slice.
+   *
+   * @param v
+   *            the assignment variable of the demanding slice
+   * @return the index of the node
+   */
+  protected int bestFitCPU(IntVar v) {
 
-		DisposableIntIterator ite = v.getDomain().getIterator();
-		int bestIdx = ite.next();
-		int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
-		while (ite.hasNext()) {
-			int possible = ite.next();
-			if (rp.getUsedMem(rp.node(possible)).getLB() < bestMem) {
-				bestIdx = possible;
-				bestMem = rp.getUsedMem(rp.node(possible)).getLB();
-			}
-		}
-		ite.dispose();
-		return bestIdx;
-	}
+    DisposableValueIterator ite = v.getValueIterator(true);
+    int bestIdx = ite.next();
+    int bestMem = rp.getUsedMem(rp.node(bestIdx)).getLB();
+    while (ite.hasNext()) {
+      int possible = ite.next();
+      if (rp.getUsedMem(rp.node(possible)).getLB() < bestMem) {
+        bestIdx = possible;
+        bestMem = rp.getUsedMem(rp.node(possible)).getLB();
+      }
+    }
+    ite.dispose();
+    return bestIdx;
+  }
 
-	@Override
-	public int getBestVal(IntVar var) {
-		int v = -1;
-		if (locations.containsKey(var)) {
-			for (int i : locations.get(var)) {
-				if (var.canBeInstantiatedTo(i)) {
-					// Plan.logger.info("Same group for " + var.pretty());
-					v = i;
-					break;
-				}
-			}
-			if (v == -1) {
-				v = var.getLB();
-				// Plan.logger.info("Another group for " + var.pretty());
-			}
-		} else {
-			// Plan.logger.info("Another group for " + var.pretty());
-			v = var.getLB();
-		}
-		return v;
-	}
+  @Override
+  public int selectValue(IntVar var) {
+    int v = -1;
+    if (locations.containsKey(var)) {
+      for (int i : locations.get(var)) {
+        if (var.contains(i)) {
+          // Plan.logger.info("Same group for " + var.pretty());
+          v = i;
+          break;
+        }
+      }
+      if (v == -1) {
+        v = var.getLB();
+        // Plan.logger.info("Another group for " + var.pretty());
+      }
+    } else {
+      // Plan.logger.info("Another group for " + var.pretty());
+      v = var.getLB();
+    }
+    return v;
+  }
 }

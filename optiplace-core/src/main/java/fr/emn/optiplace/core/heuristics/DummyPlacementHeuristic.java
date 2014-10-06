@@ -15,6 +15,11 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
+import solver.search.strategy.ISF;
+import solver.search.strategy.SetStrategyFactory;
+import solver.search.strategy.selectors.values.IntDomainMin;
+import solver.search.strategy.selectors.values.SetDomainMin;
+import solver.search.strategy.selectors.variables.InputOrder;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
@@ -22,55 +27,47 @@ import solver.variables.Variable;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
 
-/**
- * A dummy placement heuristic. Branch on all the variables in a static manner,
+/** A dummy placement heuristic. Branch on all the variables in a static manner,
  * and select the minimum value for each selected variable.
- *
  * @author Fabien Hermenier
- * @author Guillaume Le Louët[guillaume.lelouet@gmail.com]2013
- */
+ * @author Guillaume Le Louët[guillaume.lelouet@gmail.com]2013 */
 public class DummyPlacementHeuristic implements SearchHeuristic {
 
-	public static final org.slf4j.Logger logger = LoggerFactory
-			.getLogger(DummyPlacementHeuristic.class);
+  public static final org.slf4j.Logger logger = LoggerFactory
+      .getLogger(DummyPlacementHeuristic.class);
 
-	public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
+  public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
 
-	@Override
-	public List<AbstractStrategy<? extends Variable>> getHeuristics(
-			ReconfigurationProblem m) {
-		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
+  @Override
+  public List<AbstractStrategy<? extends Variable>> getHeuristics(
+      ReconfigurationProblem m) {
+    List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
-		ArrayList<IntVar> vars = new ArrayList<>();
-		for (IntVar v : m.getHosters()) {
-			vars.add(v);
-		}
-		for (IntVar v : m.getSolver().retrieveIntVars()) {
-			vars.add(v);
-		}
-		if (vars.size() > 0) {
-			ret.add(new AssignVar(
-					new StaticVarOrder(m, vars.toArray(new IntVar[] {})) {
-						@Override
-						public IntVar selectVar() {
-							IntVar ret = super.selectVar();
-							return ret;
-						}
-					}, new MinVal()));
-		}
+    ArrayList<IntVar> vars = new ArrayList<>();
+    for (IntVar v : m.getHosters()) {
+      vars.add(v);
+    }
+    for (IntVar v : m.getSolver().retrieveIntVars()) {
+      vars.add(v);
+    }
+    if (vars.size() > 0) {
+      ret.add(ISF.custom(new InputOrder<>(), new IntDomainMin(),
+          vars.toArray(new IntVar[] {})));
+    }
 
-		ArrayList<SetVar> bar = new ArrayList<>();
-		for (SetVar v : m.getSolver().retrieveSetVars()) {
-			bar.add(v);
-		}
-		if (bar.length > 0) {
-			ret.add(new AssignVar(new StaticSetVarOrder(m, bar), new MinVal()));
-		}
-		return ret;
-	}
+    ArrayList<SetVar> bar = new ArrayList<>();
+    for (SetVar v : m.getSolver().retrieveSetVars()) {
+      bar.add(v);
+    }
+    if (bar.size() > 0) {
+      ret.add(SetStrategyFactory.generic(new InputOrder<>(),
+          new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
+    }
+    return ret;
+  }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }
