@@ -23,7 +23,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
-import fr.emn.optiplace.core.packers.FastBinPacker;
+import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.goals.NBMigrationsCost;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
@@ -51,7 +51,7 @@ public class SolvingProcess extends OptiplaceProcess {
     Configuration src = center.getSource();
     problem = new DefaultReconfigurationProblem(src);
     if (strat.getPacker() == null) {
-      strat.setPacker(new FastBinPacker());
+      strat.setPacker(new DefaultPacker());
     }
 
     // if we have a view specified by the administrator (containing rules,
@@ -80,8 +80,7 @@ public class SolvingProcess extends OptiplaceProcess {
     ChocoResourcePacker packer = strat.getPacker();
     // all the resources should be added now, we pack them using the packing
     // constraint.
-    for (Constraint c : packer.pack(problem.getSolver().getEnvironment(),
-        problem.getHosters(), problem.getUses())) {
+    for (Constraint c : packer.pack(problem.getHosters(), problem.getUses())) {
       problem.getSolver().post(c);
     }
     for (ViewAsModule view : views) {

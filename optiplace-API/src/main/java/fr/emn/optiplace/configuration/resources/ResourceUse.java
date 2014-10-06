@@ -20,30 +20,30 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  */
 public class ResourceUse {
 
-	/**
-	 * effective constant resource usage; ie the item i uses use[i] on the
-	 * resource
-	 */
-	IntVar[] itemsConsumptions = null;
+  /**
+   * effective constant resource usage; ie the item i uses use[i] on the
+   * resource
+   */
+  int[] itemsConsumptions = null;
 
-	/** effective resource use of a bin. */
-	IntVar[] binsUse = null;
+  /** effective resource use of a bin. */
+  IntVar[] binsUse = null;
 
-	public ResourceUse() {
-	}
+  public ResourceUse() {
+  }
 
-	public ResourceUse(IntVar[] vmsUse, IntVar[] binsUse) {
-		itemsConsumptions = vmsUse;
-		this.binsUse = binsUse;
-	}
+  public ResourceUse(int[] vmsUse, IntVar[] binsUse) {
+    itemsConsumptions = vmsUse;
+    this.binsUse = binsUse;
+  }
 
-	/** @return the constant consumption of the vms */
-	public IntVar[] getVMsUses() {
-		return itemsConsumptions;
-	}
+  /** @return the constant consumption of the vms */
+  public int[] getVMsUses() {
+    return itemsConsumptions;
+  }
 
-	/** @return the uses of the nodes */
-	public IntVar[] getNodesUse() {
-		return binsUse;
-	}
+  /** @return the uses of the nodes */
+  public IntVar[] getNodesUse() {
+    return binsUse;
+  }
 }

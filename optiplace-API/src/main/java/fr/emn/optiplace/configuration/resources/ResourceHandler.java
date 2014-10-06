@@ -25,128 +25,126 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  */
 public class ResourceHandler {
 
-	private final ResourceSpecification specs;
+  private final ResourceSpecification specs;
 
-	/** @return the internal resource specifications */
-	public ResourceSpecification getSpecs() {
-		return specs;
-	}
+  /** @return the internal resource specifications */
+  public ResourceSpecification getSpecs() {
+    return specs;
+  }
 
-	protected IntVar[] vmsUsesByIndex = null;
-	protected IntVar[] nodesUsesByIndex = null;
-	protected int minVMUse = Integer.MAX_VALUE;
-	protected int maxVMUse = Integer.MAX_VALUE;
-	protected int minNodeCapa = Integer.MAX_VALUE;
-	protected int maxNodeCapa = Integer.MIN_VALUE;
-	protected int[] nodesCapacities = null;
-	protected int[] vmsUses = null;
-	protected ReconfigurationProblem AssociatedPb = null;
+  protected IntVar[] vmsUsesByIndex = null;
+  protected IntVar[] nodesUsesByIndex = null;
+  protected int minVMUse = Integer.MAX_VALUE;
+  protected int maxVMUse = Integer.MAX_VALUE;
+  protected int minNodeCapa = Integer.MAX_VALUE;
+  protected int maxNodeCapa = Integer.MIN_VALUE;
+  protected int[] nodesCapacities = null;
+  protected int[] vmsUses = null;
+  protected ReconfigurationProblem AssociatedPb = null;
 
-	public ResourceHandler(ResourceSpecification specs) {
-		this.specs = specs;
-	}
+  public ResourceHandler(ResourceSpecification specs) {
+    this.specs = specs;
+  }
 
-	protected ResourceUse resourceUse = null;
+  protected ResourceUse resourceUse = null;
 
-	/**
-	 * create the variables in the problem and store them in this object.
-	 *
-	 * @param pb
-	 *            the {@link ReconfigurationProblem} to add the variables into
-	 */
-	public void associate(ReconfigurationProblem pb) {
-		minVMUse = Integer.MAX_VALUE;
-		maxVMUse = Integer.MAX_VALUE;
-		minNodeCapa = Integer.MAX_VALUE;
-		maxNodeCapa = Integer.MIN_VALUE;
-		AssociatedPb = pb;
-		Node[] nodes = pb.nodes();
-		VM[] vms = pb.vms();
-		vmsUsesByIndex = new IntVar[vms.length];
-		nodesUsesByIndex = new IntVar[nodes.length];
-		vmsUses = new int[vms.length];
-		for (int i = 0; i < vms.length; i++) {
-			Integer iuse = specs.toUses().get(vms[i]);
-			if (iuse == null) {
-				throw new UnsupportedOperationException("vm " + vms[i]
-						+ " not specified in resources " + specs.toUses());
-			}
-			int use = iuse;
-			vmsUses[i] = use;
-			if (maxVMUse < use) {
-				maxVMUse = use;
-			}
-			if (minVMUse > use) {
-				minVMUse = use;
-			}
-			vmsUsesByIndex[i] = pb.createIntegerConstant(use);
-		}
-		nodesCapacities = new int[nodes.length];
-		for (int i = 0; i < nodes.length; i++) {
-			Node n = nodes[i];
-			int capa = specs.toCapacities().get(n);
-			nodesCapacities[i] = capa;
-			if (maxNodeCapa < capa) {
-				maxNodeCapa = capa;
-			}
-			if (minNodeCapa > capa) {
-				minNodeCapa = capa;
-			}
-			nodesUsesByIndex[i] = pb.createBoundIntVar(n.getName() + "."
-					+ specs.getType(), 0, capa);
-		}
-		resourceUse = new ResourceUse(vmsUsesByIndex, nodesUsesByIndex);
-	}
+  /**
+   * create the variables in the problem and store them in this object.
+   *
+   * @param pb
+   *            the {@link ReconfigurationProblem} to add the variables into
+   */
+  public void associate(ReconfigurationProblem pb) {
+    minVMUse = Integer.MAX_VALUE;
+    maxVMUse = Integer.MAX_VALUE;
+    minNodeCapa = Integer.MAX_VALUE;
+    maxNodeCapa = Integer.MIN_VALUE;
+    AssociatedPb = pb;
+    Node[] nodes = pb.nodes();
+    VM[] vms = pb.vms();
+    nodesUsesByIndex = new IntVar[nodes.length];
+    vmsUses = new int[vms.length];
+    for (int i = 0; i < vms.length; i++) {
+      Integer iuse = specs.toUses().get(vms[i]);
+      if (iuse == null) {
+        throw new UnsupportedOperationException("vm " + vms[i]
+            + " not specified in resources " + specs.toUses());
+      }
+      int use = iuse;
+      vmsUses[i] = use;
+      if (maxVMUse < use) {
+        maxVMUse = use;
+      }
+      if (minVMUse > use) {
+        minVMUse = use;
+      }
+    }
+    nodesCapacities = new int[nodes.length];
+    for (int i = 0; i < nodes.length; i++) {
+      Node n = nodes[i];
+      int capa = specs.toCapacities().get(n);
+      nodesCapacities[i] = capa;
+      if (maxNodeCapa < capa) {
+        maxNodeCapa = capa;
+      }
+      if (minNodeCapa > capa) {
+        minNodeCapa = capa;
+      }
+      nodesUsesByIndex[i] = pb.createBoundIntVar(n.getName() + "."
+          + specs.getType(), 0, capa);
+    }
+    resourceUse = new ResourceUse(vmsUses, nodesUsesByIndex);
+  }
 
-	public ResourceUse getResourceUse() {
-		return resourceUse;
-	}
+  public ResourceUse getResourceUse() {
+    return resourceUse;
+  }
 
-	/** @return the vmsUsagesByIndex */
-	public IntVar[] getVmsUsesByIndex() {
-		return vmsUsesByIndex;
-	}
+  /** @return the vmsUsagesByIndex */
+  public IntVar[] getVmsUsesByIndex() {
+    return vmsUsesByIndex;
+  }
 
-	/** @return the nodesUsagesByIndex */
-	public IntVar[] getNodesUsesByIndex() {
-		return nodesUsesByIndex;
-	}
+  /** @return the nodesUsagesByIndex */
+  public IntVar[] getNodesUsesByIndex() {
+    return nodesUsesByIndex;
+  }
 
-	/**
-	 *
-	 * @return the array of nodes capacities, indexed by the nodes index in the
-	 *         problem associated
-	 */
-	public int[] getNodesCapacities() {
-		return nodesCapacities;
-	}
+  /**
+   *
+   * @return the array of nodes capacities, indexed by the nodes index in the
+   *         problem associated
+   */
+  public int[] getNodesCapacities() {
+    return nodesCapacities;
+  }
 
-	/**
-	 *
-	 * @return the array of vms consumptions, indexed by the vms index in the
-	 *         problem associated
-	 */
-	public int[] getVmsUses() {
-		return vmsUses;
-	}
+  /**
+   *
+   * @return the array of vms consumptions, indexed by the vms index in the
+   *         problem associated
+   */
+  public int[] getVmsUses() {
+    return vmsUses;
+  }
 
-	/** @return the minVMUsage */
-	public int getMinVMUse() {
-		return minVMUse;
-	}
+  /** @return the minVMUsage */
+  public int getMinVMUse() {
+    return minVMUse;
+  }
 
-	/** @return the maxVMUsage */
-	public int getMaxVMUse() {
-		return maxVMUse;
-	}
+  /** @return the maxVMUsage */
+  public int getMaxVMUse() {
+    return maxVMUse;
+  }
 
-	/** @return the minNodeCapa */
-	public int getMinNodeCapa() {
-		return minNodeCapa;
-	}
+  /** @return the minNodeCapa */
+  public int getMinNodeCapa() {
+    return minNodeCapa;
+  }
 
-	/** @return the maxNodeCapa */
-	public int getMaxNodeCapa() {
-		return maxNodeCapa;
-	}
+  /** @return the maxNodeCapa */
+  public int getMaxNodeCapa() {
+    return maxNodeCapa;
+  }
 }
