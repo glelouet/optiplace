@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 
 import solver.ResolutionPolicy;
 import solver.constraints.Constraint;
+import solver.exception.ContradictionException;
 import solver.objective.ObjectiveManager;
 import solver.search.loop.monitors.SearchMonitorFactory;
+import solver.search.measure.IMeasures;
 import solver.search.solution.Solution;
 import solver.search.strategy.IntStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -102,6 +104,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void configSearch() {
 		long st = System.currentTimeMillis();
@@ -178,6 +181,8 @@ public class SolvingProcess extends OptiplaceProcess {
 	/**
    *
    */
+	// Commented to pass from choc 2 to choco 3
+	// TODO implement this in choco 3
 	// private void searchAndReduce() {
 	// BranchAndBound bb = (BranchAndBound) problem.getSearchStrategy();
 	// MinIntObjManager obj = (MinIntObjManager) bb.getObjectiveManager();
@@ -213,9 +218,17 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void extractData() {
 		Solution s = problem.getSolver().getSolutionRecorder().getLastSolution();
+		IMeasures m = problem.getSolver().getMeasures();
 		if (s != null) {
+			try {
+				problem.getSolver().getSearchLoop().restoreRootNode();
+				s.restore();
+			} catch (ContradictionException e) {
+				logger.warn("", e);
+			}
 			target.setDestination(problem.extractConfiguration());
-			target.setObjective((int) problem.getObjectiveValue());
+			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager()
+					.getObjective()).getValue());
 			Migrate.extractMigrations(center.getSource(), target.getDestination(),
 					target.getActions());
 			for (ViewAsModule v : center.getViews()) {
@@ -224,8 +237,9 @@ public class SolvingProcess extends OptiplaceProcess {
 		} else {
 			target.setDestination(null);
 		}
-		target.setSearchBacktracks(problem.getBackTrackCount());
-		target.setSearchNodes(problem.getNodeCount());
-		target.setSearchSolutions(problem.getNbSolutions());
+		target.setSearchBacktracks(m.getBackTrackCount());
+		target.setSearchNodes(m.getNodeCount());
+		target.setSearchSolutions(problem.getSolutionRecorder().getSolutions()
+				.size());
 	}
 }

@@ -6,6 +6,7 @@ package fr.emn.optiplace.view.access;
 import java.util.HashMap;
 
 import solver.variables.IntVar;
+import solver.variables.SetVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -13,7 +14,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
  * delegate the calls to a reconfiguration problem
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class SimpleCoreView implements CoreView {
@@ -82,5 +83,15 @@ public class SimpleCoreView implements CoreView {
 	@Override
 	public VM vm(int vm) {
 		return pb.vm(vm);
+	}
+
+	@Override
+	public SetVar vms(Node n) {
+		return pb.vms(n);
+	}
+
+	@Override
+	public SetVar[] hosteds() {
+		return pb.hosteds();
 	}
 }

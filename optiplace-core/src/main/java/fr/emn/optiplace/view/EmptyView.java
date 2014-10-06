@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import solver.constraints.SConstraint;
-import solver.variables.Var;
+import solver.constraints.Constraint;
+import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
@@ -24,7 +24,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * <li>any call to {@link #associate(ReconfigurationProblem)} should call
  * super.associate()</li>
  * </ul>
- * 
+ *
  * @author guillaume
  */
 public class EmptyView implements View {
@@ -59,38 +59,38 @@ public class EmptyView implements View {
 		problem = null;
 	}
 
-	protected LinkedHashSet<SConstraint<? extends Var>> addedConstraints = new LinkedHashSet<SConstraint<? extends Var>>();
+	protected LinkedHashSet<Constraint> addedConstraints = new LinkedHashSet<>();
 
 	@Override
-	public void post(SConstraint<? extends Var> eq) {
-		if (addedConstraints.add(eq)) {
+	public void post(Constraint cc) {
+		if (addedConstraints.add(cc)) {
 			if (debugVarsAndPosts) {
-				logger.debug(getClass().getSimpleName() + " posted " + eq);
+				logger.debug(getClass().getSimpleName() + " posted " + cc);
 			}
-			problem.post(eq);
+			problem.getSolver().post(cc);
 		}
 	}
 
 	@Override
-	public List<SConstraint<? extends Var>> getAddedConstraints() {
+	public List<Constraint> getAddedConstraints() {
 		return Collections
-				.unmodifiableList(new ArrayList<SConstraint<? extends Var>>(
+.unmodifiableList(new ArrayList<Constraint>(
 						addedConstraints));
 	}
 
-	protected ArrayList<Var> addedVars = new ArrayList<Var>();
+	protected ArrayList<Variable> addedVars = new ArrayList<Variable>();
 
 	@Override
-	public void onNewVar(Var var) {
+	public void onNewVar(Variable var) {
 		if (debugVarsAndPosts) {
 			logger.debug(getClass().getSimpleName() + " adding var "
-					+ var.pretty());
+ + var.getName());
 		}
 		addedVars.add(var);
 	}
 
 	@Override
-	public List<Var> getAddedVars() {
+	public List<Variable> getAddedVars() {
 		return Collections.unmodifiableList(addedVars);
 	}
 

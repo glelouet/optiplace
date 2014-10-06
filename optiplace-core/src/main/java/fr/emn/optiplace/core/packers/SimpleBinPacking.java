@@ -10,25 +10,20 @@
 
 package fr.emn.optiplace.core.packers;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntProcedure;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.procedure.TIntProcedure;
 
 import java.util.Arrays;
 
-import solver.constraints.global.pack.IPackSConstraint;
-import common.logging.ChocoLogging;
-import common.opres.nosum.NoSumList;
-import common.util.iterators.DisposableIntIterator;
-import common.util.tools.ArrayUtils;
 import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateInt;
 import memory.IStateIntVector;
 import solver.exception.ContradictionException;
-import solver.SolverException;
-import solver.constraints.set.AbstractLargeSetIntSConstraint;
+import solver.exception.SolverException;
 import solver.variables.IntVar;
-import solver.variables.set.SetVar;
+import solver.variables.SetVar;
+import util.iterators.DisposableIntIterator;
 
 /**
  * A simplified version of
@@ -36,20 +31,19 @@ import solver.variables.set.SetVar;
  * candidate loads are computed incrementally while some coding tips speeds up
  * computation. The constraint does not however support all the options in
  * {@link solver.constraints.global.pack.PackSConstraint}
- * 
+ *
  * @author Fabien Hermenier
  * @see solver.constraints.global.pack.PackSConstraint
  */
 public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 		implements
-			IPackSConstraint,
-			CustomPack {
+		IPackSConstraint {
 
 	public final SimpleBinPackingFiltering filtering;
 
 	protected final BoundNumberOfBins bounds;
 
-	private IStateIntVector availableBins;
+	private final IStateIntVector availableBins;
 
 	/** The constant size of each item. */
 	protected final int[] iSizes;
@@ -60,13 +54,13 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 	/** The bin of each item. */
 	protected final IntVar[] bins;
 
-	private SetVar[] bSets;
+	private final SetVar[] bSets;
 
-	private IStateInt[] bCLoads;
+	private final IStateInt[] bCLoads;
 
-	private IStateInt[] bRLoads;
+	private final IStateInt[] bRLoads;
 
-	private IEnvironment env;
+	private final IEnvironment env;
 
 	public SimpleBinPacking(IEnvironment environment, SetVar[] itemSets,
 			IntVar[] loads, IntVar[] sizes, IntVar[] bins,
@@ -111,7 +105,6 @@ public class SimpleBinPacking extends AbstractLargeSetIntSConstraint
 		return bRLoads[bin].get();
 	}
 
-	@Override
 	public final int getRemainingSpace(int bin) {
 		return loads[bin].getUB() - getRequiredSpace(bin);
 	}

@@ -2,14 +2,13 @@ package fr.emn.optiplace.view.access;
 
 import java.util.LinkedHashSet;
 
-import solver.constraints.SConstraint;
-import solver.variables.Var;
+import solver.constraints.Constraint;
 import solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
  * delegate the calls to a {@link ReconfigurationProblem}
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public class SimpleConstraintsManager implements ConstraintsManager {
@@ -25,12 +24,12 @@ public class SimpleConstraintsManager implements ConstraintsManager {
 		debugPosts = debug;
 	}
 
-	protected LinkedHashSet<SConstraint<? extends Var>> addedConstraints = new LinkedHashSet<SConstraint<? extends Var>>();
+	protected LinkedHashSet<Constraint> addedConstraints = new LinkedHashSet<Constraint>();
 
 	@Override
-	public void post(SConstraint<? extends Var> eq) {
+	public void post(Constraint eq) {
 		if (addedConstraints.add(eq)) {
-			problem.post(eq);
+			problem.getSolver().post(eq);
 			if (debugPosts) {
 				logger.debug(getClass().getSimpleName() + " posted " + eq);
 			}

@@ -50,9 +50,7 @@ import util.tools.ArrayUtils;
  * @author Sophie Demassey, Fabien Hermenier
  * @see solver.constraints.global.pack.PackSConstraint
  */
-public class FastBinPacking extends AbstractLargeIntSConstraint
-		implements
-			CustomPack {
+public class FastBinPacking extends AbstractLargeIntSConstraint {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(FastBinPacking.class);
@@ -212,12 +210,10 @@ public class FastBinPacking extends AbstractLargeIntSConstraint
 		return true;
 	}
 
-	@Override
 	public final int getRemainingSpace(int bin) {
 		return loads[bin].getUB() - bRLoads[bin].get();
 	}
 
-	@Override
 	public IStateBitSet getCandidates(int bin) {
 		return candidates[bin];
 	}

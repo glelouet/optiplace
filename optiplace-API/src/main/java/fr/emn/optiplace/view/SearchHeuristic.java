@@ -3,7 +3,7 @@ package fr.emn.optiplace.view;
 import java.util.List;
 
 import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.IntVar;
+import solver.variables.Variable;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 
 /**
@@ -21,7 +21,7 @@ public interface SearchHeuristic {
 	 * @return a new list of strategies to add in the solver, or null. This list
 	 *         should not be modified externally.
 	 */
-	public List<AbstractStrategy<IntVar>> getHeuristics(
+	public List<AbstractStrategy<? extends Variable>> getHeuristics(
 			ReconfigurationProblem rp);
 
 }

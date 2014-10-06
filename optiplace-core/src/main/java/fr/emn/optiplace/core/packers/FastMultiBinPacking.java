@@ -5,23 +5,16 @@ package fr.emn.optiplace.core.packers;/* Created by IntelliJ IDEA. User:
 
 import java.util.BitSet;
 
-import solver.variables.integer.IntVarEvent;
-import common.logging.ChocoLogging;
-import common.util.iterators.DisposableIntIterator;
-import common.util.tools.ArrayUtils;
 import memory.IEnvironment;
 import memory.IStateBitSet;
 import memory.IStateInt;
 import solver.exception.ContradictionException;
-import solver.constraints.integer.AbstractLargeIntSConstraint;
 import solver.variables.IntVar;
+import util.iterators.DisposableIntIterator;
 
 /** @author Sophie Demassey */
-public class FastMultiBinPacking extends AbstractLargeIntSConstraint
-		implements
-			CustomPack {
-
-	private IEnvironment env;
+public class FastMultiBinPacking extends AbstractLargeIntSConstraint {
+	private final IEnvironment env;
 
 	/** The bin assigned to each item [I]. */
 	protected final IntVar[] bins;
@@ -45,19 +38,19 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * The total size of the candidate + required items for each bin on each
 	 * dimension [DxB].
 	 */
-	private IStateInt[][] bTLoads;
+	private final IStateInt[][] bTLoads;
 
 	/**
 	 * The total size of the required items for each bin on each dimension
 	 * [DxB].
 	 */
-	private IStateInt[][] bRLoads;
+	private final IStateInt[][] bRLoads;
 
 	/** The sum of the bin load LBs on each dimension [D]. */
-	private IStateInt[] sumLoadInf;
+	private final IStateInt[] sumLoadInf;
 
 	/** The sum of the bin load UBs on each dimension [D]. */
-	private IStateInt[] sumLoadSup;
+	private final IStateInt[] sumLoadSup;
 
 	/** The remaining available bins (having candidate items). */
 	private IStateBitSet availableBins;
@@ -70,7 +63,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * constructor of the FastBinPacking global constraint
-	 * 
+	 *
 	 * @param environment
 	 *            the solver environment
 	 * @param loads
@@ -107,7 +100,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 		this.bins = bins;
 	}
 
-	@Override
 	public final int getRemainingSpace(int bin) {
 		throw new UnsupportedOperationException(
 				"the dimension must be specified.");
@@ -117,7 +109,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 		return loads[dim][bin].getUB() - bRLoads[dim][bin].get();
 	}
 
-	@Override
 	public IStateBitSet getCandidates(int bin) {
 		return candidates[bin];
 	}
@@ -126,7 +117,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	// ********* Events ***********************************************//
 	// ****************************************************************//
 
-	@Override
 	public int getFilteredEventMask(int idx) {
 		if (idx < bins.length) {
 			return IntVarEvent.REMVAL_MASK;
@@ -134,7 +124,6 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 		return IntVarEvent.BOUNDS_MASK;
 	}
 
-	@Override
 	public boolean isSatisfied(int[] tuple) {
 		int[][] l = new int[nbDims][nbBins];
 		int[] c = new int[nbBins];
@@ -312,7 +301,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * update the internal data corresponding to the assignment of an item to a
 	 * bin: remove the item from the candidate list of the bin and balance its
 	 * size from the candidate to the required load of the bin
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -337,7 +326,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * update the internal data corresponding to the removal of an item from a
 	 * bin: remove the item from the candidate list of the bin and reduce the
 	 * candidate load of the bin
-	 * 
+	 *
 	 * @param item
 	 *            item index
 	 * @param bin
@@ -360,7 +349,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * increase the LB of the bin load and the sum of the bin load LBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoads
@@ -380,7 +369,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * increase the LB of the bin load and the sum of the bin load LBs
-	 * 
+	 *
 	 * @param dim
 	 *            dimension index
 	 * @param bin
@@ -404,7 +393,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * decrease the UB of the bin load and the sum of the bin load UBs
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @param newLoads
@@ -424,7 +413,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * decrease the UB of the bin load and the sum of the bin load UBs
-	 * 
+	 *
 	 * @param dim
 	 *            dimension index
 	 * @param bin
@@ -453,7 +442,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * load LB (when binTotalLoad - itemSize < binLoadInf). the loads are also
 	 * filtered within this constraint (rather in the propagate loop) because
 	 * considered bins are eventually became unavailable
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return {@code true} if at least one item is removed or packed.
@@ -522,7 +511,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	 * the assignment variables: for each bin: sumAssignedItemSizes ==
 	 * binRequiredLoad, sumPossibleItemSizes == binTotalLoad rule 3, for each
 	 * bin: binRequiredLoad <= binLoad <= binTotalLoad
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkLoadConsistency() {
@@ -598,7 +587,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 	/**
 	 * Check that the candidate lists are aligned with the assignment variables:
 	 * item is in candidates[bin] iff bin is in bins[item]
-	 * 
+	 *
 	 * @return {@code false} if not consistent.
 	 */
 	private boolean checkCandidatesConsistency() {
@@ -636,7 +625,7 @@ public class FastMultiBinPacking extends AbstractLargeIntSConstraint
 
 	/**
 	 * print the list of candidate items for a given bin
-	 * 
+	 *
 	 * @param bin
 	 *            bin index
 	 * @return list of item indices, between braces, separated by spaces
