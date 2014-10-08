@@ -11,15 +11,18 @@
 
 package fr.emn.optiplace.solver.choco;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import solver.Solver;
 import solver.constraints.Constraint;
+import solver.constraints.set.SCF;
 import solver.variables.BoolVar;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
+import solver.variables.VF;
 import solver.variables.VariableFactory;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -78,6 +81,19 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
 	@Override
 	default SetVar createRangeSetVar(String name, int min, int max) {
 		return VariableFactory.set(name, min, max, getSolver());
+	}
+
+	default SetVar toSet(IntVar... vars) {
+		Solver s = getSolver();
+		if (vars == null || vars.length == 0) {
+			return VF.set("empty set", new int[] {}, s);
+		}
+		SetVar ret = VF.set("setof" + Arrays.asList(vars), Integer.MIN_VALUE,
+				Integer.MAX_VALUE, s);
+		for (IntVar v : vars) {
+			s.post(SCF.member(v, ret));
+		}
+		return ret;
 	}
 
   /**
