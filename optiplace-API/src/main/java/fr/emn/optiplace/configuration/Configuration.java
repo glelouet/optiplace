@@ -110,12 +110,13 @@ public interface Configuration {
   int nbVMs(VMSTATES state);
 
   /**
-   * get the number of VMs running on given node
-   *
-   * @param host
-   * the node to consider
-   * @return the number of vms which are specified running on the node.
-   */
+	 * get the number of VMs running on given node
+	 *
+	 * @param host
+	 * the node to consider
+	 * @return the number of vms which are specified running on the node ; null if
+	 * the node is not known
+	 */
   int nbHosted(Node host);
 
   /** @param n a Node
