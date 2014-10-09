@@ -37,7 +37,8 @@ public class SimpleChocoUse {
 				System.err.println(((IntVar) solver.getObjectiveManager()
 						.getObjective()).getValue());
 				// for (Variable iv : solver.getVars()) {
-				// System.err.println(iv.toString() + " : " + s.getIntVal((IntVar) iv));
+				// System.err.println(iv.toString() + " : " +
+				// s.getIntVal((IntVar) iv));
 				// }
 				System.err.println(" " + nbelems + " * " + loadFactor + " : "
 						+ solver.getMeasures().getTimeCount() + "s, "
@@ -50,11 +51,11 @@ public class SimpleChocoUse {
 	 * makes a problem of n variable, each having a range of 0 to n-1+loose <br />
 	 * They are constrained as all different, and each of them being lower than
 	 * the next one. ie var[0]&ltvar[1] , etc.
-	 *
+	 * 
 	 * @param nbVar
-	 * the number of variables ( &gt 0) to use
+	 *            the number of variables ( &gt 0) to use
 	 * @param loose
-	 * the added range of the variables
+	 *            the added range of the variables
 	 * @return a new Solver with those specifications
 	 */
 	public static Solver makeLinear(int nbVar, int loose) {

@@ -82,8 +82,8 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
     if (vars == null || vars.length == 0) {
       return VF.set("empty set", new int[] {}, s);
     }
-    SetVar ret = VF.set("setof" + Arrays.asList(vars), Integer.MIN_VALUE,
-        Integer.MAX_VALUE, s);
+    SetVar ret = VF.set("setof" + Arrays.asList(vars), Integer.MIN_VALUE + 1,
+        Integer.MAX_VALUE - 1, s);
     for (IntVar v : vars) {
       s.post(SCF.member(v, ret));
     }
@@ -218,15 +218,6 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
   IntVar plus(IntVar left, IntVar right);
 
   /**
-   * add a constraint : sum=left+right
-   *
-   * @param left
-   * @param right
-   * @param sum
-   */
-  public void plus(IntVar left, IntVar right, IntVar sum);
-
-  /**
    * @param vars
    * @return a new variable constrained to the sum of the elements of vars
    */
@@ -265,6 +256,8 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
    * @return the scalar product of the positions to the weights
    */
   public IntVar scalar(IntVar[] pos, double[] weights);
+
+  public IntVar scalar(IntVar[] pos, int[] mults);
 
   /**
    * creates a new var z constrained by z =(x==y)

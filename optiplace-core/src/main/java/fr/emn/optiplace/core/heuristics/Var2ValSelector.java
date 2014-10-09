@@ -16,19 +16,32 @@ VariableSelector<IntVar> {
 
   private final IntVar[] vars;
   private final int[] vals;
+  private final int val;
 
+  /** vars[i] must be set to vals[i].
+   * @param vars variables to try to instantiate to given value
+   * @param vals at least as many vals as in vars */
   public Var2ValSelector(IntVar[] vars, int[] vals) {
-    assert vars.length == vals.length;
     this.vars = vars;
     this.vals = vals;
+    val = 0;
+    assert vars.length <= vals.length;
   }
 
-  int val = 0;
+  /** all variables are set to the same value. */
+  public Var2ValSelector(IntVar[] vars, int val) {
+    this.vars = vars;
+    vals = null;
+    this.val = val;
+  }
+
+  int nextVal = 0;
 
   @Override
   public int selectValue(IntVar var) {
-    // TODO can we use val instead ? it is set to the last value possible on
-    // getVariable()
+    if (vars == null) {
+      return val;
+    }
     for (int i = 0; i < vars.length; i++) {
       if (vars[i] == var) {
         return vals[i];
@@ -40,10 +53,10 @@ VariableSelector<IntVar> {
 
   @Override
   public IntVar getVariable(IntVar[] variables) {
-    assert variables == vars;
+    assert variables == vars : "expected " + Arrays.asList(vars) + ", got "
+        + Arrays.asList(variables);
     for (int i = 0; i < vars.length; i++) {
-      if (vars[i].contains(vals[i])) {
-        val = vals[i];
+      if (vals == null && vars[i].contains(val) || vars[i].contains(vals[i])) {
         return vars[i];
       }
     }

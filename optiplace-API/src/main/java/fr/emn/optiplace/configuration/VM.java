@@ -12,7 +12,7 @@ package fr.emn.optiplace.configuration;
 
 /**
  * Simple implementation of VirtualMachine.
- *
+ * 
  * @author Guillaume Le Louët
  */
 public class VM extends ManagedElement {

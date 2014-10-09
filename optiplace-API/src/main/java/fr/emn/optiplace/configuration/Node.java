@@ -10,13 +10,12 @@
 
 package fr.emn.optiplace.configuration;
 
-
 /** @author Fabien Hermenier */
 public class Node extends ManagedElement {
 
 	/** @param name */
 	public Node(String name) {
 		super(name);
-  }
+	}
 
 }

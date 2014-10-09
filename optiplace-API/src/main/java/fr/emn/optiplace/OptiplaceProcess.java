@@ -21,7 +21,7 @@ import fr.emn.optiplace.solver.ConfigStrat;
  * The internal methods are public available to let developers test or debug
  * easily.
  * </p>
- *
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public abstract class OptiplaceProcess {

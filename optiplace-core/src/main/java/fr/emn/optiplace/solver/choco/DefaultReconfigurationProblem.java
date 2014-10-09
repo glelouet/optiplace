@@ -32,15 +32,12 @@ import fr.emn.optiplace.solver.SolvingStatistics;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-/**
- * A CSP to model a reconfiguration plan composed of time bounded actions. In
+/** A CSP to model a reconfiguration plan composed of time bounded actions. In
  * this model, regarding to the current configuration and the sample destination
  * configuration, the model create the different actions that aims to perform
  * the transition to the destination configuration. In addition, several actions
  * acting on the placement of the virtual machines can be added.
- *
- * @author Fabien Hermenier
- */
+ * @author Fabien Hermenier */
 @SuppressWarnings("serial")
 public final class DefaultReconfigurationProblem extends Solver implements
 ReconfigurationProblem {
@@ -87,10 +84,8 @@ ReconfigurationProblem {
   /** The groups associated to each node. */
   private final List<TIntArrayList> nodeGrps;
 
-  /**
-   * The group of nodes associated to each identifier. To synchronize with
-   * nodesGrp.
-   */
+  /** The group of nodes associated to each identifier. To synchronize with
+   * nodesGrp. */
   private final List<Set<Node>> revNodesGrp;
 
   /** The next value to use when creating a nodeGrp. */
@@ -100,31 +95,23 @@ ReconfigurationProblem {
 
   private final List<Constraint> costConstraints = new ArrayList<Constraint>();
 
-  /**
-   * Make a new model.
-   *
-   * @param src
-   * The source configuration. It must be viable.
-   * @param run
-   * The set of virtual machines that must be running at the end of the process
-   * @param wait
-   * The set of virtual machines that must be waiting at the end of the process
-   * @param sleep
-   * The set of virtual machines that must be sleeping at the end of the process
-   * @param stop
-   * The set of virtual machines that must be terminated at the end of the
-   * process
-   * @param manageable
-   * the set of virtual machines to consider as manageable in the problem
-   * @param on
-   * The set of nodes that must be online at the end of the process
-   * @param off
-   * The set of nodes that must be offline at the end of the process
-   * @param eval
-   * the evaluator to estimate the duration of an action.
-   * @throws fr.emn.optiplace.solver.PlanException
-   * if an error occurred while building the model
-   */
+  /** Make a new model.
+   * @param src The source configuration. It must be viable.
+   * @param run The set of virtual machines that must be running at the end of
+   * the process
+   * @param wait The set of virtual machines that must be waiting at the end of
+   * the process
+   * @param sleep The set of virtual machines that must be sleeping at the end
+   * of the process
+   * @param stop The set of virtual machines that must be terminated at the end
+   * of the process
+   * @param manageable the set of virtual machines to consider as manageable in
+   * the problem
+   * @param on The set of nodes that must be online at the end of the process
+   * @param off The set of nodes that must be offline at the end of the process
+   * @param eval the evaluator to estimate the duration of an action.
+   * @throws fr.emn.optiplace.solver.PlanException if an error occurred while
+   * building the model */
   public DefaultReconfigurationProblem(Configuration src) {
     source = src;
 
@@ -145,9 +132,7 @@ ReconfigurationProblem {
     revNodesGrp = new ArrayList<Set<Node>>(MAX_NB_GRP);
   }
 
-  /**
-   * store the states of the nodes and the VMs from source
-   */
+  /** store the states of the nodes and the VMs from source */
   private void makeConstantConfig() {
     Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
     vms = allVMs.toArray(new VM[allVMs.size()]);
@@ -231,13 +216,9 @@ ReconfigurationProblem {
     return null;
   }
 
-  /**
-   * converts an array of vms to an array of index of those vms in the problem.
-   *
-   * @param vms
-   * the vms to convert, all of them must belong to the problem
-   * @return a new array of those vms.
-   */
+  /** converts an array of vms to an array of index of those vms in the problem.
+   * @param vms the vms to convert, all of them must belong to the problem
+   * @return a new array of those vms. */
   public int[] vms(VM... vms) {
     if (vms == null || vms.length == 0) {
       return null;
@@ -442,10 +423,8 @@ ReconfigurationProblem {
 
   BoolVar[] nodesAreHostings = null;
 
-  /**
-   * generate the boolean value of wether a node is used or not, using the
-   * number of vms on it.
-   */
+  /** generate the boolean value of wether a node is used or not, using the
+   * number of vms on it. */
   protected BoolVar makeIsHosting(int nodeIdx) {
     BoolVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
         + "?hosting");
@@ -487,7 +466,7 @@ ReconfigurationProblem {
     if (ret == null) {
       ret = createBoundIntVar(
           vms[vmIndex].getName() + ".hosterUsed" + resource, 0,
-          Integer.MAX_VALUE);
+          Integer.MAX_VALUE - 1);
       onNewVar(ret);
       nth(host(vmIndex), getUse(resource).getNodesUse(), ret);
       hostedArray[vmIndex] = ret;
@@ -512,7 +491,7 @@ ReconfigurationProblem {
     IntVar ret = hostedArray[vmIndex];
     if (ret == null) {
       ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource,
-          0, Integer.MAX_VALUE);
+          0, Integer.MAX_VALUE - 1);
       onNewVar(ret);
       nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
       hostedArray[vmIndex] = ret;
@@ -599,13 +578,8 @@ ReconfigurationProblem {
   public IntVar plus(IntVar left, IntVar right) {
     IntVar ret = createBoundIntVar("(" + left + ")+(" + right + ')',
         left.getLB() + right.getLB(), left.getUB() + right.getUB());
-    plus(left, right, ret);
+    post(IntConstraintFactory.sum(new IntVar[] { left, right }, ret));
     return ret;
-  }
-
-  @Override
-  public void plus(IntVar left, IntVar right, IntVar sum) {
-    post(IntConstraintFactory.sum(new IntVar[] { left, right }, sum));
   }
 
   @Override
@@ -617,7 +591,7 @@ ReconfigurationProblem {
       return vars[0];
     }
     IntVar ret = VariableFactory.bounded("sum(" + Arrays.asList(vars) + ")",
-        Integer.MIN_VALUE, Integer.MAX_VALUE, getSolver());
+        Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, getSolver());
     post(IntConstraintFactory.sum(vars, ret));
     return ret;
   }
@@ -635,7 +609,7 @@ ReconfigurationProblem {
     }
     IntVar ret = createBoundIntVar(
         "(" + left.getName() + ")*(" + right.getName() + ")",
-        Integer.MIN_VALUE, Integer.MAX_VALUE);
+        Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1);
     mult(left, right, ret);
     return ret;
   }
@@ -683,6 +657,7 @@ ReconfigurationProblem {
     return div(thescalar, (int) granularity);
   }
 
+  @Override
   public IntVar scalar(IntVar[] pos, int[] mults) {
     IntVar ret = createBoundIntVar("granularscalar");
     post(IntConstraintFactory.scalar(pos, mults, ret));
@@ -739,13 +714,9 @@ ReconfigurationProblem {
     return sb == null ? "{}" : sb.append("}").toString();
   }
 
-  /**
-   * get the min and max values of the inf and sup ranges of an array of IntVar
-   *
-   * @param array
-   * the table of VarIntDomain
-   * @return [min(inf(array)), max(sup(array))]
-   */
+  /** get the min and max values of the inf and sup ranges of an array of IntVar
+   * @param array the table of VarIntDomain
+   * @return [min(inf(array)), max(sup(array))] */
   protected static int[] getMinMax(IntVar[] array) {
     int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
     for (IntVar idv : array) {
@@ -800,8 +771,7 @@ ReconfigurationProblem {
     if (values.length == 1) {
       return values[0];
     }
-    /*****
-     * commented as not sure if usefull<code>
+    /***** commented as not sure if usefull<code>
     int mininstantiated = Integer.MAX_VALUE;
     int instantiatedCount = 0;
     // count the constant expressions, and their values
@@ -827,8 +797,7 @@ ReconfigurationProblem {
       }
       values=vars;
     }
-    </code>
-     */
+    </code> */
     int[] minmax = getMinMax(values);
     IntVar ret = createBoundIntVar("min(" + foldSetNames(values) + ")",
         minmax[0], minmax[1]);

@@ -10,13 +10,11 @@
 
 package fr.emn.optiplace.core.packers;
 
-
 /**
- * Simplified version of
- * {@link solver.constraints.global.pack.PackFiltering}. An assertion
- * checks the consistency of the loads with the set model. So take care of
- * disabling assertions when benching
- *
+ * Simplified version of {@link solver.constraints.global.pack.PackFiltering}.
+ * An assertion checks the consistency of the loads with the set model. So take
+ * care of disabling assertions when benching
+ * 
  * @author Fabien Hermenier
  * @see solver.constraints.global.pack.PackFiltering
  */
@@ -122,7 +120,8 @@ public final class SimpleBinPackingFiltering {
 	// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 	//
 	// /**
-	// * The minimum and maximum load of each bin {@link SimpleBinPacking#loads }
+	// * The minimum and maximum load of each bin {@link SimpleBinPacking#loads
+	// }
 	// * is maintained according to the domains of the bin assignment variables.
 	// *
 	// * @param bin
@@ -130,7 +129,8 @@ public final class SimpleBinPackingFiltering {
 	// * @throws ContradictionException
 	// * the contradiction exception
 	// */
-	// protected void loadMaintenance(final int bin) throws ContradictionException
+	// protected void loadMaintenance(final int bin) throws
+	// ContradictionException
 	// {
 	// // sumEnvelop(bin); //Bad for performance!!
 	// assert checkLoadConsistency(bin);
@@ -138,7 +138,8 @@ public final class SimpleBinPackingFiltering {
 	// updateSupLoad(bin, cstr.getCLoad(bin).get() + cstr.getRLoad(bin).get());
 	// }
 	// /**
-	// * Redundant method to compute the rload and the cload of each bin. Very bad
+	// * Redundant method to compute the rload and the cload of each bin. Very
+	// bad
 	// * for performance. These values should be maintained incrementally.
 	// *
 	// * @param bin
@@ -171,7 +172,8 @@ public final class SimpleBinPackingFiltering {
 	// * @throws ContradictionException
 	// * if an error occurred
 	// */
-	// public boolean checkLoadConsistency(int bin) throws ContradictionException
+	// public boolean checkLoadConsistency(int bin) throws
+	// ContradictionException
 	// {
 	// DisposableIntIterator ite = cstr.getSetBin(bin).getDomain()
 	// .getKernelIterator();
@@ -214,7 +216,8 @@ public final class SimpleBinPackingFiltering {
 	// }
 	//
 	// /**
-	// * The minimum and maximum load of each bin {@link SimpleBinPacking#loads }
+	// * The minimum and maximum load of each bin {@link SimpleBinPacking#loads
+	// }
 	// * is maintained according to the domains of the bin assignment variables.
 	// *
 	// * @param bin

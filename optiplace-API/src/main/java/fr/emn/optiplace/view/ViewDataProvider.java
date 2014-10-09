@@ -3,7 +3,6 @@
  */
 package fr.emn.optiplace.view;
 
-
 /**
  * a class implementing this interface can provide a data associated to a name.
  * 
