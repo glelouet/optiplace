@@ -122,11 +122,11 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
   Configuration getSourceConfiguration();
 
   default IntVar getNodeUse(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesUsesByIndex()[node(n)];
+    return getResourcesHandlers().get(resource).getNodeUses()[node(n)];
   }
 
   default int getNodeCap(String resource, Node n) {
-    return getResourcesHandlers().get(resource).getNodesCapacities()[node(n)];
+    return getResourcesHandlers().get(resource).getCapacities()[node(n)];
   }
 
   default IntVar getUsedCPU(Node n) {

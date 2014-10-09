@@ -509,7 +509,7 @@ ReconfigurationProblem {
       ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource,
           0, Integer.MAX_VALUE);
       onNewVar(ret);
-      nth(host(vmIndex), resources.get(resource).getNodesCapacities(), ret);
+      nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
       hostedArray[vmIndex] = ret;
     }
     return ret;

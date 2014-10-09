@@ -32,7 +32,6 @@ public class ResourceHandler {
     return specs;
   }
 
-  protected IntVar[] vmsUsesByIndex = null;
   protected IntVar[] nodesUsesByIndex = null;
   protected int minVMUse = Integer.MAX_VALUE;
   protected int maxVMUse = Integer.MAX_VALUE;
@@ -46,6 +45,8 @@ public class ResourceHandler {
     this.specs = specs;
   }
 
+  /** stores the actual IntVar [] of Node uses. is used for fast access to the
+   * variables in a solver context */
   protected ResourceUse resourceUse = null;
 
   /**
@@ -100,14 +101,14 @@ public class ResourceHandler {
     return resourceUse;
   }
 
-  /** @return the vmsUsagesByIndex */
-  public IntVar[] getVmsUsesByIndex() {
-    return vmsUsesByIndex;
+  /** @return the table of IntVar corresponding to the resource load for each
+   * node(ie the sum of the use of its hosted vms) */
+  public IntVar[] getNodeUses() {
+    return nodesUsesByIndex;
   }
 
-  /** @return the nodesUsagesByIndex */
-  public IntVar[] getNodesUsesByIndex() {
-    return nodesUsesByIndex;
+  public IntVar getNodeUse(Node n) {
+    return nodesUsesByIndex[AssociatedPb.node(n)];
   }
 
   /**
@@ -115,8 +116,12 @@ public class ResourceHandler {
    * @return the array of nodes capacities, indexed by the nodes index in the
    *         problem associated
    */
-  public int[] getNodesCapacities() {
+  public int[] getCapacities() {
     return nodesCapacities;
+  }
+
+  public int getCapacity(Node n) {
+    return specs.getCapacity(n);
   }
 
   /**
@@ -126,6 +131,10 @@ public class ResourceHandler {
    */
   public int[] getVmsUses() {
     return vmsUses;
+  }
+
+  public int getVMUse(VM vm) {
+    return specs.getUse(vm);
   }
 
   /** @return the minVMUsage */
