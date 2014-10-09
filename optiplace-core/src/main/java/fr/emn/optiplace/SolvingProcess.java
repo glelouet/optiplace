@@ -80,7 +80,7 @@ public class SolvingProcess extends OptiplaceProcess {
     ChocoResourcePacker packer = strat.getPacker();
     // all the resources should be added now, we pack them using the packing
     // constraint.
-    for (Constraint c : packer.pack(problem.getHosters(), problem.getUses())) {
+    for (Constraint c : packer.pack(problem.hosts(), problem.getUses())) {
       problem.getSolver().post(c);
     }
     for (ViewAsModule view : views) {

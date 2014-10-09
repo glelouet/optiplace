@@ -44,7 +44,7 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
     List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
     ArrayList<IntVar> vars = new ArrayList<>();
-    for (IntVar v : m.getHosters()) {
+    for (IntVar v : m.hosts()) {
       vars.add(v);
     }
     for (IntVar v : m.getSolver().retrieveIntVars()) {

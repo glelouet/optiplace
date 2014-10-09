@@ -195,7 +195,7 @@ ReconfigurationProblem {
       }
       // for each VM i, it belongs to his hoster's set, meaning VM[i].hoster==j
       // <=> hosters[j] contains i
-      post(SetConstraintsFactory.int_channel(hosteds, getHosters(), 0, 0));
+      post(SetConstraintsFactory.int_channel(hosteds, hosts(), 0, 0));
     }
   }
 
@@ -348,7 +348,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public SetVar vms(Node n) {
+  public SetVar hosted(Node n) {
     if (hosteds == null) {
       makeHosteds();
     }
@@ -394,7 +394,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntVar[] getHosters(VM... vms) {
+  public IntVar[] hosts() {
+    return hosters;
+  }
+
+  @Override
+  public IntVar[] hosts(VM... vms) {
     if (vms == null || vms.length == 0) {
       return hosters;
     } else {
@@ -425,33 +430,33 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntVar nbVMs(Node n) {
+  public IntVar nbVM(Node n) {
     return nbVMs(node(n));
   }
 
   @Override
-  public IntVar[] getNbHosted() {
+  public IntVar[] nbVMs() {
     makeCards();
     return cards;
   }
 
-  IntVar[] nodesAreHostings = null;
+  BoolVar[] nodesAreHostings = null;
 
   /**
    * generate the boolean value of wether a node is used or not, using the
    * number of vms on it.
    */
-  protected IntVar makeIsHosting(int nodeIdx) {
-    IntVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
+  protected BoolVar makeIsHosting(int nodeIdx) {
+    BoolVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
         + "?hosting");
     return ret;
   }
 
-  public IntVar isHoster(int idx) {
+  public BoolVar isHoster(int idx) {
     if (nodesAreHostings == null) {
-      nodesAreHostings = new IntVar[nodes().length];
+      nodesAreHostings = new BoolVar[nodes().length];
     }
-    IntVar ret = nodesAreHostings[idx];
+    BoolVar ret = nodesAreHostings[idx];
     if (ret == null) {
       ret = makeIsHosting(idx);
       nodesAreHostings[idx] = ret;
@@ -460,7 +465,7 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntVar isHoster(Node n) {
+  public BoolVar isHoster(Node n) {
     return isHoster(node(n));
   }
 
@@ -517,25 +522,25 @@ ReconfigurationProblem {
 
   IntVar[] vmsHostMaxCPUs = null;
 
-  IntVar[] isMigrateds = null;
+  BoolVar[] isMigrateds = null;
 
   IntVar nbLiveMigrations = null;
 
   protected void makeIsMigrateds() {
-    isMigrateds = new IntVar[vms().length];
+    isMigrateds = new BoolVar[vms().length];
     for (int i = 0; i < isMigrateds.length; i++) {
       VM vm = vm(i);
       Node sourceHost = getSourceConfiguration().getLocation(vm);
       if (sourceHost != null) {
         isMigrateds[i] = isDifferent(host(i), node(sourceHost));
       } else {
-        isMigrateds[i] = createIntegerConstant(1);
+        isMigrateds[i] = VF.one(getSolver());
       }
     }
     nbLiveMigrations = sum(isMigrateds);
   }
 
-  public IntVar isMigrated(int idx) {
+  public BoolVar isMigrated(int idx) {
     if (isMigrateds == null) {
       makeIsMigrateds();
     }
@@ -543,12 +548,12 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntVar isMigrated(VM vm) {
+  public BoolVar isMigrated(VM vm) {
     return isMigrated(vm(vm));
   }
 
   @Override
-  public IntVar[] getIsMigrateds() {
+  public BoolVar[] isMigrateds() {
     if (isMigrateds == null) {
       makeIsMigrateds();
     }
@@ -867,8 +872,8 @@ ReconfigurationProblem {
   }
 
   @Override
-  public IntVar isOnline(Node n) {
-    return createIntegerConstant(1);
+  public BoolVar isOnline(Node n) {
+    return VF.one(getSolver());
   }
 
   /** @param objective */
