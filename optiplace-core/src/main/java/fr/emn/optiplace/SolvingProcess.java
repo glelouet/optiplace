@@ -3,6 +3,7 @@
  */
 package fr.emn.optiplace;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,6 +96,10 @@ public class SolvingProcess extends OptiplaceProcess {
 
   @Override
   public void configLogging() {
+		if (strat.isLogBasics() || strat.isLogSolutions() || strat.isLogChoices()) {
+			SearchMonitorFactory.log(problem.getSolver(), strat.isLogSolutions(),
+					strat.isLogChoices());
+		}
     strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
   }
 
@@ -145,8 +150,12 @@ public class SolvingProcess extends OptiplaceProcess {
         List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators
             .stream().map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream())
             .collect(Collectors.toList());
-        problem.getSolver().set(
-            IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0])));
+		// for (AbstractStrategy<? extends Variable> s : strats) {
+		// System.err.println("strat " + s + " works on " + Arrays.asList(s.vars));
+		// }
+		AbstractStrategy<?> seq = IntStrategyFactory.sequencer(strats
+				.toArray(new AbstractStrategy[0]));
+		problem.getSolver().set(seq);
 
         if (strat.getMaxSearchTime() > 0) {
           SearchMonitorFactory.limitTime(problem.getSolver(),

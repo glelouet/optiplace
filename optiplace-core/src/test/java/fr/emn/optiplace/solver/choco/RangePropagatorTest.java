@@ -1,11 +1,12 @@
 /**
  *
  */
-package fr.emn.optiplace.choco;
+package fr.emn.optiplace.solver.choco;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.solver.choco.RangePropagator;
 import solver.Cause;
 import solver.Solver;
 import solver.exception.ContradictionException;

@@ -1,5 +1,7 @@
 package fr.emn.optiplace.solver.choco;
 
+import java.util.List;
+
 import solver.constraints.Constraint;
 import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
@@ -18,6 +20,6 @@ public interface ChocoResourcePacker {
    *            the bins
    * @return
    */
-  public Constraint[] pack(IntVar[] binAssign, ResourceUse... resourceUse);
+	public List<Constraint> pack(IntVar[] binAssign, ResourceUse... resourceUse);
 
 }

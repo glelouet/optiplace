@@ -1,7 +1,7 @@
 /**
  *
  */
-package fr.emn.optiplace.choco;
+package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
 

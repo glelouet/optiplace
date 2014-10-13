@@ -8,6 +8,7 @@ import solver.Solver;
 import solver.constraints.IntConstraintFactory;
 import solver.exception.ContradictionException;
 import solver.objective.ObjectiveManager;
+import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.solution.Solution;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
@@ -51,7 +52,7 @@ public class SimpleChocoUse {
 	 * makes a problem of n variable, each having a range of 0 to n-1+loose <br />
 	 * They are constrained as all different, and each of them being lower than
 	 * the next one. ie var[0]&ltvar[1] , etc.
-	 * 
+	 *
 	 * @param nbVar
 	 *            the number of variables ( &gt 0) to use
 	 * @param loose
@@ -79,7 +80,7 @@ public class SimpleChocoUse {
 		solver.post(IntConstraintFactory.sum(new IntVar[] { diffs[nbVar],
 				vars[nbVar - 1] }, "=", VariableFactory.fixed(nbVar + loose, solver)));
 		// solver.post(IntConstraintFactory.alldifferent(vars, "DEFAULT"));
-		// SearchMonitorFactory.log(solver, false, false);
+		SearchMonitorFactory.log(solver, false, false);
 		IntVar max = VariableFactory.bounded("max", 0, nbVar + loose - 1, solver);
 		solver.post(IntConstraintFactory.maximum(max, diffs));
 		solver.set(new ObjectiveManager<>(max, ResolutionPolicy.MINIMIZE, true));

@@ -11,6 +11,7 @@
 package fr.emn.optiplace.core.heuristics;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import solver.search.strategy.selectors.values.IntDomainMin;
 import solver.search.strategy.selectors.values.SetDomainMin;
 import solver.search.strategy.selectors.variables.InputOrder;
 import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.BoolVar;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
 import solver.variables.Variable;
@@ -43,15 +45,18 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
       ReconfigurationProblem m) {
     List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
-    ArrayList<IntVar> vars = new ArrayList<>();
+		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
     for (IntVar v : m.hosts()) {
       vars.add(v);
     }
     for (IntVar v : m.getSolver().retrieveIntVars()) {
       vars.add(v);
     }
+		for (BoolVar v : m.getSolver().retrieveBoolVars()) {
+			vars.add(v);
+		}
     if (vars.size() > 0) {
-      ret.add(ISF.custom(new InputOrder<>(), new IntDomainMin(),
+			ret.add(ISF.custom(new InputOrder<>(), new IntDomainMin(),
           vars.toArray(new IntVar[] {})));
     }
 
@@ -60,7 +65,7 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
       bar.add(v);
     }
     if (bar.size() > 0) {
-      ret.add(SetStrategyFactory.generic(new InputOrder<>(),
+			ret.add(SetStrategyFactory.generic(new InputOrder<>(),
           new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
     }
     return ret;

@@ -53,8 +53,8 @@ VariableSelector<IntVar> {
 
   @Override
   public IntVar getVariable(IntVar[] variables) {
-    assert variables == vars : "expected " + Arrays.asList(vars) + ", got "
-        + Arrays.asList(variables);
+		// assert variables == vars : "expected " + Arrays.asList(vars) + ", got "
+		// + Arrays.asList(variables);
     for (int i = 0; i < vars.length; i++) {
       if (vals == null && vars[i].contains(val) || vars[i].contains(vals[i])) {
         return vars[i];

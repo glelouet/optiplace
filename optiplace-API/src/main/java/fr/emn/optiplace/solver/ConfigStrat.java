@@ -25,9 +25,13 @@ public class ConfigStrat {
 
 	private ChocoResourcePacker packer = null;
 
-	private int chocoLoggingDepth = -1;
-
 	private ArrayList<ISearchMonitor> displayers = new ArrayList<ISearchMonitor>();
+
+	private boolean logBasics = false;
+
+	private boolean logSolutions = false;
+
+	private boolean logChoices = false;
 
 	/**
 	 * @return the maxSearchTime
@@ -75,21 +79,6 @@ public class ConfigStrat {
 	}
 
 	/**
-	 * @return the chocoLoggingDepth
-	 */
-	public int getChocoLoggingDepth() {
-		return chocoLoggingDepth;
-	}
-
-	/**
-	 * @param chocoLoggingDepth
-	 *            the chocoLoggingDepth to set
-	 */
-	public void setChocoLoggingDepth(int chocoLoggingDepth) {
-		this.chocoLoggingDepth = chocoLoggingDepth;
-	}
-
-	/**
 	 * @return the displayers
 	 */
 	public ArrayList<ISearchMonitor> getDisplayers() {
@@ -102,6 +91,64 @@ public class ConfigStrat {
 	 */
 	public void setDisplayers(ArrayList<ISearchMonitor> displayers) {
 		this.displayers = displayers;
+	}
+
+	/**
+	 * @return the logChoices
+	 */
+	public boolean isLogChoices() {
+		return logChoices;
+	}
+
+	/**
+	 * @param logChoices
+	 * should we log the choices ? if true implies setLogBasics(true) the
+	 * logChoices to set.
+	 */
+	public void setLogChoices(boolean logChoices) {
+		this.logChoices = logChoices;
+		if (logChoices) {
+			setLogBasics(true);
+		}
+	}
+
+	/**
+	 * @return the logBasics
+	 */
+	public boolean isLogBasics() {
+		return logBasics;
+	}
+
+	/**
+	 * @param logBasics
+	 * should we log the initialization and end data of the solver ? If false
+	 * imples setLogSolutions(false) and setLogChoices(false) the logBasics to set
+	 */
+	public void setLogBasics(boolean logBasics) {
+		this.logBasics = logBasics;
+		if (!logBasics) {
+			setLogChoices(false);
+			setLogSolutions(false);
+		}
+	}
+
+	/**
+	 * @return the logSolutions
+	 */
+	public boolean isLogSolutions() {
+		return logSolutions;
+	}
+
+	/**
+	 * @param logSolutions
+	 * should we log the solutions found ? if true implies setLogBasics(true) the
+	 * logSolutions to set
+	 */
+	public void setLogSolutions(boolean logSolutions) {
+		this.logSolutions = logSolutions;
+		if (logSolutions) {
+			setLogBasics(true);
+		}
 	}
 
 }

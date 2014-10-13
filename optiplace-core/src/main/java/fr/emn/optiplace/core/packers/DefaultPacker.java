@@ -1,6 +1,8 @@
 package fr.emn.optiplace.core.packers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import solver.constraints.Constraint;
 import solver.constraints.ICF;
@@ -18,12 +20,13 @@ public class DefaultPacker implements ChocoResourcePacker {
   .getLogger(DefaultPacker.class);
 
   @Override
-  public Constraint[] pack(IntVar[] binAssign,
+	public List<Constraint> pack(IntVar[] binAssign,
       ResourceUse... resourceUse) {
     ArrayList<Constraint> res = new ArrayList<>();
     for (ResourceUse ru : resourceUse) {
-      ICF.bin_packing(binAssign, ru.getVMsUses(), ru.getNodesUse(), 0);
+			res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsUses(),
+					ru.getNodesUse(), 0)));
     }
-    return res.toArray(new Constraint[] {});
+		return res;
   }
 }

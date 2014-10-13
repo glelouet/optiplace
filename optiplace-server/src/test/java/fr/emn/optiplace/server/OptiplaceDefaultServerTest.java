@@ -25,6 +25,7 @@ public class OptiplaceDefaultServerTest {
 	@Test
 	public void testSimpleSolve() {
 		OptiplaceDefaultServer test = new OptiplaceDefaultServer();
+		test.addStrat().setLogChoices(true);
 		// ConfigStrat strat = test.addStrat();
 		// strat.setChocoVerbosity(Verbosity.FINEST);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM");
@@ -52,12 +53,11 @@ public class OptiplaceDefaultServerTest {
 	 */
 	@Test
 	public void testBasicCenter() {
-		int nbNodes = 10;
-		int nbVmsPerNode = 5;
-		int nbWaitingVms = 10;
+		int nbNodes = 1;
+		int nbVmsPerNode = 1;
+		int nbWaitingVms = 00;
 		OptiplaceDefaultServer test = new OptiplaceDefaultServer();
-		// ConfigStrat strat = test.addStrat();
-		// strat.setChocoVerbosity(Verbosity.FINEST);
+		test.addStrat().setLogChoices(true);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];
