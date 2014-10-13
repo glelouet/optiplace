@@ -52,7 +52,7 @@ public class SimpleChocoUse {
 	 * makes a problem of n variable, each having a range of 0 to n-1+loose <br />
 	 * They are constrained as all different, and each of them being lower than
 	 * the next one. ie var[0]&ltvar[1] , etc.
-	 *
+	 * 
 	 * @param nbVar
 	 *            the number of variables ( &gt 0) to use
 	 * @param loose

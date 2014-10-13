@@ -28,8 +28,10 @@ public class OptiplaceDefaultServer implements OptiplaceServer {
 
   protected ConfigStrat strat = null;
 
-  public ConfigStrat addStrat() {
-    strat = new ConfigStrat();
+  public ConfigStrat getStrat() {
+		if (strat == null) {
+			strat = new ConfigStrat();
+		}
     return strat;
   }
 

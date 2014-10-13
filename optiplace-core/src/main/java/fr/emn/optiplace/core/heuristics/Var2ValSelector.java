@@ -56,7 +56,9 @@ VariableSelector<IntVar> {
 		// assert variables == vars : "expected " + Arrays.asList(vars) + ", got "
 		// + Arrays.asList(variables);
     for (int i = 0; i < vars.length; i++) {
-      if (vals == null && vars[i].contains(val) || vars[i].contains(vals[i])) {
+			if (!vars[i].isInstantiated()
+					&& (vals == null && vars[i].contains(val) || vars[i]
+							.contains(vals[i]))) {
         return vars[i];
       }
     }
