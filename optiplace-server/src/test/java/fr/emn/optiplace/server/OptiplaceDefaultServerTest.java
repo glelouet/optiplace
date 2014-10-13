@@ -55,7 +55,7 @@ public class OptiplaceDefaultServerTest {
 		int nbVmsPerNode = 5;
 		int nbWaitingVms = 10;
 		OptiplaceDefaultServer test = new OptiplaceDefaultServer();
-		test.getStrat().setLogChoices(true);
+		// test.getStrat().setLogChoices(true);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];
