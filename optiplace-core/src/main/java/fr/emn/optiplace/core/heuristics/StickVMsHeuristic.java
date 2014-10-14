@@ -11,7 +11,7 @@ import solver.variables.IntVar;
 import solver.variables.Variable;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
 
 /**
@@ -46,7 +46,7 @@ public class StickVMsHeuristic implements SearchHeuristic {
 
   @Override
   public List<AbstractStrategy<? extends Variable>> getHeuristics(
-      ReconfigurationProblem rp) {
+      IReconfigurationProblem rp) {
     List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
     VM[] vms = rp.vms().clone();
     if (vms == null || vms.length == 0) {

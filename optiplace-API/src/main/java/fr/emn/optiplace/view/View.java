@@ -5,7 +5,7 @@ import java.util.List;
 import solver.constraints.Constraint;
 import solver.variables.Variable;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * </ul>
  * </p>
  * <p>
- * A view can not be associated to several {@link ReconfigurationProblem}s at
+ * A view can not be associated to several {@link IReconfigurationProblem}s at
  * the same time, and doing so may crash
  * </p>
  * <p>
@@ -103,6 +103,6 @@ public interface View extends ViewAsModule {
 	public void setConfig(ProvidedData conf);
 
 	/** @return the problem */
-	public ReconfigurationProblem getProblem();
+	public IReconfigurationProblem getProblem();
 
 }

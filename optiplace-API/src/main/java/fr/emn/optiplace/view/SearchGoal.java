@@ -1,7 +1,7 @@
 package fr.emn.optiplace.view;
 
 import solver.variables.IntVar;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * Describes an objective variable to reduce. Creates a variable in a model and
@@ -21,7 +21,7 @@ public interface SearchGoal {
 	 *            from
 	 * @return the expression of the added formal cost of the model
 	 */
-	public IntVar getObjective(ReconfigurationProblem rp);
+	public IntVar getObjective(IReconfigurationProblem rp);
 
 	/**
 	 * @return the heuristics associated with the objective to reduce. Can be

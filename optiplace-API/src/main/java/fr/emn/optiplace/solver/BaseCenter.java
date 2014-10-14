@@ -6,6 +6,7 @@ package fr.emn.optiplace.solver;
 import java.util.ArrayList;
 
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewAsModule;
 
@@ -28,59 +29,62 @@ import fr.emn.optiplace.view.ViewAsModule;
  * resources specifications, objectives and search heuristics to use while
  * solving the optimization problem.
  * </p>
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
 public class BaseCenter {
 
-	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(BaseCenter.class);
+  @SuppressWarnings("unused")
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+  .getLogger(BaseCenter.class);
 
-	/**
-	 * present state of the center
-	 */
-	private Configuration source;
+  /**
+   * present state of the center
+   */
+  private Configuration source;
 
-	/**
-	 * @return the source
-	 */
-	public Configuration getSource() {
-		return source;
-	}
+  /**
+   * @return the source
+   */
+  public Configuration getSource() {
+    return source;
+  }
 
-	/**
-	 * @param source
-	 *            the source to set
-	 */
-	public void setSource(Configuration source) {
-		this.source = source;
-	}
+  /**
+   * @param source
+   *            the source to set
+   */
+  public void setSource(Configuration source) {
+    this.source = source;
+  }
 
-	/**
-	 * the views to consider while solving
-	 */
-	private final ArrayList<ViewAsModule> views = new ArrayList<ViewAsModule>();
+  /**
+   * the views to consider while solving
+   */
+  private final ArrayList<ViewAsModule> views = new ArrayList<ViewAsModule>();
 
-	/**
-	 * @return the views
-	 */
-	public ArrayList<ViewAsModule> getViews() {
-		return views;
-	}
+  /**
+   * @return the views
+   */
+  public ArrayList<ViewAsModule> getViews() {
+    return views;
+  }
 
-	protected View baseView = null;
+  protected View baseView = null;
 
-	/**
-	 * set the default view to use. This view will have higher priority over the
-	 * other views, and should ONLY be accessed by the administrator
-	 */
-	public void setBaseView(View bv) {
-		this.baseView = bv;
-	}
+  /**
+   * set the default view to use. This view will have higher priority over the
+   * other views, and should ONLY be accessed by the administrator
+   */
+  public void setBaseView(View bv) {
+    baseView = bv;
+  }
 
-	/** get the specified administrator base view, can be null */
-	public View getBaseView() {
-		return baseView;
-	}
+  /** get the specified administrator base view, can be null */
+  public View getBaseView() {
+    if (baseView == null) {
+      baseView = new EmptyView();
+    }
+    return baseView;
+  }
 }

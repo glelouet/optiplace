@@ -4,7 +4,7 @@
 package fr.emn.optiplace.goals;
 
 import solver.variables.IntVar;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 
 /**
@@ -20,7 +20,7 @@ public class NBMigrationsCost implements SearchGoal {
 			.getLogger(NBMigrationsCost.class);
 
 	@Override
-	public IntVar getObjective(ReconfigurationProblem rp) {
+	public IntVar getObjective(IReconfigurationProblem rp) {
 		return rp.nbMigrations();
 	}
 }

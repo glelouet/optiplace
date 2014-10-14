@@ -3,18 +3,18 @@ package fr.emn.optiplace.configuration.resources;
 import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * <p>
  * The link between a {@link ResourceSpecification}, which specifies the use and
- * capacity of VMs and Nodes, and a {@link ReconfigurationProblem} which has
+ * capacity of VMs and Nodes, and a {@link IReconfigurationProblem} which has
  * IntVar to store information<br />
  * store the data related to the specifications in the problem
  * </p>
  * <p>
  * must be constructed with its {@link ResourceSpecification}, then
- * {@link #associate(ReconfigurationProblem)} to the problem.<br />
+ * {@link #associate(IReconfigurationProblem)} to the problem.<br />
  * This is then indexed by its specifications ' type in the problem's {@link
  * ReconfigurationProblem.#getUse(String)}, {@link
  * ReconfigurationProblem.#getUses()} and {@link
@@ -39,7 +39,7 @@ public class ResourceHandler {
 	protected int maxNodeCapa = Integer.MIN_VALUE;
 	protected int[] nodesCapacities = null;
 	protected int[] vmsUses = null;
-	protected ReconfigurationProblem AssociatedPb = null;
+	protected IReconfigurationProblem AssociatedPb = null;
 
 	public ResourceHandler(ResourceSpecification specs) {
 		this.specs = specs;
@@ -55,9 +55,9 @@ public class ResourceHandler {
 	 * create the variables in the problem and store them in this object.
 	 * 
 	 * @param pb
-	 *            the {@link ReconfigurationProblem} to add the variables into
+	 *            the {@link IReconfigurationProblem} to add the variables into
 	 */
-	public void associate(ReconfigurationProblem pb) {
+	public void associate(IReconfigurationProblem pb) {
 		minVMUse = Integer.MAX_VALUE;
 		maxVMUse = Integer.MAX_VALUE;
 		minNodeCapa = Integer.MAX_VALUE;

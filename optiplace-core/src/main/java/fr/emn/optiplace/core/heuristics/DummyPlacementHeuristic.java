@@ -26,7 +26,7 @@ import solver.variables.BoolVar;
 import solver.variables.IntVar;
 import solver.variables.SetVar;
 import solver.variables.Variable;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchHeuristic;
 
 /** A dummy placement heuristic. Branch on all the variables in a static manner,
@@ -42,7 +42,7 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
 
   @Override
   public List<AbstractStrategy<? extends Variable>> getHeuristics(
-      ReconfigurationProblem m) {
+      IReconfigurationProblem m) {
     List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
     LinkedHashSet<IntVar> vars = new LinkedHashSet<>();

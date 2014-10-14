@@ -12,7 +12,7 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * delegate the calls to a reconfiguration problem
@@ -25,7 +25,7 @@ public class SimpleCoreView implements CoreView {
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
   .getLogger(SimpleCoreView.class);
 
-  protected ReconfigurationProblem pb;
+  protected IReconfigurationProblem pb;
 
   @Override
   public Node[] nodes() {

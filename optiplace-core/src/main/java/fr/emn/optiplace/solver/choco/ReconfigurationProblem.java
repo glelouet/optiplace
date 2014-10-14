@@ -31,18 +31,15 @@ import fr.emn.optiplace.solver.SolvingStatistics;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-/**
- * A CSP to model a reconfiguration plan composed of time bounded actions. In
+/** A CSP to model a reconfiguration plan composed of time bounded actions. In
  * this model, regarding to the current configuration and the sample destination
  * configuration, the model create the different actions that aims to perform
  * the transition to the destination configuration. In addition, several actions
  * acting on the placement of the virtual machines can be added.
- *
- * @author Fabien Hermenier
- */
+ * @author Fabien Hermenier */
 @SuppressWarnings("serial")
-public final class DefaultReconfigurationProblem extends Solver implements
-ReconfigurationProblem {
+public final class ReconfigurationProblem extends Solver implements
+IReconfigurationProblem {
 
   @Override
   public Solver getSolver() {
@@ -50,7 +47,7 @@ ReconfigurationProblem {
   }
 
   private static final Logger logger = LoggerFactory
-      .getLogger(DefaultReconfigurationProblem.class);
+      .getLogger(ReconfigurationProblem.class);
 
   /** The maximum number of group of nodes. */
   public static final Integer MAX_NB_GRP = 1000;
@@ -86,10 +83,8 @@ ReconfigurationProblem {
   /** The groups associated to each node. */
   private final List<TIntArrayList> nodeGrps;
 
-  /**
-   * The group of nodes associated to each identifier. To synchronize with
-   * nodesGrp.
-   */
+  /** The group of nodes associated to each identifier. To synchronize with
+   * nodesGrp. */
   private final List<Set<Node>> revNodesGrp;
 
   /** The next value to use when creating a nodeGrp. */
@@ -99,32 +94,24 @@ ReconfigurationProblem {
 
   private final List<Constraint> costConstraints = new ArrayList<Constraint>();
 
-  /**
-   * Make a new model.
-   *
-   * @param src
-   * The source configuration. It must be viable.
-   * @param run
-   * The set of virtual machines that must be running at the end of the process
-   * @param wait
-   * The set of virtual machines that must be waiting at the end of the process
-   * @param sleep
-   * The set of virtual machines that must be sleeping at the end of the process
-   * @param stop
-   * The set of virtual machines that must be terminated at the end of the
-   * process
-   * @param manageable
-   * the set of virtual machines to consider as manageable in the problem
-   * @param on
-   * The set of nodes that must be online at the end of the process
-   * @param off
-   * The set of nodes that must be offline at the end of the process
-   * @param eval
-   * the evaluator to estimate the duration of an action.
-   * @throws fr.emn.optiplace.solver.PlanException
-   * if an error occurred while building the model
-   */
-  public DefaultReconfigurationProblem(Configuration src) {
+  /** Make a new model.
+   * @param src The source configuration. It must be viable.
+   * @param run The set of virtual machines that must be running at the end of
+   * the process
+   * @param wait The set of virtual machines that must be waiting at the end of
+   * the process
+   * @param sleep The set of virtual machines that must be sleeping at the end
+   * of the process
+   * @param stop The set of virtual machines that must be terminated at the end
+   * of the process
+   * @param manageable the set of virtual machines to consider as manageable in
+   * the problem
+   * @param on The set of nodes that must be online at the end of the process
+   * @param off The set of nodes that must be offline at the end of the process
+   * @param eval the evaluator to estimate the duration of an action.
+   * @throws fr.emn.optiplace.solver.PlanException if an error occurred while
+   * building the model */
+  public ReconfigurationProblem(Configuration src) {
     source = src;
 
     makeConstantConfig();
@@ -211,13 +198,9 @@ ReconfigurationProblem {
     return null;
   }
 
-  /**
-   * converts an array of vms to an array of index of those vms in the problem.
-   *
-   * @param vms
-   * the vms to convert, all of them must belong to the problem
-   * @return a new array of those vms.
-   */
+  /** converts an array of vms to an array of index of those vms in the problem.
+   * @param vms the vms to convert, all of them must belong to the problem
+   * @return a new array of those vms. */
   public int[] vms(VM... vms) {
     if (vms == null || vms.length == 0) {
       return null;
@@ -409,8 +392,8 @@ ReconfigurationProblem {
     }
   }
 
-  // TODO should cards[i] be the cardinality of each hosteds[i] or the number of
-  // occurences of i in hosters ?
+  // FIXME should cards[i] be the cardinality of each hosteds[i] or the number
+  // of occurences of i in hosters ?
   protected void makeCards() {
     if (cards == null) {
       makeHosteds();
@@ -440,10 +423,8 @@ ReconfigurationProblem {
 
   BoolVar[] nodesAreHostings = null;
 
-  /**
-   * generate the boolean value of wether a node is used or not, using the
-   * number of vms on it.
-   */
+  /** generate the boolean value of wether a node is used or not, using the
+   * number of vms on it. */
   protected BoolVar makeIsHosting(int nodeIdx) {
     BoolVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
         + "?hosting");
@@ -591,7 +572,6 @@ ReconfigurationProblem {
     return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(),
         (long) (mes.getTimeCount() * 1000), super.hasReachedLimit());
   }
-
 
   /** each resource added is associated to this and stored in this map. */
   private final HashMap<String, ResourceHandler> resources = new HashMap<String, ResourceHandler>();

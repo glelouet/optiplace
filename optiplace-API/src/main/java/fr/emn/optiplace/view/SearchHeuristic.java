@@ -4,10 +4,10 @@ import java.util.List;
 
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
- * produces heuristics to inject into a {@link ReconfigurationProblem} in order
+ * produces heuristics to inject into a {@link IReconfigurationProblem} in order
  * to enhance its solving process.
  *
  * @author Guillaume Le Louët
@@ -22,6 +22,6 @@ public interface SearchHeuristic {
 	 *         should not be modified externally.
 	 */
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(
-			ReconfigurationProblem rp);
+			IReconfigurationProblem rp);
 
 }

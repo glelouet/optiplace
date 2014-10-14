@@ -1,7 +1,7 @@
 package fr.emn.optiplace.configuration.resources;
 
 import solver.variables.IntVar;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * <p>
@@ -9,7 +9,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * phase
  * </p>
  * <p>
- * A {@link ResourceSpecification} + a {@link ReconfigurationProblem} = a
+ * A {@link ResourceSpecification} + a {@link IReconfigurationProblem} = a
  * {@link ResourceUse} . <br />
  * Represents the effective use of a resource in a Choco problem, with IntVar
  * corresponding to the Vms static uses and the nodes dynamic uses. The uses are

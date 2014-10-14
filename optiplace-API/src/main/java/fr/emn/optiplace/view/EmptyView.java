@@ -9,7 +9,7 @@ import solver.constraints.Constraint;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * A view that does nothing. classes inheriting from view should implement it to
@@ -21,7 +21,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
  * {@link #post(SConstraint)} instead of {@link #problem}.post()</li>
  * <li>any call to {@link #clear()} should call super.clear() and all
  * problem-relative variables should be cleaned in the clear()</li>
- * <li>any call to {@link #associate(ReconfigurationProblem)} should call
+ * <li>any call to {@link #associate(IReconfigurationProblem)} should call
  * super.associate()</li>
  * </ul>
  *
@@ -38,15 +38,15 @@ public class EmptyView implements View {
 		debugVarsAndPosts = debug;
 	}
 
-	protected ReconfigurationProblem problem = null;
+	protected IReconfigurationProblem problem = null;
 
 	@Override
-	public ReconfigurationProblem getProblem() {
+	public IReconfigurationProblem getProblem() {
 		return problem;
 	}
 
 	@Override
-	public void associate(ReconfigurationProblem rp) {
+	public void associate(IReconfigurationProblem rp) {
 		clear();
 		problem = rp;
 	}

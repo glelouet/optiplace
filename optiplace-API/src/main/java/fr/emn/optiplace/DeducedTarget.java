@@ -5,7 +5,7 @@ package fr.emn.optiplace;
 
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * The result of an optiplace resolution. Consists in the original source
@@ -31,7 +31,7 @@ public class DeducedTarget {
 
 	private long searchTime;
 
-	private ReconfigurationProblem problem;
+	private IReconfigurationProblem problem;
 
 	private int objective;
 
@@ -101,7 +101,7 @@ public class DeducedTarget {
 	}
 
 	/** @return the problem */
-	public ReconfigurationProblem getProblem() {
+	public IReconfigurationProblem getProblem() {
 		return problem;
 	}
 
@@ -109,7 +109,7 @@ public class DeducedTarget {
 	 * @param problem
 	 *            the problem to set
 	 */
-	public void setProblem(ReconfigurationProblem problem) {
+	public void setProblem(IReconfigurationProblem problem) {
 		this.problem = problem;
 	}
 

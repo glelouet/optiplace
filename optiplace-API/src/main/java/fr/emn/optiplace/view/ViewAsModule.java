@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
 import fr.emn.optiplace.view.annotations.Parameter;
 
@@ -27,12 +27,12 @@ public interface ViewAsModule {
 
 	/**
 	 * associate that view to a problem. May let the problem untouched.<br />
-	 * set the used {@link ReconfigurationProblem}
+	 * set the used {@link IReconfigurationProblem}
 	 *
 	 * @param rp
 	 *            the problem to modify and use.
 	 */
-	void associate(ReconfigurationProblem rp);
+	void associate(IReconfigurationProblem rp);
 
 	/**
 	 * @return the list of resources declared by this view that should be packed
@@ -69,7 +69,7 @@ public interface ViewAsModule {
 	 */
 	public void endSolving(ActionGraph actionGraph);
 
-	/** empty any {@link ReconfigurationProblem} - related internal data. */
+	/** empty any {@link IReconfigurationProblem} - related internal data. */
 	public void clear();
 
 	/**

@@ -36,10 +36,10 @@ import gnu.trove.list.array.TIntArrayList;
  * Nodes, and a Choco problem
  * @author Fabien Hermenier
  * @author Guillaume Le Louët */
-public interface ReconfigurationProblem extends CoreView, VariablesManager {
+public interface IReconfigurationProblem extends CoreView, VariablesManager {
 
   public static final Logger logger = LoggerFactory
-      .getLogger(ReconfigurationProblem.class);
+      .getLogger(IReconfigurationProblem.class);
 
   public Solver getSolver();
 

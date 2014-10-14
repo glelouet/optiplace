@@ -4,10 +4,10 @@ import java.util.LinkedHashSet;
 
 import solver.constraints.Constraint;
 import solver.variables.IntVar;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
- * delegate the calls to a {@link ReconfigurationProblem}
+ * delegate the calls to a {@link IReconfigurationProblem}
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
@@ -16,7 +16,7 @@ public class SimpleConstraintsManager implements ConstraintsManager {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(SimpleConstraintsManager.class);
 
-	ReconfigurationProblem problem;
+	IReconfigurationProblem problem;
 
 	protected boolean debugPosts = false;
 

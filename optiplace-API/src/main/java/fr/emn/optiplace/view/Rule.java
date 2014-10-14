@@ -16,7 +16,7 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ReconfigurationResult;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /** An interface to specify some constraints related to the final state of the
  * vms and pms.
@@ -41,7 +41,7 @@ public interface Rule {
    */
   boolean isSatisfied(Configuration cfg);
 
-  public void inject(ReconfigurationProblem core);
+  public void inject(IReconfigurationProblem core);
 
   /**
    * should call {@link #isSatisfied(plan.getDestination())}

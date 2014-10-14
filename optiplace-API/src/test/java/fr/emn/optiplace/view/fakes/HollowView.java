@@ -9,7 +9,7 @@ import solver.constraints.Constraint;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
@@ -19,7 +19,7 @@ import fr.emn.optiplace.view.View;
 public class HollowView implements View {
 
 	@Override
-	public void associate(ReconfigurationProblem rp) {
+	public void associate(IReconfigurationProblem rp) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -84,7 +84,7 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public ReconfigurationProblem getProblem() {
+	public IReconfigurationProblem getProblem() {
 		throw new UnsupportedOperationException();
 	}
 

@@ -1,6 +1,6 @@
 package fr.emn.optiplace.view;
 
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.access.ConstraintsManager;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
@@ -23,9 +23,9 @@ public class ProblemAccess {
 
 	public CoreView core;
 
-	public ReconfigurationProblem solver = null;
+	public IReconfigurationProblem solver = null;
 
-	public ProblemAccess solver(ReconfigurationProblem solver) {
+	public ProblemAccess solver(IReconfigurationProblem solver) {
 		this.solver = solver;
 		return this;
 	}

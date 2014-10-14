@@ -27,7 +27,7 @@ import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.goals.NBMigrationsCost;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
-import fr.emn.optiplace.solver.choco.DefaultReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.SearchHeuristic;
@@ -42,7 +42,7 @@ public class SolvingProcess extends OptiplaceProcess {
   .getLogger(SolvingProcess.class);
 
   /** the core problem, modified by the views */
-  protected DefaultReconfigurationProblem problem;
+  protected ReconfigurationProblem problem;
 
   ArrayList<ViewAsModule> views = null;
 
@@ -50,7 +50,7 @@ public class SolvingProcess extends OptiplaceProcess {
   public void makeProblem() {
     long st = System.currentTimeMillis();
     Configuration src = center.getSource();
-    problem = new DefaultReconfigurationProblem(src);
+    problem = new ReconfigurationProblem(src);
     if (strat.getPacker() == null) {
       strat.setPacker(new DefaultPacker());
     }

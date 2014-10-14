@@ -17,7 +17,7 @@ import solver.variables.IntVar;
 import util.iterators.DisposableValueIterator;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * A heuristic to select a group of nodes to associate to a group of VM. Try the
@@ -35,7 +35,7 @@ public class NodeGroupSelector implements IntValueSelector {
 
   // private Option opt;
 
-  private final ReconfigurationProblem rp;
+  private final IReconfigurationProblem rp;
 
   /** The previous location of the running VMs. */
   private final Map<IntVar, List<Integer>> locations;
@@ -48,7 +48,7 @@ public class NodeGroupSelector implements IntValueSelector {
    * @param o
    *            the option to customize the heuristic
    */
-  public NodeGroupSelector(ReconfigurationProblem s, Option o) {
+  public NodeGroupSelector(IReconfigurationProblem s, Option o) {
     // opt = o;
     rp = s;
 

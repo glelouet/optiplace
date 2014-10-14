@@ -6,7 +6,7 @@ package fr.emn.optiplace.core.goals;
 import solver.variables.IntVar;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
-import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.SearchHeuristic;
 
@@ -35,7 +35,7 @@ public class MigrationReducerGoal implements SearchGoal {
 	}
 
 	@Override
-	public IntVar getObjective(ReconfigurationProblem rp) {
+	public IntVar getObjective(IReconfigurationProblem rp) {
 		return rp.nbMigrations();
 	}
 
