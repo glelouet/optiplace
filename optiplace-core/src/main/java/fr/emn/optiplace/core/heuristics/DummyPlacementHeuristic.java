@@ -45,18 +45,18 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
       ReconfigurationProblem m) {
     List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
-		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
+    LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
     for (IntVar v : m.hosts()) {
       vars.add(v);
     }
     for (IntVar v : m.getSolver().retrieveIntVars()) {
       vars.add(v);
     }
-		for (BoolVar v : m.getSolver().retrieveBoolVars()) {
-			vars.add(v);
-		}
+    for (BoolVar v : m.getSolver().retrieveBoolVars()) {
+      vars.add(v);
+    }
     if (vars.size() > 0) {
-			ret.add(ISF.custom(new InputOrder<>(), new IntDomainMin(),
+      ret.add(ISF.custom(new InputOrder<>(), new IntDomainMin(),
           vars.toArray(new IntVar[] {})));
     }
 
@@ -65,7 +65,7 @@ public class DummyPlacementHeuristic implements SearchHeuristic {
       bar.add(v);
     }
     if (bar.size() > 0) {
-			ret.add(SetStrategyFactory.generic(new InputOrder<>(),
+      ret.add(SetStrategyFactory.custom(new InputOrder<>(),
           new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
     }
     return ret;
