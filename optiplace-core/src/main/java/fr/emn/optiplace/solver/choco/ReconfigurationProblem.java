@@ -563,6 +563,7 @@ IReconfigurationProblem {
       }
     }
     source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getValue())));
+    source.resources().forEach(cfg.resources()::put);
     return cfg;
   }
 

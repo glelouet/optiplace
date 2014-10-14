@@ -46,9 +46,9 @@ public interface Rule {
   /**
    * should call {@link #isSatisfied(plan.getDestination())}
    */
-	default boolean isSatisfied(ReconfigurationResult plan) {
-		return isSatisfied(plan.getDestination());
-	}
+  default boolean isSatisfied(ReconfigurationResult plan) {
+    return isSatisfied(plan.getDestination());
+  }
 
   /**
    * Get the virtual machines involved in the constraints.
@@ -65,7 +65,7 @@ public interface Rule {
   Set<Node> getNodes();
 
   /** The possible types for the constraint. */
-  enum Type {
+  public static enum Type {
     /**
      * The rule can be enforced at the beginning of a reconfiguration
      * problem. It is simple, as "vm a is on host b" or
