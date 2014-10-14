@@ -84,9 +84,7 @@ public interface ReconfigurationProblem extends CoreView, VariablesManager {
     }
     SetVar ret = VF.set("setof" + Arrays.asList(vars), Integer.MIN_VALUE + 1,
         Integer.MAX_VALUE - 1, s);
-    for (IntVar v : vars) {
-      s.post(SCF.member(v, ret));
-    }
+    s.post(SCF.int_values_union(vars, ret));
     return ret;
   }
 
