@@ -80,7 +80,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>fr.emn.optiplace</groupId>
-				<artifactId>optiplace-main</artifactId>
+				<artifactId>optiplace-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
