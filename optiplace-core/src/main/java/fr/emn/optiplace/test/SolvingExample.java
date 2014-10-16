@@ -2,6 +2,8 @@ package fr.emn.optiplace.test;
 
 import java.util.Arrays;
 
+import org.junit.Assert;
+
 import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -55,6 +57,7 @@ public class SolvingExample {
     .addAll(Arrays.asList(rules));
 		p.strat(strat);
     p.solve();
+		Assert.assertNotNull(p.getTarget().getDestination());
     return p.getTarget().getDestination();
   }
 

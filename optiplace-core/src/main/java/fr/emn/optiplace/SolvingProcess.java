@@ -214,6 +214,9 @@ public class SolvingProcess extends OptiplaceProcess {
   @Override
   public void extractData() {
     IMeasures m = problem.getSolver().getMeasures();
+		if (m.getSolutionCount() < 1) {
+			return;
+		}
     target.setDestination(problem.extractConfiguration());
     target.setObjective(((IntVar) problem.getSolver().getObjectiveManager()
         .getObjective()).getValue());
