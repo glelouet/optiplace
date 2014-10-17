@@ -2,7 +2,7 @@ package fr.emn.optiplace.test;
 
 import java.util.Arrays;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.configuration.Configuration;

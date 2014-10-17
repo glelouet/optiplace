@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace.solver.choco;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solver.Cause;
