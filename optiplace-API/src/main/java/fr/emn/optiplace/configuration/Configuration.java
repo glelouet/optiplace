@@ -214,11 +214,11 @@ public interface Configuration {
    *
    * @param vm
    * the virtual machine
-   * @param node2
+   * @param node
    * the node that will host the virtual machine.
    * @return true if the vm is assigned to the node and was not before
    */
-  boolean setHost(VM vm, Node node2);
+  boolean setHost(VM vm, Node node);
 
   /**
    * Set a virtual machine waiting. If the virtual machine is already in a other

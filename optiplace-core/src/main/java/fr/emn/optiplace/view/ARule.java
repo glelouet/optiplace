@@ -2,6 +2,7 @@ package fr.emn.optiplace.view;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,18 +18,28 @@ public abstract class ARule implements Rule {
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
   .getLogger(ARule.class);
 
+	protected static <T> Set<T> makeSet(T[] elems) {
+		if (elems.length == 0) {
+			return Collections.emptySet();
+		}
+		if (elems.length == 1) {
+			return Collections.singleton(elems[0]);
+		}
+		return new HashSet<>(Arrays.asList(elems));
+	}
+
   /**
-   * @param node2s
+   * @param nodes
    * the nodes concerned by this rule
-   * @param vM2s
+   * @param VMs
    * the vms concerned by this rule
    */
-  public ARule(Set<Node> node2s, Set<VM> vM2s) {
-    if (node2s != null) {
-      nodes = node2s;
+  public ARule(Set<Node> nodes, Set<VM> VMs) {
+    if (nodes != null) {
+			this.nodes = nodes;
     }
-    if (vM2s != null) {
-      vms = vM2s;
+    if (VMs != null) {
+      vms = VMs;
     }
   }
 
