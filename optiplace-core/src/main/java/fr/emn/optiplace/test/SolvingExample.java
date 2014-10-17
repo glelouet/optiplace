@@ -57,8 +57,10 @@ public class SolvingExample {
     .addAll(Arrays.asList(rules));
 		p.strat(strat);
     p.solve();
-		Assert.assertNotNull(p.getTarget().getDestination());
-    return p.getTarget().getDestination();
+		Configuration c = p.getTarget().getDestination();
+		Assert.assertNotNull(c);
+		Assert.assertTrue(c.checkBasics());
+		return c;
   }
 
 }
