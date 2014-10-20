@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>optiplace</artifactId>
 		<groupId>fr.emn</groupId>
-		<version>3.0.0</version>
+		<version>3.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>optiplace-API</artifactId>
 	<name>optiplace-API</name>
