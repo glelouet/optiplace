@@ -2,8 +2,6 @@ package fr.emn.optiplace.test;
 
 import java.util.Arrays;
 
-import org.testng.Assert;
-
 import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -58,8 +56,8 @@ public class SolvingExample {
 		p.strat(strat);
     p.solve();
 		Configuration c = p.getTarget().getDestination();
-		Assert.assertNotNull(c);
-		Assert.assertTrue(c.checkBasics());
+		assert c != null : "null result of test";
+		assert c.checkBasics();
 		return c;
   }
 
