@@ -9,10 +9,31 @@ package fr.emn.optiplace.view;
  */
 public interface ProvidedDataReader {
 
-	default void read(ProvidedData conf) {
-		conf.lines().forEach(this::readLine);
-	}
+  /** @return whether or not clean() should be called before loading new
+   * configuration files, default is false; <br />
+   * if this returns true, {@link #clean()} should also be redefined */
+  default boolean cleanOnRead() {
+    return false;
+  }
 
-	void readLine(String line);
+  default void read(ProvidedData conf) {
+    read(conf, cleanOnRead());
+  }
+
+  default void read(ProvidedData conf, boolean clean) {
+    if (clean) {
+      clean();
+    }
+    conf.lines().forEach(this::readLine);
+  }
+
+  void readLine(String line);
+
+  /** clean the internal data, called before reading the lines of a providedData
+   * if {@link #cleanOnRead()} returns true<br />
+   * clean() should be redefined when cleanOnRead() returns true; */
+  default void clean() {
+
+  }
 
 }

@@ -1,10 +1,6 @@
 package fr.emn.optiplace.view;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.Configuration;

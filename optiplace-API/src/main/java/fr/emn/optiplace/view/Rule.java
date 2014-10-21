@@ -10,6 +10,7 @@
  * <http://www.gnu.org/licenses/>. */
 package fr.emn.optiplace.view;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import fr.emn.optiplace.configuration.Configuration;
@@ -23,6 +24,37 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * @author Fabien Hermenier
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013 */
 public interface Rule {
+
+  /** A parser translates a String to a rule, or to null if this string does not
+   * match the rule format known by this translater */
+  public static interface Parser {
+    /** should always return either null if doesn't support the definition fo the
+     * rule, or a Rule equal to the one which provided thisStrign using
+     * Rule.toString()
+     * @param def a textual definition of a String
+     * @return null if not supported ; a Rule corresponding to the textual
+     * description eitherway. */
+    Rule parse(String def);
+  }
+
+  /** A Parser which as a list of parsers to call.
+   * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
+  public static class ChainedParser implements Parser {
+
+    public ArrayList<Parser> parsers = new ArrayList<Rule.Parser>();
+
+    @Override
+    public Rule parse(String def) {
+      for (Parser p : parsers) {
+        Rule ret = p.parse(def);
+        if (ret != null) {
+          return ret;
+        }
+      }
+      return null;
+    }
+
+  }
 
   /**
    * Textual representation of the rule.
