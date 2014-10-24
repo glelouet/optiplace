@@ -10,7 +10,8 @@
  * <http://www.gnu.org/licenses/>. */
 package fr.emn.optiplace.view;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import fr.emn.optiplace.configuration.Configuration;
@@ -41,7 +42,7 @@ public interface Rule {
    * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
   public static class ChainedParser implements Parser {
 
-    public ArrayList<Parser> parsers = new ArrayList<Rule.Parser>();
+		public List<Parser> parsers;
 
     @Override
     public Rule parse(String def) {
@@ -53,6 +54,10 @@ public interface Rule {
       }
       return null;
     }
+
+		public ChainedParser(Parser... parsers) {
+			this.parsers = Arrays.asList(parsers);
+		}
 
   }
 
