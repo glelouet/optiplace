@@ -10,11 +10,7 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -24,11 +20,7 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.set.SetConstraintsFactory;
 import solver.search.measure.IMeasures;
-import solver.variables.BoolVar;
-import solver.variables.IntVar;
-import solver.variables.SetVar;
-import solver.variables.VF;
-import solver.variables.Variable;
+import solver.variables.*;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -49,604 +41,565 @@ import gnu.trove.map.hash.TObjectIntHashMap;
  * @author Fabien Hermenier
  */
 @SuppressWarnings("serial")
-public final class ReconfigurationProblem extends Solver implements
-		IReconfigurationProblem {
+public final class ReconfigurationProblem extends Solver implements IReconfigurationProblem {
 
-	@Override
-	public Solver getSolver() {
-		return this;
+    @Override
+    public Solver getSolver() {
+	return this;
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(ReconfigurationProblem.class);
+
+    /** The maximum number of group of nodes. */
+    public static final Integer MAX_NB_GRP = 1000;
+
+    /** The source configuration. */
+    private final Configuration source;
+
+    /** The current location of the placed VMs. */
+    private int[] currentLocation;
+
+    /** All the nodes managed by the model. */
+    private Node[] nodes;
+
+    private TObjectIntHashMap<Node> revNodes;
+
+    /** for each node, the set of VMs it hosts. */
+    private SetVar[] hosteds;
+
+    /** All the virtual machines managed by the model. */
+    private VM[] vms;
+
+    private TObjectIntHashMap<VM> revVMs;
+
+    /** The group variable associated to each virtual machine. */
+    private final List<IntVar> vmGrp;
+
+    /** The group variable associated to each group of VMs. */
+    private final Map<Set<VM>, IntVar> vmsGrp;
+
+    /** The value associated to each group of nodes. */
+    private final Map<Set<Node>, Integer> nodesGrp;
+
+    /** The groups associated to each node. */
+    private final List<TIntArrayList> nodeGrps;
+
+    /**
+     * The group of nodes associated to each identifier. To synchronize with
+     * nodesGrp.
+     */
+    private final List<Set<Node>> revNodesGrp;
+
+    /** The next value to use when creating a nodeGrp. */
+    private int nextNodeGroupVal = 0;
+
+    private int[] grpId; // The group ID of each node
+
+    /**
+     * Make a new model.
+     *
+     * @param src
+     *            The source configuration. It must be viable.
+     * @param run
+     *            The set of virtual machines that must be running at the end of
+     *            the process
+     * @param wait
+     *            The set of virtual machines that must be waiting at the end of
+     *            the process
+     * @param sleep
+     *            The set of virtual machines that must be sleeping at the end
+     *            of the process
+     * @param stop
+     *            The set of virtual machines that must be terminated at the end
+     *            of the process
+     * @param manageable
+     *            the set of virtual machines to consider as manageable in the
+     *            problem
+     * @param on
+     *            The set of nodes that must be online at the end of the process
+     * @param off
+     *            The set of nodes that must be offline at the end of the
+     *            process
+     * @param eval
+     *            the evaluator to estimate the duration of an action.
+     * @throws fr.emn.optiplace.solver.PlanException
+     *             if an error occurred while building the model
+     */
+    public ReconfigurationProblem(Configuration src) {
+	source = src;
+
+	makeConstantConfig();
+	makeHosters();
+	// makeIsPowereds();
+
+	vmGrp = new ArrayList<IntVar>(vms.length);
+	for (int i = 0; i < vms.length; i++) {
+	    vmGrp.add(i, null);
+	}
+	vmsGrp = new HashMap<Set<VM>, IntVar>();
+	nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
+	for (int i = 0; i < nodes.length; i++) {
+	    nodeGrps.add(i, new TIntArrayList());
+	}
+	nodesGrp = new HashMap<Set<Node>, Integer>();
+	revNodesGrp = new ArrayList<Set<Node>>(MAX_NB_GRP);
+    }
+
+    /** store the states of the nodes and the VMs from source */
+    private void makeConstantConfig() {
+	Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
+	vms = allVMs.toArray(new VM[allVMs.size()]);
+	revVMs = new TObjectIntHashMap<>(vms.length);
+	for (int i = 0; i < vms.length; i++) {
+	    revVMs.put(vms[i], i);
+	}
+	Set<Node> ns = source.getNodes().collect(Collectors.toSet());
+	nodes = ns.toArray(new Node[ns.size()]);
+	grpId = new int[nodes.length];
+	revNodes = new TObjectIntHashMap<>(nodes.length);
+	for (int i = 0; i < nodes.length; i++) {
+	    revNodes.put(nodes[i], i);
+	}
+	currentLocation = new int[vms.length];
+	for (VM vm : vms) {
+	    currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getLocation(vm));
+	}
+    }
+
+    @Override
+    public void post(Constraint cc) {
+	super.post(cc);
+    }
+
+    @Override
+    public int getCurrentLocation(int vmIdx) {
+	if (vmIdx >= 0 && vmIdx < vms.length) {
+	    return currentLocation[vmIdx];
+	}
+	return -1;
+    }
+
+    @Override
+    public Node[] nodes() {
+	return nodes;
+    }
+
+    @Override
+    public VM[] vms() {
+	return vms;
+    }
+
+    @Override
+    public Configuration getSourceConfiguration() {
+	return source;
+    }
+
+    @Override
+    public int vm(VM vm) {
+	int v = revVMs.get(vm);
+	if (v == 0 && !vms[0].equals(vm)) {
+	    return -1;
+	}
+	return v;
+    }
+
+    @Override
+    public VM vm(int idx) {
+	if (idx < vms.length && idx >= 0) {
+	    return vms[idx];
+	}
+	return null;
+    }
+
+    /**
+     * converts an array of vms to an array of index of those vms in the
+     * problem.
+     *
+     * @param vms
+     *            the vms to convert, all of them must belong to the problem
+     * @return a new array of those vms.
+     */
+    public int[] vms(VM... vms) {
+	if (vms == null || vms.length == 0) {
+	    return null;
+	}
+	int[] ret = new int[vms.length];
+	for (int i = 0; i < ret.length; i++) {
+	    ret[i] = vm(vms[i]);
+	}
+	return ret;
+    }
+
+    @Override
+    public int node(Node n) {
+	int v = revNodes.get(n);
+	if (v == 0 && !nodes[0].equals(n)) {
+	    return -1;
+	}
+	return v;
+    }
+
+    @Override
+    public Node node(int idx) {
+	if (idx < nodes.length && idx >= 0) {
+	    return nodes[idx];
+	} else {
+	    logger.warn("getting no node at pos " + idx);
+	    return null;
+	}
+    }
+
+    @Override
+    public IntVar getVMGroup(Set<VM> vms) {
+	IntVar v = vmsGrp.get(vms);
+	if (v != null) {
+	    return v;
 	}
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ReconfigurationProblem.class);
-
-	/** The maximum number of group of nodes. */
-	public static final Integer MAX_NB_GRP = 1000;
-
-	/** The source configuration. */
-	private final Configuration source;
-
-	/** The current location of the placed VMs. */
-	private int[] currentLocation;
-
-	/** All the nodes managed by the model. */
-	private Node[] nodes;
-
-	private TObjectIntHashMap<Node> revNodes;
-
-	/** for each node, the set of VMs it hosts. */
-	private SetVar[] hosteds;
-
-	/** All the virtual machines managed by the model. */
-	private VM[] vms;
-
-	private TObjectIntHashMap<VM> revVMs;
-
-	/** The group variable associated to each virtual machine. */
-	private final List<IntVar> vmGrp;
-
-	/** The group variable associated to each group of VMs. */
-	private final Map<Set<VM>, IntVar> vmsGrp;
-
-	/** The value associated to each group of nodes. */
-	private final Map<Set<Node>, Integer> nodesGrp;
-
-	/** The groups associated to each node. */
-	private final List<TIntArrayList> nodeGrps;
-
-	/**
-	 * The group of nodes associated to each identifier. To synchronize with
-	 * nodesGrp.
-	 */
-	private final List<Set<Node>> revNodesGrp;
-
-	/** The next value to use when creating a nodeGrp. */
-	private int nextNodeGroupVal = 0;
-
-	private int[] grpId; // The group ID of each node
-
-	private final List<Constraint> costConstraints = new ArrayList<Constraint>();
-
-	/**
-	 * Make a new model.
-	 *
-	 * @param src
-	 * The source configuration. It must be viable.
-	 * @param run
-	 * The set of virtual machines that must be running at the end of the process
-	 * @param wait
-	 * The set of virtual machines that must be waiting at the end of the process
-	 * @param sleep
-	 * The set of virtual machines that must be sleeping at the end of the process
-	 * @param stop
-	 * The set of virtual machines that must be terminated at the end of the
-	 * process
-	 * @param manageable
-	 * the set of virtual machines to consider as manageable in the problem
-	 * @param on
-	 * The set of nodes that must be online at the end of the process
-	 * @param off
-	 * The set of nodes that must be offline at the end of the process
-	 * @param eval
-	 * the evaluator to estimate the duration of an action.
-	 * @throws fr.emn.optiplace.solver.PlanException
-	 * if an error occurred while building the model
-	 */
-	public ReconfigurationProblem(Configuration src) {
-		source = src;
-
-		makeConstantConfig();
-		makeHosters();
-		// makeIsPowereds();
-
-		vmGrp = new ArrayList<IntVar>(vms.length);
-		for (int i = 0; i < vms.length; i++) {
-			vmGrp.add(i, null);
-		}
-		vmsGrp = new HashMap<Set<VM>, IntVar>();
-		nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			nodeGrps.add(i, new TIntArrayList());
-		}
-		nodesGrp = new HashMap<Set<Node>, Integer>();
-		revNodesGrp = new ArrayList<Set<Node>>(MAX_NB_GRP);
+	v = createEnumIntVar("vmset" + vms.toString(), 0, MAX_NB_GRP);
+	for (VM vm : vms) {
+	    vmGrp.set(vm(vm), v);
 	}
+	vmsGrp.put(vms, v);
+	return v;
+    }
 
-	/** store the states of the nodes and the VMs from source */
-	private void makeConstantConfig() {
-		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
-		vms = allVMs.toArray(new VM[allVMs.size()]);
-		revVMs = new TObjectIntHashMap<>(vms.length);
-		for (int i = 0; i < vms.length; i++) {
-			revVMs.put(vms[i], i);
-		}
-		Set<Node> ns = source.getNodes().collect(Collectors.toSet());
-		nodes = ns.toArray(new Node[ns.size()]);
-		grpId = new int[nodes.length];
-		revNodes = new TObjectIntHashMap<>(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			revNodes.put(nodes[i], i);
-		}
-		currentLocation = new int[vms.length];
-		for (VM vm : vms) {
-			currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source
-					.getLocation(vm));
-		}
-	}
+    @Override
+    public Set<Set<VM>> getVMGroups() {
+	return vmsGrp.keySet();
+    }
 
-	@Override
-	public void post(Constraint cc) {
-		super.post(cc);
-	}
-
-	@Override
-	public int getCurrentLocation(int vmIdx) {
-		if (vmIdx >= 0 && vmIdx < vms.length) {
-			return currentLocation[vmIdx];
-		}
+    @Override
+    public int getGroup(Set<Node> node2s) {
+	if (nodesGrp.get(node2s) != null) {
+	    return nodesGrp.get(node2s);
+	} else {
+	    if (nextNodeGroupVal > MAX_NB_GRP) {
 		return -1;
+	    }
+	    int v = nextNodeGroupVal++;
+	    nodesGrp.put(node2s, v);
+	    revNodesGrp.add(v, node2s);
+	    for (Node n : node2s) {
+		TIntArrayList l = nodeGrps.get(node(n));
+		l.add(v);
+		grpId[node(n)] = v;
+	    }
+	    // Set the group of the nodes
+	    return v;
 	}
+    }
 
-	@Override
-	public Node[] nodes() {
-		return nodes;
+    @Override
+    public Set<Set<Node>> getNodesGroups() {
+	return nodesGrp.keySet();
+    }
+
+    @Override
+    public TIntArrayList getAssociatedGroups(Node n) {
+	return nodeGrps.get(node(n));
+    }
+
+    @Override
+    public SetVar hosted(Node n) {
+	if (hosteds == null) {
+	    makeHosteds();
 	}
-
-	@Override
-	public VM[] vms() {
-		return vms;
+	int idx = node(n);
+	if (idx < 0) {
+	    return null;
 	}
+	return hosteds[idx];
+    }
 
-	@Override
-	public Configuration getSourceConfiguration() {
-		return source;
+    @Override
+    public SetVar[] hosteds() {
+	if (hosteds == null) {
+	    makeHosteds();
 	}
+	return hosteds;
+    }
 
-	@Override
-	public int vm(VM vm) {
-		int v = revVMs.get(vm);
-		if (v == 0 && !vms[0].equals(vm)) {
-			return -1;
-		}
-		return v;
+    /** number of VMs hosted on each node, indexed by node index */
+    private IntVar[] cards;
+
+    /** for each vm, the index of its hosting node */
+    protected IntVar[] hosters = null;
+
+    protected void makeHosters() {
+	if (hosters == null) {
+	    hosters = new IntVar[vms.length];
+	    for (int i = 0; i < vms.length; i++) {
+		hosters[i] = createEnumIntVar("vm_" + i + ".hoster", 0, nodes.length - 1);
+	    }
 	}
+    }
 
-	@Override
-	public VM vm(int idx) {
-		if (idx < vms.length && idx >= 0) {
-			return vms[idx];
-		}
-		return null;
+    /** Make a set model. One set per node, that indicates the VMs it will run */
+    protected void makeHosteds() {
+	if (hosteds == null) {
+	    makeHosters();
+	    // A set variable for each future online nodes
+	    hosteds = new SetVar[nodes.length];
+	    for (int i = 0; i < hosteds.length; i++) {
+		SetVar s = VF.set("n_" + i + ".hosted", 0, vms.length - 1, getSolver());
+		hosteds[i] = s;
+	    }
+	    // for each VM i, it belongs to his hoster's set, meaning
+	    // VM[i].hoster==j
+	    // <=> hosters[j] contains i
+	    Constraint c = SetConstraintsFactory.int_channel(hosteds, hosts(), 0, 0);
+	    post(c);
 	}
+    }
 
-	/**
-	 * converts an array of vms to an array of index of those vms in the problem.
-	 *
-	 * @param vms
-	 * the vms to convert, all of them must belong to the problem
-	 * @return a new array of those vms.
-	 */
-	public int[] vms(VM... vms) {
-		if (vms == null || vms.length == 0) {
-			return null;
-		}
-		int[] ret = new int[vms.length];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i] = vm(vms[i]);
-		}
-		return ret;
+    public IntVar host(int idx) {
+	return hosters[idx];
+    }
+
+    @Override
+    public IntVar host(VM vm) {
+	return host(vm(vm));
+    }
+
+    @Override
+    public IntVar[] hosts() {
+	return hosters;
+    }
+
+    @Override
+    public IntVar[] hosts(VM... vms) {
+	if (vms == null || vms.length == 0) {
+	    return hosters;
+	} else {
+	    IntVar[] ret = new IntVar[vms.length];
+	    for (int i = 0; i < vms.length; i++) {
+		ret[i] = hosters[vm(vms[i])];
+	    }
+	    return ret;
 	}
+    }
 
-	@Override
-	public int node(Node n) {
-		int v = revNodes.get(n);
-		if (v == 0 && !nodes[0].equals(n)) {
-			return -1;
-		}
-		return v;
+    // FIXME should cards[i] be the cardinality of each hosteds[i] or the number
+    // of occurences of i in hosters ?
+    protected void makeCards() {
+	if (cards == null) {
+	    makeHosteds();
+	    cards = new IntVar[nodes.length];
+	    for (int i = 0; i < cards.length; i++) {
+		cards[i] = createBoundIntVar("n_" + i + ".#VMs", 0, vms.length);
+		post(SetConstraintsFactory.cardinality(hosteds[i], cards[i]));
+	    }
 	}
+    }
 
-	@Override
-	public Node node(int idx) {
-		if (idx < nodes.length && idx >= 0) {
-			return nodes[idx];
-		} else {
-			logger.warn("getting no node at pos " + idx);
-			return null;
-		}
+    public IntVar nbVMs(int idx) {
+	makeCards();
+	return cards[idx];
+    }
+
+    @Override
+    public IntVar nbVM(Node n) {
+	return nbVMs(node(n));
+    }
+
+    @Override
+    public IntVar[] nbVMs() {
+	makeCards();
+	return cards;
+    }
+
+    BoolVar[] nodesAreHostings = null;
+
+    /**
+     * generate the boolean value of wether a node is used or not, using the
+     * number of vms on it.
+     */
+    protected BoolVar makeIsHosting(int nodeIdx) {
+	BoolVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName() + "?hosting");
+	return ret;
+    }
+
+    public BoolVar isHoster(int idx) {
+	if (nodesAreHostings == null) {
+	    nodesAreHostings = new BoolVar[nodes().length];
 	}
-
-	@Override
-	public IntVar getVMGroup(Set<VM> vms) {
-		IntVar v = vmsGrp.get(vms);
-		if (v != null) {
-			return v;
-		}
-
-		v = createEnumIntVar("vmset" + vms.toString(), 0, MAX_NB_GRP);
-		for (VM vm : vms) {
-			vmGrp.set(vm(vm), v);
-		}
-		vmsGrp.put(vms, v);
-		return v;
+	BoolVar ret = nodesAreHostings[idx];
+	if (ret == null) {
+	    ret = makeIsHosting(idx);
+	    nodesAreHostings[idx] = ret;
 	}
+	return ret;
+    }
 
-	@Override
-	public IntVar makeGroup(Set<VM> vms, Set<Set<Node>> node2s) {
-		int[] values = new int[node2s.size()];
-		int i = 0;
-		for (Set<Node> ns : node2s) {
-			values[i] = getGroup(ns);
-			i++;
-		}
-		IntVar v = createEnumIntVar(""/* "vmset" + vms.toString() */, values);
-		vmsGrp.put(vms, v);
-		return v;
+    @Override
+    public BoolVar isHoster(Node n) {
+	return isHoster(node(n));
+    }
+
+    HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();
+
+    @Override
+    public IntVar getHostUse(String resource, int vmIndex) {
+	IntVar[] hostedArray = hostUsedResources.get(resource);
+	if (hostedArray == null) {
+	    hostedArray = new IntVar[vms().length];
+	    hostUsedResources.put(resource, hostedArray);
 	}
-
-	@Override
-	public IntVar getAssociatedGroup(VM vm) {
-		return vmGrp.get(vm(vm));
+	if (vmIndex < 0) {
+	    logger.error("virtual machine " + vms[vmIndex].getName() + " not found, returning null");
+	    return null;
 	}
-
-	@Override
-	public Set<Set<VM>> getVMGroups() {
-		return vmsGrp.keySet();
+	IntVar ret = hostedArray[vmIndex];
+	if (ret == null) {
+	    ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
+	    onNewVar(ret);
+	    nth(host(vmIndex), getUse(resource).getNodesUse(), ret);
+	    hostedArray[vmIndex] = ret;
 	}
+	return ret;
+    }
 
-	@Override
-	public int getGroup(Set<Node> node2s) {
-		if (nodesGrp.get(node2s) != null) {
-			return nodesGrp.get(node2s);
-		} else {
-			if (nextNodeGroupVal > MAX_NB_GRP) {
-				return -1;
-			}
-			int v = nextNodeGroupVal++;
-			nodesGrp.put(node2s, v);
-			revNodesGrp.add(v, node2s);
-			for (Node n : node2s) {
-				TIntArrayList l = nodeGrps.get(node(n));
-				l.add(v);
-				grpId[node(n)] = v;
-			}
-			// Set the group of the nodes
-			return v;
-		}
+    HashMap<String, IntVar[]> hostCapacities = new HashMap<>();
+
+    @Override
+    public IntVar getHostCapa(String resource, int vmIndex) {
+	IntVar[] hostedArray = hostCapacities.get(resource);
+	if (hostedArray == null) {
+	    hostedArray = new IntVar[vms().length];
+	    hostCapacities.put(resource, hostedArray);
 	}
-
-	@Override
-	public Set<Set<Node>> getNodesGroups() {
-		return nodesGrp.keySet();
+	if (vmIndex < 0) {
+	    logger.error("virtual machine " + vms[vmIndex].getName() + " not found, returning null");
+	    return null;
 	}
-
-	@Override
-	public TIntArrayList getAssociatedGroups(Node n) {
-		return nodeGrps.get(node(n));
+	IntVar ret = hostedArray[vmIndex];
+	if (ret == null) {
+	    ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource, 0, VF.MAX_INT_BOUND);
+	    onNewVar(ret);
+	    nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
+	    hostedArray[vmIndex] = ret;
 	}
+	return ret;
+    }
 
-	@Override
-	public int[] getNodesGroupId() {
-		return grpId;
+    IntVar[] vmsHostMaxCPUs = null;
+
+    BoolVar[] isMigrateds = null;
+
+    IntVar nbLiveMigrations = null;
+
+    protected void makeIsMigrateds() {
+	isMigrateds = new BoolVar[vms().length];
+	for (int i = 0; i < isMigrateds.length; i++) {
+	    VM vm = vm(i);
+	    Node sourceHost = getSourceConfiguration().getLocation(vm);
+	    if (sourceHost != null) {
+		isMigrateds[i] = isDifferent(host(i), node(sourceHost));
+	    } else {
+		isMigrateds[i] = VF.one(getSolver());
+	    }
 	}
+	nbLiveMigrations = sum(isMigrateds);
+    }
 
-	@Override
-	public Set<Node> getNodeGroup(int idx) {
-		return revNodesGrp.get(idx);
+    public BoolVar isMigrated(int idx) {
+	if (isMigrateds == null) {
+	    makeIsMigrateds();
 	}
+	return isMigrateds[idx];
+    }
 
-	@Override
-	public SetVar hosted(Node n) {
-		if (hosteds == null) {
-			makeHosteds();
-		}
-		int idx = node(n);
-		if (idx < 0) {
-			return null;
-		}
-		return hosteds[idx];
+    @Override
+    public BoolVar isMigrated(VM vm) {
+	return isMigrated(vm(vm));
+    }
+
+    @Override
+    public BoolVar[] isMigrateds() {
+	if (isMigrateds == null) {
+	    makeIsMigrateds();
 	}
+	return isMigrateds;
+    }
 
-	@Override
-	public SetVar[] hosteds() {
-		if (hosteds == null) {
-			makeHosteds();
-		}
-		return hosteds;
+    @Override
+    public IntVar nbMigrations() {
+	if (nbLiveMigrations == null) {
+	    makeIsMigrateds();
 	}
+	return nbLiveMigrations;
+    }
 
-	/** number of VMs hosted on each node, indexed by node index */
-	private IntVar[] cards;
-
-	/** for each vm, the index of its hosting node */
-	protected IntVar[] hosters = null;
-
-	protected void makeHosters() {
-		if (hosters == null) {
-			hosters = new IntVar[vms.length];
-			for (int i = 0; i < vms.length; i++) {
-				hosters[i] = createEnumIntVar("vm_" + i + ".hoster", 0,
-						nodes.length - 1);
-			}
-		}
+    @Override
+    public Configuration extractConfiguration() {
+	Configuration cfg = new SimpleConfiguration();
+	for (Node n : nodes) {
+	    if (source.isOnline(n)) {
+		cfg.setOnline(n);
+	    } else {
+		cfg.setOffline(n);
+	    }
 	}
+	source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getValue())));
+	source.resources().forEach(cfg.resources()::put);
+	return cfg;
+    }
 
-	/** Make a set model. One set per node, that indicates the VMs it will run */
-	protected void makeHosteds() {
-		if (hosteds == null) {
-			makeHosters();
-			// A set variable for each future online nodes
-			hosteds = new SetVar[nodes.length];
-			for (int i = 0; i < hosteds.length; i++) {
-				SetVar s = VF.set("n_" + i + ".hosted", 0, vms.length - 1, getSolver());
-				hosteds[i] = s;
-			}
-			// for each VM i, it belongs to his hoster's set, meaning VM[i].hoster==j
-			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(hosteds, hosts(), 0, 0);
-			post(c);
-		}
+    @Override
+    public SolvingStatistics getSolvingStatistics() {
+	IMeasures mes = getMeasures();
+	return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(), (long) (mes.getTimeCount() * 1000),
+		super.hasReachedLimit());
+    }
+
+    /** each resource added is associated to this and stored in this map. */
+    private final HashMap<String, ResourceHandler> resources = new HashMap<String, ResourceHandler>();
+
+    @Override
+    public void addResourceHandler(ResourceHandler handler) {
+	handler.associate(this);
+	resources.put(handler.getSpecs().getType(), handler);
+    }
+
+    @Override
+    public ResourceUse getUse(String res) {
+	ResourceHandler handler = resources.get(res);
+	if (handler == null) {
+	    logger.debug("handler for resource " + res + " is null, resources are " + resources);
 	}
+	return handler == null ? null : resources.get(res).getResourceUse();
+    }
 
-	public IntVar host(int idx) {
-		return hosters[idx];
-	}
+    @Override
+    public ResourceUse[] getUses() {
+	return resources.values().stream().map(ResourceHandler::getResourceUse).collect(Collectors.toList())
+		.toArray(new ResourceUse[] {});
+    }
 
-	@Override
-	public IntVar host(VM vm) {
-		return host(vm(vm));
-	}
+    @Override
+    public HashMap<String, ResourceHandler> getResourcesHandlers() {
+	return resources;
+    }
 
-	@Override
-	public IntVar[] hosts() {
-		return hosters;
-	}
+    protected void onNewVar(Variable var) {
+	// System.err.println("added var " + var);
+    }
 
-	@Override
-	public IntVar[] hosts(VM... vms) {
-		if (vms == null || vms.length == 0) {
-			return hosters;
-		} else {
-			IntVar[] ret = new IntVar[vms.length];
-			for (int i = 0; i < vms.length; i++) {
-				ret[i] = hosters[vm(vms[i])];
-			}
-			return ret;
-		}
-	}
+    @Override
+    public BoolVar isOnline(Node n) {
+	return VF.one(getSolver());
+    }
 
-	// FIXME should cards[i] be the cardinality of each hosteds[i] or the number
-	// of occurences of i in hosters ?
-	protected void makeCards() {
-		if (cards == null) {
-			makeHosteds();
-			cards = new IntVar[nodes.length];
-			for (int i = 0; i < cards.length; i++) {
-				cards[i] = createBoundIntVar("n_" + i + ".#VMs", 0, vms.length);
-				post(SetConstraintsFactory.cardinality(hosteds[i], cards[i]));
-			}
-		}
-	}
+    /** @param objective */
+    IntVar objective = null;
 
-	public IntVar nbVMs(int idx) {
-		makeCards();
-		return cards[idx];
-	}
+    public void setObjective(IntVar objective) {
+	this.objective = objective;
+    }
 
-	@Override
-	public IntVar nbVM(Node n) {
-		return nbVMs(node(n));
-	}
-
-	@Override
-	public IntVar[] nbVMs() {
-		makeCards();
-		return cards;
-	}
-
-	BoolVar[] nodesAreHostings = null;
-
-	/**
-	 * generate the boolean value of wether a node is used or not, using the
-	 * number of vms on it.
-	 */
-	protected BoolVar makeIsHosting(int nodeIdx) {
-		BoolVar ret = boolenize(nbVMs(nodeIdx), nodes[nodeIdx].getName()
-				+ "?hosting");
-		return ret;
-	}
-
-	public BoolVar isHoster(int idx) {
-		if (nodesAreHostings == null) {
-			nodesAreHostings = new BoolVar[nodes().length];
-		}
-		BoolVar ret = nodesAreHostings[idx];
-		if (ret == null) {
-			ret = makeIsHosting(idx);
-			nodesAreHostings[idx] = ret;
-		}
-		return ret;
-	}
-
-	@Override
-	public BoolVar isHoster(Node n) {
-		return isHoster(node(n));
-	}
-
-	HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();
-
-	@Override
-	public IntVar getHostUse(String resource, int vmIndex) {
-		IntVar[] hostedArray = hostUsedResources.get(resource);
-		if (hostedArray == null) {
-			hostedArray = new IntVar[vms().length];
-			hostUsedResources.put(resource, hostedArray);
-		}
-		if (vmIndex < 0) {
-			logger.error("virtual machine " + vms[vmIndex].getName()
-					+ " not found, returning null");
-			return null;
-		}
-		IntVar ret = hostedArray[vmIndex];
-		if (ret == null) {
-			ret = createBoundIntVar(
-					vms[vmIndex].getName() + ".hosterUsed" + resource, 0,
-					VF.MAX_INT_BOUND);
-			onNewVar(ret);
-			nth(host(vmIndex), getUse(resource).getNodesUse(), ret);
-			hostedArray[vmIndex] = ret;
-		}
-		return ret;
-	}
-
-	HashMap<String, IntVar[]> hostCapacities = new HashMap<>();
-
-	@Override
-	public IntVar getHostCapa(String resource, int vmIndex) {
-		IntVar[] hostedArray = hostCapacities.get(resource);
-		if (hostedArray == null) {
-			hostedArray = new IntVar[vms().length];
-			hostCapacities.put(resource, hostedArray);
-		}
-		if (vmIndex < 0) {
-			logger.error("virtual machine " + vms[vmIndex].getName()
-					+ " not found, returning null");
-			return null;
-		}
-		IntVar ret = hostedArray[vmIndex];
-		if (ret == null) {
-			ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource,
-					0, VF.MAX_INT_BOUND);
-			onNewVar(ret);
-			nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
-			hostedArray[vmIndex] = ret;
-		}
-		return ret;
-	}
-
-	IntVar[] vmsHostMaxCPUs = null;
-
-	BoolVar[] isMigrateds = null;
-
-	IntVar nbLiveMigrations = null;
-
-	protected void makeIsMigrateds() {
-		isMigrateds = new BoolVar[vms().length];
-		for (int i = 0; i < isMigrateds.length; i++) {
-			VM vm = vm(i);
-			Node sourceHost = getSourceConfiguration().getLocation(vm);
-			if (sourceHost != null) {
-				isMigrateds[i] = isDifferent(host(i), node(sourceHost));
-			} else {
-				isMigrateds[i] = VF.one(getSolver());
-			}
-		}
-		nbLiveMigrations = sum(isMigrateds);
-	}
-
-	public BoolVar isMigrated(int idx) {
-		if (isMigrateds == null) {
-			makeIsMigrateds();
-		}
-		return isMigrateds[idx];
-	}
-
-	@Override
-	public BoolVar isMigrated(VM vm) {
-		return isMigrated(vm(vm));
-	}
-
-	@Override
-	public BoolVar[] isMigrateds() {
-		if (isMigrateds == null) {
-			makeIsMigrateds();
-		}
-		return isMigrateds;
-	}
-
-	@Override
-	public IntVar nbMigrations() {
-		if (nbLiveMigrations == null) {
-			makeIsMigrateds();
-		}
-		return nbLiveMigrations;
-	}
-
-	@Override
-	public List<Constraint> getCostConstraints() {
-		return costConstraints;
-	}
-
-	@Override
-	public Configuration extractConfiguration() {
-		Configuration cfg = new SimpleConfiguration();
-		for (Node n : nodes) {
-			if (source.isOnline(n)) {
-				cfg.setOnline(n);
-			} else {
-				cfg.setOffline(n);
-			}
-		}
-		source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getValue())));
-		source.resources().forEach(cfg.resources()::put);
-		return cfg;
-	}
-
-	@Override
-	public SolvingStatistics getSolvingStatistics() {
-		IMeasures mes = getMeasures();
-		return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(),
-				(long) (mes.getTimeCount() * 1000), super.hasReachedLimit());
-	}
-
-	/** each resource added is associated to this and stored in this map. */
-	private final HashMap<String, ResourceHandler> resources = new HashMap<String, ResourceHandler>();
-
-	@Override
-	public void addResourceHandler(ResourceHandler handler) {
-		handler.associate(this);
-		resources.put(handler.getSpecs().getType(), handler);
-	}
-
-	@Override
-	public ResourceUse getUse(String res) {
-		ResourceHandler handler = resources.get(res);
-		if (handler == null) {
-			logger.debug("handler for resource " + res + " is null, resources are "
-					+ resources);
-		}
-		return handler == null ? null : resources.get(res).getResourceUse();
-	}
-
-	@Override
-	public ResourceUse[] getUses() {
-		return resources.values().stream().map(ResourceHandler::getResourceUse)
-				.collect(Collectors.toList()).toArray(new ResourceUse[] {});
-	}
-
-	@Override
-	public HashMap<String, ResourceHandler> getResourcesHandlers() {
-		return resources;
-	}
-
-	protected void onNewVar(Variable var) {
-		// System.err.println("added var " + var);
-	}
-
-	@Override
-	public BoolVar isOnline(Node n) {
-		return VF.one(getSolver());
-	}
-
-	/** @param objective */
-	IntVar objective = null;
-
-	public void setObjective(IntVar objective) {
-		this.objective = objective;
-	}
-
-	public IntVar getObjective() {
-		return objective;
-	}
+    public IntVar getObjective() {
+	return objective;
+    }
 
 }
