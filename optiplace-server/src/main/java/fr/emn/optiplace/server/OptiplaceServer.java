@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.OptiplaceServer;
+import fr.emn.optiplace.OptiplaceSolver;
 import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
@@ -21,10 +21,10 @@ import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
 
 /** @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014 */
-public class OptiplaceDefaultServer implements OptiplaceServer {
+public class OptiplaceServer implements OptiplaceSolver {
 
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-      .getLogger(OptiplaceDefaultServer.class);
+      .getLogger(OptiplaceServer.class);
 
   protected ConfigStrat strat = null;
 

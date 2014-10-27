@@ -9,7 +9,12 @@ import solver.search.loop.monitors.ISearchMonitor;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
- * How to create and explore a problems.
+ * How to create and explore a problems.<br />
+ * <p>
+ * Contains parameters, such as limiting the exploration fo the solution tree,
+ * using a specific packer for the resources, reducing the objective value,
+ * logging the solutions and choices, or showing some events
+ * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */

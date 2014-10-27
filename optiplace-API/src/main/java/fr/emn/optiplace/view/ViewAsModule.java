@@ -136,6 +136,7 @@ public interface ViewAsModule {
 					}
 				}
 				try {
+					f.setAccessible(true);
 					ProvidedDataReader pdr = (ProvidedDataReader) f.get(this);
 					pdr.read(d);
 				} catch (IllegalArgumentException | IllegalAccessException e) {
