@@ -116,9 +116,8 @@ public class SolvingProcess extends OptiplaceProcess {
       }
     }
     if (goalMaker == null) {
-      ResourceHandler handler = problem.getResourcesHandlers().get("MEM");
-      if (handler != null) {
-        goalMaker = new MigrationReducerGoal(handler.getSpecs());
+			if (problem.getResourcesHandlers().containsKey("MEM")) {
+				goalMaker = new MigrationReducerGoal("MEM");
       } else {
         goalMaker = NBMigrationsCost.INSTANCE;
       }
@@ -129,7 +128,7 @@ public class SolvingProcess extends OptiplaceProcess {
     // add all the heuristics.
     // first heuristic : the global goal heuristic
     SearchHeuristic[] objectiveHeuristics = goalMaker != null ? goalMaker
-        .getHeuristics() : null;
+				.getHeuristics(problem) : null;
         ArrayList<SearchHeuristic> heuristicsGenerators = new ArrayList<SearchHeuristic>();
         if (objectiveHeuristics != null) {
           heuristicsGenerators.addAll(Arrays.asList(objectiveHeuristics));

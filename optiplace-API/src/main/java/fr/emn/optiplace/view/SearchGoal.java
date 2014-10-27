@@ -28,7 +28,7 @@ public interface SearchGoal {
 	 * null, or an empty array, if no heuristic is interesting. Default
 	 * implementation is null
 	 */
-	default SearchHeuristic[] getHeuristics() {
+	default SearchHeuristic[] getHeuristics(IReconfigurationProblem rp) {
 		return null;
 	}
 }
