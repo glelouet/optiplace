@@ -266,7 +266,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
      *         constraints to propagate)
      */
     default IntVar bswitch(BoolVar x, int valFalse, int valTrue) {
-	return aff(x, valTrue - valFalse, valFalse);
+	return linear(x, valTrue - valFalse, valFalse);
     }
 
     /**
@@ -279,6 +279,19 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
      * @return A variable set to value =a⋅x+b
      */
     default IntVar aff(IntVar x, int a, int b) {
+        return linear(x, a, b);
+    }
+
+    /**
+     * @param x
+     *            a variable
+     * @param a
+     *            the product
+     * @param b
+     *            the offset
+     * @return A variable set to value =a⋅x+b
+     */
+    default IntVar linear(IntVar x, int a, int b) {
 	if (a == 0) {
 	    return createIntegerConstant(b);
 	}
