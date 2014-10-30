@@ -21,7 +21,11 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.ICF;
 import solver.constraints.set.SCF;
-import solver.variables.*;
+import solver.variables.BoolVar;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
+import solver.variables.VF;
+import solver.variables.VariableFactory;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
@@ -365,7 +369,24 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
     }
 
     default IntVar scalar(IntVar[] pos, int[] mults) {
-	IntVar ret = createBoundIntVar("granularscalar");
+	int min = 0, max = 0;
+	StringBuilder sb = new StringBuilder("scalar[");
+	for (int i = 0; i < pos.length; i++) {
+	    IntVar v = pos[i];
+	    int m = mults[i];
+	    if (m < 0) {
+		min += v.getUB() * m;
+		max += v.getLB() * m;
+	    } else {
+		min += v.getLB() * m;
+		max += v.getUB() * m;
+	    }
+	    if (i != 0) {
+		sb.append(", ");
+	    }
+	    sb.append(v.getName() + "⋅" + m);
+	}
+	IntVar ret = createBoundIntVar(sb.append("]").toString(), min, max);
 	getSolver().post(ICF.scalar(pos, mults, ret));
 	return ret;
     }
