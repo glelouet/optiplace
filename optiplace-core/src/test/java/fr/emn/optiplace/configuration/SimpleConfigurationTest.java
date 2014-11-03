@@ -63,4 +63,32 @@ public class SimpleConfigurationTest {
 	Assert.assertFalse(Configuration.sameElements(c2, c1));
     }
 
+    @Test
+    public void testEquals() {
+	SimpleConfiguration c1 = new SimpleConfiguration("CPU");
+	SimpleConfiguration c2 = new SimpleConfiguration("CPU");
+	for (String n : new String[] { "n0", "n1", "n2" }) {
+	    c1.addOnline(n, 10);
+	    c2.addOnline(n, 10);
+	}
+	for (String v : new String[] { "vm0", "vm1", "vm2" }) {
+	    c1.addVM(v, null, 5);
+	    c2.addVM(v, null, 5);
+	}
+	Assert.assertEquals(c2, c1);
+	Assert.assertEquals(c1, c2);
+	c1.addOnline("n3", 3);
+	Assert.assertNotEquals(c2, c1);
+	Assert.assertNotEquals(c1, c2);
+	Node n = c2.addOnline("n3", 3);
+	Assert.assertEquals(c2, c1);
+	Assert.assertEquals(c1, c2);
+	c2.addVM("vm3", n, 2);
+	Assert.assertNotEquals(c2, c1);
+	Assert.assertNotEquals(c1, c2);
+	c1.addVM("vm3", n, 2);
+	Assert.assertEquals(c2, c1);
+	Assert.assertEquals(c1, c2);
+    }
+
 }

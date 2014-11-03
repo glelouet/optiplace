@@ -310,4 +310,40 @@ public class SimpleConfiguration implements Configuration {
 	return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nresources : "
 		+ resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (super.equals(obj)) {
+	    return true;
+	}
+	if (obj == null || obj.getClass() != SimpleConfiguration.class) {
+	    return false;
+	}
+	SimpleConfiguration o = (SimpleConfiguration) obj;
+	if (!vmLocs.equals(o.vmLocs)) {
+	    // System.err.println("vmlocs : " + vmLocs + " != " + o.vmLocs);
+	    return false;
+	}
+	if (!offlines.equals(o.offlines)) {
+	    // System.err.println("offlines");
+	    return false;
+	}
+	if (!waitings.equals(o.waitings)) {
+	    // System.err.println("waitings");
+	    return false;
+	}
+	if (!resources.equals(o.resources)) {
+	    // System.err.println("resources : ");
+	    // for (Entry<String, ResourceSpecification> e :
+	    // resources.entrySet()) {
+	    // ResourceSpecification o2 = o.resources.get(e.getKey());
+	    // if (!e.getValue().equals(o2)) {
+	    // System.err.println(" " + e.getKey() + " : " + e.getValue() +
+	    // " != " + o2);
+	    // }
+	    // }
+	    return false;
+	}
+	return true;
+    }
 }

@@ -153,8 +153,9 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	for (int i = 0; i < vms.length; i++) {
 	    revVMs.put(vms[i], i);
 	}
-	Set<Node> ns = source.getNodes().collect(Collectors.toSet());
-	nodes = ns.toArray(new Node[ns.size()]);
+	List<Node> nodes_l = source.getNodes().collect(Collectors.toList());
+	nodes = nodes_l.toArray(new Node[0]);
+	// System.err.println("nodes  : " + nodes_l);
 	grpId = new int[nodes.length];
 	revNodes = new TObjectIntHashMap<>(nodes.length);
 	for (int i = 0; i < nodes.length; i++) {
