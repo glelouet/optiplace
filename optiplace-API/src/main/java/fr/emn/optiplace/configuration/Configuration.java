@@ -381,7 +381,7 @@ public interface Configuration {
 	OFFLINE_OR_ONLINE {
 
 	    @Override
-	    boolean check(Configuration c) {
+	    public boolean check(Configuration c) {
 		return !c.getOfflines().filter(c::isOnline).findFirst().isPresent();
 	    }
 
@@ -389,7 +389,7 @@ public interface Configuration {
 	RUNNING_OR_WAITING {
 
 	    @Override
-	    boolean check(Configuration c) {
+	    public boolean check(Configuration c) {
 		return !c.getWaitings().filter(c::isRunning).findFirst().isPresent();
 	    }
 
@@ -397,7 +397,7 @@ public interface Configuration {
 	HOSTER_HOSTS {
 
 	    @Override
-	    boolean check(Configuration c) {
+	    public boolean check(Configuration c) {
 		return !c.getRunnings()
 			.filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
 			.findFirst().isPresent();
@@ -405,7 +405,7 @@ public interface Configuration {
 
 	};
 
-	abstract boolean check(Configuration c);
+	public abstract boolean check(Configuration c);
     }
 
     default boolean checkBasics() {
