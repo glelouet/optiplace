@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import solver.search.strategy.ISF;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -24,51 +25,53 @@ import fr.emn.optiplace.view.SearchHeuristic;
  */
 public class StickVMsHeuristic implements SearchHeuristic {
 
-  /** the comparator to define in which order to assign the vms */
-  private final Comparator<VM> cmp;
-
-  public StickVMsHeuristic(Comparator<VM> cmp) {
-    this.cmp = cmp;
-  }
-
-  /**
-   * @param spec
-   * the resource specification to order the vms by.
-   */
-  public StickVMsHeuristic(final ResourceSpecification spec) {
-    cmp = spec.makeVMComparator(false);
-  }
-
-  /** @return the cmp */
-  public Comparator<VM> getCmp() {
-    return cmp;
-  }
-
-  @Override
-  public List<AbstractStrategy<? extends Variable>> getHeuristics(
-      IReconfigurationProblem rp) {
-    List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
-    VM[] vms = rp.vms().clone();
-    if (vms == null || vms.length == 0) {
-      return ret;
+    public static AbstractStrategy<IntVar> makeStickVMs(VM[] vms, IReconfigurationProblem p) {
+	int[] srcLoc = new int[vms.length];
+	IntVar[] hosters = new IntVar[vms.length];
+	for (int i = 0; i < vms.length; i++) {
+	    srcLoc[i] = p.node(p.getSourceConfiguration().getLocation(vms[i]));
+	    hosters[i] = p.host(vms[i]);
+	}
+	Var2ValSelector heuristic = new Var2ValSelector(hosters, srcLoc);
+	return ISF.custom(heuristic, heuristic, hosters);
     }
-    Arrays.sort(vms, cmp);
-    int[] correspondingNodes = new int[vms.length];
-    IntVar[] sortedHosters = new IntVar[vms.length];
-    for (int i = 0; i < vms.length; i++) {
-      correspondingNodes[i] = rp.node(rp.getSourceConfiguration().getLocation(
-          vms[i]));
-      sortedHosters[i] = rp.host(vms[i]);
-    }
-    Var2ValSelector heuristic = new Var2ValSelector(sortedHosters,
-        correspondingNodes);
-    ret.add(ISF.custom(heuristic, heuristic, sortedHosters));
-    return ret;
-  }
 
-  @Override
-  public String toString() {
-    return "StickVMsHeuristic(" + cmp + ")";
-  }
+    /** the comparator to define in which order to assign the vms */
+    private final Comparator<VM> cmp;
+
+    public StickVMsHeuristic(Comparator<VM> cmp) {
+	this.cmp = cmp;
+    }
+
+    /**
+     * @param spec
+     * the resource specification to order the vms by.
+     */
+    public StickVMsHeuristic(final ResourceSpecification spec) {
+	cmp = spec.makeVMComparator(false);
+    }
+
+    /** @return the cmp */
+    public Comparator<VM> getCmp() {
+	return cmp;
+    }
+
+    @Override
+    public List<AbstractStrategy<? extends Variable>> getHeuristics(
+	    IReconfigurationProblem rp) {
+	List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
+	VM[] vms = rp.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]);
+	if (vms == null || vms.length == 0) {
+	    return ret;
+	}
+	Arrays.sort(vms, cmp);
+	ret.add(makeStickVMs(vms, rp));
+	return ret;
+    }
+
+    @Override
+    public String toString() {
+	return "StickVMsHeuristic(" + cmp + ")";
+    }
 
 }

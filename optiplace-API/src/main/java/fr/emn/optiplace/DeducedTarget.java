@@ -30,13 +30,19 @@ public class DeducedTarget {
 
     private long searchTime;
 
+    private long firstSolTime;
+
     private IReconfigurationProblem problem;
 
     private int objective;
 
     private long searchNodes;
 
+    private long firstSolNodes;
+
     private long searchBacktracks;
+
+    private long firstSolBacktracks;
 
     private long searchSolutions;
 
@@ -95,8 +101,21 @@ public class DeducedTarget {
      * @param searchTime
      *            the searchTime to set
      */
-    public void setSearchTime(long searcTime) {
-	searchTime = searcTime;
+    public void setSearchTime(long searchTime) {
+	this.searchTime = searchTime;
+    }
+
+    /** @return the searchTime */
+    public long getFirstSolTime() {
+	return firstSolTime;
+    }
+
+    /**
+     * @param searchTime
+     *            the searchTime to set
+     */
+    public void setFirstSolTime(long firstSolTime) {
+	this.firstSolTime = firstSolTime;
     }
 
     /** @return the problem */
@@ -135,7 +154,20 @@ public class DeducedTarget {
      *            the searchNodes to set
      */
     public void setSearchNodes(long l) {
-	this.searchNodes = l;
+	searchNodes = l;
+    }
+
+    /** @return the searchNodes */
+    public long getFirstSolNodes() {
+	return firstSolNodes;
+    }
+
+    /**
+     * @param l
+     *            the searchNodes to set
+     */
+    public void setFirstSolNodes(long l) {
+	firstSolNodes = l;
     }
 
     /** @return the searchBacktracks */
@@ -147,8 +179,21 @@ public class DeducedTarget {
      * @param l
      *            the searchBacktracks to set
      */
+    public void setFirstSolBacktracks(long l) {
+	firstSolBacktracks = l;
+    }
+
+    /** @return the searchBacktracks */
+    public long getFirstSolBacktracks() {
+	return firstSolBacktracks;
+    }
+
+    /**
+     * @param l
+     *            the searchBacktracks to set
+     */
     public void setSearchBacktracks(long l) {
-	this.searchBacktracks = l;
+	searchBacktracks = l;
     }
 
     /** @return the searchSolutions */
@@ -170,9 +215,11 @@ public class DeducedTarget {
 	sb.append("times : config=" + configTime + "ms build=" + buildTime + "ms search=" + searchTime + "ms\n");
 	sb.append("stats : " + searchSolutions + " solutions, " + searchNodes + " nodes, " + searchBacktracks
 		+ " backtracks\n");
+	sb.append("first sol : " + firstSolTime + "ms, " + firstSolNodes + " nodes, " + firstSolBacktracks
+		+ " backtracks\n");
 	sb.append("actions (").append(actions.nbActions()).append(") :\n").append(actions).append("\ndestination : \n")
-		.append(destination)
-		.append("\nobjective result = " + objective);
+	.append(destination)
+	.append("\nobjective result = " + objective);
 	return sb.toString();
     }
 }
