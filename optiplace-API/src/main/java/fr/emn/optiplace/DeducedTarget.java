@@ -17,151 +17,162 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public class DeducedTarget {
 
-	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(DeducedTarget.class);
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DeducedTarget.class);
 
-	private Configuration destination;
+    private Configuration destination;
 
-	private final ActionGraph actions = new ActionGraph();
+    private final ActionGraph actions = new ActionGraph();
 
-	private long buildTime;
+    private long buildTime;
 
-	private long configTime;
+    private long configTime;
 
-	private long searchTime;
+    private long searchTime;
 
-	private IReconfigurationProblem problem;
+    private IReconfigurationProblem problem;
 
-	private int objective;
+    private int objective;
 
-	private long searchNodes;
+    private long searchNodes;
 
-	private long searchBacktracks;
+    private long searchBacktracks;
 
-	private long searchSolutions;
+    private long searchSolutions;
 
-	/** @return the destination */
-	public Configuration getDestination() {
-		return destination;
-	}
+    /** @return the destination */
+    public Configuration getDestination() {
+	return destination;
+    }
 
-	/**
-	 * @return the list of actions deduced.
-	 */
-	public ActionGraph getActions() {
-		return actions;
-	}
+    /**
+     * @return the list of actions deduced.
+     */
+    public ActionGraph getActions() {
+	return actions;
+    }
 
-	/**
-	 * @param destination
-	 *            the destination to set
-	 */
-	public void setDestination(Configuration destination) {
-		this.destination = destination;
-	}
+    /**
+     * @param destination
+     *            the destination to set
+     */
+    public void setDestination(Configuration destination) {
+	this.destination = destination;
+    }
 
-	/** @return the buildTime */
-	public long getBuildTime() {
-		return buildTime;
-	}
+    /** @return the buildTime */
+    public long getBuildTime() {
+	return buildTime;
+    }
 
-	/**
-	 * @param buildTime
-	 *            the buildTime to set
-	 */
-	public void setBuildTime(long buildTime) {
-		this.buildTime = buildTime;
-	}
+    /**
+     * @param buildTime
+     *            the buildTime to set
+     */
+    public void setBuildTime(long buildTime) {
+	this.buildTime = buildTime;
+    }
 
-	/** @return the configTime */
-	public long getConfigTime() {
-		return configTime;
-	}
+    /** @return the configTime */
+    public long getConfigTime() {
+	return configTime;
+    }
 
-	/**
-	 * @param configTime
-	 *            the configTime to set
-	 */
-	public void setConfigTime(long configTime) {
-		this.configTime = configTime;
-	}
+    /**
+     * @param configTime
+     *            the configTime to set
+     */
+    public void setConfigTime(long configTime) {
+	this.configTime = configTime;
+    }
 
-	/** @return the searchTime */
-	public long getSearchTime() {
-		return searchTime;
-	}
+    /** @return the searchTime */
+    public long getSearchTime() {
+	return searchTime;
+    }
 
-	/**
-	 * @param searchTime
-	 *            the searchTime to set
-	 */
-	public void setSearchTime(long searcTime) {
-		searchTime = searcTime;
-	}
+    /**
+     * @param searchTime
+     *            the searchTime to set
+     */
+    public void setSearchTime(long searcTime) {
+	searchTime = searcTime;
+    }
 
-	/** @return the problem */
-	public IReconfigurationProblem getProblem() {
-		return problem;
-	}
+    /** @return the problem */
+    public IReconfigurationProblem getProblem() {
+	return problem;
+    }
 
-	/**
-	 * @param problem
-	 *            the problem to set
-	 */
-	public void setProblem(IReconfigurationProblem problem) {
-		this.problem = problem;
-	}
+    /**
+     * @param problem
+     *            the problem to set
+     */
+    public void setProblem(IReconfigurationProblem problem) {
+	this.problem = problem;
+    }
 
-	/** @return the objective */
-	public int getObjective() {
-		return objective;
-	}
+    /** @return the objective */
+    public int getObjective() {
+	return objective;
+    }
 
-	/**
-	 * @param objective
-	 *            the objective to set
-	 */
-	public void setObjective(int objective) {
-		this.objective = objective;
-	}
+    /**
+     * @param objective
+     *            the objective to set
+     */
+    public void setObjective(int objective) {
+	this.objective = objective;
+    }
 
-	/** @return the searchNodes */
-	public long getSearchNodes() {
-		return searchNodes;
-	}
+    /** @return the searchNodes */
+    public long getSearchNodes() {
+	return searchNodes;
+    }
 
-	/**
-	 * @param l
-	 * the searchNodes to set
-	 */
-	public void setSearchNodes(long l) {
-		this.searchNodes = l;
-	}
+    /**
+     * @param l
+     *            the searchNodes to set
+     */
+    public void setSearchNodes(long l) {
+	this.searchNodes = l;
+    }
 
-	/** @return the searchBacktracks */
-	public long getSearchBacktracks() {
-		return searchBacktracks;
-	}
+    /** @return the searchBacktracks */
+    public long getSearchBacktracks() {
+	return searchBacktracks;
+    }
 
-	/**
-	 * @param l
-	 * the searchBacktracks to set
-	 */
-	public void setSearchBacktracks(long l) {
-		this.searchBacktracks = l;
-	}
+    /**
+     * @param l
+     *            the searchBacktracks to set
+     */
+    public void setSearchBacktracks(long l) {
+	this.searchBacktracks = l;
+    }
 
-	/** @return the searchSolutions */
-	public long getSearchSolutions() {
-		return searchSolutions;
-	}
+    /** @return the searchSolutions */
+    public long getSearchSolutions() {
+	return searchSolutions;
+    }
 
-	/**
-	 * @param searchSolutions
-	 *            the searchSolutions to set
-	 */
-	public void setSearchSolutions(long searchSolutions) {
-		this.searchSolutions = searchSolutions;
-	}
+    /**
+     * @param searchSolutions
+     *            the searchSolutions to set
+     */
+    public void setSearchSolutions(long searchSolutions) {
+	this.searchSolutions = searchSolutions;
+    }
+
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("times : config=" + configTime + "ms build=" + buildTime + "ms search=" + searchTime + "ms\n");
+	sb.append("stats : " + searchSolutions + " solutions, " + searchNodes + " nodes, " + searchBacktracks
+		+ " backtracks\n");
+	sb.append("actions (").append(actions.nbActions()).append(") :\n").append(actions).append("\ndestination : \n")
+		.append(destination)
+		.append("\nobjective result = " + objective);
+	return sb.toString();
+    }
 }

@@ -19,6 +19,11 @@ public class Migrate implements Action {
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
   .getLogger(Migrate.class);
 
+    public static void extractMigrations(Configuration from, Configuration to, ActionGraph actions) {
+	from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
+		.forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
+    }
+
   VM vm;
   Node from;
   Node to;
@@ -59,16 +64,6 @@ public class Migrate implements Action {
   @Override
   public boolean isRelated(ManagedElement me) {
     return vm.equals(me) || from.equals(me) || to.equals(me);
-  }
-
-  public static void extractMigrations(Configuration from, Configuration to,
-      ActionGraph actions) {
-    from.getRunnings()
-        .filter(to::isRunning)
-        .filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
-        .forEach(
-            vm -> actions.add(new Migrate(vm, from.getLocation(vm), to
-                .getLocation(vm))));
   }
 
   @Override

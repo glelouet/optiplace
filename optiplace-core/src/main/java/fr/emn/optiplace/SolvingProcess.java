@@ -16,6 +16,7 @@ import solver.search.strategy.IntStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
 import solver.variables.Variable;
+import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -214,6 +215,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	target.setDestination(problem.extractConfiguration());
 	target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 	Migrate.extractMigrations(center.getSource(), target.getDestination(), target.getActions());
+	Allocate.extractAllocates(center.getSource(), target.getDestination(), target.getActions());
 	for (ViewAsModule v : center.getViews()) {
 	    v.endSolving(target.getActions());
 	}
