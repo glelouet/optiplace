@@ -107,7 +107,6 @@ public class SolvingProcess extends OptiplaceProcess {
 	strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void configSearch() {
 	long st = System.currentTimeMillis();
@@ -130,19 +129,41 @@ public class SolvingProcess extends OptiplaceProcess {
 	}
 	problem.setObjective(goalMaker.getObjective(problem));
 
+	problem.getSolver().set(
+		new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(goalMaker),
+			makeProveHeuristic(goalMaker)));
+
+	if (strat.getMaxSearchTime() > 0) {
+	    SearchMonitorFactory.limitTime(problem.getSolver(), strat.getMaxSearchTime());
+	}
+
+	target.setConfigTime(System.currentTimeMillis() - st);
+    }
+
+    /**
+     * make an heuristic to quickly find a solution. Basic heuristic is to
+     * retrieve the source configuration if available, do nothing if not.
+     *
+     * @param goalMaker
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    AbstractStrategy<Variable> makeFindHeuristic(SearchGoal goalMaker) {
 	// heuristic to find a solution fast
-	GenerateAndTest diveSrc = new GenerateAndTest(
-		problem,
-		StickVMsHeuristic.makeStickVMs(
-			problem.getSourceConfiguration()
-			.getRunnings()
-			.collect(Collectors.toList())
-			.toArray(new VM[0]),
-			problem),
-			-1);
-	;
-	AbstractStrategy<IntVar> find = IntStrategyFactory.sequencer(diveSrc, DummyPlacementHeuristic.INSTANCE
-		.getHeuristics(problem).get(0));
+	GenerateAndTest diveSrc = new GenerateAndTest(problem, StickVMsHeuristic.makeStickVMs(problem
+		.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem), -1);
+	return IntStrategyFactory.sequencer(diveSrc, DummyPlacementHeuristic.INSTANCE.getHeuristics(problem).get(0));
+    }
+
+    /**
+     * Make an heuristic to find the best oslution. This heuristic is generally
+     * based on the definition of the problem'ss objective to reduce.
+     * 
+     * @param goalMaker
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    AbstractStrategy<Variable> makeProveHeuristic(SearchGoal goalMaker) {
 	// add all the heuristics.
 	// first heuristic : the global goal heuristic
 	SearchHeuristic[] objectiveHeuristics = goalMaker != null ? goalMaker.getHeuristics(problem) : null;
@@ -164,17 +185,8 @@ public class SolvingProcess extends OptiplaceProcess {
 	// all the heuristics are generated and added in the problem here.
 	List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators.stream()
 		.map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream()).collect(Collectors.toList());
-	AbstractStrategy<IntVar> prove = IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
+	return IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
 
-	FindAndProve<IntVar> fap = new FindAndProve<IntVar>(problem.getSolver().retrieveIntVars(), find, prove);
-
-	problem.getSolver().set(fap);
-
-	if (strat.getMaxSearchTime() > 0) {
-	    SearchMonitorFactory.limitTime(problem.getSolver(), strat.getMaxSearchTime());
-	}
-
-	target.setConfigTime(System.currentTimeMillis() - st);
     }
 
     @Override
