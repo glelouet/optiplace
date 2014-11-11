@@ -25,7 +25,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HeuristicsList.class);
 
     private final ActivatedHeuristic<? extends T>[] list;
-    boolean propagated = false;
+    boolean inserted = false;
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
@@ -64,8 +64,8 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
     @SuppressWarnings("unchecked")
     @Override
     public Decision<T> getDecision() {
-	System.err.println("computing decision for " + this);
-	if (!propagated) {
+	System.err.println("" + this + " computing decision");
+	if (!inserted) {
 	    for (ActivatedHeuristic<? extends T> element : list) {
 		Propagator<? extends Variable> p = element.getPropagator();
 		solver.getEngine().dynamicAddition(new Constraint("" + p, p), true);
@@ -75,27 +75,32 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 		    logger.warn("", e);
 		}
 	    }
-	    propagated = true;
-	    System.err.println("propagation done");
+	    inserted = true;
+	    System.err.println("insertion of propagators done");
 	}
 	for (ActivatedHeuristic<? extends T> ah : list) {
 	    if (ah.isActivated()) {
 		Decision<T> d = (Decision<T>) ah.getDecision();
 		if (d != null) {
-		    System.err.println("heuristic " + ah + " activated and chose " + d);
+		    System.err.println(" heuristic " + ah + " activated and chose " + d);
 		    return d;
 		} else {
-		    System.err.println("heuristic " + ah + " activated and returned null");
+		    System.err.println(" heuristic " + ah + " activated and returned null");
 		}
 	    } else {
 		System.err.println(" " + ah + " not activated");
 	    }
 	}
-	System.err.println("no heuristic available, returning null");
+	System.err.println(" no heuristic available, returning null");
 	for (ActivatedHeuristic<? extends T> element : list) {
 	    solver.getEngine().desactivatePropagator(element.getPropagator());
 	}
-	System.err.println("unregister done");
+	System.err.println("removing propagators done");
 	return null;
+    }
+
+    @Override
+    public String toString() {
+	return "activatedListof" + Arrays.asList(list);
     }
 }

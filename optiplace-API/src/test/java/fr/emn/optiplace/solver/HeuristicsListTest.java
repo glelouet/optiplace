@@ -35,8 +35,8 @@ public class HeuristicsListTest {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected boolean checkActivated() {
-	    return true;
+	protected void checkActivated() {
+	    activated = true;
 	}
 
 	@Override
@@ -58,6 +58,14 @@ public class HeuristicsListTest {
 	Assert.assertEquals(res, new IntVar[] { VF.fixed(5, s), VF.fixed(20, s), VF.fixed(50, s), VF.fixed(100, s) });
     }
 
+    /**
+     * affect a value to a var if the number of instantiated variables among
+     * those given is equal to a value.<br />
+     * eg, affect 5 to v if 3 variables are instantiated among a, b, c, d
+     *
+     * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
+     *
+     */
     private static class AffectIntVarActivatedHeuristic extends ActivatedHeuristic<IntVar> {
 
 	private static final long serialVersionUID = 1L;
@@ -79,8 +87,10 @@ public class HeuristicsListTest {
 
 	@Override
 	public Decision<IntVar> getDecision() {
-
-	    if (activated) {
+	    if (!activated) {
+		throw new UnsupportedOperationException("calling a passive heuristic .#getDecision() is forbidden");
+	    }
+	    if (!vars[0].isInstantiated()) {
 		FastDecision e = manager.getE();
 		if (e == null) {
 		    e = new FastDecision(manager);
@@ -92,7 +102,7 @@ public class HeuristicsListTest {
 	}
 
 	@Override
-	protected boolean checkActivated() {
+	protected void checkActivated() {
 	    int nbInst = 0;
 	    for (Variable v : observed) {
 		if (v.isInstantiated()) {
@@ -100,7 +110,7 @@ public class HeuristicsListTest {
 		}
 	    }
 	    System.err.println("checking " + this + ", nb instantiated : " + nbInst);
-	    return nbInst == this.nbInst;
+	    activated = nbInst == this.nbInst;
 	}
 
 	@Override
@@ -109,12 +119,30 @@ public class HeuristicsListTest {
 	}
     }
 
-    @Test
-    public void testLaunch(){
+    // @Test
+    public void testLaunch2Vars() {
 	Solver s = new Solver();
-	IntVar a = VF.bounded("a", 0, 2, s);
-	IntVar b = VF.bounded("b", 0, 2, s);
-	IntVar c = VF.bounded("c", 0, 2, s);
+	IntVar a = VF.bounded("a", 0, 1, s);
+	IntVar b = VF.bounded("b", 0, 1, s);
+	IntVar[] vars = new IntVar[] { a, b };
+
+	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(a, 0, vars, 0);
+	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(b, 1, vars, 1);
+	HeuristicsList<IntVar> hl = new HeuristicsList<>(s, hab, haa);
+	s.set(hl);
+	SearchMonitorFactory.log(s, true, true);
+
+	s.findSolution();
+	Assert.assertEquals(a.getValue(), 0);
+	Assert.assertEquals(b.getValue(), 1);
+    }
+
+    @Test//(dependsOnMethods = "testLaunch2Vars")
+    public void testLaunch3Vars() {
+	Solver s = new Solver();
+	IntVar a = VF.bounded("a", 0, 3, s);
+	IntVar b = VF.bounded("b", 0, 3, s);
+	IntVar c = VF.bounded("c", 0, 3, s);
 	IntVar[] vars = new IntVar[] { a, b, c };
 
 	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(a, 0, vars, 0);

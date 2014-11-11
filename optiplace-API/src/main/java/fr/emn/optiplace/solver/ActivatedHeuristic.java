@@ -33,20 +33,20 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
     }
 
     /** check whether the variables of the heuristic can be branched on */
-    abstract protected boolean checkActivated();
+    abstract protected void checkActivated();
 
-    Propagator<? extends Variable> propagator = new Propagator<Variable>(this.vars) {
+    Propagator<T> propagator = new Propagator<T>(this.vars) {
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-	    activated = checkActivated();
+	    checkActivated();
 	}
 
 	@Override
 	public ESat isEntailed() {
-	    return ESat.FALSE;
+	    return ESat.UNDEFINED;
 	}
     };
 
