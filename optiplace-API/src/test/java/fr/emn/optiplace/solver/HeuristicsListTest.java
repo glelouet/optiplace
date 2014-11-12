@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 
 import solver.Solver;
 import solver.exception.ContradictionException;
-import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.strategy.assignments.DecisionOperator;
 import solver.search.strategy.decision.Decision;
 import solver.search.strategy.decision.fast.FastDecision;
@@ -59,9 +58,8 @@ public class HeuristicsListTest {
     }
 
     /**
-     * affect a value to a var if the number of instantiated variables among
-     * those given is equal to a value.<br />
-     * eg, affect 5 to v if 3 variables are instantiated among a, b, c, d
+     * if VAL variables from an array VAR are instantiated, proposes to set
+     * VAR[VAL]=VAL
      *
      * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
      *
@@ -72,13 +70,11 @@ public class HeuristicsListTest {
 
 	static PoolManager<FastDecision> manager = new PoolManager<>();
 
-	protected int val;
-	protected int nbInst;
+	protected final int val;
 
-	protected AffectIntVarActivatedHeuristic(IntVar affect, int val, Variable[] checked, int nbInst) {
-	    super(new IntVar[] { affect }, checked);
+	protected AffectIntVarActivatedHeuristic(int val, IntVar... vars) {
+	    super(vars, vars);
 	    this.val = val;
-	    this.nbInst = nbInst;
 	}
 
 	@Override
@@ -90,12 +86,12 @@ public class HeuristicsListTest {
 	    if (!activated) {
 		throw new UnsupportedOperationException("calling a passive heuristic .#getDecision() is forbidden");
 	    }
-	    if (!vars[0].isInstantiated()) {
+	    if (!vars[val].isInstantiated()) {
 		FastDecision e = manager.getE();
 		if (e == null) {
 		    e = new FastDecision(manager);
 		}
-		e.set(vars[0], val, DecisionOperator.int_eq);
+		e.set(vars[val], val, DecisionOperator.int_eq);
 		return e;
 	    }
 	    return null;
@@ -109,35 +105,34 @@ public class HeuristicsListTest {
 		    nbInst += 1;
 		}
 	    }
-	    System.err.println("checking " + this + ", nb instantiated : " + nbInst);
-	    activated = nbInst == this.nbInst;
+	    activated = nbInst == val;
 	}
 
 	@Override
 	public String toString() {
-	    return "affect(" + val + " to " + vars[0] + " if #instantiated == " + nbInst + ")";
+	    return "affect(" + val + " to " + vars[val] + " if #instantiated == " + val + ")";
 	}
     }
 
-    // @Test
+    @Test
     public void testLaunch2Vars() {
 	Solver s = new Solver();
 	IntVar a = VF.bounded("a", 0, 1, s);
 	IntVar b = VF.bounded("b", 0, 1, s);
 	IntVar[] vars = new IntVar[] { a, b };
 
-	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(a, 0, vars, 0);
-	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(b, 1, vars, 1);
+	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(0, vars);
+	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(1, vars);
 	HeuristicsList<IntVar> hl = new HeuristicsList<>(s, hab, haa);
 	s.set(hl);
-	SearchMonitorFactory.log(s, true, true);
+	// SearchMonitorFactory.log(s, true, true);
 
 	s.findSolution();
 	Assert.assertEquals(a.getValue(), 0);
 	Assert.assertEquals(b.getValue(), 1);
     }
 
-    @Test//(dependsOnMethods = "testLaunch2Vars")
+    @Test(dependsOnMethods = "testLaunch2Vars")
     public void testLaunch3Vars() {
 	Solver s = new Solver();
 	IntVar a = VF.bounded("a", 0, 3, s);
@@ -145,12 +140,12 @@ public class HeuristicsListTest {
 	IntVar c = VF.bounded("c", 0, 3, s);
 	IntVar[] vars = new IntVar[] { a, b, c };
 
-	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(a, 0, vars, 0);
-	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(b, 1, vars, 2);
-	AffectIntVarActivatedHeuristic hac = new AffectIntVarActivatedHeuristic(c, 2, vars, 1);
+	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(0, vars);
+	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(1, vars);
+	AffectIntVarActivatedHeuristic hac = new AffectIntVarActivatedHeuristic(2, vars);
 	HeuristicsList<IntVar> hl = new HeuristicsList<>(s, hab, haa, hac);
 	s.set(hl);
-	SearchMonitorFactory.log(s, true, true);
+	// SearchMonitorFactory.log(s, true, true);
 
 	s.findSolution();
 	Assert.assertEquals(a.getValue(), 0);

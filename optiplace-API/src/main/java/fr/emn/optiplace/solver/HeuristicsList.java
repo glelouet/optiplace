@@ -64,7 +64,6 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
     @SuppressWarnings("unchecked")
     @Override
     public Decision<T> getDecision() {
-	System.err.println("" + this + " computing decision");
 	if (!inserted) {
 	    for (ActivatedHeuristic<? extends T> element : list) {
 		Propagator<? extends Variable> p = element.getPropagator();
@@ -76,26 +75,18 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 		}
 	    }
 	    inserted = true;
-	    System.err.println("insertion of propagators done");
 	}
 	for (ActivatedHeuristic<? extends T> ah : list) {
 	    if (ah.isActivated()) {
 		Decision<T> d = (Decision<T>) ah.getDecision();
 		if (d != null) {
-		    System.err.println(" heuristic " + ah + " activated and chose " + d);
 		    return d;
-		} else {
-		    System.err.println(" heuristic " + ah + " activated and returned null");
 		}
-	    } else {
-		System.err.println(" " + ah + " not activated");
 	    }
 	}
-	System.err.println(" no heuristic available, returning null");
 	for (ActivatedHeuristic<? extends T> element : list) {
 	    solver.getEngine().desactivatePropagator(element.getPropagator());
 	}
-	System.err.println("removing propagators done");
 	return null;
     }
 
