@@ -5,9 +5,11 @@ package fr.emn.optiplace.solver;
 
 import solver.constraints.Propagator;
 import solver.exception.ContradictionException;
+import solver.search.strategy.decision.fast.FastDecision;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 import util.ESat;
+import util.PoolManager;
 
 /**
  * <p>
@@ -26,6 +28,8 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 
     private static final long serialVersionUID = 1L;
 
+    static PoolManager<FastDecision> manager = new PoolManager<>();
+
     protected boolean activated = false;
 
     public boolean isActivated() {
@@ -35,7 +39,7 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
     /** check whether the variables of the heuristic can be branched on */
     abstract protected void checkActivated();
 
-    Propagator<T> propagator = new Propagator<T>(this.vars) {
+    Propagator<T> propagator = new Propagator<T>(vars) {
 
 	private static final long serialVersionUID = 1L;
 
@@ -66,6 +70,14 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
     protected ActivatedHeuristic(T[] variables, Variable[] observed) {
 	super(variables);
 	this.observed = observed;
+    }
+
+    protected FastDecision getFastDecision() {
+	FastDecision e = manager.getE();
+	if (e == null) {
+	    e = new FastDecision(manager);
+	}
+	return e;
     }
 
 }

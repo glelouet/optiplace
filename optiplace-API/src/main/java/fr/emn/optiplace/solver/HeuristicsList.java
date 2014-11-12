@@ -15,6 +15,19 @@ import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 
 /**
+ * An {@link AbstractStrategy} which contains a list of
+ * {@link ActivatedHeuristic} . It computes a decision by returning the first
+ * decision not null returned by its activated heuristics.
+ * <p>
+ * on first call to {@link #getDecision()}, all activatedHeuristics' propagators
+ * are added to the problem
+ * </p>
+ * <p>
+ * When all the activatedheuristics returned null( or were not activated), this
+ * heuristic is deactivated by the solver ; so all the propagators previously
+ * added are now removed from the solver
+ * </p>
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
@@ -84,9 +97,12 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 		}
 	    }
 	}
+	// no good decision : we won't be called again by the solver, so we
+	// remove the propagators
 	for (ActivatedHeuristic<? extends T> element : list) {
 	    solver.getEngine().desactivatePropagator(element.getPropagator());
 	}
+	inserted = false;
 	return null;
     }
 

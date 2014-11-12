@@ -14,7 +14,6 @@ import solver.search.strategy.decision.fast.FastDecision;
 import solver.variables.IntVar;
 import solver.variables.VF;
 import solver.variables.Variable;
-import util.PoolManager;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -68,8 +67,6 @@ public class HeuristicsListTest {
 
 	private static final long serialVersionUID = 1L;
 
-	static PoolManager<FastDecision> manager = new PoolManager<>();
-
 	protected final int val;
 
 	protected AffectIntVarActivatedHeuristic(int val, IntVar... vars) {
@@ -87,10 +84,7 @@ public class HeuristicsListTest {
 		throw new UnsupportedOperationException("calling a passive heuristic .#getDecision() is forbidden");
 	    }
 	    if (!vars[val].isInstantiated()) {
-		FastDecision e = manager.getE();
-		if (e == null) {
-		    e = new FastDecision(manager);
-		}
+		FastDecision e = getFastDecision();
 		e.set(vars[val], val, DecisionOperator.int_eq);
 		return e;
 	    }
