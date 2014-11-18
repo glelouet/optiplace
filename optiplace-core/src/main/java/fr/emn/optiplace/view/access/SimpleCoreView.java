@@ -131,4 +131,9 @@ public class SimpleCoreView implements CoreView {
     public ResourceUse[] getUses() {
 	return pb.getUses();
     }
+
+    @Override
+    public BoolVar[] isHosters() {
+	return pb.isHosters();
+    }
 }

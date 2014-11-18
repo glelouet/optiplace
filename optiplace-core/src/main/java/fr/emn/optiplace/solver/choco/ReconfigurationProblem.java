@@ -10,7 +10,11 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -20,7 +24,11 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.set.SetConstraintsFactory;
 import solver.search.measure.IMeasures;
-import solver.variables.*;
+import solver.variables.BoolVar;
+import solver.variables.IntVar;
+import solver.variables.SetVar;
+import solver.variables.VF;
+import solver.variables.Variable;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -436,6 +444,19 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
     @Override
     public BoolVar isHoster(Node n) {
 	return isHoster(node(n));
+    }
+
+    @Override
+    public BoolVar[] isHosters() {
+	if (nodesAreHostings == null) {
+	    nodesAreHostings = new BoolVar[nodes().length];
+	}
+	for (int i = 0; i < nodesAreHostings.length; i++) {
+	    if (nodesAreHostings[i] == null) {
+		nodesAreHostings[i] = makeIsHosting(i);
+	    }
+	}
+	return nodesAreHostings;
     }
 
     HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();

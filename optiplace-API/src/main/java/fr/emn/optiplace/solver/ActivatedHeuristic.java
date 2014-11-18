@@ -62,14 +62,14 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 
     /**
      *
-     * @param variables
+     * @param decisionVars
      *            The variables of the problem on which to make decisions
-     * @param observed
+     * @param observedVars
      *            the Variables of the problem which help decide when to branch.
      */
-    protected ActivatedHeuristic(T[] variables, Variable[] observed) {
-	super(variables);
-	this.observed = observed;
+    protected ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
+	super(decisionVars);
+	this.observed = observedVars;
     }
 
     protected FastDecision getFastDecision() {

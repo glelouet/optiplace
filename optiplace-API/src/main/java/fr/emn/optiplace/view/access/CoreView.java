@@ -108,6 +108,8 @@ public interface CoreView {
      */
     public BoolVar isHoster(Node n);
 
+    public BoolVar[] isHosters();
+
     /**
      * @param vm
      * a vm of the problem
