@@ -15,7 +15,6 @@ import solver.search.measure.IMeasures;
 import solver.search.strategy.IntStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.search.strategy.strategy.FindAndProve;
-import solver.search.strategy.strategy.GenerateAndTest;
 import solver.variables.IntVar;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.Allocate;
@@ -28,7 +27,6 @@ import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
-import fr.emn.optiplace.goals.NBMigrationsCost;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
@@ -122,15 +120,15 @@ public class SolvingProcess extends OptiplaceProcess {
 	if (goalMaker == null) {
 	    if (problem.getResourcesHandlers().containsKey("MEM")) {
 		goalMaker = new MigrationReducerGoal("MEM");
-	    } else {
-		goalMaker = NBMigrationsCost.INSTANCE;
 	    }
 
 	}
-	problem.setObjective(goalMaker.getObjective(problem));
+	if (goalMaker != null) {
+	    problem.setObjective(goalMaker.getObjective(problem));
+	}
 
 	problem.getSolver().set(
-		new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(goalMaker),
+		new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
 			makeProveHeuristic(goalMaker)));
 
 	if (strat.getMaxSearchTime() > 0) {
@@ -148,17 +146,25 @@ public class SolvingProcess extends OptiplaceProcess {
      * @return
      */
     @SuppressWarnings("unchecked")
-    AbstractStrategy<Variable> makeFindHeuristic(SearchGoal goalMaker) {
+    AbstractStrategy<Variable> makeFindHeuristic() {
 	// heuristic to find a solution fast
-	GenerateAndTest diveSrc = new GenerateAndTest(problem, StickVMsHeuristic.makeStickVMs(problem
-		.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem), -1);
+	AbstractStrategy<IntVar> diveSrc = StickVMsHeuristic.makeStickVMs(problem.getSourceConfiguration()
+		.getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
+	ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
+	l.add(diveSrc);
+	// then add all heuristics from the view, in the views reverse order.
+	for (int i = views.size() - 1; i >= 0; i--) {
+	    views.get(i).getFindHeuristics().stream().flatMap(s -> s.getHeuristics(problem).stream())
+	    .forEach(t -> l.add(t));
+
+	}
 	return IntStrategyFactory.sequencer(diveSrc, DummyPlacementHeuristic.INSTANCE.getHeuristics(problem).get(0));
     }
 
     /**
      * Make an heuristic to find the best oslution. This heuristic is generally
      * based on the definition of the problem'ss objective to reduce.
-     * 
+     *
      * @param goalMaker
      * @return
      */
@@ -192,7 +198,11 @@ public class SolvingProcess extends OptiplaceProcess {
     @Override
     public void makeSearch() {
 	long st = System.currentTimeMillis();
-	problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
+	if (problem.getObjective() != null) {
+	    problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
+	} else {
+	    problem.getSolver().findSolution();
+	}
 	// TODO what to do with an ObjectiveReducer ?
 	target.setSearchTime(System.currentTimeMillis() - st);
     }
@@ -241,7 +251,9 @@ public class SolvingProcess extends OptiplaceProcess {
 	    return;
 	}
 	target.setDestination(problem.extractConfiguration());
-	target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
+	if (problem.getObjective() != null) {
+	    target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
+	}
 	Migrate.extractMigrations(center.getSource(), target.getDestination(), target.getActions());
 	Allocate.extractAllocates(center.getSource(), target.getDestination(), target.getActions());
 	for (ViewAsModule v : center.getViews()) {
