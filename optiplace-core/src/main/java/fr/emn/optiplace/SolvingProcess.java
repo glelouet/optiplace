@@ -127,12 +127,20 @@ public class SolvingProcess extends OptiplaceProcess {
 	    problem.setObjective(goalMaker.getObjective(problem));
 	}
 
-	problem.getSolver().set(
-		new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-			makeProveHeuristic(goalMaker)));
+	if (strat.isDisableCheckSource()) {
+	    problem.getSolver().set(makeProveHeuristic(goalMaker));
+	} else {
+	    problem.getSolver().set(
+	    	new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+	    		makeProveHeuristic(goalMaker)));
+	}
 
 	if (strat.getMaxSearchTime() > 0) {
 	    SearchMonitorFactory.limitTime(problem.getSolver(), strat.getMaxSearchTime());
+	}
+
+	if (strat.isDisableOptimize()) {
+	    problem.setObjective(null);
 	}
 
 	target.setConfigTime(System.currentTimeMillis() - st);

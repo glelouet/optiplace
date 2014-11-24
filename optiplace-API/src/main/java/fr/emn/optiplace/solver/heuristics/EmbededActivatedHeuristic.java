@@ -10,7 +10,7 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
  * embed an AbstractStrategy in an activatedHeuristic. The activatedHeuristic is
  * activated as long as the embedded strategy did not return null to
  * getDecision();
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  *
  */
@@ -27,7 +27,7 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
      * @param variables
      * @param observed
      */
-    protected EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
+    public EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
 	super(strat.vars, new Variable[0]);
 	activated = true;
 	this.strat = strat;
