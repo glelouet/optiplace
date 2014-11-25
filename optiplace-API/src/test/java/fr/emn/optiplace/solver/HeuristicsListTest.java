@@ -33,8 +33,8 @@ public class HeuristicsListTest {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected void checkActivated() {
-	    activated = true;
+	protected boolean checkActivated() {
+	    return true;
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class HeuristicsListTest {
 
 	@Override
 	public Decision<IntVar> getDecision() {
-	    if (!activated) {
+	    if (!isActivated()) {
 		throw new UnsupportedOperationException("calling a passive heuristic .#getDecision() is forbidden");
 	    }
 	    if (!vars[val].isInstantiated()) {
@@ -92,14 +92,14 @@ public class HeuristicsListTest {
 	}
 
 	@Override
-	protected void checkActivated() {
+	protected boolean checkActivated() {
 	    int nbInst = 0;
 	    for (Variable v : observed) {
 		if (v.isInstantiated()) {
 		    nbInst += 1;
 		}
 	    }
-	    activated = nbInst == val;
+	    return nbInst == val;
 	}
 
 	@Override

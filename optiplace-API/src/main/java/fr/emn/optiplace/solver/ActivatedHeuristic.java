@@ -3,12 +3,15 @@
  */
 package fr.emn.optiplace.solver;
 
-import solver.constraints.Propagator;
+import memory.IStateBool;
 import solver.exception.ContradictionException;
+import solver.explanations.Deduction;
+import solver.explanations.Explanation;
 import solver.search.strategy.decision.fast.FastDecision;
 import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.IVariableMonitor;
 import solver.variables.Variable;
-import util.ESat;
+import solver.variables.events.IEventType;
 import util.PoolManager;
 
 /**
@@ -28,37 +31,70 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 
     private static final long serialVersionUID = 1L;
 
-    static PoolManager<FastDecision> manager = new PoolManager<>();
+    protected static PoolManager<FastDecision> manager = new PoolManager<>();
 
-    protected boolean activated = false;
+    protected FastDecision getFastDecision() {
+	FastDecision e = manager.getE();
+	if (e == null) {
+	    e = new FastDecision(manager);
+	}
+	return e;
+    }
+
+    // /////////////////////////////////////////////////////////////////
+
+    private IStateBool activated;
+
+    /** set to true when the observed variables are modified */
+    private boolean dirty = true;
+
+    protected void dirty() {
+	this.dirty = true;
+    }
 
     public boolean isActivated() {
-	return activated;
+	if (dirty) {
+	    activated.set(checkActivated());
+	    dirty = false;
+	}
+	return activated.get();
     }
 
     /** check whether the variables of the heuristic can be branched on */
-    abstract protected void checkActivated();
+    abstract protected boolean checkActivated();
 
-    Propagator<T> propagator = new Propagator<T>(vars) {
+    protected IVariableMonitor<Variable> monitor = new IVariableMonitor<Variable>() {
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void propagate(int evtmask) throws ContradictionException {
-	    checkActivated();
+	public void explain(Deduction d, Explanation e) {
+	    throw new UnsupportedOperationException("implement this !");
 	}
 
 	@Override
-	public ESat isEntailed() {
-	    return ESat.UNDEFINED;
+	public void onUpdate(Variable var, IEventType evt) throws ContradictionException {
+	    dirty();
 	}
     };
 
-    public Propagator<? extends Variable> getPropagator() {
-	return propagator;
+    protected Variable[] observed;
+
+    public void addMonitors() {
+	for (Variable v : observed) {
+	    v.addMonitor(monitor);
+	}
     }
 
-    protected Variable[] observed;
+    public void remMonitors() {
+	try {
+	    for (Variable v : observed) {
+		v.removeMonitor(monitor);
+	    }
+	} catch (UnsupportedOperationException e) {
+	    // do nothing.
+	}
+    }
 
     /**
      *
@@ -70,14 +106,12 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
     protected ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
 	super(decisionVars);
 	this.observed = observedVars;
-    }
-
-    protected FastDecision getFastDecision() {
-	FastDecision e = manager.getE();
-	if (e == null) {
-	    e = new FastDecision(manager);
+	Variable var = null;
+	if (decisionVars == null || decisionVars.length == 0) {
+	    var = observedVars[0];
+	} else {
+	    var = decisionVars[0];
 	}
-	return e;
+	activated = var.getSolver().getEnvironment().makeBool(false);
     }
-
 }

@@ -29,8 +29,8 @@ public class GTActivatedHeuristic extends ActivatedHeuristic<IntVar> {
     }
 
     @Override
-    protected void checkActivated() {
-	activated = vars[0].getLB() >= vars[1].getLB() || vars[0].getUB() >= vars[1].getUB();
+    protected boolean checkActivated() {
+	return vars[0].getLB() >= vars[1].getLB() || vars[0].getUB() >= vars[1].getUB();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class GTActivatedHeuristic extends ActivatedHeuristic<IntVar> {
 
     @Override
     public Decision<IntVar> getDecision() {
-	if (!activated) {
+	if (!isActivated()) {
 	    throw new UnsupportedOperationException();
 	}
 	FastDecision e = getFastDecision();

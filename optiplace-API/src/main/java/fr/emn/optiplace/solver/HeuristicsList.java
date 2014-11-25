@@ -7,8 +7,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import solver.Solver;
-import solver.constraints.Constraint;
-import solver.constraints.Propagator;
 import solver.exception.ContradictionException;
 import solver.search.strategy.decision.Decision;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -35,6 +33,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HeuristicsList.class);
 
     private final ActivatedHeuristic<? extends T>[] list;
@@ -79,13 +78,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
     public Decision<T> getDecision() {
 	if (!inserted) {
 	    for (ActivatedHeuristic<? extends T> element : list) {
-		Propagator<? extends Variable> p = element.getPropagator();
-		solver.getEngine().dynamicAddition(new Constraint("" + p, p), true);
-		try {
-		    p.propagate(0);
-		} catch (ContradictionException e) {
-		    logger.warn("", e);
-		}
+		element.addMonitors();
 	    }
 	    inserted = true;
 	}
@@ -100,7 +93,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 	// no good decision : we won't be called again by the solver, so we
 	// remove the propagators
 	for (ActivatedHeuristic<? extends T> element : list) {
-	    solver.getEngine().desactivatePropagator(element.getPropagator());
+	    element.remMonitors();
 	}
 	inserted = false;
 	return null;

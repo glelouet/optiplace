@@ -1,5 +1,6 @@
 package fr.emn.optiplace.solver.heuristics;
 
+import memory.IStateBool;
 import solver.exception.ContradictionException;
 import solver.search.strategy.decision.Decision;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -10,7 +11,7 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
  * embed an AbstractStrategy in an activatedHeuristic. The activatedHeuristic is
  * activated as long as the embedded strategy did not return null to
  * getDecision();
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  *
  */
@@ -29,13 +30,17 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
      */
     protected EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
 	super(strat.vars, new Variable[0]);
-	activated = true;
 	this.strat = strat;
+	nullRet = strat.vars[0].getSolver().getEnvironment().makeBool(false);
     }
 
+    // set to true when the embeded heuristic returns null : we can't call it
+    // again
+    IStateBool nullRet;
+
     @Override
-    protected void checkActivated() {
-	// do nothing, always activated if activated before.
+    protected boolean checkActivated() {
+	return !nullRet.get();
     }
 
     @Override
@@ -46,7 +51,7 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
     public Decision<T> getDecision() {
 	Decision<T> e = strat.getDecision();
 	if (e == null) {
-	    activated = false;
+	    nullRet.set(true);
 	}
 	return e;
     }
