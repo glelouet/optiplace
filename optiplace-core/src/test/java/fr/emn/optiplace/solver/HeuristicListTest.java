@@ -73,8 +73,9 @@ public class HeuristicListTest {
 	/** constraint to add on getDecision(), keep on null to do nothing */
 	protected Constraint toAdd = null;
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public Decision<?> getDecision() {
+	public Decision getDecision() {
 	    if (toAdd != null) {
 		try {
 		    vars[0].getSolver().post(toAdd);
@@ -101,7 +102,7 @@ public class HeuristicListTest {
 	 * @return this
 	 */
 	public IterateOverVar withConstraint(Constraint c) {
-	    this.toAdd = c;
+	    toAdd = c;
 	    return this;
 	}
 

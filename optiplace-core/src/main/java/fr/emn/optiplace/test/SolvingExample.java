@@ -44,6 +44,7 @@ public class SolvingExample {
 	for (int i = 0; i < nbWaitings; i++) {
 	    waitings[i] = src.addVM("vm_" + i, null, vmUse);
 	}
+	strat.setDisableCheckSource(true);
     }
 
     public Configuration solve(Configuration src, Rule... rules) {
