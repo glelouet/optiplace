@@ -1,5 +1,7 @@
 /**
- *
+ *<p>this process use all the views to generate the list of heuristics to use in the solver.<br />
+ *Also, if the strat.#isDisabledCheckSource() is false AND there is less then 6 VMs waitings,
+ *it tries first to place all the VMS at their source position, potentially finding a correct solution very fast.</p>
  */
 package fr.emn.optiplace;
 
@@ -20,6 +22,7 @@ import solver.variables.Variable;
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration.VMSTATES;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -127,12 +130,20 @@ public class SolvingProcess extends OptiplaceProcess {
 	    problem.setObjective(goalMaker.getObjective(problem));
 	}
 
-	problem.getSolver().set(
-		new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-			makeProveHeuristic(goalMaker)));
+	if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
+	    problem.getSolver().set(makeProveHeuristic(goalMaker));
+	} else {
+	    problem.getSolver().set(
+		    new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+			    makeProveHeuristic(goalMaker)));
+	}
 
 	if (strat.getMaxSearchTime() > 0) {
 	    SearchMonitorFactory.limitTime(problem.getSolver(), strat.getMaxSearchTime());
+	}
+
+	if (strat.isDisableOptimize()) {
+	    problem.setObjective(null);
 	}
 
 	target.setConfigTime(System.currentTimeMillis() - st);
@@ -155,7 +166,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	// then add all heuristics from the view, in the views reverse order.
 	for (int i = views.size() - 1; i >= 0; i--) {
 	    views.get(i).getFindHeuristics().stream().flatMap(s -> s.getHeuristics(problem).stream())
-	    .forEach(t -> l.add(t));
+		    .forEach(t -> l.add(t));
 
 	}
 	return IntStrategyFactory.sequencer(diveSrc, DummyPlacementHeuristic.INSTANCE.getHeuristics(problem).get(0));

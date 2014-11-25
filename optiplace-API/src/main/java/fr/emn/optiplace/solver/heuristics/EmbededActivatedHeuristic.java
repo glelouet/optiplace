@@ -28,7 +28,7 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
      * @param variables
      * @param observed
      */
-    protected EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
+    public EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
 	super(strat.vars, new Variable[0]);
 	this.strat = strat;
 	nullRet = strat.vars[0].getSolver().getEnvironment().makeBool(false);
