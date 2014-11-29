@@ -55,4 +55,9 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
 	}
 	return e;
     }
+
+    @Override
+    public String toString() {
+	return "embededactivated(" + strat + ")";
+    }
 }

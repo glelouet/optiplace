@@ -1,5 +1,7 @@
 package fr.emn.optiplace.solver.heuristics;
 
+import java.util.Arrays;
+
 import solver.exception.ContradictionException;
 import solver.search.strategy.assignments.DecisionOperator;
 import solver.search.strategy.decision.Decision;
@@ -50,5 +52,10 @@ public class GTActivatedHeuristic extends ActivatedHeuristic<IntVar> {
 	    e.set(vars[0], vars[1].getUB() - 1, DecisionOperator.int_split);
 	}
 	return e;
+    }
+
+    @Override
+    public String toString() {
+	return "GTActivatedHeuristic" + Arrays.asList(vars);
     }
 }

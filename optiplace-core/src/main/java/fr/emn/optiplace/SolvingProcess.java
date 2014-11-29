@@ -202,6 +202,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	// all the heuristics are generated and added in the problem here.
 	List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators.stream()
 		.map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream()).collect(Collectors.toList());
+	System.err.println("heuristics : " + strats);
 	return IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
 
     }

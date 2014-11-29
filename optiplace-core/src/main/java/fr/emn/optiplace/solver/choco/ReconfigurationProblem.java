@@ -335,11 +335,26 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
     /** for each vm, the index of its hosting node */
     protected IntVar[] hosters = null;
 
+    /**
+     * should we name the variables busing the nodes and VMs index or using the
+     * nodes and VM names ? default is : use their name
+     */
+    protected boolean useVMAndNodeIndex = false;
+
+    protected String nodeName(int i) {
+	return useVMAndNodeIndex ? "n_" + i : node(i).getName();
+    }
+
+    protected String vmName(int i) {
+	return useVMAndNodeIndex ? "vm_" + i : vm(i).getName();
+    }
+
     protected void makeHosters() {
 	if (hosters == null) {
 	    hosters = new IntVar[vms.length];
 	    for (int i = 0; i < vms.length; i++) {
-		hosters[i] = createEnumIntVar("vm_" + i + ".hoster", 0, nodes.length - 1);
+		hosters[i] = createEnumIntVar(vmName(i) + ".hoster", 0,
+			nodes.length - 1);
 	    }
 	}
     }
@@ -351,7 +366,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	    // A set variable for each future online nodes
 	    hosteds = new SetVar[nodes.length];
 	    for (int i = 0; i < hosteds.length; i++) {
-		SetVar s = VF.set("n_" + i + ".hosted", 0, vms.length - 1, getSolver());
+		SetVar s = VF.set(nodeName(i) + ".hosted", 0, vms.length - 1, getSolver());
 		hosteds[i] = s;
 	    }
 	    // for each VM i, it belongs to his hoster's set, meaning
@@ -396,7 +411,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	    makeHosteds();
 	    cards = new IntVar[nodes.length];
 	    for (int i = 0; i < cards.length; i++) {
-		cards[i] = createBoundIntVar("n_" + i + ".#VMs", 0, vms.length);
+		cards[i] = createBoundIntVar(nodeName(i) + ".#VMs", 0, vms.length);
 		post(SetConstraintsFactory.cardinality(hosteds[i], cards[i]));
 	    }
 	}
@@ -474,7 +489,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 	IntVar ret = hostedArray[vmIndex];
 	if (ret == null) {
-	    ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
+	    ret = createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 	    onNewVar(ret);
 	    nth(host(vmIndex), getUse(resource).getNodesUse(), ret);
 	    hostedArray[vmIndex] = ret;
@@ -492,12 +507,12 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	    hostCapacities.put(resource, hostedArray);
 	}
 	if (vmIndex < 0) {
-	    logger.error("virtual machine " + vms[vmIndex].getName() + " not found, returning null");
+	    logger.error("virtual machine " + vmName(vmIndex) + " not found, returning null");
 	    return null;
 	}
 	IntVar ret = hostedArray[vmIndex];
 	if (ret == null) {
-	    ret = createBoundIntVar(vms[vmIndex].getName() + ".hosterMax" + resource, 0, VF.MAX_INT_BOUND);
+	    ret = createBoundIntVar(vmName(vmIndex) + ".hosterMax" + resource, 0, VF.MAX_INT_BOUND);
 	    onNewVar(ret);
 	    nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
 	    hostedArray[vmIndex] = ret;
