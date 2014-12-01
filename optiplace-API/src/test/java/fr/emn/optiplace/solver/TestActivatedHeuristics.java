@@ -87,7 +87,6 @@ public class TestActivatedHeuristics {
 		    nbInst += 1;
 		}
 	    }
-	    System.err.println("checking " + this + ", nb instantiated : " + nbInst);
 	    activated = nbInst == val;
 	}
 
@@ -163,26 +162,27 @@ public class TestActivatedHeuristics {
 		    }
 		}
 		inserted = true;
-		System.err.println("insertion of propagators done");
 	    }
 	    for (IntVarActivatedStrategy ah : list) {
 		if (ah.isActivated()) {
 		    Decision<IntVar> d = ah.getDecision();
 		    if (d != null) {
-			System.err.println("heuristic " + ah + " activated and chose " + d);
+			// System.err.println("heuristic " + ah +
+			// " activated and chose " + d);
 			return d;
 		    } else {
-			System.err.println("heuristic " + ah + " activated and returned null");
+			// System.err.println("heuristic " + ah +
+			// " activated and returned null");
 		    }
 		} else {
-		    System.err.println(" " + ah + " not activated");
+		    // System.err.println(" " + ah + " not activated");
 		}
 	    }
-	    System.err.println("no heuristic available, returning null");
+	    // System.err.println("no heuristic available, returning null");
 	    for (IntVarActivatedStrategy element : list) {
 		s.getEngine().desactivatePropagator(element.getPropagator());
 	    }
-	    System.err.println("removing heuristics done");
+	    // System.err.println("removing heuristics done");
 	    return null;
 	}
 

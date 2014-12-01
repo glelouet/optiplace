@@ -197,7 +197,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	strats.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
 
 	// all the heuristics are generated and added in the problem here.
-	System.err.println("heuristics : " + strats);
+	// System.err.println("heuristics : " + strats);
 	return IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
 
     }
