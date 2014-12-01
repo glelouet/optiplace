@@ -1,6 +1,11 @@
 package fr.emn.optiplace.view;
 
+import java.util.Collections;
+import java.util.List;
+
+import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
+import solver.variables.Variable;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -28,7 +33,7 @@ public interface SearchGoal {
 	 * null, or an empty array, if no heuristic is interesting. Default
 	 * implementation is null
 	 */
-	default SearchHeuristic[] getHeuristics(IReconfigurationProblem rp) {
-		return null;
+    default List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
+	return Collections.emptyList();
 	}
 }

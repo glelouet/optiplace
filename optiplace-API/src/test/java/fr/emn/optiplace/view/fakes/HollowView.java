@@ -6,6 +6,7 @@ package fr.emn.optiplace.view.fakes;
 import java.util.List;
 
 import solver.constraints.Constraint;
+import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -13,7 +14,6 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
-import fr.emn.optiplace.view.SearchHeuristic;
 import fr.emn.optiplace.view.View;
 
 public class HollowView implements View {
@@ -34,7 +34,7 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public List<SearchHeuristic> getSearchHeuristics() {
+    public List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
 		throw new UnsupportedOperationException();
 	}
 

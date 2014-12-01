@@ -1,11 +1,17 @@
 package fr.emn.optiplace.view;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -48,7 +54,7 @@ public interface ViewAsModule {
      *         The LAST added view's algorithms are used first, but in the order
      *         they were provided by the view.
      */
-    public default List<SearchHeuristic> getSearchHeuristics() {
+    public default List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
 	return Collections.emptyList();
     }
 
@@ -67,7 +73,7 @@ public interface ViewAsModule {
      * the possibility of a solution than the optimization of the problem, in
      * order to find a quick correct solution
      */
-    public default List<SearchHeuristic> getFindHeuristics() {
+    public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
 	return Collections.emptyList();
     }
 

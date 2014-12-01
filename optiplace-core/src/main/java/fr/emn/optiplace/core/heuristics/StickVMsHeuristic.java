@@ -13,7 +13,6 @@ import solver.variables.Variable;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
-import fr.emn.optiplace.view.SearchHeuristic;
 
 /**
  * An heuristic to place the VMs on their hosters in the source configuration.
@@ -23,7 +22,7 @@ import fr.emn.optiplace.view.SearchHeuristic;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class StickVMsHeuristic implements SearchHeuristic {
+public class StickVMsHeuristic {
 
     public static AbstractStrategy<IntVar> makeStickVMs(VM[] vms, IReconfigurationProblem p) {
 	int[] srcLoc = new int[vms.length];
@@ -56,7 +55,6 @@ public class StickVMsHeuristic implements SearchHeuristic {
 	return cmp;
     }
 
-    @Override
     public List<AbstractStrategy<? extends Variable>> getHeuristics(
 	    IReconfigurationProblem rp) {
 	List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();

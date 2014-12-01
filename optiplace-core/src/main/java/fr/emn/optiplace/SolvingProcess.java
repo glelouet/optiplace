@@ -6,7 +6,6 @@
 package fr.emn.optiplace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +33,6 @@ import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
-import fr.emn.optiplace.view.SearchHeuristic;
 import fr.emn.optiplace.view.ViewAsModule;
 
 /**
@@ -165,11 +163,10 @@ public class SolvingProcess extends OptiplaceProcess {
 	l.add(diveSrc);
 	// then add all heuristics from the view, in the views reverse order.
 	for (int i = views.size() - 1; i >= 0; i--) {
-	    views.get(i).getFindHeuristics().stream().flatMap(s -> s.getHeuristics(problem).stream())
-		    .forEach(t -> l.add(t));
-
+	    l.addAll(views.get(i).getFindHeuristics());
 	}
-	return IntStrategyFactory.sequencer(diveSrc, DummyPlacementHeuristic.INSTANCE.getHeuristics(problem).get(0));
+	l.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
+	return IntStrategyFactory.sequencer(l.toArray(new AbstractStrategy[0]));
     }
 
     /**
@@ -181,27 +178,25 @@ public class SolvingProcess extends OptiplaceProcess {
      */
     @SuppressWarnings("unchecked")
     AbstractStrategy<Variable> makeProveHeuristic(SearchGoal goalMaker) {
+
+	List<AbstractStrategy<? extends Variable>> strats = new ArrayList<>();
 	// add all the heuristics.
 	// first heuristic : the global goal heuristic
-	SearchHeuristic[] objectiveHeuristics = goalMaker != null ? goalMaker.getHeuristics(problem) : null;
-	ArrayList<SearchHeuristic> heuristicsGenerators = new ArrayList<SearchHeuristic>();
-	if (objectiveHeuristics != null) {
-	    heuristicsGenerators.addAll(Arrays.asList(objectiveHeuristics));
+	if (goalMaker != null) {
+	    strats.addAll( goalMaker.getHeuristics(problem));
 	}
 	// then add all heuristics from the view, in the views reverse order.
 	for (int i = views.size() - 1; i >= 0; i--) {
-	    List<SearchHeuristic> viewGens = views.get(i).getSearchHeuristics();
-	    heuristicsGenerators.addAll(viewGens);
+	    strats.addAll(views.get(i).getSearchHeuristics());
 	}
 	// then add default heuristics.
 	if (problem.getResourcesHandlers().get("MEM") != null) {
-	    heuristicsGenerators.add(new StickVMsHeuristic(problem.getResourcesHandlers().get("MEM").getSpecs()));
+	    strats.addAll(new StickVMsHeuristic(problem.getResourcesHandlers().get("MEM").getSpecs())
+		    .getHeuristics(problem));
 	}
-	heuristicsGenerators.add(DummyPlacementHeuristic.INSTANCE);
+	strats.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
 
 	// all the heuristics are generated and added in the problem here.
-	List<AbstractStrategy<? extends Variable>> strats = heuristicsGenerators.stream()
-		.map(sh -> sh.getHeuristics(problem)).flatMap(l -> l.stream()).collect(Collectors.toList());
 	System.err.println("heuristics : " + strats);
 	return IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
 

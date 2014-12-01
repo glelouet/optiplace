@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import solver.constraints.Constraint;
+import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -106,10 +107,10 @@ public class EmptyView implements View {
 		requestedRules.add(cst);
 	}
 
-	protected ArrayList<SearchHeuristic> searchHeuristics = new ArrayList<>();
+    protected ArrayList<AbstractStrategy<? extends Variable>> searchHeuristics = new ArrayList<>();
 
 	@Override
-	public List<SearchHeuristic> getSearchHeuristics() {
+    public List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
 		return searchHeuristics;
 	}
 
