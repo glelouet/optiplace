@@ -7,7 +7,7 @@ import java.util.List;
 import solver.constraints.Constraint;
 import solver.constraints.ICF;
 import solver.variables.IntVar;
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.center.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**

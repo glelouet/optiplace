@@ -3,8 +3,8 @@
  */
 package fr.emn.optiplace.actions;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.ManagedElement;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.ManagedElement;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

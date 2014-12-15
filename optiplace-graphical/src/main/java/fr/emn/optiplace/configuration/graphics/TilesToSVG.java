@@ -16,8 +16,8 @@ import com.kitfox.svg.SVGUniverse;
 import com.kitfox.svg.animation.AnimationElement;
 import com.kitfox.svg.app.beans.SVGIcon;
 
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

@@ -15,8 +15,8 @@ import java.util.*;
 import solver.search.strategy.selectors.IntValueSelector;
 import solver.variables.IntVar;
 import util.iterators.DisposableValueIterator;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**

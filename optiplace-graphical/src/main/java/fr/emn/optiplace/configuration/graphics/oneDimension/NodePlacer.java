@@ -5,8 +5,8 @@ package fr.emn.optiplace.configuration.graphics.oneDimension;
 
 import java.util.List;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.configuration.graphics.Tile;
 
 /**

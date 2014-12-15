@@ -1,11 +1,11 @@
 /**
  *
  */
-package fr.emn.optiplace.solver;
+package fr.emn.optiplace.center;
 
 import java.util.ArrayList;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewAsModule;

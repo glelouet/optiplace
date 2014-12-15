@@ -8,14 +8,14 @@
  * details. You should have received a copy of the GNU Lesser General Public
  * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
 
-package fr.emn.optiplace.configuration;
+package fr.emn.optiplace.center.configuration;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package fr.emn.optiplace.configuration.resources;
+package fr.emn.optiplace.center.configuration.resources;
 
 import solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import solver.constraints.Constraint;
 import solver.variables.IntVar;
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.center.configuration.resources.ResourceUse;
 
 public interface ChocoResourcePacker {
 

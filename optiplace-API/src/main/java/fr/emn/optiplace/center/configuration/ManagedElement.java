@@ -1,4 +1,4 @@
-package fr.emn.optiplace.configuration;
+package fr.emn.optiplace.center.configuration;
 
 
 /**

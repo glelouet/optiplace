@@ -10,17 +10,28 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
  * Default implementation of Configuration. The elements are stored in
  * linkedHashMap and LinkedHashSet to ensure the same order when iterating
+ * <p>
+ * see {@link ConfigurationFiler} to read or write it on file
+ * </p>
  *
  * @author Guillaume Le Louët
  */

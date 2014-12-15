@@ -15,70 +15,64 @@ import fr.emn.optiplace.view.ViewDescription;
 /**
  * generates a list of view and their description from the jar files in a
  * folder.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  */
 public class ViewManager {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(ViewManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ViewManager.class);
 
-	protected File jarDir = new File(".");
+    protected File jarDir = new File(".");
 
-	public void start() {
-		load();
+    public void start() {
+	load();
+    }
+
+    public void setJarDir(File jarDir) {
+	this.jarDir = jarDir;
+    }
+
+    protected static FileFilter JARFILTER = new FileFilter() {
+
+	@Override
+	public boolean accept(File pathname) {
+	    return pathname.isFile() && pathname.getName().endsWith(".jar");
 	}
+    };
 
-	public void setJarDir(File jarDir) {
-		this.jarDir = jarDir;
+    protected void load() {
+	System.err.println("working in " + jarDir.getAbsolutePath());
+	if (!jarDir.exists()) {
+	    System.err.println("no directory " + jarDir.getAbsolutePath() + " exists");
 	}
-
-	protected static FileFilter JARFILTER = new FileFilter() {
-
-		@Override
-		public boolean accept(File pathname) {
-			return pathname.isFile() && pathname.getName().endsWith(".jar");
+	for (File f : jarDir.listFiles(JARFILTER)) {
+	    System.err.println(f.getAbsolutePath());
+	    try {
+		JarFile jar = new JarFile(f.getAbsolutePath());
+		JarEntry entry = jar.getJarEntry(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME);
+		jar.close();
+		if (entry != null) {
+		    addManaged(f);
 		}
-	};
-
-	protected void load() {
-		System.err.println("working in " + jarDir.getAbsolutePath());
-		if (!jarDir.exists()) {
-			System.err.println("no directory " + jarDir.getAbsolutePath()
-					+ " exists");
-		}
-		for (File f : jarDir.listFiles(JARFILTER)) {
-			System.err.println(f.getAbsolutePath());
-			try {
-				JarFile jar = new JarFile(f.getAbsolutePath());
-				JarEntry entry = jar
-						.getJarEntry(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME);
-				jar.close();
-				if (entry != null) {
-					addManaged(f);
-				}
-			} catch (IOException e) {
-				System.err.println("aborting load of " + f.getAbsolutePath()
-						+ " because of " + e);
-			}
-		}
+	    } catch (IOException e) {
+		System.err.println("aborting load of " + f.getAbsolutePath() + " because of " + e);
+	    }
 	}
+    }
 
-	/** @param jar */
-	protected void addManaged(File jarFile) {
-		System.err.println("managing file " + jarFile);
-		try {
-			URLClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURI()
-					.toURL()});
-			ViewDescription desc = new ViewDescription();
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(
-							cl.getResourceAsStream(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME)));
-			desc.read(reader);
-			System.err.println("got desc : " + desc);
-			cl.close();
-		} catch (Exception e) {
-			logger.warn("", e);
-		}
+    /** @param jar */
+    protected void addManaged(File jarFile) {
+	System.err.println("managing file " + jarFile);
+	try {
+	    URLClassLoader cl = new URLClassLoader(new URL[] { jarFile.toURI().toURL() });
+	    ViewDescription desc = new ViewDescription();
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(
+		    cl.getResourceAsStream(fr.emn.optiplace.view.PluginParser.DESCRIPTORFILENAME)));
+	    desc.read(reader);
+	    System.err.println("got desc : " + desc);
+	    cl.close();
+	} catch (Exception e) {
+	    logger.warn("", e);
 	}
+    }
 }

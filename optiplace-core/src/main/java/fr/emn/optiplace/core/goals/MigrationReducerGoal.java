@@ -8,7 +8,7 @@ import java.util.List;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;

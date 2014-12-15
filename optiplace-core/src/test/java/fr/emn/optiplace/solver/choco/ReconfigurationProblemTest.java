@@ -8,10 +8,10 @@ import org.testng.annotations.Test;
 
 import solver.Cause;
 import solver.exception.ContradictionException;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

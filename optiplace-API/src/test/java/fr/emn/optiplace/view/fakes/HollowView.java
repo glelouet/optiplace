@@ -9,7 +9,7 @@ import solver.constraints.Constraint;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.Rule;

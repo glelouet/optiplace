@@ -4,7 +4,7 @@
 package fr.emn.optiplace;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**

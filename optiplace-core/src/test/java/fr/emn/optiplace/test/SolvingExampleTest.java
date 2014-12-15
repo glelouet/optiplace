@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Configuration.VMSTATES;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration.VMSTATES;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

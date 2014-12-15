@@ -3,10 +3,10 @@ package fr.emn.optiplace.test;
 import java.util.Arrays;
 
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.Rule;
 

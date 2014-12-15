@@ -3,15 +3,22 @@
  */
 package fr.emn.optiplace.configuration.parser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 /**
+ * handles reading and writing a Configuration from/to a file
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
 public class ConfigurationFiler {

@@ -10,8 +10,8 @@ import solver.search.strategy.ISF;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
