@@ -4,10 +4,12 @@
 package fr.emn.optiplace.server;
 
 import java.io.File;
+import java.util.List;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
+import fr.emn.optiplace.view.View;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -15,7 +17,6 @@ import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
  */
 public class Main {
 
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Main.class);
 
     /**
@@ -35,10 +36,14 @@ public class Main {
 
 	ViewManager vm = new ViewManager();
 	vm.setJarDir(new File("views"));
-	vm.loadAllViews();
-	server.addViewLoader(vm);
+	List<View> views = vm.loadGoodViews(server.getViewDataProvider());
+	logger.debug("loaded views : " + views);
 
+	if (views != null && !views.isEmpty()) {
+	    server.setViews(views.toArray(new View[0]));
+	}
+	System.out.println("solving");
 	DeducedTarget t = server.solve(cfg);
-	t.getDestination();
+	System.out.println(t.getDestination());
     }
 }

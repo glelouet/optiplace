@@ -3,12 +3,7 @@
  */
 package fr.emn.optiplace.configuration.parser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
@@ -98,7 +93,6 @@ public class ConfigurationFiler {
 	    String resName = l2s[0];
 	    MappedResourceSpecification res = new MappedResourceSpecification(resName);
 	    cfg.resources().put(resName, res);
-	    // System.err.println("lines : " + Arrays.asList(l2s));
 	    if (l2s[1].length() > 1) {
 		String[] nodes = l2s[1].substring(0, l2s[1].length() - 1).split(", ");
 		for (String r : nodes) {
@@ -116,29 +110,16 @@ public class ConfigurationFiler {
 	}
     }
 
+    /**
+     * write the configuration in a file so next read will do the opposite.
+     */
     public void write() {
 	try {
 	    BufferedWriter b = new BufferedWriter(new FileWriter(file));
-	    cfg.getOnlines().forEach(n -> {
-		write(b, escapeElement(n.getName()) + " :");
-		cfg.getHosted(n).forEach(v -> {
-		    write(b, " " + escapeElement(v.getName()));
-		});
-	    });
+	    b.append(cfg.toString());
+	    b.close();
 	} catch (IOException e) {
 	    throw new UnsupportedOperationException(e);
 	}
-    }
-
-    protected static void write(BufferedWriter b, String s) {
-	try {
-	    b.write(s);
-	} catch (IOException e) {
-	    throw new UnsupportedOperationException(e);
-	}
-    }
-
-    protected String escapeElement(String elementName) {
-	return elementName.replaceAll(" ", "\\ ").replaceAll(":", "\\:");
     }
 }

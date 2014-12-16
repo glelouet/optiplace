@@ -1,18 +1,10 @@
 package fr.emn.optiplace.server;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
@@ -42,7 +34,7 @@ public class ViewManager {
     }
 
     public void setJarDir(File... dirs) {
-	this.jarDirs = dirs;
+	jarDirs = dirs;
     }
 
     protected static FileFilter JARFILTER = new FileFilter() {
@@ -53,18 +45,24 @@ public class ViewManager {
 	}
     };
 
+    /**
+     * loads all the views possible from the jars in its dirs
+     *
+     * @return
+     */
     public List<View> loadAllViews() {
 	ArrayList<View> ret = new ArrayList<>();
 	for (File f : jarDirs) {
-	    if (!f.exists()) {
+	    if (!f.exists() || !f.isDirectory()) {
 		System.err.println("no directory " + f.getAbsolutePath() + " exists");
-	}
-	    for (File c : f.listFiles(JARFILTER)) {
-		View v = extractViewFromJar(c);
-	    if (v != null) {
-		ret.add(v);
+	    } else {
+		for (File c : f.listFiles(JARFILTER)) {
+		    View v = extractViewFromJar(c);
+		    if (v != null) {
+			ret.add(v);
+		    }
+		}
 	    }
-	}
 	}
 	return ret;
     }
@@ -82,7 +80,7 @@ public class ViewManager {
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 	    desc.read(reader);
 	    Class<? extends View> c = (Class<? extends View>) cl.loadClass(desc.clazz);
-	    cl.close();
+	    is.close();
 	    return c.newInstance();
 	} catch (Exception e) {
 	    logger.warn("", e);

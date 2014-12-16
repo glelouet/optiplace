@@ -5,7 +5,6 @@ package fr.emn.optiplace.server;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
@@ -120,15 +119,5 @@ public class OptiplaceServer implements OptiplaceSolver {
     sp.solve();
     return sp.getTarget();
   }
-
-    /**
-     * @param vm
-     */
-    public void addViewLoader(ViewManager vm) {
-	List<View> lviews = vm.loadAllViews();
-	for (View v : lviews) {
-	    // TODO
-	}
-    }
 
 }
