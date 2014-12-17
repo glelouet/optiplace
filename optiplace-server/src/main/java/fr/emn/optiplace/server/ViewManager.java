@@ -1,10 +1,18 @@
 package fr.emn.optiplace.server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
@@ -67,7 +75,13 @@ public class ViewManager {
 	return ret;
     }
 
-    /** @param jarF */
+    /**
+     * extract a view stored in a jar, built as a module for optiplace.
+     * 
+     * @param jarF
+     *            the file representing a jar.
+     */
+    @SuppressWarnings("resource")
     protected View extractViewFromJar(File jarF) {
 	try {
 	    URLClassLoader cl = new URLClassLoader(new URL[] { jarF.toURI().toURL() });
@@ -79,6 +93,7 @@ public class ViewManager {
 	    }
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 	    desc.read(reader);
+	    @SuppressWarnings("unchecked")
 	    Class<? extends View> c = (Class<? extends View>) cl.loadClass(desc.clazz);
 	    is.close();
 	    return c.newInstance();
