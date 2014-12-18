@@ -14,7 +14,7 @@
 	<groupId>fr.emn</groupId>
 	<artifactId>optiplace</artifactId>
 	<packaging>pom</packaging>
-	<version>3.0.2-SNAPSHOT</version>
+	<version>3.0.2</version>
 	<name>optiplace</name>
 	<licenses>
 		<license>
