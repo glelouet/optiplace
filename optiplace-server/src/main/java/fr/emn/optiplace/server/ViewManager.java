@@ -37,15 +37,11 @@ public class ViewManager {
 
     protected File[] jarDirs = new File[] { new File(".") };
 
-    public void start() {
-	loadAllViews();
-    }
-
     public void setJarDir(File... dirs) {
 	jarDirs = dirs;
     }
 
-    protected static FileFilter JARFILTER = new FileFilter() {
+    protected static final FileFilter JARFILTER = new FileFilter() {
 
 	@Override
 	public boolean accept(File pathname) {
@@ -58,7 +54,7 @@ public class ViewManager {
      *
      * @return
      */
-    public List<View> loadAllViews() {
+    public List<View> loadViews() {
 	ArrayList<View> ret = new ArrayList<>();
 	for (File f : jarDirs) {
 	    if (!f.exists() || !f.isDirectory()) {
@@ -77,7 +73,7 @@ public class ViewManager {
 
     /**
      * extract a view stored in a jar, built as a module for optiplace.
-     * 
+     *
      * @param jarF
      *            the file representing a jar.
      */
@@ -143,7 +139,7 @@ public class ViewManager {
 	// then we add all the views in a dictionary, which we provide to all
 	// the views to configure their dependencies
 	HashMap<String, View> availableViews = new HashMap<>();
-	for(String n : activated) {
+	for (String n : activated) {
 	    availableViews.put(n, viewsByName.get(n));
 	}
 	for (View v : availableViews.values()) {
@@ -167,8 +163,8 @@ public class ViewManager {
      *         this, as jars, and configured with both their configuration
      *         parameters and their view dependencies
      */
-    public List<View> loadGoodViews(ViewDataProvider provider) {
-	return keepCorrectviews(loadAllViews(), provider);
+    public List<View> getViews(ViewDataProvider provider) {
+	return keepCorrectviews(loadViews(), provider);
     }
 
 }
