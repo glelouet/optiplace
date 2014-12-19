@@ -40,6 +40,18 @@ public class Migrate implements Action {
     this.to = to;
   }
 
+    public VM getVM() {
+	return vm;
+    }
+
+    public Node getFrom() {
+	return from;
+    }
+
+    public Node getTo() {
+	return to;
+    }
+
   @Override
   public boolean canApply(Configuration cfg) {
     if (!cfg.getLocation(vm).equals(from)) {
