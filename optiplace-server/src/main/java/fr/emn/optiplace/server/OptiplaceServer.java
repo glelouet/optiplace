@@ -3,6 +3,9 @@
  */
 package fr.emn.optiplace.server;
 
+import java.io.File;
+import java.util.Properties;
+
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.OptiplaceSolver;
 import fr.emn.optiplace.SolvingProcess;
@@ -15,10 +18,28 @@ import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.ViewDataProvider;
 
-/** @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014 */
+/**
+ * An Optiplace server aggregates several functionalities :
+ * <ul>
+ * <li>it uses a {@link ViewManager} to load, configure, link the views</li>
+ * <li>it solves a Optiplace Problem designed as a source Configuration and
+ * specific data to use in its views.</li>
+ * </ul>
+ * <p>
+ * The behavior can be changed by
+ * <ul>
+ * <li>directly interaction with the components, eg modification of
+ * {@link #getFileDataPRovider()} or {@link #getViewManager()}</li>
+ * <li>call the parse_X methods to parse String</li>
+ * <li>using a {@link Properties} which associates vales to the keys of
+ * {@link PROPS} enums, and calling the {@link #configure(Properties)}</li>
+ * </ul>
+ * </p>
+ *
+ * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
+ */
 public class OptiplaceServer implements OptiplaceSolver {
 
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
       .getLogger(OptiplaceServer.class);
 
@@ -78,5 +99,95 @@ public class OptiplaceServer implements OptiplaceSolver {
     sp.solve();
     return sp.getTarget();
   }
+
+    protected String field_sep = ":";
+
+    public boolean parse_FS(String data) {
+	if (data != null) {
+	    field_sep = data;
+	    return true;
+	}
+	return false;
+    }
+
+    public boolean parse_viewspath(String data) {
+	try {
+	    String[] dirs = data.split(field_sep);
+	    File[] files = new File[dirs.length];
+	    for (int i = 0; i < dirs.length; i++) {
+		files[i] = new File(dirs[i]);
+	    }
+	    vm.setJarDir(files);
+	    return true;
+	} catch (Exception e) {
+	    logger.warn("error while parsing view path : " + data, e);
+	    return false;
+	}
+    }
+
+    public boolean parse_datapath(String data) {
+	try {
+	    String[] dirs = data.split(field_sep);
+	    File[] files = new File[dirs.length];
+	    for (int i = 0; i < dirs.length; i++) {
+		files[i] = new File(dirs[i]);
+	    }
+	    getFileDataPRovider().setPaths(files);
+	    return true;
+	} catch (Exception e) {
+	    logger.warn("error while parsing data path : " + data, e);
+	    return false;
+	}
+    }
+
+    /**
+     * enum of the properties used to configure the OPL algorithm. Those
+     * properties can be set before invoking the first constructor.<br />
+     * each of this enum consists in a key to be searched in a properties, and a
+     * way to apply that key to an OPLServer.
+     *
+     * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
+     *
+     */
+    public enum PROPS {
+
+	VIEWS_PATH("opl.viewspath") {
+	    @Override
+	    public void apply(OptiplaceServer server, String value) {
+		server.parse_viewspath(value);
+	    }
+	},
+	DATA_PATH("opl.datapath") {
+	    @Override
+	    public void apply(OptiplaceServer server, String value) {
+		server.parse_datapath(value);
+	    }
+	},
+	FIELDSEPARATOR("opl.fs") {
+	    @Override
+	    public void apply(OptiplaceServer server, String value) {
+		server.parse_FS(value);
+	    }
+	};
+	public final String key;
+
+	PROPS(String key) {
+	    this.key = key;
+	}
+
+	public abstract void apply(OptiplaceServer server, String value);
+
+	public void apply(Properties props, OptiplaceServer server) {
+	    if (props.containsKey(key)) {
+		apply(server, props.getProperty(key));
+	    }
+	}
+    }
+
+    public void configure(Properties props) {
+	for (PROPS c : PROPS.values()) {
+	    c.apply(props, this);
+	}
+    }
 
 }

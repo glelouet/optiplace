@@ -30,6 +30,7 @@ public class Main {
     public static void main(String[] args) throws ParseException {
 	Options options = new Options();
 	options.addOption("h", "help", false, "print this message and exit");
+	options.addOption("s", "separator", true, "the separator of the options in the args ; default is ':'");
 	options.addOption("v", "viewspath", true,
 		"the paths in which to look after views. In case of several paths, they must be separated by ':'. default is 'views'.");
 	options.addOption("c", "confpath", true, "the path to look after conf.conf file. Default is '.'.");
@@ -56,27 +57,14 @@ public class Main {
 	cf.read();
 	Configuration cfg = cf.getCfg();
 	OptiplaceServer server = new OptiplaceServer();
-	if (line.hasOption('d')) {
-	    String[] dirs = line.getOptionValue('d').split(":");
-	    File[] files = new File[dirs.length];
-	    for (int i = 0; i < dirs.length; i++) {
-		files[i] = new File(dirs[i]);
-	    }
-	    server.getFileDataPRovider().setPaths(files);
-	} else {
-	    server.getFileDataPRovider().setPaths(new File("."));
+	if (line.hasOption('s')) {
+	    server.parse_FS(line.getOptionValue('s'));
 	}
-
-	ViewManager vm = server.getViewManager();
+	if (line.hasOption('d')) {
+	    server.parse_datapath(line.getOptionValue('d', "."));
+	}
 	if (line.hasOption('v')) {
-	    String[] dirs = line.getOptionValue('v').split(":");
-	    File[] files = new File[dirs.length];
-	    for (int i = 0; i < dirs.length; i++) {
-		files[i] = new File(dirs[i]);
-	    }
-	    vm.setJarDir(files);
-	} else {
-	    vm.setJarDir(new File("views"));
+	    server.parse_viewspath(line.getOptionValue('v', "views"));
 	}
 
 	System.out.println("solving");
