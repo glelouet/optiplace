@@ -56,6 +56,13 @@ public class ViewManager {
      */
     public List<View> loadViews() {
 	ArrayList<View> ret = new ArrayList<>();
+	for (Class<? extends View> c : internalViews) {
+	    try {
+		ret.add(c.newInstance());
+	    } catch (Exception e) {
+		logger.warn("error when creating an instance of "+c, e);
+	    }
+	}
 	for (File f : jarDirs) {
 	    if (!f.exists() || !f.isDirectory()) {
 		System.err.println("no directory " + f.getAbsolutePath() + " exists");
@@ -165,6 +172,20 @@ public class ViewManager {
      */
     public List<View> getViews(ViewDataProvider provider) {
 	return keepCorrectviews(loadViews(), provider);
+    }
+
+    protected HashSet<Class<? extends View>> internalViews = new HashSet<>();
+
+    /**
+     *
+     * @return the internal set of views which are created using {@link
+     *         Class.#newInstance()} and added to the list of views in
+     *         {@link #loadviews()). Use this to force the server to load
+     *         specific views ; however if a dependency is not met or if they
+     *         are not configured, they cannot be returned by getViews
+     */
+    public Set<Class<? extends View>> getPreLoadedViewClasses() {
+	return internalViews;
     }
 
 }
