@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
@@ -50,7 +52,8 @@ public class ViewManager {
     };
 
     /**
-     * loads all the views possible from the jars in its dirs
+     * loads all the views possible from the jars in its dirs and the preloaded
+     * views
      *
      * @return
      */
@@ -58,21 +61,25 @@ public class ViewManager {
 	ArrayList<View> ret = new ArrayList<>();
 	for (Class<? extends View> c : internalViews) {
 	    try {
-		ret.add(c.newInstance());
+		if (!bannedViews.contains(c.getName())) {
+		    ret.add(c.newInstance());
+		}
 	    } catch (Exception e) {
 		logger.warn("error when creating an instance of "+c, e);
 	    }
 	}
-	for (File f : jarDirs) {
-	    if (!f.exists() || !f.isDirectory()) {
-		System.err.println("no directory " + f.getAbsolutePath() + " exists");
-	    } else {
-		for (File c : f.listFiles(JARFILTER)) {
-		    View v = extractViewFromJar(c);
-		    if (v != null) {
-			ret.add(v);
-		    }
-		}
+	if (!disableLoading) {
+	    for (File f : jarDirs) {
+	        if (!f.exists() || !f.isDirectory()) {
+	    	System.err.println("no directory " + f.getAbsolutePath() + " exists");
+	        } else {
+	    	for (File c : f.listFiles(JARFILTER)) {
+	    	    View v = extractViewFromJar(c);
+			if (v != null && !bannedViews.contains(v.getName())) {
+	    		ret.add(v);
+	    	    }
+	    	}
+	        }
 	    }
 	}
 	return ret;
@@ -110,7 +117,7 @@ public class ViewManager {
 	HashSet<String> activated = new HashSet<>(), moved = new HashSet<>();
 	HashMap<String, Set<String>> unactivated = new HashMap<>();
 	HashMap<String, View> viewsByName = new HashMap<>();
-	// first we keep only the views which can be configured . If a view has
+	// first we keep only the views which can be configured. If a view has
 	// no dependency we add it to activated, else we add it to unactivated
 	// with its dependencies
 	for (View v : allViews) {
@@ -186,6 +193,38 @@ public class ViewManager {
      */
     public Set<Class<? extends View>> getPreLoadedViewClasses() {
 	return internalViews;
+    }
+
+    boolean disableLoading = false;
+
+    /**
+     * set weither we forbid or not the loading of views from jars. default is
+     * false. If set to true, then only views from getPreloadedViews will be
+     * returned .
+     *
+     * @param b
+     *            the boolean to disable the loading of views from jars
+     */
+    public void setDisableLoading(boolean b) {
+	this.disableLoading = b;
+    }
+
+    protected HashSet<String> bannedViews = new HashSet<>();
+
+    /**
+     * set the views that must not be used.
+     *
+     * @param strings
+     */
+    public void setBannedViews(String... strings) {
+	bannedViews.clear();
+	if (strings != null) {
+	    bannedViews.addAll(Arrays.asList(strings));
+	}
+    }
+
+    public Stream<String> getBannedViews() {
+	return bannedViews.stream();
     }
 
 }

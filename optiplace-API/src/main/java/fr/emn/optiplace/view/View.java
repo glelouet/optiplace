@@ -54,55 +54,59 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public interface View extends ViewAsModule {
 
-	/**
-	 * shortcut for {@link #getRequestedRules()}.add(cst)
-	 *
-	 * @param cst
-	 */
-	public void addRule(Rule cst);
+    /**
+     * shortcut for {@link #getRequestedRules()}.add(cst)
+     *
+     * @param cst
+     */
+    public void addRule(Rule cst);
 
-	/**
-	 * add a constraint to the problem, if not already added, and store it in the
-	 * list of added constraints.
-	 *
-	 * @param eq
-	 * the constraint to add to the problem
-	 */
-	public void post(Constraint eq);
+    /**
+     * add a constraint to the problem, if not already added, and store it in
+     * the list of added constraints.
+     *
+     * @param eq
+     *            the constraint to add to the problem
+     */
+    public void post(Constraint eq);
 
-	/**
-	 * Declares a new variable has been created by this view. Only variables
-	 * directly created by the view should be declared, i.e. the views must not
-	 * declare the variables created by other views.
-	 *
-	 * @param var
-	 */
-	public void onNewVar(Variable var);
+    /**
+     * Declares a new variable has been created by this view. Only variables
+     * directly created by the view should be declared, i.e. the views must not
+     * declare the variables created by other views.
+     *
+     * @param var
+     */
+    public void onNewVar(Variable var);
 
-	/**
-	 * @return an unmodifiable list of the variables that have been added to the
-	 * model by this view
-	 */
-	public List<Variable> getAddedVars();
+    /**
+     * @return an unmodifiable list of the variables that have been added to the
+     *         model by this view
+     */
+    public List<Variable> getAddedVars();
 
-	/**
-	 * @return an unmodifiable list of the constraints that have been posted to
-	 * the model by this view
-	 */
-	public List<Constraint> getAddedConstraints();
+    /**
+     * @return an unmodifiable list of the constraints that have been posted to
+     *         the model by this view
+     */
+    public List<Constraint> getAddedConstraints();
 
-	/**
-	 * set the required configuration. If this implementation does not require a
-	 * configuration, such as having no specification in {@link
-	 * ViewDesc.#configURI()}, this should do nothing.
-	 *
-	 * @param conf
-	 * the configuration retrieved by the core for this view, from its description
-	 * annotation.
-	 */
-	public void setConfig(ProvidedData conf);
+    /**
+     * set the required configuration. If this implementation does not require a
+     * configuration, such as having no specification in {@link
+     * ViewDesc.#configURI()}, this should do nothing.
+     *
+     * @param conf
+     *            the configuration retrieved by the core for this view, from
+     *            its description annotation.
+     */
+    public void setConfig(ProvidedData conf);
 
-	/** @return the problem */
-	public IReconfigurationProblem getProblem();
+    /** @return the problem */
+    public IReconfigurationProblem getProblem();
+
+    public default String getName() {
+	return getClass().getName();
+    }
 
 }

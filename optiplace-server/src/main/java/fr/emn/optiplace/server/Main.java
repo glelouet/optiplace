@@ -29,13 +29,16 @@ public class Main {
      */
     public static void main(String[] args) throws ParseException {
 	Options options = new Options();
-	options.addOption("h", "help", false, "print this message and exit");
-	options.addOption("s", "separator", true, "the separator of the options in the args ; default is ':'");
-	options.addOption("v", "viewspath", true,
-		"the paths in which to look after views. In case of several paths, they must be separated by ':'. default is 'views'.");
+	options.addOption("b", "banviews", true, "the list of views names to disable");
 	options.addOption("c", "confpath", true, "the path to look after conf.conf file. Default is '.'.");
 	options.addOption("d", "viewdata", true,
 		"the paths to look after for views data. Paths are separated by ':'. Default path is '.'.");
+	options.addOption("h", "help", false, "print this message and exit");
+	options.addOption("n", "nodyn", false, "disable the loading of views from jar(only static views can be used)");
+	options.addOption("r", "required", true, "list of the views required to solve a problem.");
+	options.addOption("s", "separator", true, "the separator of the options in the args ; default is ':'");
+	options.addOption("v", "viewspath", true,
+		"the paths in which to look after views. In case of several paths, they must be separated by ':'. default is 'views'.");
 
 	CommandLine line = new org.apache.commons.cli.BasicParser().parse(options, args);
 
@@ -65,6 +68,12 @@ public class Main {
 	}
 	if (line.hasOption('v')) {
 	    server.parse_viewspath(line.getOptionValue('v', "views"));
+	}
+	if (line.hasOption("n")) {
+	    server.getViewManager().setDisableLoading(true);
+	}
+	if (line.hasOption('b')) {
+	    server.parse_banViews(line.getOptionValue('b'));
 	}
 
 	System.out.println("solving");

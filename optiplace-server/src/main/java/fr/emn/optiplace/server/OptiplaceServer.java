@@ -4,6 +4,7 @@
 package fr.emn.optiplace.server;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import fr.emn.optiplace.DeducedTarget;
@@ -16,6 +17,7 @@ import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
 import fr.emn.optiplace.server.viewDataProviders.PlexerProvider;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.ProvidedData;
+import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewDataProvider;
 
 /**
@@ -89,8 +91,9 @@ public class OptiplaceServer implements OptiplaceSolver {
       }
     }
     BaseCenter center = new BaseCenter();
+	List<View> views = vm.getViews(getViewDataProvider());
     center.setSource(source);
-	center.getViews().addAll(vm.getViews(getViewDataProvider()));
+	center.getViews().addAll(views);
     SolvingProcess sp = new SolvingProcess();
     sp.center(center);
     if (strat != null) {
@@ -140,6 +143,34 @@ public class OptiplaceServer implements OptiplaceSolver {
 	}
     }
 
+    public boolean parse_banViews(String value) {
+	if (value == null || value.isEmpty()) {
+	    getViewManager().setBannedViews((String[]) null);
+	} else {
+	    getViewManager().setBannedViews(value.split(field_sep));
+	}
+	return true;
+    }
+
+    // TODO in case we want to requires specific views
+    // public boolean parse_required(String value) {
+    // if (value == null || value.isEmpty()) {
+    // setRequiredViews((String[]) null);
+    // } else {
+    // setRequiredViews(value.split(field_sep));
+    // }
+    // return true;
+    // }
+    //
+    // HashSet<String> requiredViews = new HashSet<>();
+    //
+    // protected void setRequiredViews(String... strings) {
+    // requiredViews.clear();
+    // if (strings != null && strings.length != 0) {
+    // requiredViews.addAll(Arrays.asList(strings));
+    // }
+    // }
+
     /**
      * enum of the properties used to configure the OPL algorithm. Those
      * properties can be set before invoking the first constructor.<br />
@@ -167,6 +198,18 @@ public class OptiplaceServer implements OptiplaceSolver {
 	    @Override
 	    public void apply(OptiplaceServer server, String value) {
 		server.parse_FS(value);
+	    }
+	},
+	DISABLE_VIEW_LOADER("opl.nodynamicview") {
+	    @Override
+	    public void apply(OptiplaceServer server, String value) {
+		server.getViewManager().setDisableLoading(Boolean.parseBoolean(value));
+	    }
+	},
+	BAN_VIEWS("opl.banviews") {
+	    @Override
+	    public void apply(OptiplaceServer server, String value) {
+		server.parse_banViews(value);
 	    }
 	};
 	public final String key;
