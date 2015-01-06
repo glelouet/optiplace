@@ -21,16 +21,19 @@ import solver.variables.Variable;
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
+import fr.emn.optiplace.solver.ActivatedHeuristic;
+import fr.emn.optiplace.solver.HeuristicsList;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
+import fr.emn.optiplace.solver.heuristics.EmbededActivatedHeuristic;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
@@ -42,7 +45,6 @@ import fr.emn.optiplace.view.ViewAsModule;
  */
 public class SolvingProcess extends OptiplaceProcess {
 
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SolvingProcess.class);
 
     /** the core problem, modified by the views */
@@ -115,6 +117,9 @@ public class SolvingProcess extends OptiplaceProcess {
 	for (ViewAsModule v : views) {
 	    SearchGoal sg = v.getSearchGoal();
 	    if (sg != null) {
+		if (goalMaker != null) {
+		    logger.info("goal "+goalMaker+" overriden by goal "+sg+" from view "+v);
+		}
 		goalMaker = sg;
 	    }
 	}
@@ -170,8 +175,8 @@ public class SolvingProcess extends OptiplaceProcess {
     }
 
     /**
-     * Make an heuristic to find the best oslution. This heuristic is generally
-     * based on the definition of the problem'ss objective to reduce.
+     * Make an heuristic to find the best solution. This heuristic is generally
+     * based on the definition of the problem's objective to reduce.
      *
      * @param goalMaker
      * @return
@@ -196,10 +201,20 @@ public class SolvingProcess extends OptiplaceProcess {
 	}
 	strats.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
 
-	// all the heuristics are generated and added in the problem here.
-	// System.err.println("heuristics : " + strats);
-	return IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]));
+	// we also need to get the activatedHeuristics. Those have higher
+	// priority than static heuristics, because they will be inactive most
+	// of the time.
+	List<ActivatedHeuristic<? extends Variable>> lah = new ArrayList<>();
+	if (goalMaker != null) {
+	    lah.addAll(goalMaker.getActivatedHeuristics(problem));
+	}
+	for (int i = views.size() - 1; i >= 0; i--) {
+	    lah.addAll(views.get(i).getActivatedHeuristics());
+	}
+	lah.add(new EmbededActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
+	return new HeuristicsList<Variable>(problem.getSolver(),
+		lah.toArray(new ActivatedHeuristic[0]));
     }
 
     @Override

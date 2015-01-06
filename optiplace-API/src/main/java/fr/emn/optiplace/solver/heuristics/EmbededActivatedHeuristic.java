@@ -8,7 +8,7 @@ import solver.variables.Variable;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 
 /**
- * embed an AbstractStrategy in an activatedHeuristic. The activatedHeuristic is
+ * Bring an AbstractStrategy in an activatedHeuristic. The activatedHeuristic is
  * activated as long as the embedded strategy did not return null to
  * getDecision();
  *

@@ -9,7 +9,7 @@ import solver.search.loop.monitors.ISearchMonitor;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
- * How to create and explore a problems.<br />
+ * How to create and explore a problem.<br />
  * <p>
  * Contains parameters, such as limiting the exploration fo the solution tree,
  * using a specific packer for the resources, reducing the objective value,
@@ -205,6 +205,27 @@ public class ConfigStrat {
 
     public boolean isDisableOptimize() {
 	return disableOptimize;
+    }
+
+    private boolean disableViewRace = false;
+
+    /**
+     * @return the disableMutlipleGoals
+     */
+    public boolean isDisableViewRace() {
+	return disableViewRace;
+    }
+
+    /**
+     * set to true to prevent the solver to execute IF several views are
+     * specifying heuristics or goals, eg when the views are dynamically loaded
+     * and thus the order of loading and selection of the
+     * 
+     * @param disableMutlipleGoals
+     *            the disableMutlipleGoals to set
+     */
+    public void setDisableViewRace(boolean disableMutlipleGoals) {
+	this.disableViewRace = disableMutlipleGoals;
     }
 
 }

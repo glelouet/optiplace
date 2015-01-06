@@ -14,6 +14,7 @@ import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
 import fr.emn.optiplace.view.annotations.Parameter;
@@ -47,15 +48,33 @@ public interface ViewAsModule {
     public List<Rule> getRequestedRules();
 
     /**
+     * get the heuristics to find quickly a solution. They should focus more on
+     * the possibility of a solution than the optimization of the problem, in
+     * order to find a quick correct solution
+     */
+    public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
+	return Collections.emptyList();
+    }
+
+    /**
      * get the heuristics specified in the view
      *
      * @return the list of heuristics made by the view from its internal
      *         algorithms. <br />
      *         The LAST added view's algorithms are used first, but in the order
-     *         they were provided by the view.
+     *         they were provided by the view. That means the last views have
+     *         the highest priority.
      */
     public default List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
 	return Collections.emptyList();
+    }
+
+    /**
+     * get the heuristics that are activated upon given solver states. default
+     * returns an empty list
+     */
+    public default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics() {
+	    return Collections.emptyList();
     }
 
     /**
@@ -66,15 +85,6 @@ public interface ViewAsModule {
      */
     public default SearchGoal getSearchGoal() {
 	return null;
-    }
-
-	        /**
-     * get the heuristics to find quickly a solution. They should focus more on
-     * the possibility of a solution than the optimization of the problem, in
-     * order to find a quick correct solution
-     */
-    public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
-	return Collections.emptyList();
     }
 
     /**
@@ -92,7 +102,7 @@ public interface ViewAsModule {
      * provides view to fulfill the dependencies.
      *
      * @param activatedViews
-     * a map of view name to views.
+     *            a map of view name to views.
      * @return true if all dependencies were satisfied
      */
     default boolean setDependencies(Map<String, View> activatedViews) {
@@ -131,12 +141,12 @@ public interface ViewAsModule {
     }
 
     /**
-     * set the data used in this view. The fields annotated with {@link Parameter}
-     * are found by reflection, their object is then cast to a ProvidedDataReader
-     * which then reads the data .
+     * set the data used in this view. The fields annotated with
+     * {@link Parameter} are found by reflection, their object is then cast to a
+     * ProvidedDataReader which then reads the data .
      *
      * @param prv
-     * the provider of ViewData
+     *            the provider of ViewData
      * @return true if all the required configurations were satisfied.
      */
     default boolean setConfs(ViewDataProvider prv) {
@@ -145,7 +155,7 @@ public interface ViewAsModule {
 	    if (a != null) {
 		ProvidedData d = prv.getData(a.confName());
 		if (d == null) {
-		    if( a.required()) {
+		    if (a.required()) {
 			return false;
 		    } else {
 			continue;
@@ -171,8 +181,9 @@ public interface ViewAsModule {
      * requirement level.
      *
      * @param required
-     * true to only retrieve the REQUIRED configurations, false to only retrieve
-     * the OPTIONNAL configurations, null to retrieve both.
+     *            true to only retrieve the REQUIRED configurations, false to
+     *            only retrieve the OPTIONNAL configurations, null to retrieve
+     *            both.
      * @return a new set of string corresponding to the configuration names
      */
     default Set<String> extractConfigurations(Boolean required) {
