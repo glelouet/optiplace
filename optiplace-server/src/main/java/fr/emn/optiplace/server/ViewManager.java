@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.view.View;
@@ -54,7 +55,8 @@ public class ViewManager {
 
     /**
      * loads all the views possible from the jars in its dirs and the preloaded
-     * views.
+     * views. The views are NOT configured, use
+     * {@link #getViews(ViewDataProvider)} to make them configured
      *
      * @return a sorted list of the views.
      */
@@ -66,31 +68,24 @@ public class ViewManager {
 		    ret.add(c.newInstance());
 		}
 	    } catch (Exception e) {
-		logger.warn("error when creating an instance of "+c, e);
+		logger.warn("error when creating an instance of " + c, e);
 	    }
 	}
 	if (!disableLoading) {
 	    for (File f : jarDirs) {
-	        if (!f.exists() || !f.isDirectory()) {
-	    	System.err.println("no directory " + f.getAbsolutePath() + " exists");
-	        } else {
-	    	for (File c : f.listFiles(JARFILTER)) {
-	    	    View v = extractViewFromJar(c);
+		if (!f.exists() || !f.isDirectory()) {
+		    System.err.println("no directory " + f.getAbsolutePath() + " exists");
+		} else {
+		    for (File c : f.listFiles(JARFILTER)) {
+			View v = extractViewFromJar(c);
 			if (v != null && !bannedViews.contains(v.getName())) {
-	    		ret.add(v);
-	    	    }
-	    	}
-	        }
+			    ret.add(v);
+			}
+		    }
+		}
 	    }
 	}
-	if (!ret.isEmpty()) {
-	    sortListOfViews(ret);
-	}
 	return ret;
-    }
-
-    public static void sortListOfViews(List<View> l) {
-	Collections.sort(l, (v1, v2) -> v1.getName().compareTo(v2.getName()));
     }
 
     /**
@@ -184,20 +179,45 @@ public class ViewManager {
     }
 
     /**
+     * <p>
      * extract all the views from the jar files in jardDirs which <br />
-     * <el> <li>have their configuration present in the provider</li> <li>have
-     * their dependencies provided by views of this same group</li> </el> The
-     * returned views are configured and their dependencies are satisfied (the
-     * views they depend on are injected and present in the returned list)
+     * <el>
+     * <li>have their configuration present in the provider</li>
+     * <li>have their dependencies provided by views of this same group</li>
+     * </el>
+     * </p>
+     * <p>
+     * The returned views are configured and their dependencies are satisfied
+     * (the views they depend on are injected and present in the returned list)
+     * </p>
+     * <p>
+     * Also, the returned list is sorted
+     * <ol>
+     * <li>first come the views which are loaded from jar, then the views which
+     * come from the specific demand</li>
+     * <li>then the views are sorted by their name ascending</li>
+     * </ol>
+     * </p>
      *
      * @param provider
      *            A provider to give the views the resources they require
      * @return a new modifiable list of all the views present in the dirs of
      *         this, as jars, and configured with both their configuration
-     *         parameters and their view dependencies
+     *         parameters and their view dependencies.
      */
     public List<View> getViews(ViewDataProvider provider) {
-	return keepCorrectviews(loadViews(), provider);
+	List<View> accepted = keepCorrectviews(loadViews(), provider);
+	sortViewsByName(accepted);
+	sortViewsByContained(accepted, internalViews.stream().map(c -> c.getSimpleName()).collect(Collectors.toSet()));
+	return accepted;
+    }
+
+    public static void sortViewsByName(List<View> l) {
+	Collections.sort(l, (v1, v2) -> v1.getName().compareTo(v2.getName()));
+    }
+
+    public static void sortViewsByContained(List<View> l, Set<String> last) {
+	Collections.sort(l, (v1, v2) -> (last.contains(v1.getName()) ? 1 : 0) - (last.contains(v2.getName()) ? 1 : 0));
     }
 
     protected HashSet<Class<? extends View>> internalViews = new HashSet<>();
