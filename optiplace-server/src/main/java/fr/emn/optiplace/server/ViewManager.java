@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,9 +54,9 @@ public class ViewManager {
 
     /**
      * loads all the views possible from the jars in its dirs and the preloaded
-     * views
+     * views.
      *
-     * @return
+     * @return a sorted list of the views.
      */
     public List<View> loadViews() {
 	ArrayList<View> ret = new ArrayList<>();
@@ -82,7 +83,14 @@ public class ViewManager {
 	        }
 	    }
 	}
+	if (!ret.isEmpty()) {
+	    sortListOfViews(ret);
+	}
 	return ret;
+    }
+
+    public static void sortListOfViews(List<View> l) {
+	Collections.sort(l, (v1, v2) -> v1.getName().compareTo(v2.getName()));
     }
 
     /**
@@ -113,6 +121,17 @@ public class ViewManager {
 	}
     }
 
+    /**
+     * Try to configure the resources of the views and inject their
+     * dependencies.
+     *
+     * @param allViews
+     *            the list of all views that can be used
+     * @param vdp
+     *            the provider of configurations
+     * @return the list of views which are configured and have their
+     *         dependencies
+     */
     public static List<View> keepCorrectviews(List<View> allViews, ViewDataProvider vdp) {
 	HashSet<String> activated = new HashSet<>(), moved = new HashSet<>();
 	HashMap<String, Set<String>> unactivated = new HashMap<>();
