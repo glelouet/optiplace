@@ -9,9 +9,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -207,30 +210,60 @@ public class ViewManager {
      */
     public List<View> getViews(ViewDataProvider provider) {
 	List<View> accepted = keepCorrectviews(loadViews(), provider);
-	sortViewsByName(accepted);
-	sortViewsByContained(accepted, internalViews.stream().map(c -> c.getSimpleName()).collect(Collectors.toSet()));
+	sortViewsByNameExcluding(accepted,
+		internalViews.stream().map(c -> c.getSimpleName()).collect(Collectors.toList()));
 	return accepted;
     }
 
-    public static void sortViewsByName(List<View> l) {
-	Collections.sort(l, (v1, v2) -> v1.getName().compareTo(v2.getName()));
-    }
-
-    public static void sortViewsByContained(List<View> l, Set<String> last) {
+    /**
+     * Sort a list of view by their name, keeping the views with given names at
+     * the last position of the list
+     *
+     * @param l
+     *            the list of known views to sort.
+     * @param last
+     *            an ordered collection of views names. This should be a
+     *            {@link LinkedHashSet}, {@link LinkedHashMap}, any list, or
+     *            basically any collection that retains insertion order
+     */
+    public static void sortViewsByNameExcluding(List<View> l, Collection<String> last) {
+	// first sort them by presence in the set
 	Collections.sort(l, (v1, v2) -> (last.contains(v1.getName()) ? 1 : 0) - (last.contains(v2.getName()) ? 1 : 0));
+	// find the first index of presence in last and make sublist
+	int indexfirst = 0;
+	for (; indexfirst < l.size() && !last.contains(l.get(indexfirst).getName()); indexfirst++) {
+	}
+	if (indexfirst >= 2) {
+	    Collections.sort(l.subList(0, indexfirst), (v1, v2) -> v1.getName().compareTo(v2.getName()));
+	}
+	if (indexfirst < l.size()) {
+	    List<View> sub = l.subList(indexfirst, l.size());
+	    List<String> indexed = new ArrayList<>(last);
+	    Collections.sort(sub, (v1, v2) -> indexed.indexOf(v2.getName()) - indexed.indexOf(v1.getName()));
+	}
     }
-
-    protected HashSet<Class<? extends View>> internalViews = new HashSet<>();
 
     /**
-     *
-     * @return the internal set of views which are created using {@link
-     *         Class.#newInstance()} and added to the list of views in
-     *         {@link #loadviews()). Use this to force the server to load
-     *         specific views ; however if a dependency is not met or if they
-     *         are not configured, they cannot be returned by getViews
+     * the internal ordered collection of views to add to {@link #loadViews()}.
      */
-    public Set<Class<? extends View>> getPreLoadedViewClasses() {
+    protected LinkedHashSet<Class<? extends View>> internalViews = new LinkedHashSet<>();
+
+    /**
+     * get the internal ordered collection of views to add to the loaded views.
+     * <p>
+     * Those views are instantiated and to be returned by {@link #loadViews()}
+     * </p>
+     * <p>
+     * However, they CAN be returned by {@link #getViews(ViewDataProvider)
+     * getViews}, but only if their dependencies are met (Views and resources)
+     * on configuration.
+     * </p>
+     *
+     * @return the internal set of views which are created using
+     *         {@link Class#newInstance() } and added to the list of views in
+     *         {@link #loadviews() loadviews).
+     */
+    public LinkedHashSet<Class<? extends View>> getPreLoadedViewClasses() {
 	return internalViews;
     }
 

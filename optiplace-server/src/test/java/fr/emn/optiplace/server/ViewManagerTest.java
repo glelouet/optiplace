@@ -4,7 +4,6 @@
 package fr.emn.optiplace.server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -38,36 +37,29 @@ public class ViewManagerTest {
     }
 
     @Test
-    public void testSortViewsByName() {
-	View[] views = makeViewsWithName(3);
-	ArrayList<View> l = new ArrayList<>();
-	l.add(views[2]);
-	l.add(views[0]);
+    public void testSortViewsByNameExcluding() {
+	View[] views = makeViewsWithName(5);
+
+	List<View> l = new ArrayList<>();
 	l.add(views[1]);
+	l.add(views[3]);
+	l.add(views[4]);
+	l.add(views[0]);
+	l.add(views[2]);
 
-	ViewManager.sortViewsByName(l);
-
-	List<View> target = Arrays.asList(views);
-	Assert.assertEquals(l, target);
-    }
-
-    @Test
-    public void testSortViewsByContainer() {
-	View[] views = makeViewsWithName(4);
+	HashSet<String> contained = new HashSet<>();
+	contained.add("v2");
+	contained.add("v1");
 
 	// copy it now or the sort will change the order of elems in views
 	List<View> target = new ArrayList<>();
 	target.add(views[0]);
 	target.add(views[3]);
-	target.add(views[1]);
+	target.add(views[4]);
 	target.add(views[2]);
+	target.add(views[1]);
 
-	List<View> l = Arrays.asList(views);
-	HashSet<String> contained = new HashSet<>();
-	contained.add("v1");
-	contained.add("v2");
-
-	ViewManager.sortViewsByContained(l, contained);
+	ViewManager.sortViewsByNameExcluding(l, contained);
 	Assert.assertEquals(l, target, "res = " + l + " expected " + target);
 
     }
