@@ -162,7 +162,7 @@ public class SolvingProcess extends OptiplaceProcess {
     @SuppressWarnings("unchecked")
     AbstractStrategy<Variable> makeFindHeuristic() {
 	// heuristic to find a solution fast
-	AbstractStrategy<IntVar> diveSrc = StickVMsHeuristic.makeStickVMs(problem.getSourceConfiguration()
+	AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(problem.getSourceConfiguration()
 		.getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 	ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
 	l.add(diveSrc);
@@ -213,8 +213,13 @@ public class SolvingProcess extends OptiplaceProcess {
 	}
 	lah.add(new EmbededActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
-	return new HeuristicsList<Variable>(problem.getSolver(),
+	HeuristicsList<Variable> ret = new HeuristicsList<Variable>(problem.getSolver(),
 		lah.toArray(new ActivatedHeuristic[0]));
+	ret.setLogActivated(strat.isLogHeuristicsSelection());
+	if (strat.isLogHeuristicsSelection()) {
+	    logger.debug("proveheuristic is : " + ret);
+	}
+	return ret;
     }
 
     @Override

@@ -33,11 +33,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HeuristicsList.class);
-
-    private final ActivatedHeuristic<? extends T>[] list;
-    boolean inserted = false;
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
@@ -58,6 +54,15 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 	    copied += arr.length;
 	}
 	return ret;
+    }
+
+    private final ActivatedHeuristic<? extends T>[] list;
+    boolean inserted = false;
+
+    protected boolean logActivated = false;
+
+    public void setLogActivated(boolean log) {
+	logActivated = log;
     }
 
     @SafeVarargs
@@ -86,6 +91,9 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 	    if (ah.isActivated()) {
 		Decision<T> d = (Decision<T>) ah.getDecision();
 		if (d != null) {
+		    if (logActivated) {
+			logger.debug("activated heuristic " + ah + " returned decision " + d);
+		    }
 		    return d;
 		}
 	    }
@@ -101,6 +109,6 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 
     @Override
     public String toString() {
-	return "activatedListof" + Arrays.asList(list);
+	return getClass().getSimpleName() + Arrays.asList(list);
     }
 }

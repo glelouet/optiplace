@@ -43,7 +43,7 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 
     // /////////////////////////////////////////////////////////////////
 
-    private IStateBool activated;
+    private final IStateBool activated;
 
     /** set to true when the observed variables are modified */
     private boolean dirty = true;
@@ -113,5 +113,10 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	    var = decisionVars[0];
 	}
 	activated = var.getSolver().getEnvironment().makeBool(false);
+    }
+
+    @Override
+    public String toString() {
+	return getClass().getSimpleName();
     }
 }

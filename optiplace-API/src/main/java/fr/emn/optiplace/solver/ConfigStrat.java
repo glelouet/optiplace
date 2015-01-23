@@ -220,12 +220,31 @@ public class ConfigStrat {
      * set to true to prevent the solver to execute IF several views are
      * specifying heuristics or goals, eg when the views are dynamically loaded
      * and thus the order of loading and selection of the
-     * 
+     *
      * @param disableMutlipleGoals
      *            the disableMutlipleGoals to set
      */
     public void setDisableViewRace(boolean disableMutlipleGoals) {
 	this.disableViewRace = disableMutlipleGoals;
+    }
+
+    private boolean logHeuristicsSelection = false;
+
+    /**
+     * @return
+     */
+    public boolean isLogHeuristicsSelection() {
+	return logHeuristicsSelection;
+    }
+
+    /**
+     * set whether we should log (debug) the ActivatedHeuristics which makes a
+     * decision
+     * 
+     * @param log
+     */
+    public void setLogHeuristicsSelection(boolean log) {
+	logHeuristicsSelection = log;
     }
 
 }

@@ -6,13 +6,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import solver.search.strategy.ISF;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.IntVar;
 import solver.variables.Variable;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
+import fr.emn.optiplace.view.SearchGoal;
 
 /**
  * An heuristic to place the VMs on their hosters in the source configuration.
@@ -24,7 +24,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public class StickVMsHeuristic {
 
-    public static AbstractStrategy<IntVar> makeStickVMs(VM[] vms, IReconfigurationProblem p) {
+    public static AbstractStrategy<? extends Variable> makeStickVMs(VM[] vms, IReconfigurationProblem p) {
 	int[] srcLoc = new int[vms.length];
 	IntVar[] hosters = new IntVar[vms.length];
 	for (int i = 0; i < vms.length; i++) {
@@ -32,7 +32,7 @@ public class StickVMsHeuristic {
 	    hosters[i] = p.host(vms[i]);
 	}
 	Var2ValSelector heuristic = new Var2ValSelector(hosters, srcLoc);
-	return ISF.custom(heuristic, heuristic, hosters);
+	return SearchGoal.makeAssignHeuristic(StickVMsHeuristic.class.getSimpleName(), heuristic, heuristic, hosters);
     }
 
     /** the comparator to define in which order to assign the vms */

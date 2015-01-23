@@ -58,6 +58,6 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
 
     @Override
     public String toString() {
-	return "embededactivated(" + strat + ")";
+	return getClass().getSimpleName() + "(" + strat + ")";
     }
 }
