@@ -134,7 +134,6 @@ public class HeuristicListTest {
      * To "lead" to a bad solution, a second heuristic will make the search fail
      * on its first call.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test(dependsOnMethods = "testpostTemp")
     public void testFirstOptimizeFalse() {
 	Solver s = new Solver();
@@ -151,7 +150,7 @@ public class HeuristicListTest {
 	IntVar d = VF.bool("d", s);
 	IterateOverVar id = new IterateOverVar(d);
 
-	HeuristicsList<IntVar> hl = new HeuristicsList(s, new EmbededActivatedHeuristic<IntVar>(ia),
+	HeuristicsList hl = new HeuristicsList(s, new EmbededActivatedHeuristic<IntVar>(ia),
 		new EmbededActivatedHeuristic<IntVar>(ib));
 	s.set(IntStrategyFactory.sequencer(hl, ic, id));
 	// SearchMonitorFactory.log(s, true, true);

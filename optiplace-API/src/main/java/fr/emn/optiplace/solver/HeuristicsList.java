@@ -3,7 +3,6 @@
  */
 package fr.emn.optiplace.solver;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import solver.Solver;
@@ -29,15 +28,14 @@ import solver.variables.Variable;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
-public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
+public class HeuristicsList extends AbstractStrategy<Variable> {
 
     private static final long serialVersionUID = 1L;
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HeuristicsList.class);
 
     @SafeVarargs
-    @SuppressWarnings("unchecked")
-    protected static <V extends Variable> V[] concatVars(ActivatedHeuristic<V>... list) {
+    protected static Variable[] concatVars(ActivatedHeuristic<? extends Variable>... list) {
 	if (list == null) {
 	    return null;
 	}
@@ -45,18 +43,18 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 	if (length == 0) {
 	    return null;
 	}
-	V[] ret = (V[]) Array.newInstance(list[0].vars.getClass().getComponentType(), length);
+	Variable[] ret = new Variable[length];
 
 	int copied = 0;
-	for (ActivatedHeuristic<V> ah : list) {
-	    V[] arr = ah.vars;
+	for (ActivatedHeuristic<?> ah : list) {
+	    Variable[] arr = ah.vars;
 	    System.arraycopy(arr, 0, ret, copied, arr.length);
 	    copied += arr.length;
 	}
 	return ret;
     }
 
-    private final ActivatedHeuristic<? extends T>[] list;
+    private final ActivatedHeuristic<?>[] list;
     boolean inserted = false;
 
     protected boolean logActivated = false;
@@ -66,7 +64,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
     }
 
     @SafeVarargs
-    public HeuristicsList(Solver s, ActivatedHeuristic<T>... list) {
+    public HeuristicsList(Solver s, ActivatedHeuristic<?>... list) {
 	super(concatVars(list));
 	this.solver = s;
 	this.list = list;
@@ -80,16 +78,16 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Decision<T> getDecision() {
+    public Decision<Variable> getDecision() {
 	if (!inserted) {
-	    for (ActivatedHeuristic<? extends T> element : list) {
+	    for (ActivatedHeuristic<? extends Variable> element : list) {
 		element.addMonitors();
 	    }
 	    inserted = true;
 	}
-	for (ActivatedHeuristic<? extends T> ah : list) {
+	for (ActivatedHeuristic<? extends Variable> ah : list) {
 	    if (ah.isActivated()) {
-		Decision<T> d = (Decision<T>) ah.getDecision();
+		Decision<Variable> d = (Decision<Variable>) ah.getDecision();
 		if (d != null) {
 		    if (logActivated) {
 			logger.debug("activated heuristic " + ah + " returned decision " + d);
@@ -100,7 +98,7 @@ public class HeuristicsList<T extends Variable> extends AbstractStrategy<T> {
 	}
 	// no good decision : we won't be called again by the solver, so we
 	// remove the propagators
-	for (ActivatedHeuristic<? extends T> element : list) {
+	for (ActivatedHeuristic<? extends Variable> element : list) {
 	    element.remMonitors();
 	}
 	inserted = false;

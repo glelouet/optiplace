@@ -36,7 +36,7 @@ public class GTActivatedHeuristicTest {
 		hs[i - 1] = new GTActivatedHeuristic(vars[i - 1], vars[i]);
 	    }
 	}
-	s.set(new HeuristicsList<>(s, hs));
+	s.set(new HeuristicsList(s, hs));
 	s.findSolution();
 	for (int i = 0; i < nbVars; i++) {
 	    Assert.assertEquals(vars[i].getValue(), i);

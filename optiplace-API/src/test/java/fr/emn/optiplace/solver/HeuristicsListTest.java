@@ -52,8 +52,8 @@ public class HeuristicsListTest {
 	Solver s = new Solver();
 	ActivatedHeuristic<IntVar> a0 = new EmptyIntVarActivatedHeuristic(VF.fixed(5, s), VF.fixed(20, s));
 	ActivatedHeuristic<IntVar> a1 = new EmptyIntVarActivatedHeuristic(VF.fixed(50, s), VF.fixed(100, s));
-	IntVar[] res = HeuristicsList.concatVars(a0, a1);
-	Assert.assertEquals(res, new IntVar[] { VF.fixed(5, s), VF.fixed(20, s), VF.fixed(50, s), VF.fixed(100, s) });
+	Variable[] res = HeuristicsList.concatVars(a0, a1);
+	Assert.assertEquals(res, new Variable[] { VF.fixed(5, s), VF.fixed(20, s), VF.fixed(50, s), VF.fixed(100, s) });
     }
 
     /**
@@ -117,7 +117,7 @@ public class HeuristicsListTest {
 
 	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(0, vars);
 	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(1, vars);
-	HeuristicsList<IntVar> hl = new HeuristicsList<>(s, hab, haa);
+	HeuristicsList hl = new HeuristicsList(s, hab, haa);
 	s.set(hl);
 	// SearchMonitorFactory.log(s, true, true);
 
@@ -137,7 +137,7 @@ public class HeuristicsListTest {
 	AffectIntVarActivatedHeuristic haa = new AffectIntVarActivatedHeuristic(0, vars);
 	AffectIntVarActivatedHeuristic hab = new AffectIntVarActivatedHeuristic(1, vars);
 	AffectIntVarActivatedHeuristic hac = new AffectIntVarActivatedHeuristic(2, vars);
-	HeuristicsList<IntVar> hl = new HeuristicsList<>(s, hab, haa, hac);
+	HeuristicsList hl = new HeuristicsList(s, hab, haa, hac);
 	s.set(hl);
 	// SearchMonitorFactory.log(s, true, true);
 

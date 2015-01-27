@@ -213,7 +213,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	}
 	lah.add(new EmbededActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
-	HeuristicsList<Variable> ret = new HeuristicsList<Variable>(problem.getSolver(),
+	HeuristicsList ret = new HeuristicsList(problem.getSolver(),
 		lah.toArray(new ActivatedHeuristic[0]));
 	ret.setLogActivated(strat.isLogHeuristicsSelection());
 	if (strat.isLogHeuristicsSelection()) {
