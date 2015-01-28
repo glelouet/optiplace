@@ -5,7 +5,7 @@ package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
-import solver.search.loop.monitors.ISearchMonitor;
+import org.chocosolver.solver.search.loop.monitors.ISearchMonitor;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**

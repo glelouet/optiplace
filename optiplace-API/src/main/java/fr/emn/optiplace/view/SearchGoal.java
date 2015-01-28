@@ -3,16 +3,16 @@ package fr.emn.optiplace.view;
 import java.util.Collections;
 import java.util.List;
 
-import solver.search.strategy.ISF;
-import solver.search.strategy.selectors.IntValueSelector;
-import solver.search.strategy.selectors.SetValueSelector;
-import solver.search.strategy.selectors.VariableSelector;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.search.strategy.strategy.IntStrategy;
-import solver.search.strategy.strategy.SetStrategy;
-import solver.variables.IntVar;
-import solver.variables.SetVar;
-import solver.variables.Variable;
+import org.chocosolver.solver.search.strategy.ISF;
+import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.SetValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
+import org.chocosolver.solver.search.strategy.strategy.SetStrategy;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.Variable;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 

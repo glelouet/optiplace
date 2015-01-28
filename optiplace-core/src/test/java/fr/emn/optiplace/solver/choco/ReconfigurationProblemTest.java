@@ -6,8 +6,8 @@ package fr.emn.optiplace.solver.choco;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solver.Cause;
-import solver.exception.ContradictionException;
+import org.chocosolver.solver.Cause;
+import org.chocosolver.solver.exception.ContradictionException;
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;

@@ -15,8 +15,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solver.search.ISolutionPool;
-import solver.search.SolutionPoolFactory;
+import org.chocosolver.solver.search.ISolutionPool;
+import org.chocosolver.solver.search.SolutionPoolFactory;
 import entropy.TestHelper;
 import entropy.configuration.*;
 import entropy.plan.*;

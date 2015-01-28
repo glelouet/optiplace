@@ -6,16 +6,16 @@ package fr.emn.optiplace.solver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solver.Solver;
-import solver.constraints.Constraint;
-import solver.constraints.ICF;
-import solver.search.strategy.IntStrategyFactory;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.selectors.IntValueSelector;
-import solver.search.strategy.selectors.VariableSelector;
-import solver.search.strategy.strategy.IntStrategy;
-import solver.variables.IntVar;
-import solver.variables.VF;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.ICF;
+import org.chocosolver.solver.search.strategy.IntStrategyFactory;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VF;
 import fr.emn.optiplace.solver.heuristics.EmbededActivatedHeuristic;
 
 /**

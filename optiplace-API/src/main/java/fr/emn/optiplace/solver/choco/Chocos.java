@@ -1,13 +1,13 @@
 package fr.emn.optiplace.solver.choco;
 
-import solver.Solver;
-import solver.constraints.Constraint;
-import solver.constraints.IntConstraintFactory;
-import solver.constraints.LogicalConstraintFactory;
-import solver.constraints.ternary.Times;
-import solver.variables.BoolVar;
-import solver.variables.IntVar;
-import solver.variables.VariableFactory;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.IntConstraintFactory;
+import org.chocosolver.solver.constraints.LogicalConstraintFactory;
+import org.chocosolver.solver.constraints.ternary.Times;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VariableFactory;
 
 /**
  * Utility class to ease the creation of some constraints on Choco.
@@ -32,7 +32,7 @@ public final class Chocos {
 	 * the second constraint
 	 */
 	public static void postImplies(Solver s, Constraint c1, Constraint c2) {
-		s.post(LogicalConstraintFactory.ifThen(c1, c2));
+	LogicalConstraintFactory.ifThen(c1, c2);
 	}
 
 	/**

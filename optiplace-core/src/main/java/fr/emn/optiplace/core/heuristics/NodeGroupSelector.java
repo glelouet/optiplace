@@ -10,11 +10,16 @@
 
 package fr.emn.optiplace.core.heuristics;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import solver.search.strategy.selectors.IntValueSelector;
-import solver.variables.IntVar;
-import util.iterators.DisposableValueIterator;
+import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.iterators.DisposableValueIterator;
+
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -86,7 +91,7 @@ public class NodeGroupSelector implements IntValueSelector {
    * @return the index of the node
    */
   protected int worstFitCPU(IntVar v) {
-    DisposableValueIterator ite = v.getValueIterator(true);
+	DisposableValueIterator ite = v.getValueIterator(true);
     int bestIdx = ite.next();
     int bestCPU = rp.getUsedCPU(rp.node(bestIdx)).getLB();
     while (ite.hasNext()) {

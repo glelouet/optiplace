@@ -2,9 +2,9 @@ package fr.emn.optiplace.core.heuristics;
 
 import java.util.Arrays;
 
-import solver.search.strategy.selectors.IntValueSelector;
-import solver.search.strategy.selectors.VariableSelector;
-import solver.variables.IntVar;
+import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.variables.IntVar;
 
 /**
  * select vars in the given order and try to assign them to their provided

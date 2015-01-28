@@ -3,16 +3,17 @@
  */
 package fr.emn.optiplace.solver;
 
-import memory.IStateBool;
-import solver.exception.ContradictionException;
-import solver.explanations.Deduction;
-import solver.explanations.Explanation;
-import solver.search.strategy.decision.fast.FastDecision;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.IVariableMonitor;
-import solver.variables.Variable;
-import solver.variables.events.IEventType;
-import util.PoolManager;
+import org.chocosolver.memory.IStateBool;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.explanations.Deduction;
+import org.chocosolver.solver.explanations.Explanation;
+import org.chocosolver.solver.explanations.ExplanationEngine;
+import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.IVariableMonitor;
+import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.events.IEventType;
+import org.chocosolver.util.PoolManager;
 
 /**
  * <p>
@@ -68,13 +69,13 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void explain(Deduction d, Explanation e) {
-	    throw new UnsupportedOperationException("implement this !");
+	public void onUpdate(Variable var, IEventType evt) throws ContradictionException {
+	    dirty();
 	}
 
 	@Override
-	public void onUpdate(Variable var, IEventType evt) throws ContradictionException {
-	    dirty();
+	public void explain(ExplanationEngine arg0, Deduction arg1, Explanation arg2) {
+	    throw new UnsupportedOperationException();
 	}
     };
 
@@ -103,7 +104,7 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
      * @param observedVars
      *            the Variables of the problem which help decide when to branch.
      */
-    protected ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
+    public ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
 	super(decisionVars);
 	this.observed = observedVars;
 	Variable var = null;
@@ -113,6 +114,10 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	    var = decisionVars[0];
 	}
 	activated = var.getSolver().getEnvironment().makeBool(false);
+    }
+
+    public ActivatedHeuristic(T[] vars) {
+	this(vars, vars);
     }
 
     @Override

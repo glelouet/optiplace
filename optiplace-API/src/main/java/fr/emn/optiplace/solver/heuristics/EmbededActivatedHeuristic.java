@@ -1,10 +1,11 @@
 package fr.emn.optiplace.solver.heuristics;
 
-import memory.IStateBool;
-import solver.exception.ContradictionException;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.Variable;
+import org.chocosolver.memory.IStateBool;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.Variable;
+
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 
 /**
@@ -29,9 +30,9 @@ public class EmbededActivatedHeuristic<T extends Variable> extends ActivatedHeur
      * @param observed
      */
     public EmbededActivatedHeuristic(AbstractStrategy<T> strat) {
-	super(strat.vars, new Variable[0]);
+	super(strat.getVariables(), new Variable[0]);
 	this.strat = strat;
-	nullRet = strat.vars[0].getSolver().getEnvironment().makeBool(false);
+	nullRet = strat.getVariables()[0].getSolver().getEnvironment().makeBool(false);
     }
 
     // set to true when the embeded heuristic returns null : we can't call it

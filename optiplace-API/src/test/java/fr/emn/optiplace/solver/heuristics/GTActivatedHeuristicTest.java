@@ -3,9 +3,9 @@ package fr.emn.optiplace.solver.heuristics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solver.Solver;
-import solver.variables.IntVar;
-import solver.variables.VF;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VF;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
 

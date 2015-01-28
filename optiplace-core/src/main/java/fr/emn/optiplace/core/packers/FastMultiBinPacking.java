@@ -3,13 +3,11 @@ package fr.emn.optiplace.core.packers;/* Created by IntelliJ IDEA. User:
  * sophie.demassey{at}mines-nantes.fr
  * Date: 15/08/11 - 01:28 */
 
+import org.chocosolver.solver.constraints.Propagator;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.variables.IntVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import solver.constraints.Propagator;
-import solver.exception.ContradictionException;
-import solver.variables.IntVar;
-import util.ESat;
 
 /** @author Sophie Demassey */
 public class FastMultiBinPacking extends Propagator<IntVar> {
@@ -27,7 +25,7 @@ public class FastMultiBinPacking extends Propagator<IntVar> {
 	}
 
 	@Override
-	public ESat isEntailed() {
+    public org.chocosolver.util.ESat isEntailed() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}

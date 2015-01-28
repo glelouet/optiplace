@@ -2,11 +2,11 @@ package fr.emn.optiplace.solver.heuristics;
 
 import java.util.Arrays;
 
-import solver.exception.ContradictionException;
-import solver.search.strategy.assignments.DecisionOperator;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.decision.fast.FastDecision;
-import solver.variables.IntVar;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 
 /**

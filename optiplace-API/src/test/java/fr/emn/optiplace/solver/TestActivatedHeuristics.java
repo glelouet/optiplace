@@ -7,21 +7,20 @@ package fr.emn.optiplace.solver;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.Propagator;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.util.ESat;
+import org.chocosolver.util.PoolManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import solver.Solver;
-import solver.constraints.Constraint;
-import solver.constraints.Propagator;
-import solver.exception.ContradictionException;
-import solver.search.strategy.assignments.DecisionOperator;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.decision.fast.FastDecision;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.IntVar;
-import solver.variables.VF;
-import util.ESat;
-import util.PoolManager;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -32,8 +31,8 @@ public class TestActivatedHeuristics {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestActivatedHeuristics.class);
 
     /**
-     * if VAL variables from an array VAR are instantiated, proposes to
-     * set VAR[VAL]=VAL
+     * if VAL variables from an array VAR are instantiated, proposes to set
+     * VAR[VAL]=VAL
      *
      * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
      *
@@ -92,18 +91,18 @@ public class TestActivatedHeuristics {
 
 	Propagator<IntVar> prop = new Propagator<IntVar>(vars) {
 
-		private static final long serialVersionUID = 1L;
+	    private static final long serialVersionUID = 1L;
 
-		@Override
-		public void propagate(int evtmask) throws ContradictionException {
-		    checkActivated();
-		}
+	    @Override
+	    public void propagate(int evtmask) throws ContradictionException {
+		checkActivated();
+	    }
 
-		@Override
-		public ESat isEntailed() {
-		    return vars[val].isInstantiated() ? ESat.TRUE : ESat.UNDEFINED;
-		}
-	    };
+	    @Override
+	    public ESat isEntailed() {
+		return vars[val].isInstantiated() ? ESat.TRUE : ESat.UNDEFINED;
+	    }
+	};
 
 	public Propagator<IntVar> getPropagator() {
 	    return prop;
@@ -124,7 +123,7 @@ public class TestActivatedHeuristics {
     public static class IntVarStrategyList extends AbstractStrategy<IntVar> {
 
 	public static IntVar[] extractVars(IntVarActivatedStrategy... vars) {
-	    return Arrays.asList(vars).stream().flatMap(s -> Arrays.asList(s.vars).stream())
+	    return Arrays.asList(vars).stream().flatMap(s -> Arrays.asList(s.getVariables()).stream())
 		    .collect(Collectors.toList()).toArray(new IntVar[0]);
 	}
 

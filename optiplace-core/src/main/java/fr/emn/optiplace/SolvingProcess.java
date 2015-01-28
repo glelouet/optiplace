@@ -9,15 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import solver.ResolutionPolicy;
-import solver.constraints.Constraint;
-import solver.search.loop.monitors.SearchMonitorFactory;
-import solver.search.measure.IMeasures;
-import solver.search.strategy.IntStrategyFactory;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.search.strategy.strategy.FindAndProve;
-import solver.variables.IntVar;
-import solver.variables.Variable;
+import org.chocosolver.solver.ResolutionPolicy;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
+import org.chocosolver.solver.search.measure.IMeasures;
+import org.chocosolver.solver.search.strategy.IntStrategyFactory;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.search.strategy.strategy.FindAndProve;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.Variable;
+
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.center.configuration.Configuration;
@@ -103,7 +104,9 @@ public class SolvingProcess extends OptiplaceProcess {
     @Override
     public void configLogging() {
 	if (strat.isLogBasics() || strat.isLogSolutions() || strat.isLogChoices()) {
-	    SearchMonitorFactory.log(problem.getSolver(), strat.isLogSolutions(), strat.isLogChoices());
+	    // FIXME not working on choco 3.3.0
+	    // SearchMonitorFactory.log(problem.getSolver(),
+	    // strat.isLogSolutions(), strat.isLogChoices());
 	}
 	strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
     }

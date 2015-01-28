@@ -5,9 +5,9 @@ package fr.emn.optiplace.view.fakes;
 
 import java.util.List;
 
-import solver.constraints.Constraint;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.Variable;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;

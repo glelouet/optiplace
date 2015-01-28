@@ -6,14 +6,14 @@ package fr.emn.optiplace.solver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solver.Solver;
-import solver.exception.ContradictionException;
-import solver.search.strategy.assignments.DecisionOperator;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.decision.fast.FastDecision;
-import solver.variables.IntVar;
-import solver.variables.VF;
-import solver.variables.Variable;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

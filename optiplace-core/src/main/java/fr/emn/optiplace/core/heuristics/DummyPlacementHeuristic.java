@@ -14,16 +14,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+import org.chocosolver.solver.search.strategy.selectors.values.SetDomainMin;
+import org.chocosolver.solver.search.strategy.selectors.variables.InputOrder;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.LoggerFactory;
 
-import solver.search.strategy.selectors.values.IntDomainMin;
-import solver.search.strategy.selectors.values.SetDomainMin;
-import solver.search.strategy.selectors.variables.InputOrder;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.BoolVar;
-import solver.variables.IntVar;
-import solver.variables.SetVar;
-import solver.variables.Variable;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 

@@ -10,8 +10,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.Variable;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.Variable;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ActivatedHeuristic;

@@ -5,11 +5,11 @@ package fr.emn.optiplace.solver;
 
 import java.util.Arrays;
 
-import solver.Solver;
-import solver.exception.ContradictionException;
-import solver.search.strategy.decision.Decision;
-import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.Variable;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.decision.Decision;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.Variable;
 
 /**
  * An {@link AbstractStrategy} which contains a list of
@@ -39,7 +39,7 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 	if (list == null) {
 	    return null;
 	}
-	int length = Arrays.asList(list).stream().mapToInt(ah -> ah.vars.length).sum();
+	int length = Arrays.asList(list).stream().mapToInt(ah -> ah.getVariables().length).sum();
 	if (length == 0) {
 	    return null;
 	}
@@ -47,7 +47,7 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 
 	int copied = 0;
 	for (ActivatedHeuristic<?> ah : list) {
-	    Variable[] arr = ah.vars;
+	    Variable[] arr = ah.getVariables();
 	    System.arraycopy(arr, 0, ret, copied, arr.length);
 	    copied += arr.length;
 	}

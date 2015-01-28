@@ -5,9 +5,9 @@ package fr.emn.optiplace.view.access;
 
 import java.util.HashMap;
 
-import solver.variables.BoolVar;
-import solver.variables.IntVar;
-import solver.variables.SetVar;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;

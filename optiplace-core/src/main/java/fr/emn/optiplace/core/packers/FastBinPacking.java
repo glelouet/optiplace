@@ -10,13 +10,12 @@
 
 package fr.emn.optiplace.core.packers;
 
+import org.chocosolver.solver.constraints.Propagator;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.util.ESat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import solver.constraints.Propagator;
-import solver.exception.ContradictionException;
-import solver.variables.Variable;
-import util.ESat;
 
 /**
  * A bin packing constraint similar to
@@ -56,7 +55,7 @@ public class FastBinPacking extends Propagator<Variable> {
 	}
 
 	@Override
-	public ESat isEntailed() {
+    public ESat isEntailed() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}

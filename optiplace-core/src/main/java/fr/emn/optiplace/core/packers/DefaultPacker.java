@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import solver.constraints.Constraint;
-import solver.constraints.ICF;
-import solver.variables.IntVar;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.ICF;
+import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.center.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 

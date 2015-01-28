@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace.goals;
 
-import solver.variables.IntVar;
+import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 

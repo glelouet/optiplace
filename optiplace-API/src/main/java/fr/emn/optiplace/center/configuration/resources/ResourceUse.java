@@ -1,6 +1,6 @@
 package fr.emn.optiplace.center.configuration.resources;
 
-import solver.variables.IntVar;
+import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**

@@ -2,8 +2,8 @@ package fr.emn.optiplace.solver.choco;
 
 import java.util.List;
 
-import solver.constraints.Constraint;
-import solver.variables.IntVar;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.center.configuration.resources.ResourceUse;
 
 public interface ChocoResourcePacker {
