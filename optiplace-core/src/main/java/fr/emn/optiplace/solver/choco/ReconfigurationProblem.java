@@ -12,13 +12,11 @@ package fr.emn.optiplace.solver.choco;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
@@ -29,12 +27,16 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.center.configuration.resources.ResourceUse;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -591,7 +593,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
     }
 
     /** each resource added is associated to this and stored in this map. */
-    private final HashMap<String, ResourceHandler> resources = new HashMap<String, ResourceHandler>();
+    private final LinkedHashMap<String, ResourceHandler> resources = new LinkedHashMap<String, ResourceHandler>();
 
     @Override
     public void addResourceHandler(ResourceHandler handler) {
@@ -637,6 +639,16 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
     public IntVar getObjective() {
 	return objective;
+    }
+
+    ProblemStatistics stats = null;
+
+    @Override
+    public ProblemStatistics getStatistics() {
+	if (stats == null) {
+	    stats = new ProblemStatistics(this);
+	}
+	return stats;
     }
 
 }

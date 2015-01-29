@@ -14,9 +14,6 @@ package fr.emn.optiplace.solver.choco;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
@@ -26,10 +23,14 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.VariableFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
@@ -558,4 +559,6 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	}
 	return ICF.arithm(x, ">", 0).reif();
     }
+
+    public ProblemStatistics getStatistics();
 }
