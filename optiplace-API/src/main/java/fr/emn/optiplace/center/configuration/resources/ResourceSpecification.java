@@ -25,9 +25,9 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
     /**
      * @param vms
-     * the vms to get the usages. Should not contain null values.
+     *            the vms to get the usages. Should not contain null values.
      * @return the array of usages of this resource by the vms, such as
-     * ret[i]:=usage(vms[i])
+     *         ret[i]:=usage(vms[i])
      */
     default int[] getUses(VM... vms) {
 	int[] ret = new int[vms.length];
@@ -41,9 +41,10 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
     /**
      * @param nodes
-     * the nodes to get the capacities. Should not contain null values.
+     *            the nodes to get the capacities. Should not contain null
+     *            values.
      * @return the array of capacities of this resource by the nodes, such as
-     * ret[i]:=capacity(nodes[i])
+     *         ret[i]:=capacity(nodes[i])
      */
     default int[] getCapacities(Node... nodes) {
 	int[] ret = new int[nodes.length];
@@ -54,14 +55,14 @@ public interface ResourceSpecification extends ProvidedDataReader {
     }
 
     /**
-     * @return a map of the usages of the vms. Should return a value even if a vm
-     * is not present.
+     * @return a map of the usages of the vms. Should return a value even if a
+     *         vm is not present.
      */
     Map<VM, Integer> toUses();
 
     /**
-     * @return a map of the capacities of the nodes. should return a value even if
-     * a node is not present.
+     * @return a map of the capacities of the nodes. should return a value even
+     *         if a node is not present.
      */
     Map<Node, Integer> toCapacities();
 
@@ -69,7 +70,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
      * get the sum of the uses of vms
      *
      * @param vms
-     * the virtualMachines hosted on the given node
+     *            the virtualMachines hosted on the given node
      * @return the sum of the use of the vms
      */
     default int getUse(VM... vms) {
@@ -86,9 +87,9 @@ public interface ResourceSpecification extends ProvidedDataReader {
      * get the use of a node in a given configuration
      *
      * @param cfg
-     * the configuration
+     *            the configuration
      * @param n
-     * the node
+     *            the node
      * @return the use of the node
      */
     default int getUse(Configuration cfg, Node n) {
@@ -109,9 +110,9 @@ public interface ResourceSpecification extends ProvidedDataReader {
      * check wether a vm can be hosted on given node.
      *
      * @param n
-     * the node
+     *            the node
      * @param vm
-     * the vm
+     *            the vm
      * @return true if there is enough resource on n to host vm.
      */
     default boolean canHost(Configuration cfg, Node n, VM vm) {
@@ -123,8 +124,8 @@ public interface ResourceSpecification extends ProvidedDataReader {
      * can then be used to sort collections according to the VMs' resource use
      *
      * @param increasing
-     * true to make Collections.sort() sort with increasing order, false to make
-     * decreasing order
+     *            true to make Collections.sort() sort with increasing order,
+     *            false to make decreasing order
      * @return a new comparator, backing to this.
      */
     default Comparator<VM> makeVMComparator(boolean increasing) {
@@ -156,48 +157,43 @@ public interface ResourceSpecification extends ProvidedDataReader {
     }
 
     default Comparator<Node> makeNodeComparator(boolean increasing) {
-	if (increasing) {
-	    return new Comparator<Node>() {
-		@Override
-		public int compare(Node o1, Node o2) {
-		    return getCapacity(o1) - getCapacity(o2);
-		}
+	return new Comparator<Node>() {
 
-		@Override
-		public String toString() {
-		    return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
-		};
-	    };
-	} else {
-	    return new Comparator<Node>() {
-		@Override
-		public int compare(Node o1, Node o2) {
-		    return getCapacity(o2) - getCapacity(o1);
-		}
+	    @Override
+	    public int compare(Node o1, Node o2) {
+		return (increasing ? 1 : -1) * (getCapacity(o1) - getCapacity(o2));
+	    }
 
-		@Override
-		public String toString() {
-		    return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
-		};
-	    };
-	}
+	    @Override
+	    public String toString() {
+		return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
+	    }
 
+	    @Override
+	    public boolean equals(Object obj) {
+		return obj != null && obj instanceof Comparator<?> && toString().equals(obj.toString());
+	    }
+
+	    @Override
+	    public int hashCode() {
+		return toString().hashCode();
+	    }
+	};
     }
 
     /**
      * add resource specifications to a (potential null) map
      *
      * @param map
-     * the map to add data inside, or null to create one
+     *            the map to add data inside, or null to create one
      * @param res
-     * the list of resource specifications. can be null or empty
+     *            the list of resource specifications. can be null or empty
      * @return map if not null or a new map, into which specifications have been
-     * added
+     *         added
      */
-    public static HashMap<String, ResourceSpecification> toMap(
-	    HashMap<String, ResourceSpecification> map, ResourceSpecification... res) {
-	HashMap<String, ResourceSpecification> ret = map == null ? new HashMap<String, ResourceSpecification>()
-		: map;
+    public static HashMap<String, ResourceSpecification> toMap(HashMap<String, ResourceSpecification> map,
+	    ResourceSpecification... res) {
+	HashMap<String, ResourceSpecification> ret = map == null ? new HashMap<String, ResourceSpecification>() : map;
 	if (res != null) {
 	    for (ResourceSpecification r : res) {
 		ret.put(r.getType(), r);

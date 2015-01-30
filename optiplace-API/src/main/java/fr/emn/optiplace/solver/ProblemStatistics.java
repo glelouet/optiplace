@@ -93,17 +93,28 @@ public class ProblemStatistics {
 	return models2Nodes.size();
     }
 
-    HashMap<List<Comparator<Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
+    HashMap<List<Comparator<? super Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    protected ArrayList<Node> sortNodes(Comparator<Node>... comparators) {
-	List<Comparator<Node>> compl = new ArrayList<>(Arrays.asList(comparators));
+    /**
+     * Compare the nodes of the problem using one or more {@link Comparator}
+     *
+     * @param c1
+     * @param comparators
+     * @return
+     */
+    @SafeVarargs
+    public final ArrayList<Node> sortNodes(Comparator<? super Node> c1, Comparator<? super Node>... comparators) {
+	List<Comparator<? super Node>> compl = new ArrayList<>();
+	compl.add(c1);
+	if (comparators != null && comparators.length != 0) {
+	    compl.addAll(Arrays.asList(comparators));
+	}
 	ArrayList<Node> ret = comparators2sorted.get(compl);
 	if (ret == null) {
 	    ret = new ArrayList<>(Arrays.asList(target.nodes()));
-	    ListIterator<Comparator<Node>> li = compl.listIterator(compl.size());
+	    ListIterator<Comparator<? super Node>> li = compl.listIterator(compl.size());
 	    while (li.hasPrevious()) {
-		Comparator<Node> cn = li.previous();
+		Comparator<? super Node> cn = li.previous();
 		Collections.sort(ret, cn);
 	    }
 	    comparators2sorted.put(compl, ret);
