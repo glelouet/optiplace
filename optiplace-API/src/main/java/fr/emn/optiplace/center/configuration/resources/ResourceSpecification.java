@@ -137,7 +137,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 		@Override
 		public String toString() {
-		    return "VMCOMP:" + getType();
+		    return "VMCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
 		};
 	    };
 	} else {
@@ -149,10 +149,39 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 		@Override
 		public String toString() {
-		    return "VMCOMP:" + getType();
+		    return "VMCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
 		};
 	    };
 	}
+    }
+
+    default Comparator<Node> makeNodeComparator(boolean increasing) {
+	if (increasing) {
+	    return new Comparator<Node>() {
+		@Override
+		public int compare(Node o1, Node o2) {
+		    return getCapacity(o1) - getCapacity(o2);
+		}
+
+		@Override
+		public String toString() {
+		    return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
+		};
+	    };
+	} else {
+	    return new Comparator<Node>() {
+		@Override
+		public int compare(Node o1, Node o2) {
+		    return getCapacity(o2) - getCapacity(o1);
+		}
+
+		@Override
+		public String toString() {
+		    return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
+		};
+	    };
+	}
+
     }
 
     /**
