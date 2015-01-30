@@ -5,9 +5,12 @@ package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,6 +91,24 @@ public class ProblemStatistics {
     public int getNbNodeModel() {
 	makeNodeModels();
 	return models2Nodes.size();
+    }
+
+    HashMap<List<Comparator<Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    protected ArrayList<Node> sortNodes(Comparator<Node>... comparators) {
+	List<Comparator<Node>> compl = new ArrayList<>(Arrays.asList(comparators));
+	ArrayList<Node> ret = comparators2sorted.get(compl);
+	if (ret == null) {
+	    ret = new ArrayList<>(Arrays.asList(target.nodes()));
+	    ListIterator<Comparator<Node>> li = compl.listIterator(compl.size());
+	    while (li.hasPrevious()) {
+		Comparator<Node> cn = li.previous();
+		Collections.sort(ret, cn);
+	    }
+	    comparators2sorted.put(compl, ret);
+	}
+	return ret;
     }
 
 }
