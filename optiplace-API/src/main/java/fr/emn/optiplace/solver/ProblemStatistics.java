@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -29,6 +30,14 @@ public class ProblemStatistics {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProblemStatistics.class);
 
+    /**
+     * The problem this analyzes.
+     * <p>
+     * This field is public final so it can be accessed but not changed. Note
+     * that it should not have any change in its nodes, VMs, placement, or
+     * resources capacities or uses. Basically, don't alter it.
+     * </p>
+     */
     public final IReconfigurationProblem target;
 
     public ProblemStatistics(IReconfigurationProblem pb) {
@@ -37,34 +46,53 @@ public class ProblemStatistics {
 
     private ResourceSpecification[] resources = null;
 
+    /**
+     * get the array of resources specifications
+     * <p>
+     * since the resources are specified with no order in the problem, we choose
+     * an arbitrary deterministic order (the type field of the resources which
+     * is unique)
+     * </p>
+     *
+     * @return the internal array of resources. Do not modify it or you will
+     *         crash the application :-)
+     */
     public ResourceSpecification[] getResources() {
 	if (resources == null) {
 	    resources = target.getResourcesHandlers().values().stream().map(r -> r.getSpecs())
 		    .collect(Collectors.toList()).toArray(new ResourceSpecification[0]);
+	    Arrays.sort(resources, new Comparator<ResourceSpecification>() {
+
+		@Override
+		public int compare(ResourceSpecification o1, ResourceSpecification o2) {
+		    return o1.getType().compareTo(o2.getType());
+		}
+	    });
 	}
 	return resources;
     }
 
-    protected HashMap<List<Integer>, Set<Node>> models2Nodes = null;
+    private HashMap<List<Integer>, Set<Node>> models2Nodes = null;
 
-    protected void makeNodeModels() {
-	if (models2Nodes != null) {
-	    return;
-	}
-	models2Nodes = new HashMap<>();
-	Integer[] capa = new Integer[getResources().length];
-	List<Integer> capal = Arrays.asList(capa);
-	for (Node n : target.nodes()) {
-	    for (int i = 0; i < capa.length; i++) {
-		capa[i] = getResources()[i].getCapacity(n);
+    /** protected because we don't want the user to access the internal hashmap */
+    protected HashMap<List<Integer>, Set<Node>> getNodeModels() {
+	if (models2Nodes == null) {
+	    models2Nodes = new HashMap<>();
+	    Integer[] capa = new Integer[getResources().length];
+	    List<Integer> capal = Arrays.asList(capa);
+	    for (Node n : target.nodes()) {
+		for (int i = 0; i < capa.length; i++) {
+		    capa[i] = getResources()[i].getCapacity(n);
+		}
+		Set<Node> s = models2Nodes.get(capal);
+		if (s == null) {
+		    s = new HashSet<>();
+		    models2Nodes.put(new ArrayList<>(capal), s);
+		}
+		s.add(n);
 	    }
-	    Set<Node> s = models2Nodes.get(capal);
-	    if (s == null) {
-		s = new HashSet<>();
-		models2Nodes.put(new ArrayList<>(capal), s);
-	    }
-	    s.add(n);
 	}
+	return models2Nodes;
     }
 
     /**
@@ -89,11 +117,10 @@ public class ProblemStatistics {
      *         consumption.
      */
     public int getNbNodeModel() {
-	makeNodeModels();
-	return models2Nodes.size();
+	return getNodeModels().size();
     }
 
-    HashMap<List<Comparator<? super Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
+    private final HashMap<List<Comparator<? super Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
 
     /**
      * Compare the nodes of the problem using one or more {@link Comparator}
@@ -120,6 +147,27 @@ public class ProblemStatistics {
 	    comparators2sorted.put(compl, ret);
 	}
 	return ret;
+    }
+
+    private double[] resload = null;
+
+    public double[] getResLoad() {
+	if (resload == null) {
+	    resload = new double[getResources().length];
+	    for (int i = 0; i < resload.length; i++) {
+		ResourceSpecification res = getResources()[i];
+		double capa = 0;
+		for (Node n : target.nodes()) {
+		    capa += res.getCapacity(n);
+		}
+		double use = 0;
+		for (VM v : target.vms()) {
+		    use += res.getUse(v);
+		}
+		resload[i] = use / capa;
+	    }
+	}
+	return resload;
     }
 
 }
