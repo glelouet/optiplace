@@ -10,23 +10,15 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -474,6 +466,17 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	    }
 	}
 	return nodesAreHostings;
+    }
+
+    IntVar nbHosters = null;
+
+    @Override
+    public IntVar nbHosters() {
+	if (nbHosters == null) {
+	    nbHosters = createBoundIntVar("nbHosters", 0, nodes().length);
+	    post(ICF.sum(isHosters(), nbHosters));
+	}
+	return nbHosters;
     }
 
     HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();

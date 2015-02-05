@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
+
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
@@ -108,7 +109,17 @@ public interface CoreView {
      */
     public BoolVar isHoster(Node n);
 
+    /**
+     *
+     * @return The array of {@link BoolVar} bv, so that bv[i] is constrained to
+     *         true when {@link #nodes()}[i] has at least one VM
+     */
     public BoolVar[] isHosters();
+
+    /**
+     * @return a Variable constrained to the number of Nodes running VMs
+     */
+    public IntVar nbHosters();
 
     /**
      * @param vm
