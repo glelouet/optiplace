@@ -3,15 +3,7 @@
  */
 package fr.emn.optiplace.solver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.center.configuration.Node;
@@ -41,7 +33,7 @@ public class ProblemStatistics {
     public final IReconfigurationProblem target;
 
     public ProblemStatistics(IReconfigurationProblem pb) {
-	this.target = pb;
+	target = pb;
     }
 
     private ResourceSpecification[] resources = null;
