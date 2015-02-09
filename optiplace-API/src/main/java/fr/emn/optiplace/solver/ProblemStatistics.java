@@ -3,9 +3,18 @@
  */
 package fr.emn.optiplace.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
@@ -143,6 +152,11 @@ public class ProblemStatistics {
 
     private double[] resload = null;
 
+    /**
+     *
+     * @return the array of loads of the resources. ret[i] = the global load of
+     *         {@link #getResources()}[i]
+     */
     public double[] getResLoad() {
 	if (resload == null) {
 	    resload = new double[getResources().length];
@@ -160,6 +174,31 @@ public class ProblemStatistics {
 	    }
 	}
 	return resload;
+    }
+
+    // ////////////////////////////////////////////////////////
+    // resource load min/max. This allows to understand wich resources are
+    // important for packing, and which are not.
+    // for each resource, we want to know the min and max of
+    // use(vm)/capacity(node) for each couple (vm, node)
+
+    private double[] resourceVMMinLoad = null;
+    private double[] resourceVMMaxLoad = null;
+
+    protected void makeMinMaxLoad() {
+	ResourceSpecification[] resources = getResources();
+	Configuration cfg = target.getSourceConfiguration();
+	resourceVMMinLoad = new double[resources.length];
+	resourceVMMaxLoad = new double[resources.length];
+	for (int i = 0; i < resources.length; i++) {
+	    ResourceSpecification res = resources[i];
+	    double maxCapa = cfg.getNodes().mapToInt(res::getCapacity).max().getAsInt();
+	    double minCapa = cfg.getNodes().mapToInt(res::getCapacity).min().getAsInt();
+	    double maxUse = cfg.getVMs().mapToInt(res::getUse).max().getAsInt();
+	    double minUSe = cfg.getVMs().mapToInt(res::getUse).min().getAsInt();
+	    resourceVMMinLoad[i] = 1.0 * minUSe / maxCapa;
+	    resourceVMMaxLoad[i] = 1.0 * maxUse / minCapa;
+	}
     }
 
 }
