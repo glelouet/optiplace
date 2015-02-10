@@ -1,12 +1,15 @@
 /**
  *
  */
+
 package fr.emn.optiplace.solver;
 
 import java.util.ArrayList;
 
 import org.chocosolver.solver.search.loop.monitors.ISearchMonitor;
+
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
+
 
 /**
  * How to create and explore a problem.<br />
@@ -21,8 +24,7 @@ import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 public class ConfigStrat {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(ConfigStrat.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigStrat.class);
 
 	private long maxSearchTime;
 
@@ -47,7 +49,7 @@ public class ConfigStrat {
 
 	/**
 	 * @param maxSearchTime
-	 *            the maxSearchTime to set
+	 *          the maxSearchTime to set
 	 */
 	public void setMaxSearchTime(long maxSearchTime) {
 		this.maxSearchTime = maxSearchTime;
@@ -62,7 +64,7 @@ public class ConfigStrat {
 
 	/**
 	 * @param reducer
-	 *            the reducer to set
+	 *          the reducer to set
 	 */
 	public void setReducer(ObjectiveReducer reducer) {
 		this.reducer = reducer;
@@ -77,7 +79,7 @@ public class ConfigStrat {
 
 	/**
 	 * @param packer
-	 *            the packer to set
+	 *          the packer to set
 	 */
 	public void setPacker(ChocoResourcePacker packer) {
 		this.packer = packer;
@@ -92,7 +94,7 @@ public class ConfigStrat {
 
 	/**
 	 * @param displayers
-	 *            the displayers to set
+	 *          the displayers to set
 	 */
 	public void setDisplayers(ArrayList<ISearchMonitor> displayers) {
 		this.displayers = displayers;
@@ -107,8 +109,8 @@ public class ConfigStrat {
 
 	/**
 	 * @param logChoices
-	 * should we log the choices ? if true implies setLogBasics(true) the
-	 * logChoices to set.
+	 *          should we log the choices ? if true implies setLogBasics(true) the
+	 *          logChoices to set.
 	 */
 	public void setLogChoices(boolean logChoices) {
 		this.logChoices = logChoices;
@@ -126,8 +128,9 @@ public class ConfigStrat {
 
 	/**
 	 * @param logBasics
-	 * should we log the initialization and end data of the solver ? If false
-	 * imples setLogSolutions(false) and setLogChoices(false) the logBasics to set
+	 *          should we log the initialization and end data of the solver ? If
+	 *          false imples setLogSolutions(false) and setLogChoices(false) the
+	 *          logBasics to set
 	 */
 	public void setLogBasics(boolean logBasics) {
 		this.logBasics = logBasics;
@@ -146,8 +149,8 @@ public class ConfigStrat {
 
 	/**
 	 * @param logSolutions
-	 * should we log the solutions found ? if true implies setLogBasics(true) the
-	 * logSolutions to set
+	 *          should we log the solutions found ? if true implies
+	 *          setLogBasics(true) the logSolutions to set
 	 */
 	public void setLogSolutions(boolean logSolutions) {
 		this.logSolutions = logSolutions;
@@ -156,95 +159,95 @@ public class ConfigStrat {
 		}
 	}
 
-    protected boolean disableCheckSource = false;
+	protected boolean disableCheckSource = false;
 
-    /**
-     * Set this to true to prevent the solver from checking the correctness of
-     * the source configuration. Useful mostly in test when we know we don't
-     * want to test the source configuration (because we already know it is
-     * correct or not)<br />
-     * This source configuration is used in a first heuristic to find an "easy"
-     * solution, reducing the time to search of an initial solution, while also
-     * giving a limit to the objective value. This "source" solution is checked
-     * using an heuristic placing the VMs on their source Nodes, and then asking
-     * all the views their own FIND heuristic.
-     *
-     * @param dcs
-     *            the boolean value of whether or not we should check the
-     *            correctness of the source configuration.
-     */
-    public void setDisableCheckSource(boolean dcs) {
-	this.disableCheckSource = dcs;
-    }
+	/**
+	 * Set this to true to prevent the solver from checking the correctness of the
+	 * source configuration. Useful mostly in test when we know we don't want to
+	 * test the source configuration (because we already know it is correct or
+	 * not)<br />
+	 * This source configuration is used in a first heuristic to find an "easy"
+	 * solution, reducing the time to search of an initial solution, while also
+	 * giving a limit to the objective value. This "source" solution is checked
+	 * using an heuristic placing the VMs on their source Nodes, and then asking
+	 * all the views their own FIND heuristic.
+	 *
+	 * @param dcs
+	 *          the boolean value of whether or not we should check the
+	 *          correctness of the source configuration.
+	 */
+	public void setDisableCheckSource(boolean dcs) {
+		disableCheckSource = dcs;
+	}
 
-    /**
-     * @return return whether or not we should check the correctness of the
-     *         source configuration.
-     */
-    public boolean isDisableCheckSource() {
-	return disableCheckSource;
-    }
+	/**
+	 * @return return whether or not we should check the correctness of the source
+	 *         configuration.
+	 */
+	public boolean isDisableCheckSource() {
+		return disableCheckSource;
+	}
 
-    protected boolean disableOptimize = false;
+	protected boolean disableOptimize = false;
 
-    /**
-     * Set whether or no we should stop at first solution. If set to false, the
-     * solver will keep searching for the best solution, if to false it will
-     * stop after the first solution found.
-     * <p>
-     * This is different from setting the Objective parameter of the views to
-     * false, as its heuristics will be used if it is not set to null. If the
-     * objective is set to null, its heuristics are not used.
-     * </p>
-     *
-     * @param disable
-     */
-    public void setDisableOptimize(boolean disable) {
-	this.disableOptimize = disable;
-    }
+	/**
+	 * Set whether or no we should stop at first solution. If set to false, the
+	 * solver will keep searching for the best solution, if to false it will stop
+	 * after the first solution found.
+	 * <p>
+	 * This is different from setting the Objective parameter of the views to
+	 * false, as its heuristics will be used if it is not set to null. If the
+	 * objective is set to null, its heuristics are not used.
+	 * </p>
+	 *
+	 * @param disable
+	 */
+	public void setDisableOptimize(boolean disable) {
+		disableOptimize = disable;
+	}
 
-    public boolean isDisableOptimize() {
-	return disableOptimize;
-    }
+	public boolean isDisableOptimize() {
+		return disableOptimize;
+	}
 
-    private boolean disableViewRace = false;
+	private boolean disableViewRace = false;
 
-    /**
-     * @return the disableMutlipleGoals
-     */
-    public boolean isDisableViewRace() {
-	return disableViewRace;
-    }
+	/**
+	 * @return the disableMutlipleGoals
+	 */
+	public boolean isDisableViewRace() {
+		return disableViewRace;
+	}
 
-    /**
-     * set to true to prevent the solver to execute IF several views are
-     * specifying heuristics or goals, eg when the views are dynamically loaded
-     * and thus the order of loading and selection of the
-     *
-     * @param disableMutlipleGoals
-     *            the disableMutlipleGoals to set
-     */
-    public void setDisableViewRace(boolean disableMutlipleGoals) {
-	this.disableViewRace = disableMutlipleGoals;
-    }
+	/**
+	 * set to true to prevent the solver to execute IF several views are
+	 * specifying heuristics or goals, eg when the views are dynamically loaded
+	 * and thus the order of loading and selection of the
+	 *
+	 * @param disableMutlipleGoals
+	 *          the disableMutlipleGoals to set
+	 */
+	public void setDisableViewRace(boolean disableMutlipleGoals) {
+		disableViewRace = disableMutlipleGoals;
+	}
 
-    private boolean logHeuristicsSelection = false;
+	private boolean logHeuristicsSelection = false;
 
-    /**
-     * @return
-     */
-    public boolean isLogHeuristicsSelection() {
-	return logHeuristicsSelection;
-    }
+	/**
+	 * @return
+	 */
+	public boolean isLogHeuristicsSelection() {
+		return logHeuristicsSelection;
+	}
 
-    /**
-     * set whether we should log (debug) the ActivatedHeuristics which makes a
-     * decision
-     * 
-     * @param log
-     */
-    public void setLogHeuristicsSelection(boolean log) {
-	logHeuristicsSelection = log;
-    }
+	/**
+	 * set whether we should log (debug) the ActivatedHeuristics which makes a
+	 * decision
+	 *
+	 * @param log
+	 */
+	public void setLogHeuristicsSelection(boolean log) {
+		logHeuristicsSelection = log;
+	}
 
 }
