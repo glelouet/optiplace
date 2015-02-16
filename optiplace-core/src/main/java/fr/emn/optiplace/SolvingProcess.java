@@ -36,7 +36,7 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
-import fr.emn.optiplace.solver.heuristics.EmbededActivatedHeuristic;
+import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
@@ -221,7 +221,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		for (int i = views.size() - 1; i >= 0; i--) {
 			lah.addAll(views.get(i).getActivatedHeuristics());
 		}
-		lah.add(new EmbededActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
+		lah.add(new EmbeddedActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
 		HeuristicsList ret = new HeuristicsList(problem.getSolver(), lah.toArray(new ActivatedHeuristic[0]));
 		ret.setLogActivated(strat.isLogHeuristicsSelection());

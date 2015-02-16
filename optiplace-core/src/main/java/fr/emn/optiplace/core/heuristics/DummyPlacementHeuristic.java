@@ -36,41 +36,41 @@ import fr.emn.optiplace.view.SearchGoal;
  */
 public class DummyPlacementHeuristic {
 
-    public static final org.slf4j.Logger logger = LoggerFactory.getLogger(DummyPlacementHeuristic.class);
+	public static final org.slf4j.Logger        logger   = LoggerFactory.getLogger(DummyPlacementHeuristic.class);
 
-    public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
+	public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
 
-    public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem m) {
-	List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
+	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem m) {
+		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
-	LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
-	for (IntVar v : m.hosts()) {
-	    vars.add(v);
-	}
-	for (IntVar v : m.getSolver().retrieveIntVars()) {
-	    vars.add(v);
-	}
-	for (BoolVar v : m.getSolver().retrieveBoolVars()) {
-	    vars.add(v);
-	}
-	if (vars.size() > 0) {
-	    ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".IntVar", new InputOrder<>(),
-		    new IntDomainMin(), vars.toArray(new IntVar[] {})));
+		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
+		for (IntVar v : m.hosts()) {
+			vars.add(v);
+		}
+		for (IntVar v : m.getSolver().retrieveIntVars()) {
+			vars.add(v);
+		}
+		for (BoolVar v : m.getSolver().retrieveBoolVars()) {
+			vars.add(v);
+		}
+		if (vars.size() > 0) {
+			ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".IntVar", new InputOrder<>(),
+			    new IntDomainMin(), vars.toArray(new IntVar[] {})));
+		}
+
+		ArrayList<SetVar> bar = new ArrayList<>();
+		for (SetVar v : m.getSolver().retrieveSetVars()) {
+			bar.add(v);
+		}
+		if (bar.size() > 0) {
+			ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".SetVar", new InputOrder<>(),
+			    new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
+		}
+		return ret;
 	}
 
-	ArrayList<SetVar> bar = new ArrayList<>();
-	for (SetVar v : m.getSolver().retrieveSetVars()) {
-	    bar.add(v);
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
 	}
-	if (bar.size() > 0) {
-	    ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".SetVar", new InputOrder<>(),
-		    new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
-	}
-	return ret;
-    }
-
-    @Override
-    public String toString() {
-	return getClass().getSimpleName();
-    }
 }

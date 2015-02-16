@@ -16,7 +16,7 @@ import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
-import fr.emn.optiplace.solver.heuristics.EmbededActivatedHeuristic;
+import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 
 /**
  * <p>
@@ -150,8 +150,8 @@ public class HeuristicListTest {
 	IntVar d = VF.bool("d", s);
 	IterateOverVar id = new IterateOverVar(d);
 
-	HeuristicsList hl = new HeuristicsList(s, new EmbededActivatedHeuristic<IntVar>(ia),
-		new EmbededActivatedHeuristic<IntVar>(ib));
+	HeuristicsList hl = new HeuristicsList(s, new EmbeddedActivatedHeuristic<IntVar>(ia),
+		new EmbeddedActivatedHeuristic<IntVar>(ib));
 	s.set(IntStrategyFactory.sequencer(hl, ic, id));
 	// SearchMonitorFactory.log(s, true, true);
 	s.findSolution();

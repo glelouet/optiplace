@@ -13,6 +13,7 @@ import org.chocosolver.solver.search.strategy.strategy.SetStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.Variable;
+
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -26,54 +27,79 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public interface SearchGoal {
 
-    /**
-     * Produces a formal expression of the objective variable in a model
-     *
-     * @param rp
-     *            the solver to add constraints into and extract global cost
-     *            from
-     * @return the expression of the added formal cost of the model
-     */
-    public IntVar getObjective(IReconfigurationProblem rp);
+	/**
+	 * Produces a formal expression of the objective variable in a model
+	 *
+	 * @param rp
+	 *          the solver to add constraints into and extract global cost from
+	 * @return the expression of the added formal cost of the model
+	 */
+	public IntVar getObjective(IReconfigurationProblem rp);
 
-    /**
-     * @return the heuristics associated with the objective to reduce. Can be
-     *         null, or an empty array, if no heuristic is interesting. Default
-     *         implementation is null
-     */
-    default List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
-	return Collections.emptyList();
-    }
+	/**
+	 * @return the heuristics associated with the objective to reduce. Can be
+	 *         null, or an empty array, if no heuristic is interesting. Default
+	 *         implementation is null
+	 */
+	default List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
+		return Collections.emptyList();
+	}
 
-    /**
-     * @return the heuristics associated with the objective to reduce. Can be
-     *         null, or an empty array, if no heuristic is interesting. Default
-     *         implementation is null
-     */
-    default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics(IReconfigurationProblem rp) {
-	return Collections.emptyList();
-    }
+	/**
+	 * @return the heuristics associated with the objective to reduce. Can be
+	 *         null, or an empty array, if no heuristic is interesting. Default
+	 *         implementation is null
+	 */
+	default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics(IReconfigurationProblem rp) {
+		return Collections.emptyList();
+	}
 
-    @SuppressWarnings("serial")
-    public static AbstractStrategy<? extends Variable> makeAssignHeuristic(String name,
-	    VariableSelector<IntVar> varSelector,
-	    IntValueSelector valSelector, IntVar... vars) {
-	return new IntStrategy(vars, varSelector, valSelector, ISF.assign()) {
-	    @Override
-	    public String toString() {
-		return name;
-	    };
-	};
-    }
+	@SuppressWarnings("serial")
+	public static AbstractStrategy<? extends Variable> makeAssignHeuristic(String name,
+	    VariableSelector<IntVar> varSelector, IntValueSelector valSelector, IntVar... vars) {
+		return new IntStrategy(vars, varSelector, valSelector, ISF.assign()) {
 
-    @SuppressWarnings("serial")
-    public static SetStrategy makeAssignHeuristic(String name, VariableSelector<SetVar> varS, SetValueSelector valS,
+			// @SuppressWarnings("rawtypes")
+			// @Override
+			// public Decision getDecision() {
+			// Decision ret = super.getDecision();
+			// System.err.println(toString() + " returned " + ret);
+			// if (ret == null) {
+			// for(IntVar var : vars){
+			// System.err.println(var);
+			// }
+			// }
+			// return ret;
+			// }
+
+			@Override
+			public String toString() {
+				return name;
+			};
+		};
+	}
+
+	@SuppressWarnings("serial")
+	public static SetStrategy makeAssignHeuristic(String name, VariableSelector<SetVar> varS, SetValueSelector valS,
 	    boolean enforceFirst, SetVar... sets) {
-	return new SetStrategy(sets, varS, valS, enforceFirst) {
-	    @Override
-	    public String toString() {
-		return name;
-	    };
-	};
-    }
+		return new SetStrategy(sets, varS, valS, enforceFirst) {
+
+			// @Override
+			// public Decision<SetVar> getDecision() {
+			// Decision<SetVar> ret = super.getDecision();
+			// System.err.println(toString() + " returned " + ret);
+			// if (ret == null) {
+			// for (SetVar var : vars) {
+			// System.err.println(var);
+			// }
+			// }
+			// return ret;
+			// }
+
+			@Override
+			public String toString() {
+				return name;
+			};
+		};
+	}
 }
