@@ -49,10 +49,10 @@ public class ConfigStrat {
 
 	/**
 	 * @param maxSearchTime
-	 *          the maxSearchTime to set
+	 *          the maxSearchTime to set, in ms
 	 */
-	public void setMaxSearchTime(long maxSearchTime) {
-		this.maxSearchTime = maxSearchTime;
+	public void setMaxSearchTime(long timeMS) {
+		this.maxSearchTime = timeMS;
 	}
 
 	/**
