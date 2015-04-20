@@ -24,7 +24,9 @@ public interface Action {
 	public boolean canApply(Configuration cfg);
 
 	/**
-	 * try to apply the action in the configuration
+	 * apply the action in the configuration. Implementstations should first call
+	 * {@link #canApply(Configuration)} and return false if this method returns
+	 * false.
 	 *
 	 * @param cfg
 	 *          the configuration to apply the action
