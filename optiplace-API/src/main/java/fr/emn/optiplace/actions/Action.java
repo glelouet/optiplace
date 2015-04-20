@@ -1,38 +1,40 @@
 /**
  *
  */
+
 package fr.emn.optiplace.actions;
 
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.ManagedElement;
 
+
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
- * 
+ *
  */
 public interface Action {
 
 	/**
 	 * check whether the action can be applied
-	 * 
+	 *
 	 * @param cfg
-	 *            the configuration to apply the action
+	 *          the configuration to apply the action
 	 * @return true if the action can be applied
 	 */
 	public boolean canApply(Configuration cfg);
 
 	/**
 	 * try to apply the action in the configuration
-	 * 
+	 *
 	 * @param cfg
-	 *            the configuration to apply the action
+	 *          the configuration to apply the action
 	 * @return true if the action was applied.
 	 */
 	public boolean apply(Configuration cfg);
 
 	/**
 	 * @param me
-	 *            a managed element of the configuration
+	 *          a managed element of the configuration
 	 * @return true if the managed element is concerned by this action.
 	 */
 	public boolean isRelated(ManagedElement me);
