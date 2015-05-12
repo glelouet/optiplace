@@ -10,24 +10,16 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -608,6 +600,49 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	public void addResourceHandler(ResourceHandler handler) {
 		handler.associate(this);
 		resources.put(handler.getSpecs().getType(), handler);
+	}
+
+	private final HashMap<Node, Set<VM>> shadows = new HashMap<>();
+
+	@Override
+	public boolean addShadow(Node n, VM v) {
+		if (n == null || v == null) {
+			return false;
+		}
+		Set<VM> set = shadows.get(n);
+		if (set == null) {
+			set = new HashSet<>();
+			shadows.put(n, set);
+		}
+		return set.add(v);
+	}
+
+	@Override
+	public void delShadow(Node n, VM v) {
+		if (n == null) {
+			if (v == null) {
+				shadows.clear();
+			} else {
+				for (Set<VM> s : shadows.values()) {
+					s.remove(v);
+				}
+			}
+		} else {
+			if (v == null) {
+				shadows.remove(n);
+			} else {
+				Set<VM> s = shadows.get(n);
+				if (s != null) {
+					s.remove(v);
+				}
+			}
+		}
+	}
+
+	@Override
+	public Stream<VM> shadows(Node n) {
+		Set<VM> s = shadows.get(n);
+		return s == null ? Stream.empty() : s.stream();
 	}
 
 	@Override

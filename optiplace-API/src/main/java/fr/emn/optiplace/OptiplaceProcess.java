@@ -1,10 +1,12 @@
 /**
  *
  */
+
 package fr.emn.optiplace;
 
 import fr.emn.optiplace.center.BaseCenter;
 import fr.emn.optiplace.solver.ConfigStrat;
+
 
 /**
  * <p>
@@ -26,71 +28,72 @@ import fr.emn.optiplace.solver.ConfigStrat;
  */
 public abstract class OptiplaceProcess {
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceProcess.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceProcess.class);
 
-    public void solve() {
-	try {
-	    makeProblem();
-	    configLogging();
-	    configSearch();
-	    makeSearch();
-	    extractData();
-	} catch (Exception e) {
-	    logger.warn("", e);
+	public void solve() {
+		try {
+			makeProblem();
+			configLogging();
+			configSearch();
+			makeSearch();
+			extractData();
+		}
+		catch (Exception e) {
+			logger.warn("", e);
+		}
 	}
-    }
 
-    /** generate the elements of the problem in the solver */
-    protected abstract void makeProblem();
+	/** generate the elements of the problem in the solver */
+	protected abstract void makeProblem();
 
-    /** set the logging according to the problem solver used */
-    protected abstract void configLogging();
+	/** set the logging according to the problem solver used */
+	protected abstract void configLogging();
 
-    /** prepare the heuristics and the objectives */
-    protected abstract void configSearch();
+	/** prepare the heuristics and the objectives */
+	protected abstract void configSearch();
 
-    /** actually make the solver go for the solution(s) */
-    protected abstract void makeSearch();
+	/** actually make the solver go for the solution(s) */
+	protected abstract void makeSearch();
 
-    /** extract the interesting data from the solver result */
-    protected abstract void extractData();
+	/** extract the interesting data from the solver result */
+	protected abstract void extractData();
 
-    protected BaseCenter center = new BaseCenter();
+	protected BaseCenter center = new BaseCenter();
 
-    protected ConfigStrat strat = new ConfigStrat();
+	protected ConfigStrat strat = new ConfigStrat();
 
-    protected DeducedTarget target = new DeducedTarget();
+	protected DeducedTarget target = new DeducedTarget();
 
-    /**
-     * @return the center
-     */
-    public BaseCenter getCenter() {
-	return center;
-    }
+	/**
+	 * @return the center
+	 */
+	public BaseCenter getCenter() {
+		return center;
+	}
 
-    public void center(BaseCenter center) {
-	this.center = center;
-    }
+	public void center(BaseCenter center) {
+		this.center = center;
+	}
 
-    /**
-     * @return the strat
-     */
-    public ConfigStrat getStrat() {
-	return strat;
-    }
+	/**
+	 * @return the strat
+	 */
+	public ConfigStrat getStrat() {
+		return strat;
+	}
 
-    public void strat(ConfigStrat strat) {
-	this.strat = strat;
-    }
+	public void strat(ConfigStrat strat) {
+		this.strat = strat;
+	}
 
-    /**
-     * @return the target
-     */
-    public DeducedTarget getTarget() {
-	return target;
-    }
+	/**
+	 * @return the target
+	 */
+	public DeducedTarget getTarget() {
+		return target;
+	}
 
-    public void target(DeducedTarget target) {
-	this.target = target;
-    }
+	public void target(DeducedTarget target) {
+		this.target = target;
+	}
 }

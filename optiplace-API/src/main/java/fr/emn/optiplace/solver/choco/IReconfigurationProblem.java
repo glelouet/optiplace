@@ -13,16 +13,13 @@ package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,6 +209,42 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 *          the handler, already containing
 	 */
 	void addResourceHandler(ResourceHandler handler);
+
+	/**
+	 * add a shadow VM on a node. a shadow VM is using resources on the Node but
+	 * is not managed by the system so we wont use it. Typically the migration of
+	 * a VM on a node can produce a shadow VM
+	 *
+	 * @param n
+	 *          the node that host the shadow VM
+	 * @param v
+	 *          the template of the VM
+	 * @return true if the VM was not shadowed on the Node before
+	 */
+	boolean addShadow(Node n, VM v);
+
+	/**
+	 * remove a VM from shadowing a Node
+	 * <p>
+	 * if the node is null then the VM is removed from all Nodes ; if the VM is
+	 * null then all VMs are removed from specified nodes ; if both are null, all
+	 * VMs are removed from all Nodes
+	 * </p>
+	 *
+	 * @param n
+	 *          a Node or null to remove all shadows
+	 * @param v
+	 *          a VM or null to remove all shadows
+	 */
+	void delShadow(Node n, VM v);
+
+	/**
+	 *
+	 * @param n
+	 *          a Node of the center
+	 * @return a stream of VMs that shadow this node.
+	 */
+	Stream<VM> shadows(Node n);
 
 	/********************* Operations on variables *****************/
 
