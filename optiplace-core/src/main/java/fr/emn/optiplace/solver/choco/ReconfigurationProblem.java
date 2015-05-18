@@ -11,6 +11,7 @@
 package fr.emn.optiplace.solver.choco;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
  * the transition to the destination configuration. In addition, several actions
  * acting on the placement of the virtual machines can be added.
  *
+ * @author Guillaume Le Louët
  * @author Fabien Hermenier
  */
 @SuppressWarnings("serial")
@@ -120,7 +122,6 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 		makeConstantConfig();
 		makeHosters();
-		// makeIsPowereds();
 
 		vmGrp = new ArrayList<IntVar>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
@@ -140,6 +141,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VM[allVMs.size()]);
 		vm_is_shadow_byindex = new boolean[vms.length];
+		Arrays.fill(vm_is_shadow_byindex, false);
 		revVMs = new TObjectIntHashMap<>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
@@ -401,7 +403,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		}
 	}
 
-	// FIXME should cards[i] be the cardinality of each hosteds[i] or the number
+	// should cards[i] be the cardinality of each hosteds[i] or the number
 	// of occurences of i in hosters ?
 	protected void makeCards() {
 		if (cards == null) {
@@ -586,7 +588,15 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 				cfg.setOffline(n);
 			}
 		}
-		source.getVMs().forEach(vm -> cfg.setHost(vm, node(host(vm).getValue())));
+		source.getVMs().forEach(vm -> {
+			Node target = source.getMigrationTarget(vm);
+			if (target == null) {
+				cfg.setHost(vm, node(host(vm).getValue()));
+			} else {
+				cfg.setHost(vm, source.getLocation(vm));
+				cfg.setMigrationTarget(vm, node(host(vm).getValue()));
+			}
+		});
 		source.resources().forEach(cfg.resources()::put);
 		return cfg;
 	}

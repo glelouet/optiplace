@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
@@ -25,6 +26,7 @@ import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
@@ -43,7 +45,7 @@ import fr.emn.optiplace.view.ViewAsModule;
 
 
 /**
- * basic implementation of the entropy solving process.
+ * basic implementation of the optiplace solving process.
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
@@ -76,6 +78,20 @@ public class SolvingProcess extends OptiplaceProcess {
 		for (ResourceSpecification r : src.resources().values()) {
 			problem.addResourceHandler(new ResourceHandler(r));
 		}
+
+		// each vm migrating on the source configuration must keep migrating, and
+		// also be set to shadowing
+		src.getVMs().forEach(vm->{
+			Node node =  problem.getSourceConfiguration().getMigrationTarget(vm);
+			if(node!=null){
+				problem.setShadow(vm);
+				try {
+					problem.host(vm).instantiateTo(problem.node(node), Cause.Null);
+				} catch (Exception e) {
+					throw new UnsupportedOperationException("catch this", e);
+				}
+			}
+		});
 
 		// add all the resources specified by the view
 		for (ViewAsModule v : views) {
