@@ -4,10 +4,12 @@
 package fr.emn.optiplace.view.fakes;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
+
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -29,7 +31,7 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public List<Rule> getRequestedRules() {
+	public Stream<Rule> getRequestedRules() {
 		throw new UnsupportedOperationException();
 	}
 

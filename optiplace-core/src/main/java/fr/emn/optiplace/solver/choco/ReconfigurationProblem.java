@@ -223,6 +223,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		return ret;
 	}
 
+	@Override
 	public void setShadow(VM vm) {
 		int vm_i = vm(vm);
 		if (vm_is_shadow_byindex[vm_i]) {
@@ -331,9 +332,6 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 	/** for each vm, the index of its hosting node */
 	protected IntVar[] hosters = null;
-
-	/** a VM shadowing still uses its resources on is hoster when migrating */
-	protected BoolVar[] shadowing = null;
 
 	/**
 	 * should we name the variables busing the nodes and VMs index or using the

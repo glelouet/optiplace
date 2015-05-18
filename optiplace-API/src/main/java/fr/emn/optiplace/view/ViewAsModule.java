@@ -6,12 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
@@ -27,176 +28,177 @@ import fr.emn.optiplace.view.annotations.Parameter;
  */
 public interface ViewAsModule {
 
-    static final Logger logger = LoggerFactory.getLogger(ViewAsModule.class);
+	static final Logger logger = LoggerFactory.getLogger(ViewAsModule.class);
 
-    /**
-     * associate that view to a problem. May let the problem untouched.<br />
-     * set the used {@link IReconfigurationProblem}
-     *
-     * @param rp
-     *            the problem to modify and use.
-     */
-    void associate(IReconfigurationProblem rp);
+	/**
+	 * associate that view to a problem. May let the problem untouched.<br />
+	 * set the used {@link IReconfigurationProblem}
+	 *
+	 * @param rp
+	 *          the problem to modify and use.
+	 */
+	void associate(IReconfigurationProblem rp);
 
-    /**
-     * @return the list of resources declared by this view that should be packed
-     *         by the solver.
-     */
-    public ResourceSpecification[] getPackedResource();
+	/**
+	 * @return the list of resources declared by this view that should be packed
+	 *         by the solver.
+	 */
+	public ResourceSpecification[] getPackedResource();
 
-    /** @return the modifiable list of constraints added by the administrator. */
-    public List<Rule> getRequestedRules();
+	/**
+	 * @return the stream of constraints added by the administrator.
+	 * */
+	public Stream<Rule> getRequestedRules();
 
-    /**
-     * get the heuristics to find quickly a solution. They should focus more on
-     * the possibility of a solution than the optimization of the problem, in
-     * order to find a quick correct solution
-     */
-    public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
-	return Collections.emptyList();
-    }
-
-    /**
-     * get the heuristics specified in the view
-     *
-     * @return the list of heuristics made by the view from its internal
-     *         algorithms. <br />
-     *         The LAST added view's algorithms are used first, but in the order
-     *         they were provided by the view. That means the last views have
-     *         the highest priority.
-     */
-    public default List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
-	return Collections.emptyList();
-    }
-
-    /**
-     * get the heuristics that are activated upon given solver states. default
-     * returns an empty list
-     */
-    public default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics() {
-	    return Collections.emptyList();
-    }
-
-    /**
-     * @return the (optionnal) goal specified by the view.<br />
-     *         The LAST view's specified goal is used, so if any view v2 added
-     *         after this view specifies its own goal the solver will use only
-     *         v2's goal.
-     */
-    public default SearchGoal getSearchGoal() {
-	return null;
-    }
-
-    /**
-     * is called by the solver when the solving of the problem has ended. As
-     * such, the view should retrieve the results of the problem
-     *
-     * @param actionGraph
-     */
-    public void endSolving(ActionGraph actionGraph);
-
-    /** empty any {@link IReconfigurationProblem} - related internal data. */
-    public void clear();
-
-    /**
-     * provides view to fulfill the dependencies.
-     *
-     * @param activatedViews
-     *            a map of view name to views.
-     * @return true if all dependencies were satisfied
-     */
-    default boolean setDependencies(Map<String, View> activatedViews) {
-	for (Field f : getClass().getDeclaredFields()) {
-	    if (f.getAnnotation(Depends.class) != null) {
-		View v = activatedViews.get(f.getType().getName());
-		if (v == null) {
-		    return false;
-		}
-		f.setAccessible(true);
-		try {
-		    f.set(this, v);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-		    logger.warn("", e);
-		    return false;
-		}
-	    }
+	/**
+	 * get the heuristics to find quickly a solution. They should focus more on
+	 * the possibility of a solution than the optimization of the problem, in
+	 * order to find a quick correct solution
+	 */
+	public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
+		return Collections.emptyList();
 	}
-	return true;
-    }
 
-    /**
-     * extract the list of views needed to use this view. The returned names are
-     * formatted using Class.getName().
-     *
-     * @return
-     */
-    default Set<String> extractDependencies() {
-	HashSet<String> ret = new HashSet<>();
-	for (Field f : getClass().getDeclaredFields()) {
-	    if (f.getAnnotation(Depends.class) != null) {
-		ret.add(f.getType().getName());
-	    }
+	/**
+	 * get the heuristics specified in the view
+	 *
+	 * @return the list of heuristics made by the view from its internal
+	 *         algorithms. <br />
+	 *         The LAST added view's algorithms are used first, but in the order
+	 *         they were provided by the view. That means the last views have the
+	 *         highest priority.
+	 */
+	public default List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
+		return Collections.emptyList();
 	}
-	return ret;
-    }
 
-    /**
-     * set the data used in this view. The fields annotated with
-     * {@link Parameter} are found by reflection, their object is then cast to a
-     * ProvidedDataReader which then reads the data .
-     *
-     * @param prv
-     *            the provider of ViewData
-     * @return true if all the required configurations were satisfied.
-     */
-    default boolean setConfs(ViewDataProvider prv) {
-	for (Field f : getClass().getDeclaredFields()) {
-	    Parameter a = f.getAnnotation(Parameter.class);
-	    if (a != null) {
-		ProvidedData d = prv.getData(a.confName());
-		if (d == null) {
-		    if (a.required()) {
-			return false;
-		    } else {
-			continue;
-		    }
-		}
-		try {
-		    f.setAccessible(true);
-		    ProvidedDataReader pdr = (ProvidedDataReader) f.get(this);
-		    pdr.read(d);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-		    logger.warn("", e);
-		    if (a.required()) {
-			return false;
-		    }
-		}
-	    }
+	/**
+	 * get the heuristics that are activated upon given solver states. default
+	 * returns an empty list
+	 */
+	public default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics() {
+		return Collections.emptyList();
 	}
-	return true;
-    }
 
-    /**
-     * retrieve the set of configuration used in this view, which are of given
-     * requirement level.
-     *
-     * @param required
-     *            true to only retrieve the REQUIRED configurations, false to
-     *            only retrieve the OPTIONNAL configurations, null to retrieve
-     *            both.
-     * @return a new set of string corresponding to the configuration names
-     */
-    default Set<String> extractConfigurations(Boolean required) {
-	HashSet<String> ret = new HashSet<>();
-	for (Field f : getClass().getDeclaredFields()) {
-	    Parameter a = f.getAnnotation(Parameter.class);
-	    if (a != null) {
-		if (required == null || required == a.required()) {
-		    ret.add(a.confName());
-		}
-	    }
+	/**
+	 * @return the (optionnal) goal specified by the view.<br />
+	 *         The LAST view's specified goal is used, so if any view v2 added
+	 *         after this view specifies its own goal the solver will use only
+	 *         v2's goal.
+	 */
+	public default SearchGoal getSearchGoal() {
+		return null;
 	}
-	return ret;
-    }
+
+	/**
+	 * is called by the solver when the solving of the problem has ended. As such,
+	 * the view should retrieve the results of the problem
+	 *
+	 * @param actionGraph
+	 */
+	public void endSolving(ActionGraph actionGraph);
+
+	/** empty any {@link IReconfigurationProblem} - related internal data. */
+	public void clear();
+
+	/**
+	 * provides view to fulfill the dependencies.
+	 *
+	 * @param activatedViews
+	 *          a map of view name to views.
+	 * @return true if all dependencies were satisfied
+	 */
+	default boolean setDependencies(Map<String, View> activatedViews) {
+		for (Field f : getClass().getDeclaredFields()) {
+			if (f.getAnnotation(Depends.class) != null) {
+				View v = activatedViews.get(f.getType().getName());
+				if (v == null) {
+					return false;
+				}
+				f.setAccessible(true);
+				try {
+					f.set(this, v);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					logger.warn("", e);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * extract the list of views needed to use this view. The returned names are
+	 * formatted using Class.getName().
+	 *
+	 * @return
+	 */
+	default Set<String> extractDependencies() {
+		HashSet<String> ret = new HashSet<>();
+		for (Field f : getClass().getDeclaredFields()) {
+			if (f.getAnnotation(Depends.class) != null) {
+				ret.add(f.getType().getName());
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * set the data used in this view. The fields annotated with {@link Parameter}
+	 * are found by reflection, their object is then cast to a ProvidedDataReader
+	 * which then reads the data .
+	 *
+	 * @param prv
+	 *          the provider of ViewData
+	 * @return true if all the required configurations were satisfied.
+	 */
+	default boolean setConfs(ViewDataProvider prv) {
+		for (Field f : getClass().getDeclaredFields()) {
+			Parameter a = f.getAnnotation(Parameter.class);
+			if (a != null) {
+				ProvidedData d = prv.getData(a.confName());
+				if (d == null) {
+					if (a.required()) {
+						return false;
+					} else {
+						continue;
+					}
+				}
+				try {
+					f.setAccessible(true);
+					ProvidedDataReader pdr = (ProvidedDataReader) f.get(this);
+					pdr.read(d);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					logger.warn("", e);
+					if (a.required()) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * retrieve the set of configuration used in this view, which are of given
+	 * requirement level.
+	 *
+	 * @param required
+	 *          true to only retrieve the REQUIRED configurations, false to only
+	 *          retrieve the OPTIONNAL configurations, null to retrieve both.
+	 * @return a new set of string corresponding to the configuration names
+	 */
+	default Set<String> extractConfigurations(Boolean required) {
+		HashSet<String> ret = new HashSet<>();
+		for (Field f : getClass().getDeclaredFields()) {
+			Parameter a = f.getAnnotation(Parameter.class);
+			if (a != null) {
+				if (required == null || required == a.required()) {
+					ret.add(a.confName());
+				}
+			}
+		}
+		return ret;
+	}
 
 }

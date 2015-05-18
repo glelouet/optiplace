@@ -39,7 +39,6 @@ import fr.emn.optiplace.solver.HeuristicsList;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
-import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
@@ -105,9 +104,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			view.associate(problem);
 		}
 		for (ViewAsModule view : views) {
-			for (Rule cc : view.getRequestedRules()) {
-				cc.inject(problem);
-			}
+			view.getRequestedRules().forEach(cc -> cc.inject(problem));
 		}
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
@@ -262,7 +259,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	/**
 	 *
 	 */
-	// Commented to pass from choc 2 to choco 3
+	// Commented to pass from choco 2 to choco 3
 	// TODO implement this in choco 3
 	// private void searchAndReduce() {
 	// BranchAndBound bb = (BranchAndBound) problem.getSearchStrategy();

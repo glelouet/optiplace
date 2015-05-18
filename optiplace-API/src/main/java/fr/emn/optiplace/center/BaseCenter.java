@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.view.EmptyView;
-import fr.emn.optiplace.view.View;
 import fr.emn.optiplace.view.ViewAsModule;
 
 /**
@@ -70,18 +69,18 @@ public class BaseCenter {
     return views;
   }
 
-  protected View baseView = null;
+	protected EmptyView baseView = null;
 
   /**
    * set the default view to use. This view will have higher priority over the
    * other views, and should ONLY be accessed by the administrator
    */
-  public void setBaseView(View bv) {
+	public void setBaseView(EmptyView bv) {
     baseView = bv;
   }
 
   /** get the specified administrator base view, can be null */
-  public View getBaseView() {
+	public EmptyView getBaseView() {
     if (baseView == null) {
       baseView = new EmptyView();
     }

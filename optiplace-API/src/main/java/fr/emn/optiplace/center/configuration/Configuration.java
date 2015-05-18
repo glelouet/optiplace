@@ -288,7 +288,7 @@ public interface Configuration {
 
 	/**
 	 * set a migration target for a VM
-	 * 
+	 *
 	 * @param vm
 	 *          the vm migrating
 	 * @param n
@@ -312,7 +312,7 @@ public interface Configuration {
 	 */
 	default boolean isMigrating(VM vm) {
 		Node target = getMigrationTarget(vm);
-		return target == null || target.equals(getLocation(vm));
+		return target != null && !target.equals(getLocation(vm));
 	}
 
 	/**

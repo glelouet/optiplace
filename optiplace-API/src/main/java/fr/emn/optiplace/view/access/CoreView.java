@@ -69,6 +69,15 @@ public interface CoreView {
      */
     public IntVar host(VM vm);
 
+	/**
+	 * set a VM ass shadowing its host
+	 *
+	 * @param vm
+	 *          a VM that still needs resources on its host when being migrated to
+	 *          another host
+	 */
+	public void setShadow(VM vm);
+
     /** @return the internal array of IntVar, each corresponding to the hsoter of
      * the vm at this index. eg hosts()[5] correspond to host(vm(5)) */
     public IntVar[] hosts();

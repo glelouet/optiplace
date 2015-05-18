@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
+
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -30,8 +32,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public class EmptyView implements View {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(EmptyView.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmptyView.class);
 
 	protected boolean debugVarsAndPosts = false;
 
@@ -74,9 +75,7 @@ public class EmptyView implements View {
 
 	@Override
 	public List<Constraint> getAddedConstraints() {
-		return Collections
-.unmodifiableList(new ArrayList<Constraint>(
-						addedConstraints));
+		return Collections.unmodifiableList(new ArrayList<Constraint>(addedConstraints));
 	}
 
 	protected ArrayList<Variable> addedVars = new ArrayList<Variable>();
@@ -84,8 +83,7 @@ public class EmptyView implements View {
 	@Override
 	public void onNewVar(Variable var) {
 		if (debugVarsAndPosts) {
-			logger.debug(getClass().getSimpleName() + " adding var "
- + var.getName());
+			logger.debug(getClass().getSimpleName() + " adding var " + var.getName());
 		}
 		addedVars.add(var);
 	}
@@ -98,7 +96,11 @@ public class EmptyView implements View {
 	protected ArrayList<Rule> requestedRules = new ArrayList<Rule>();
 
 	@Override
-	public List<Rule> getRequestedRules() {
+	public Stream<Rule> getRequestedRules() {
+		return requestedRules.stream();
+	}
+
+	public ArrayList<Rule> getInternalRules() {
 		return requestedRules;
 	}
 
@@ -107,10 +109,10 @@ public class EmptyView implements View {
 		requestedRules.add(cst);
 	}
 
-    protected ArrayList<AbstractStrategy<? extends Variable>> searchHeuristics = new ArrayList<>();
+	protected ArrayList<AbstractStrategy<? extends Variable>> searchHeuristics = new ArrayList<>();
 
 	@Override
-    public List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
+	public List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
 		return searchHeuristics;
 	}
 
@@ -122,7 +124,7 @@ public class EmptyView implements View {
 	}
 
 	public void setSearchGoal(SearchGoal sg) {
-		this.searchGoal = sg;
+		searchGoal = sg;
 	}
 
 	@Override
@@ -130,8 +132,8 @@ public class EmptyView implements View {
 	}
 
 	/**
-	 * an empty resource array to be returned by {@link #getPackedResource()}
-	 * when no resource must be packed by the solver
+	 * an empty resource array to be returned by {@link #getPackedResource()} when
+	 * no resource must be packed by the solver
 	 */
 	private ResourceSpecification[] resourcesSpecs = {};
 
