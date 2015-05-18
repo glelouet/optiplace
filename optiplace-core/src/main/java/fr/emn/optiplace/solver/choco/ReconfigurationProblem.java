@@ -10,16 +10,24 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +81,9 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	/** All the virtual machines managed by the model. */
 	private VM[] vms;
 
+	/** set to true to say a VM is migrated and remains active on its former host */
+	private boolean[] vm_is_shadow_byindex;
+
 	private TObjectIntHashMap<VM> revVMs;
 
 	/** The group variable associated to each virtual machine. */
@@ -103,29 +114,6 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	 *
 	 * @param src
 	 *          The source configuration. It must be viable.
-	 * @param run
-	 *          The set of virtual machines that must be running at the end of the
-	 *          process
-	 * @param wait
-	 *          The set of virtual machines that must be waiting at the end of the
-	 *          process
-	 * @param sleep
-	 *          The set of virtual machines that must be sleeping at the end of
-	 *          the process
-	 * @param stop
-	 *          The set of virtual machines that must be terminated at the end of
-	 *          the process
-	 * @param manageable
-	 *          the set of virtual machines to consider as manageable in the
-	 *          problem
-	 * @param on
-	 *          The set of nodes that must be online at the end of the process
-	 * @param off
-	 *          The set of nodes that must be offline at the end of the process
-	 * @param eval
-	 *          the evaluator to estimate the duration of an action.
-	 * @throws fr.emn.optiplace.solver.PlanException
-	 *           if an error occurred while building the model
 	 */
 	public ReconfigurationProblem(Configuration src) {
 		source = src;
@@ -151,6 +139,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	private void makeConstantConfig() {
 		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VM[allVMs.size()]);
+		vm_is_shadow_byindex = new boolean[vms.length];
 		revVMs = new TObjectIntHashMap<>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
@@ -230,6 +219,19 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 			ret[i] = vm(vms[i]);
 		}
 		return ret;
+	}
+
+	public void setShadow(VM vm) {
+		int vm_i = vm(vm);
+		if (vm_is_shadow_byindex[vm_i]) {
+			return;
+		}
+		vm_is_shadow_byindex[vm_i] = true;
+		Node host = source.getLocation(vm);
+		int h_i = node(host);
+		for (ResourceHandler rh : resources.values()) {
+			rh.getResourceUse().addUse(h_i, vm_i);
+		}
 	}
 
 	@Override
@@ -327,6 +329,9 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 	/** for each vm, the index of its hosting node */
 	protected IntVar[] hosters = null;
+
+	/** a VM shadowing still uses its resources on is hoster when migrating */
+	protected BoolVar[] shadowing = null;
 
 	/**
 	 * should we name the variables busing the nodes and VMs index or using the
@@ -590,7 +595,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	public SolvingStatistics getSolvingStatistics() {
 		IMeasures mes = getMeasures();
 		return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(), (long) (mes.getTimeCount() * 1000),
-		    super.hasReachedLimit());
+				super.hasReachedLimit());
 	}
 
 	/** each resource added is associated to this and stored in this map. */
@@ -602,48 +607,6 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		resources.put(handler.getSpecs().getType(), handler);
 	}
 
-	private final HashMap<Node, Set<VM>> shadows = new HashMap<>();
-
-	@Override
-	public boolean addShadow(Node n, VM v) {
-		if (n == null || v == null) {
-			return false;
-		}
-		Set<VM> set = shadows.get(n);
-		if (set == null) {
-			set = new HashSet<>();
-			shadows.put(n, set);
-		}
-		return set.add(v);
-	}
-
-	@Override
-	public void delShadow(Node n, VM v) {
-		if (n == null) {
-			if (v == null) {
-				shadows.clear();
-			} else {
-				for (Set<VM> s : shadows.values()) {
-					s.remove(v);
-				}
-			}
-		} else {
-			if (v == null) {
-				shadows.remove(n);
-			} else {
-				Set<VM> s = shadows.get(n);
-				if (s != null) {
-					s.remove(v);
-				}
-			}
-		}
-	}
-
-	@Override
-	public Stream<VM> shadows(Node n) {
-		Set<VM> s = shadows.get(n);
-		return s == null ? Stream.empty() : s.stream();
-	}
 
 	@Override
 	public ResourceUse getUse(String res) {
@@ -657,7 +620,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	@Override
 	public ResourceUse[] getUses() {
 		return resources.values().stream().map(ResourceHandler::getResourceUse).collect(Collectors.toList())
-		    .toArray(new ResourceUse[] {});
+				.toArray(new ResourceUse[] {});
 	}
 
 	@Override

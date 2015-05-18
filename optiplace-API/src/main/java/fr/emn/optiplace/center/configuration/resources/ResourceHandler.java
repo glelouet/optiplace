@@ -1,4 +1,3 @@
-
 package fr.emn.optiplace.center.configuration.resources;
 
 import org.chocosolver.solver.variables.IntVar;
@@ -6,7 +5,6 @@ import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
-
 
 /**
  * <p>
@@ -42,7 +40,7 @@ public class ResourceHandler {
 	protected int maxNodeCapa = Integer.MIN_VALUE;
 	protected int[] nodesCapacities = null;
 	protected int[] vmsUses = null;
-	protected IReconfigurationProblem AssociatedPb = null;
+	protected IReconfigurationProblem associatedPb = null;
 
 	public ResourceHandler(ResourceSpecification specs) {
 		assert specs != null;
@@ -66,7 +64,7 @@ public class ResourceHandler {
 		maxVMUse = Integer.MAX_VALUE;
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
-		AssociatedPb = pb;
+		associatedPb = pb;
 		Node[] nodes = pb.nodes();
 		VM[] vms = pb.vms();
 		nodesUsesByIndex = new IntVar[nodes.length];
@@ -114,7 +112,7 @@ public class ResourceHandler {
 	}
 
 	public IntVar getNodeUse(Node n) {
-		return nodesUsesByIndex[AssociatedPb.node(n)];
+		return nodesUsesByIndex[associatedPb.node(n)];
 	}
 
 	/**

@@ -1,6 +1,9 @@
 package fr.emn.optiplace.center.configuration.resources;
 
+import java.util.Arrays;
+
 import org.chocosolver.solver.variables.IntVar;
+
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -15,7 +18,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * corresponding to the Vms static uses and the nodes dynamic uses. The uses are
  * assumed to be packed using the problem's packer.
  * <p>
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
 public class ResourceUse {
@@ -26,8 +29,13 @@ public class ResourceUse {
 	 */
 	int[] itemsConsumptions = null;
 
-	/** effective resource use of a bin. */
+	/** effective resource use of a bin (Node). */
 	IntVar[] binsUse = null;
+
+	/** increased constant resource use on a bin */
+	protected int[] nodesAdditionalByIndex = null;
+
+	protected boolean hasAdditionalUse = false;
 
 	public ResourceUse() {
 	}
@@ -35,6 +43,8 @@ public class ResourceUse {
 	public ResourceUse(int[] vmsUse, IntVar[] binsUse) {
 		itemsConsumptions = vmsUse;
 		this.binsUse = binsUse;
+		nodesAdditionalByIndex = new int[binsUse.length];
+		Arrays.fill(nodesAdditionalByIndex, 0);
 	}
 
 	/** @return the constant consumption of the vms */
@@ -45,5 +55,35 @@ public class ResourceUse {
 	/** @return the uses of the nodes */
 	public IntVar[] getNodesUse() {
 		return binsUse;
+	}
+
+	/**
+	 *
+	 * @return the constant additional use of the nodes
+	 */
+	public int[] getAdditionalUse() {
+		return nodesAdditionalByIndex;
+	}
+
+	/**
+	 *
+	 * @return true iff at least one node has an additional use
+	 */
+	public boolean isAdditionalUse() {
+		return hasAdditionalUse;
+	}
+
+	/**
+	 * set a VM as using its resources on given node, even if this VM is migrated
+	 * to another host.
+	 *
+	 * @param n_i
+	 *          the index of the node
+	 * @param v_i
+	 *          the index o the VM
+	 */
+	public void addUse(int n_i, int v_i) {
+		nodesAdditionalByIndex[n_i] += itemsConsumptions[v_i];
+		hasAdditionalUse = true;
 	}
 }
