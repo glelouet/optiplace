@@ -244,26 +244,6 @@ public interface Configuration {
 	}
 
 	/**
-	 * replace an existing VM by another one, keeping it on the same Node
-	 *
-	 * @param vm
-	 *          a vm to rename
-	 * @param newVM
-	 *          the new VM reference
-	 */
-	void replace(VM vm, VM newVM);
-
-	/**
-	 * replaces references to a node by another node
-	 *
-	 * @param oldNode
-	 *          the old node reference
-	 * @param newNode
-	 *          the new node to reference
-	 */
-	void replace(Node oldNode, Node newNode);
-
-	/**
 	 * Set a virtual machine running on a node. The node is set online whatever
 	 * his previous state was. If the virtual machine is already in a other
 	 * location or state in the configuration, it is updated

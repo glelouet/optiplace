@@ -61,10 +61,6 @@ public class SolvingProcess extends OptiplaceProcess {
 	public void makeProblem() {
 		long st = System.currentTimeMillis();
 		Configuration src = center.getSource();
-		problem = new ReconfigurationProblem(src);
-		if (strat.getPacker() == null) {
-			strat.setPacker(new DefaultPacker());
-		}
 
 		// if we have a view specified by the administrator (containing rules,
 		// objectives, etc.) then we add it at the end.
@@ -72,6 +68,14 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (center.getBaseView() != null) {
 			views = new ArrayList<>(views);
 			views.add(center.getBaseView());
+		}
+		for (ViewAsModule v : views) {
+			v.preProcessConfig(src);
+		}
+
+		problem = new ReconfigurationProblem(src);
+		if (strat.getPacker() == null) {
+			strat.setPacker(new DefaultPacker());
 		}
 
 		for (ResourceSpecification r : src.resources().values()) {
@@ -92,14 +96,6 @@ public class SolvingProcess extends OptiplaceProcess {
 			}
 		});
 
-		// add all the resources specified by the view
-		for (ViewAsModule v : views) {
-			for (ResourceSpecification r : v.getPackedResource()) {
-				if (r != null) {
-					problem.addResourceHandler(new ResourceHandler(r));
-				}
-			}
-		}
 		for (ViewAsModule view : views) {
 			view.associate(problem);
 		}
@@ -297,14 +293,18 @@ public class SolvingProcess extends OptiplaceProcess {
 	public void extractData() {
 		IMeasures m = problem.getSolver().getMeasures();
 		if (m.getSolutionCount() < 1) { return; }
-		target.setDestination(problem.extractConfiguration());
+		Configuration dest = problem.extractConfiguration();
+		for (ViewAsModule v : views) {
+			v.postProcessConfig(dest);
+		}
+		target.setDestination(dest);
 		if (problem.getObjective() != null) {
 			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 		}
 		Migrate.extractMigrations(center.getSource(), target.getDestination(), target.getActions());
 		Allocate.extractAllocates(center.getSource(), target.getDestination(), target.getActions());
 		for (ViewAsModule v : center.getViews()) {
-			v.endSolving(target.getActions());
+			v.extractActions(target.getActions(), dest);
 		}
 
 		target.setSearchBacktracks(m.getBackTrackCount());

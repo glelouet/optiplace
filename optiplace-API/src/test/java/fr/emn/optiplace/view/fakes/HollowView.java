@@ -11,7 +11,7 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.ProvidedData;
 import fr.emn.optiplace.view.Rule;
@@ -22,11 +22,6 @@ public class HollowView implements View {
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ResourceSpecification[] getPackedResource() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -46,7 +41,7 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public void endSolving(ActionGraph actionGraph) {
+	public void extractActions(ActionGraph actionGraph, Configuration dest) {
 		throw new UnsupportedOperationException();
 	}
 
