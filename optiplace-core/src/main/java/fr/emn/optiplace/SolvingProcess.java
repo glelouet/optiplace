@@ -42,7 +42,6 @@ import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
-
 /**
  * basic implementation of the optiplace solving process.
  *
@@ -84,12 +83,12 @@ public class SolvingProcess extends OptiplaceProcess {
 
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
-		src.getVMs().forEach(vm->{
-			Node node =  problem.getSourceConfiguration().getMigrationTarget(vm);
-			if(node!=null){
-				problem.setShadow(vm);
+		src.getVMs().forEach(vm -> {
+			Node node = problem.getSourceConfiguration().getMigrationTarget(vm);
+			if (node != null) {
+				problem.setShadow(vm, node);
 				try {
-					problem.host(vm).instantiateTo(problem.node(node), Cause.Null);
+					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
 				} catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
@@ -156,9 +155,9 @@ public class SolvingProcess extends OptiplaceProcess {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
 			problem.getSolver()
-			.set(
-					new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-							makeProveHeuristic(goalMaker)));
+					.set(
+							new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+									makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -292,7 +291,9 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void extractData() {
 		IMeasures m = problem.getSolver().getMeasures();
-		if (m.getSolutionCount() < 1) { return; }
+		if (m.getSolutionCount() < 1) {
+			return;
+		}
 		Configuration dest = problem.extractConfiguration();
 		for (ViewAsModule v : views) {
 			v.postProcessConfig(dest);
@@ -301,8 +302,8 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.getObjective() != null) {
 			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 		}
-		Migrate.extractMigrations(center.getSource(), target.getDestination(), target.getActions());
-		Allocate.extractAllocates(center.getSource(), target.getDestination(), target.getActions());
+		Migrate.extractMigrations(center.getSource(), dest, target.getActions());
+		Allocate.extractAllocates(center.getSource(), dest, target.getActions());
 		for (ViewAsModule v : center.getViews()) {
 			v.extractActions(target.getActions(), dest);
 		}

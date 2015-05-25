@@ -25,148 +25,183 @@ import fr.emn.optiplace.center.configuration.resources.ResourceUse;
  */
 public interface CoreView {
 
-    /**
-     * @return an array of the nodes of the problem, each at its index position
-     */
-    public Node[] nodes();
-
-    /**
-     * @param n
-     * a node of the problem
-     * @return the index of the node in the problem, or -1
-     */
-    public int node(Node n);
-
-    /**
-     * @param idx
-     * @return the node at given position, or null
-     */
-    public Node node(int idx);
-
-    /**
-     * @return the array of vm of this problem, each vm being on its index,
-     * meaning vm(i)= vms[i]
-     */
-    public VM[] vms();
-
-    /**
-     * @param vm
-     * a virtual machine of this problem
-     * @return the internal index for this vm, or -1 if not known
-     */
-    public int vm(VM vm);
-
-    /**
-     * @param idx
-     * @return the vm at given pos, or null
-     */
-    public VM vm(int idx);
-
-    /**
-     * @param vm
-     * a virtual machine of the problem
-     * @return the index of the node hosting this vm
-     */
-    public IntVar host(VM vm);
+	/**
+	 * @return an array of the nodes of the problem, each at its index position
+	 */
+	public Node[] nodes();
 
 	/**
-	 * set a VM ass shadowing its host
+	 * @param n
+	 *          a node of the problem
+	 * @return the index of the node in the problem, or -1
+	 */
+	public int node(Node n);
+
+	/**
+	 * @param idx
+	 * @return the node at given position, or null
+	 */
+	public Node node(int idx);
+
+	/**
+	 * @return the array of vm of this problem, each vm being on its index,
+	 *         meaning vm(i)= vms[i]
+	 */
+	public VM[] vms();
+
+	/**
+	 * @param vm
+	 *          a virtual machine of this problem
+	 * @return the internal index for this vm, or -1 if not known
+	 */
+	public int vm(VM vm);
+
+	/**
+	 * @param idx
+	 * @return the vm at given pos, or null
+	 */
+	public VM vm(int idx);
+
+	/**
+	 * @param vm
+	 *          a virtual machine of the problem
+	 * @return the index of the node hosting this vm
+	 */
+	public IntVar host(VM vm);
+
+	/**
+	 * set a VM as shadowing a node
 	 *
 	 * @param vm
-	 *          a VM that still needs resources on its host when being migrated to
-	 *          another host
+	 *          a VM that needs resources on another node (when migrated to it)
+	 * @param n
+	 *          the node this VM shadows
+	 * @return true if the VM was not shadowing a node before
 	 */
-	public void setShadow(VM vm);
+	public boolean setShadow(VM vm, Node n);
 
-    /** @return the internal array of IntVar, each corresponding to the hsoter of
-     * the vm at this index. eg hosts()[5] correspond to host(vm(5)) */
-    public IntVar[] hosts();
+	/**
+	 * get the node a VM shadows
+	 *
+	 * @param vm
+	 *          the VM on the center
+	 * @return a Node shadowed, if any, or null if none.
+	 */
+	public Node getShadow(VM vm);
 
-    /** get the array of VMs hosters. faster to iterate over it than using
-     * {@link #host(VM)}
-     * @params vms the vms to filter the hosters on if specified.
-     * @return the array of VM hosters, indexed by the vms indexes or the position
-     * of each vm in vms if not null and not empty. */
-    IntVar[] hosts(VM... vms);
+	/**
+	 * @return the internal array of IntVar, each corresponding to the hsoter of
+	 *         the vm at this index. eg hosts()[5] correspond to host(vm(5))
+	 */
+	public IntVar[] hosts();
 
-    /** @param n a node of the problem
-     * @return the number of vms hosted on this node */
-    public IntVar nbVM(Node n);
+	/**
+	 * get the array of VMs hosters. faster to iterate over it than using
+	 * {@link #host(VM)}
+	 *
+	 * @params vms the vms to filter the hosters on if specified.
+	 * @return the array of VM hosters, indexed by the vms indexes or the position
+	 *         of each vm in vms if not null and not empty.
+	 */
+	IntVar[] hosts(VM... vms);
 
-    /** get the table {@link #nbVM(Node)} , indexed by the nodes index (
-     * {@link #getNode(int)} )
-     * @return */
-    IntVar[] nbVMs();
+	/**
+	 * @param n
+	 *          a node of the problem
+	 * @return the number of vms hosted on this node
+	 */
+	public IntVar nbVM(Node n);
 
-    /**
-     * @param n
-     * a node of the problem
-     * @return the set of all VMs hosted on this node in the dest configuration
-     */
-    public SetVar hosted(Node n);
+	/**
+	 * get the table {@link #nbVM(Node)} , indexed by the nodes index (
+	 * {@link #getNode(int)} )
+	 *
+	 * @return
+	 */
+	IntVar[] nbVMs();
 
-    /**
-     * @return the array of setVar, each setvar at index i corresponding to the
-     * set of VMs hosted by the Node i in the dest configuration.
-     */
-    public SetVar[] hosteds();
+	/**
+	 * @param n
+	 *          a node of the problem
+	 * @return the set of all VMs hosted on this node in the dest configuration
+	 */
+	public SetVar hosted(Node n);
 
-    /**
-     * @param n
-     * a node of the problem
-     * @return the boolean presence of a vm to host on the node
-     */
-    public BoolVar isHoster(Node n);
+	/**
+	 * @return the array of setVar, each setvar at index i corresponding to the
+	 *         set of VMs hosted by the Node i in the dest configuration.
+	 */
+	public SetVar[] hosteds();
 
-    /**
-     *
-     * @return The array of {@link BoolVar} bv, so that bv[i] is constrained to
-     *         true when {@link #nodes()}[i] has at least one VM
-     */
-    public BoolVar[] isHosters();
+	/**
+	 * @param n
+	 *          a node of the problem
+	 * @return the boolean presence of a vm to host on the node
+	 */
+	public BoolVar isHoster(Node n);
 
-    /**
-     * @return a Variable constrained to the number of Nodes running VMs
-     */
-    public IntVar nbHosters();
+	/**
+	 *
+	 * @return The array of {@link BoolVar} bv, so that bv[i] is constrained to
+	 *         true when {@link #nodes()}[i] has at least one VM
+	 */
+	public BoolVar[] isHosters();
 
-    /**
-     * @param vm
-     * a vm of the problem
-     * @return true if the vm change host from source to target
-     */
-    public BoolVar isMigrated(VM vm);
+	/**
+	 * @return a Variable constrained to the number of Nodes running VMs
+	 */
+	public IntVar nbHosters();
 
-    /** get the table of boolean for the VMs.
-     * @see #isMigrated(VM)
-     * @return the table of IntVar, so that
-     * ret[i]==isLiveMigrate(getVirtualMachine(i)) */
-    BoolVar[] isMigrateds();
+	/**
+	 * @param vm
+	 *          a vm of the problem
+	 * @return true if the vm change host from source to target
+	 */
+	public BoolVar isMigrated(VM vm);
 
-    /** get the variable representing the power state of a node in the resulting
-     * configuration
-     * @param n a node
-     * @return a Boolean {@link IntVar} , set to true if the node is supposed to
-     * be online. */
-    BoolVar isOnline(Node n);
+	/**
+	 * get the table of boolean for the VMs.
+	 *
+	 * @see #isMigrated(VM)
+	 * @return the table of IntVar, so that
+	 *         ret[i]==isLiveMigrate(getVirtualMachine(i))
+	 */
+	BoolVar[] isMigrateds();
 
-    /**
-     * @return the number of migrations performed to pass from source to target
-     */
-    public IntVar nbMigrations();
+	/**
+	 * get the variable representing the power state of a node in the resulting
+	 * configuration
+	 *
+	 * @param n
+	 *          a node
+	 * @return a Boolean {@link IntVar} , set to true if the node is supposed to
+	 *         be online.
+	 */
+	BoolVar isOnline(Node n);
 
-    /**
-     * @return the map of types to the associated resource handlers
-     */
-    public HashMap<String, ResourceHandler> getResourcesHandlers();
+	/**
+	 * @return the number of migrations performed to pass from source to target
+	 */
+	public IntVar nbMigrations();
 
-    /** @param res the name of the resource to get the usage, should be present in
-     * {@link #getResourceSpecifications()} keys
-     * @return the variable of the uses of the resource */
-    ResourceUse getUse(String res);
+	/**
+	 * @return the map of types to the associated resource handlers
+	 */
+	public HashMap<String, ResourceHandler> getResourcesHandlers();
 
-    /** create a new table of the different {@link ResourceUse}
-     * @return */
-    ResourceUse[] getUses();
+	/**
+	 * @param res
+	 *          the name of the resource to get the usage, should be present in
+	 *          {@link #getResourceSpecifications()} keys
+	 * @return the variable of the uses of the resource
+	 */
+	ResourceUse getUse(String res);
+
+	/**
+	 * create a new table of the different {@link ResourceUse}
+	 *
+	 * @return
+	 */
+	ResourceUse[] getUses();
 
 }

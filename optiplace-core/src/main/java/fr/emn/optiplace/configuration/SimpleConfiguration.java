@@ -307,7 +307,8 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public String toString() {
-		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nresources : "
+		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
+				+ migrations + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 
