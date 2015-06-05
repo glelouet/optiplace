@@ -11,7 +11,7 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -128,22 +128,7 @@ public class EmptyView implements View {
 	}
 
 	@Override
-	public void endSolving(ActionGraph a) {
-	}
-
-	/**
-	 * an empty resource array to be returned by {@link #getPackedResource()} when
-	 * no resource must be packed by the solver
-	 */
-	private ResourceSpecification[] resourcesSpecs = {};
-
-	@Override
-	public ResourceSpecification[] getPackedResource() {
-		return resourcesSpecs;
-	}
-
-	public void setResourceSpecs(ResourceSpecification... specs) {
-		resourcesSpecs = specs;
+	public void extractActions(ActionGraph a, Configuration dest) {
 	}
 
 	@Override

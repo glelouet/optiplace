@@ -66,7 +66,6 @@ public class SolvingExample {
 			assert false : "null result of test";
 		}
 		assert c.checkBasics();
-		assert Configuration.sameElements(src, c);
 		return c;
 	}
 

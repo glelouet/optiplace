@@ -42,7 +42,6 @@ import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
-
 /**
  * basic implementation of the optiplace solving process.
  *
@@ -61,10 +60,6 @@ public class SolvingProcess extends OptiplaceProcess {
 	public void makeProblem() {
 		long st = System.currentTimeMillis();
 		Configuration src = center.getSource();
-		problem = new ReconfigurationProblem(src);
-		if (strat.getPacker() == null) {
-			strat.setPacker(new DefaultPacker());
-		}
 
 		// if we have a view specified by the administrator (containing rules,
 		// objectives, etc.) then we add it at the end.
@@ -73,6 +68,14 @@ public class SolvingProcess extends OptiplaceProcess {
 			views = new ArrayList<>(views);
 			views.add(center.getBaseView());
 		}
+		for (ViewAsModule v : views) {
+			v.preProcessConfig(src);
+		}
+
+		problem = new ReconfigurationProblem(src);
+		if (strat.getPacker() == null) {
+			strat.setPacker(new DefaultPacker());
+		}
 
 		for (ResourceSpecification r : src.resources().values()) {
 			problem.addResourceHandler(new ResourceHandler(r));
@@ -80,26 +83,18 @@ public class SolvingProcess extends OptiplaceProcess {
 
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
-		src.getVMs().forEach(vm->{
-			Node node =  problem.getSourceConfiguration().getMigrationTarget(vm);
-			if(node!=null){
-				problem.setShadow(vm);
+		src.getVMs().forEach(vm -> {
+			Node node = problem.getSourceConfiguration().getMigrationTarget(vm);
+			if (node != null) {
+				problem.setShadow(vm, node);
 				try {
-					problem.host(vm).instantiateTo(problem.node(node), Cause.Null);
+					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
 				} catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
 			}
 		});
 
-		// add all the resources specified by the view
-		for (ViewAsModule v : views) {
-			for (ResourceSpecification r : v.getPackedResource()) {
-				if (r != null) {
-					problem.addResourceHandler(new ResourceHandler(r));
-				}
-			}
-		}
 		for (ViewAsModule view : views) {
 			view.associate(problem);
 		}
@@ -160,9 +155,9 @@ public class SolvingProcess extends OptiplaceProcess {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
 			problem.getSolver()
-			.set(
-					new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-							makeProveHeuristic(goalMaker)));
+					.set(
+							new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+									makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -296,15 +291,21 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void extractData() {
 		IMeasures m = problem.getSolver().getMeasures();
-		if (m.getSolutionCount() < 1) { return; }
-		target.setDestination(problem.extractConfiguration());
+		if (m.getSolutionCount() < 1) {
+			return;
+		}
+		Configuration dest = problem.extractConfiguration();
+		for (ViewAsModule v : views) {
+			v.postProcessConfig(dest);
+		}
+		target.setDestination(dest);
 		if (problem.getObjective() != null) {
 			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 		}
-		Migrate.extractMigrations(center.getSource(), target.getDestination(), target.getActions());
-		Allocate.extractAllocates(center.getSource(), target.getDestination(), target.getActions());
+		Migrate.extractMigrations(center.getSource(), dest, target.getActions());
+		Allocate.extractAllocates(center.getSource(), dest, target.getActions());
 		for (ViewAsModule v : center.getViews()) {
-			v.endSolving(target.getActions());
+			v.extractActions(target.getActions(), dest);
 		}
 
 		target.setSearchBacktracks(m.getBackTrackCount());

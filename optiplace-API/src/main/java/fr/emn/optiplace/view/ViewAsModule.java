@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
@@ -31,6 +31,25 @@ public interface ViewAsModule {
 	static final Logger logger = LoggerFactory.getLogger(ViewAsModule.class);
 
 	/**
+	 * modify the source configuration of the center before calling the solver.<br />
+	 * This allows eg to add new VMs, resources, nodes.
+	 *
+	 * @param config
+	 *          the source configuration to modify.
+	 */
+	default void preProcessConfig(Configuration config) {
+	}
+
+	/**
+	 * modify the destination configuration before extracing the actions.
+	 *
+	 * @param config
+	 *          the dest configuration to modify
+	 */
+	default void postProcessConfig(Configuration config) {
+	}
+
+	/**
 	 * associate that view to a problem. May let the problem untouched.<br />
 	 * set the used {@link IReconfigurationProblem}
 	 *
@@ -38,12 +57,6 @@ public interface ViewAsModule {
 	 *          the problem to modify and use.
 	 */
 	void associate(IReconfigurationProblem rp);
-
-	/**
-	 * @return the list of resources declared by this view that should be packed
-	 *         by the solver.
-	 */
-	public ResourceSpecification[] getPackedResource();
 
 	/**
 	 * @return the stream of constraints added by the administrator.
@@ -95,8 +108,11 @@ public interface ViewAsModule {
 	 * the view should retrieve the results of the problem
 	 *
 	 * @param actionGraph
+	 *          the action graph to modify
+	 * @param dest
+	 *          the destination configuration
 	 */
-	public void endSolving(ActionGraph actionGraph);
+	public void extractActions(ActionGraph actionGraph, Configuration dest);
 
 	/** empty any {@link IReconfigurationProblem} - related internal data. */
 	public void clear();

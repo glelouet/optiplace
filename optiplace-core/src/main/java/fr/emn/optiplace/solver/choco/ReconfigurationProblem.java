@@ -84,7 +84,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	private VM[] vms;
 
 	/** set to true to say a VM is migrated and remains active on its former host */
-	private boolean[] vm_is_shadow_byindex;
+	private Node[] vm_is_shadow_byindex;
 
 	private TObjectIntHashMap<VM> revVMs;
 
@@ -140,8 +140,8 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	private void makeConstantConfig() {
 		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VM[allVMs.size()]);
-		vm_is_shadow_byindex = new boolean[vms.length];
-		Arrays.fill(vm_is_shadow_byindex, false);
+		vm_is_shadow_byindex = new Node[vms.length];
+		Arrays.fill(vm_is_shadow_byindex, null);
 		revVMs = new TObjectIntHashMap<>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
@@ -224,17 +224,22 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	@Override
-	public void setShadow(VM vm) {
+	public boolean setShadow(VM vm, Node n) {
 		int vm_i = vm(vm);
-		if (vm_is_shadow_byindex[vm_i]) {
-			return;
+		if (vm_is_shadow_byindex[vm_i] != null) {
+			return vm_is_shadow_byindex[vm_i].equals(n);
 		}
-		vm_is_shadow_byindex[vm_i] = true;
-		Node host = source.getLocation(vm);
-		int h_i = node(host);
+		vm_is_shadow_byindex[vm_i] = n;
+		int h_i = node(n);
 		for (ResourceHandler rh : resources.values()) {
 			rh.getResourceUse().addUse(h_i, vm_i);
 		}
+		return true;
+	}
+
+	@Override
+	public Node getShadow(VM vm) {
+		return vm_is_shadow_byindex[vm(vm)];
 	}
 
 	@Override
@@ -592,7 +597,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 				cfg.setHost(vm, node(host(vm).getValue()));
 			} else {
 				cfg.setHost(vm, source.getLocation(vm));
-				cfg.setMigrationTarget(vm, node(host(vm).getValue()));
+				cfg.setMigrationTarget(vm, target);
 			}
 		});
 		source.resources().forEach(cfg.resources()::put);

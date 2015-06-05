@@ -32,22 +32,19 @@ import fr.emn.optiplace.view.annotations.ViewDesc;
 public class PluginParser extends AbstractProcessor {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(PluginParser.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginParser.class);
 
 	public static final String DESCRIPTORFILENAME = "optiplace.description";
 
 	ViewDescription vd = new ViewDescription();
 
 	@Override
-	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment roundEnv) {
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (annotations == null || annotations.isEmpty()) {
 			write();
 			return true;
 		}
-		Set<? extends Element> els = roundEnv
-				.getElementsAnnotatedWith(ViewDesc.class);
+		Set<? extends Element> els = roundEnv.getElementsAnnotatedWith(ViewDesc.class);
 		if (els.size() != 1) {
 			System.err.println("cannot generate plugin desc for : " + els);
 			return true;
@@ -60,40 +57,33 @@ public class PluginParser extends AbstractProcessor {
 		return true;
 	}
 
-	public static Set<String> extractDependenciesTypes(Element el,
-			RoundEnvironment roundEnv) {
-		HashSet<Element> dependencies = new HashSet<Element>(
-				el.getEnclosedElements());
-		return roundEnv.getElementsAnnotatedWith(Depends.class).stream()
-				.filter(e -> dependencies.contains(e)).map(e -> e.asType().toString())
-				.collect(Collectors.toSet());
+	public static Set<String> extractDependenciesTypes(Element el, RoundEnvironment roundEnv) {
+		HashSet<Element> dependencies = new HashSet<Element>(el.getEnclosedElements());
+		return roundEnv.getElementsAnnotatedWith(Depends.class).stream().filter(dependencies::contains)
+				.map(e -> e.asType().toString()).collect(Collectors.toSet());
 	}
 
 	/**
 	 * extract the attributes annotated as {@link Parameter} from the parsed class
 	 *
 	 * @param el
-	 * the element standing for the class annotated with {@link ViewDesc}
+	 *          the element standing for the class annotated with {@link ViewDesc}
 	 * @param roundEnv
-	 * the environment of parsing when compiling classes, giving access to the
-	 * fields of the class
+	 *          the environment of parsing when compiling classes, giving access
+	 *          to the fields of the class
 	 * @param required
-	 * set to true to only extract required fields, false to only extract optional
-	 * fields, or null to extract both
+	 *          set to true to only extract required fields, false to only extract
+	 *          optional fields, or null to extract both
 	 * @return a new Map specifying which attributes require which conf file
 	 */
-	public static Set<String> extractConfs(Element el,
-			RoundEnvironment roundEnv, Boolean required) {
-		Set<? extends Element> parameters = roundEnv
-				.getElementsAnnotatedWith(Parameter.class);
+	public static Set<String> extractConfs(Element el, RoundEnvironment roundEnv, Boolean required) {
+		Set<? extends Element> parameters = roundEnv.getElementsAnnotatedWith(Parameter.class);
 		return new HashSet<Element>(el.getEnclosedElements())
 				.stream()
 				.filter(
 						e -> parameters.contains(e)
-								&& (required == null || e.getAnnotation(Parameter.class)
-										.required() == required))
-				.map(e -> e.getAnnotation(Parameter.class).confName())
-				.collect(Collectors.toSet());
+								&& (required == null || e.getAnnotation(Parameter.class).required() == required))
+				.map(e -> e.getAnnotation(Parameter.class).confName()).collect(Collectors.toSet());
 	}
 
 	/**
@@ -102,9 +92,8 @@ public class PluginParser extends AbstractProcessor {
 	 */
 	protected void write() {
 		try {
-			FileObject o = processingEnv.getFiler()
-					.createResource(StandardLocation.CLASS_OUTPUT, "",
-							DESCRIPTORFILENAME, (Element) null);
+			FileObject o = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", DESCRIPTORFILENAME,
+					(Element) null);
 			BufferedWriter w = new BufferedWriter(o.openWriter());
 			vd.write(w);
 			w.close();

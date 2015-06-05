@@ -10,8 +10,12 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -144,6 +148,9 @@ public class SimpleConfiguration implements Configuration {
 		waitings.remove(vm);
 		vmLocs.put(vm, node2);
 		hosted.get(node2).add(vm);
+		if (node2.equals(migrations.get(vm))) {
+			migrations.remove(vm);
+		}
 		return true;
 	}
 
@@ -157,6 +164,7 @@ public class SimpleConfiguration implements Configuration {
 			hosted.get(hoster).remove(vm);
 		}
 		waitings.add(vm);
+		migrations.remove(vm);
 		return true;
 	}
 
@@ -165,7 +173,11 @@ public class SimpleConfiguration implements Configuration {
 	 */
 	@Override
 	public Node getMigrationTarget(VM v) {
-		return migrations.get(v);
+		Node ret = migrations.get(v);
+		if (ret == getLocation(v)) {
+			ret = null;
+		}
+		return ret;
 	}
 
 	@Override
@@ -203,6 +215,7 @@ public class SimpleConfiguration implements Configuration {
 		if (waitings.remove(vm)) {
 			return true;
 		}
+		migrations.remove(vm);
 		Node hoster = vmLocs.remove(vm);
 		if (hoster != null) {
 			hosted.get(hoster).remove(vm);
@@ -251,6 +264,7 @@ public class SimpleConfiguration implements Configuration {
 			for (VM vm : vms) {
 				vmLocs.remove(vm);
 				waitings.add(vm);
+				migrations.remove(vm);
 			}
 		}
 		offlines.add(node2);
@@ -268,6 +282,7 @@ public class SimpleConfiguration implements Configuration {
 			for (VM vm : vms) {
 				vmLocs.remove(vm);
 				waitings.add(vm);
+				migrations.remove(vm);
 			}
 			return true;
 		}
@@ -285,48 +300,6 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public void replace(VM vm, VM newVM) {
-		if (vm == newVM || vm == null || newVM == null) {
-			return;
-		}
-		Node hoster = vmLocs.remove(vm);
-		if (hoster == null) {
-			if (waitings.remove(vm)) {
-				waitings.add(newVM);
-			} else {
-				// the VM had no hoster and was not waiting : it was not
-				// present.
-			}
-		} else {
-			Set<VM> set = hosted.get(hoster);
-			set.remove(vm);
-			set.add(newVM);
-			vmLocs.put(newVM, hoster);
-		}
-	}
-
-	@Override
-	public void replace(Node oldNode, Node newNode) {
-		if (oldNode == newNode || oldNode == null || newNode == null) {
-			return;
-		}
-		Set<VM> vms = hosted.remove(oldNode);
-		if (vms == null) {
-			if (offlines.remove(oldNode)) {
-				offlines.add(newNode);
-			} else {
-				// the node had a null set of VMs, and was not offline : was not
-				// present.
-			}
-		} else {
-			hosted.put(newNode, vms);
-			for (VM vm : vms) {
-				vmLocs.put(vm, newNode);
-			}
-		}
-	}
-
-	@Override
 	public Stream<Node> getOnlines(Predicate<Set<VM>> pred) {
 		return hosted.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
 		    .map(Entry<Node, Set<VM>>::getKey);
@@ -334,7 +307,8 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public String toString() {
-		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nresources : "
+		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
+				+ migrations + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 
@@ -348,27 +322,18 @@ public class SimpleConfiguration implements Configuration {
 		}
 		SimpleConfiguration o = (SimpleConfiguration) obj;
 		if (!vmLocs.equals(o.vmLocs)) {
-			// System.err.println("vmlocs : " + vmLocs + " != " + o.vmLocs);
 			return false;
 		}
 		if (!offlines.equals(o.offlines)) {
-			// System.err.println("offlines");
 			return false;
 		}
 		if (!waitings.equals(o.waitings)) {
-			// System.err.println("waitings");
 			return false;
 		}
 		if (!resources.equals(o.resources)) {
-			// System.err.println("resources : ");
-			// for (Entry<String, ResourceSpecification> e :
-			// resources.entrySet()) {
-			// ResourceSpecification o2 = o.resources.get(e.getKey());
-			// if (!e.getValue().equals(o2)) {
-			// System.err.println(" " + e.getKey() + " : " + e.getValue() +
-			// " != " + o2);
-			// }
-			// }
+			return false;
+		}
+		if (!migrations.equals(o.migrations)) {
 			return false;
 		}
 		return true;
