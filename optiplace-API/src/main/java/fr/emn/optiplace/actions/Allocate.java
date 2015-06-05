@@ -13,7 +13,7 @@ import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 
 /**
  * Allocate a VM (not running) on a Server
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
@@ -30,8 +30,8 @@ public class Allocate implements Action {
 	protected Node node;
 
 	/**
-     *
-     */
+   *
+   */
 	public Allocate(VM vm, Node node) {
 		this.vm = vm;
 		this.node = node;
@@ -74,6 +74,23 @@ public class Allocate implements Action {
 
 	@Override
 	public String toString() {
-		return "allocate(" + vm + " on " + node + ")";
+		return "allocate[" + vm + " on " + node + "]";
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || obj == this) {
+			return obj != null;
+		}
+		if (obj.getClass() != this.getClass()) {
+			return false;
+		}
+		Allocate b = (Allocate) obj;
+		return b.vm.equals(vm) && b.node.equals(node);
+	}
+
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }

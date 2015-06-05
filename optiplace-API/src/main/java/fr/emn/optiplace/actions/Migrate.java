@@ -10,6 +10,7 @@ import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
 
+
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
@@ -21,7 +22,7 @@ public class Migrate implements Action {
 
 	public static void extractMigrations(Configuration from, Configuration to, ActionGraph actions) {
 		from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
-				.forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
+		    .forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
 	}
 
 	VM vm;
@@ -81,5 +82,19 @@ public class Migrate implements Action {
 	@Override
 	public String toString() {
 		return "migrate[" + vm.getName() + " from " + from.getName() + " to " + to.getName() + "]";
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj) || obj != null && obj.getClass() == getClass() && equalsMigrate((Migrate) obj);
+	}
+
+	public boolean equalsMigrate(Migrate other) {
+		return vm.equals(other.vm) && from.equals(other.vm) && to.equals(other.to);
+	}
+
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }
