@@ -5,9 +5,6 @@ package fr.emn.optiplace.solver;
 
 import org.chocosolver.memory.IStateBool;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.explanations.Deduction;
-import org.chocosolver.solver.explanations.Explanation;
-import org.chocosolver.solver.explanations.ExplanationEngine;
 import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IVariableMonitor;
@@ -77,11 +74,6 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 		@Override
 		public void onUpdate(Variable var, IEventType evt) throws ContradictionException {
 			dirty();
-		}
-
-		@Override
-		public void explain(ExplanationEngine arg0, Deduction arg1, Explanation arg2) {
-			throw new UnsupportedOperationException();
 		}
 	};
 

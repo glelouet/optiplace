@@ -153,7 +153,7 @@ public class TestActivatedHeuristics {
 	    if (!inserted) {
 		for (IntVarActivatedStrategy element : list) {
 		    Propagator<IntVar> p = element.getPropagator();
-		    s.getEngine().dynamicAddition(new Constraint("" + p, p), true);
+					s.getEngine().dynamicAddition(true, new Constraint("" + p, p).getPropagators());
 		    try {
 			p.propagate(0);
 		    } catch (ContradictionException e) {
