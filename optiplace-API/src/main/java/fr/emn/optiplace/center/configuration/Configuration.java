@@ -435,11 +435,67 @@ public interface Configuration {
 	 * @param vm
 	 *          a VM to use the resource specifications
 	 * @param specs
-	 *          the resource specifications
+	 *          the resource specifications from which we can get the capacities
+	 *          of the node and the use of the VM
 	 * @return the minimum of capa(n)/use(VM) for each resource of specs
 	 */
 	public static double maxNBVms(Node n, VM vm, Stream<ResourceSpecification> specs) {
 		return specs.mapToDouble(s -> 1.0 * s.getCapacity(n) / s.getUse(vm)).min().getAsDouble();
+	}
+
+	/********************
+	 * site management. A site , represented by an index, is a partition of the
+	 * nodes.<br />
+	 * By default one site, the index 0, exists. adding nodes to a new site remove
+	 * them from the old one.<br />
+	 * However, since the index is the order of creation of the sites, deleting
+	 * all the nodes from a site doesn't remove it.
+	 */
+
+	/**
+	 * add a new site containing given nodes. The nodes are first removed from
+	 * their site.
+	 *
+	 * @param nodes
+	 *          the nodes contained in the site
+	 * @return the index of the new site.
+	 */
+	public int addSite(Node... nodes);
+
+	/**
+	 * add nodes to a site at given index
+	 *
+	 * @param siteIdx
+	 *          the requested site index. If no site is at given index, call
+	 *          {@link #addSite(Node...)}
+	 * @param nodes
+	 *          the nodes to add to the site
+	 * @return the index of the site the nodes were put in.
+	 */
+	public int addSite(int siteIdx, Node... nodes);
+
+	/**
+	 *
+	 * @return the number of sites in the configuration, is always at least one.
+	 */
+	public int nbSites();
+
+	/**
+	 *
+	 * @param n
+	 *          a Node of the configuration
+	 * @return the index of the site this node belongs to
+	 */
+	public int getSite(Node n);
+
+	/**
+	 *
+	 * @param idx
+	 *          an index of existing site
+	 * @return a stream over the nodes contained in this site.
+	 */
+	public default Stream<Node> getSite(int idx) {
+		return getNodes().filter(n -> getSite(n) == idx);
 	}
 
 }

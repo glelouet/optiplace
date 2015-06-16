@@ -10,9 +10,14 @@
 
 package fr.emn.optiplace.configuration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -305,6 +310,66 @@ public class SimpleConfiguration implements Configuration {
 		    .map(Entry<Node, Set<VM>>::getKey);
 	}
 
+	// the site i is at pos i-1
+	ArrayList<Set<Node>> sites = new ArrayList<>();
+
+	protected void removeNodesFromSites(Collection<Node> c) {
+		for (Set<Node> set : sites) {
+			set.removeAll(c);
+		}
+	}
+
+	@Override
+	public int addSite(Node... nodes) {
+		Set<Node> site = new HashSet<Node>(Arrays.asList(nodes));
+		removeNodesFromSites(site);
+		sites.add(site);
+		return sites.size();
+	}
+
+	@Override
+	public int addSite(int siteIdx, Node... nodes) {
+		if (siteIdx == 0) {
+			removeNodesFromSites(Arrays.asList(nodes));
+			return siteIdx;
+		}
+		if (siteIdx > sites.size()) {
+			return addSite(nodes);
+		}
+		List<Node> l = Arrays.asList(nodes);
+		removeNodesFromSites(l);
+		Set<Node> s = sites.get(siteIdx - 1);
+		s.addAll(l);
+		return siteIdx;
+	}
+
+	@Override
+	public int nbSites() {
+		return sites.size() + 1;
+	}
+
+	@Override
+	public int getSite(Node n) {
+		for (int i = 0; i < sites.size(); i++) {
+			if (sites.get(i).contains(n)) {
+				return i + 1;
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public Stream<Node> getSite(int idx) {
+		if (idx == 0) {
+			return Configuration.super.getSite(idx);
+		}
+		if (idx > sites.size()) {
+			return Stream.empty();
+		} else {
+			return sites.get(idx-1).stream();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
@@ -336,6 +401,15 @@ public class SimpleConfiguration implements Configuration {
 		if (!migrations.equals(o.migrations)) {
 			return false;
 		}
+		if (!sites.equals(o.sites)) {
+			return false;
+		}
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return vmLocs.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode() + migrations.hashCode()
+				+ sites.hashCode();
 	}
 }
