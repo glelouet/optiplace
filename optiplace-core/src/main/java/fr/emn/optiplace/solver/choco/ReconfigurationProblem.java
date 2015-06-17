@@ -122,6 +122,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 		makeConstantConfig();
 		makeHosters();
+		makeSites();
 
 		vmGrp = new ArrayList<IntVar>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
@@ -339,7 +340,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	protected IntVar[] hosters = null;
 
 	/**
-	 * should we name the variables busing the nodes and VMs index or using the
+	 * should we name the variables by using the nodes and VMs index or using the
 	 * nodes and VM names ? default is : use their name
 	 */
 	protected boolean useVMAndNodeIndex = false;
@@ -404,6 +405,45 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 			}
 			return ret;
 		}
+	}
+
+	/** for each VM, the site of its host */
+	protected IntVar[] sites;
+
+	/** node i is in site nodeSites[i] */
+	protected int[] nodesSite;
+
+	protected void makeSites() {
+		sites = new IntVar[hosters.length];
+		nodesSite = new int[nodes.length];
+		for (int i = 0; i < nodesSite.length; i++) {
+			nodesSite[i] = getSourceConfiguration().getSite(node(i));
+		}
+	}
+
+	/**
+	 * if the vm has no IntVar representing its site, we create one.
+	 * 
+	 * @param vmidx
+	 * @return
+	 */
+	protected IntVar site(int vmidx) {
+		IntVar ret = sites[vmidx];
+		if (ret == null) {
+			if (getSourceConfiguration().nbSites() == 1) {
+				ret = createIntegerConstant(0);
+				sites[vmidx] = ret;
+			} else {
+				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites());
+				ICF.element(ret, nodesSite, host(vmidx));
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public IntVar site(VM vm) {
+		return site(vm(vm));
 	}
 
 	// should cards[i] be the cardinality of each hosteds[i] or the number

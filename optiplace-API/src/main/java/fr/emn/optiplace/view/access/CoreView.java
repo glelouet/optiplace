@@ -70,6 +70,14 @@ public interface CoreView {
 	public IntVar host(VM vm);
 
 	/**
+	 *
+	 * @param vm
+	 *          a virtual machine of the problem
+	 * @return the site index of the node hosting this VM
+	 */
+	public IntVar site(VM vm);
+
+	/**
 	 * set a VM as shadowing a node
 	 *
 	 * @param vm
