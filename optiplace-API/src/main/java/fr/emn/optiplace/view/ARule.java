@@ -1,10 +1,6 @@
 package fr.emn.optiplace.view;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.center.configuration.Configuration;
@@ -109,5 +105,11 @@ public abstract class ARule implements Rule {
 
 	protected List<VM> otherVMs(Configuration cfg) {
 		return cfg.getVMs().filter(v -> !vms.contains(v)).collect(Collectors.toList());
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().getSimpleName().hashCode() + (vms != null ? vms.hashCode() : 0)
+		    + (nodes != null ? nodes.hashCode() : 0);
 	}
 }

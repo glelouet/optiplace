@@ -498,4 +498,25 @@ public interface Configuration {
 		return getNodes().filter(n -> getSite(n) == idx);
 	}
 
+	/**
+	 * add aliases to a site. If an alias is already used for another site, it is
+	 * not added to this site's aliases
+	 *
+	 * @param siteIdx
+	 *          the index of the site
+	 * @param aliases
+	 *          names to alias this site with
+	 * @return the unmodifiable set of aliases for this site.
+	 */
+	public Set<String> area(int siteIdx, String... aliases);
+
+	/**
+	 * get a site index from an alias
+	 *
+	 * @param alias
+	 *          the alias of the site
+	 * @return the index of the site, or -1 if this alias is not linked to a site.
+	 */
+	public int area(String alias);
+
 }

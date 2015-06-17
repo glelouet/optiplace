@@ -10,18 +10,10 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.center.configuration.Configuration;
@@ -187,9 +179,9 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public void setMigrationTarget(VM vm, Node n) {
-		if(vm==null || !vmLocs.containsKey(vm)) {
-	    return ;
-    }
+		if (vm == null || !vmLocs.containsKey(vm)) {
+			return;
+		}
 		if (n == null || n.equals(vmLocs.get(vm))) {
 			migrations.remove(vm);
 		} else {
@@ -366,14 +358,32 @@ public class SimpleConfiguration implements Configuration {
 		if (idx > sites.size()) {
 			return Stream.empty();
 		} else {
-			return sites.get(idx-1).stream();
+			return sites.get(idx - 1).stream();
 		}
+	}
+
+	protected HashMap<String, Integer> aliasesToIndex = new HashMap<>();
+
+	@Override
+	public Set<String> area(int siteIdx, String... aliases) {
+		for (String s : aliases) {
+			if (!aliasesToIndex.containsKey(s)) {
+				aliasesToIndex.put(s, siteIdx);
+			}
+		}
+		return aliasesToIndex.entrySet().parallelStream().filter(e -> e.getValue() == siteIdx).map(e -> e.getKey())
+		    .collect(Collectors.toSet());
+	}
+
+	@Override
+	public int area(String alias) {
+		return aliasesToIndex.getOrDefault(alias, -1);
 	}
 
 	@Override
 	public String toString() {
 		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
-				+ migrations + "\nresources : "
+		    + migrations + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 
@@ -410,6 +420,6 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int hashCode() {
 		return vmLocs.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode() + migrations.hashCode()
-				+ sites.hashCode();
+		    + sites.hashCode();
 	}
 }

@@ -35,6 +35,7 @@ public class FileViewData implements ProvidedData {
 		return name;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public Stream<String> lines() {
 		try {
