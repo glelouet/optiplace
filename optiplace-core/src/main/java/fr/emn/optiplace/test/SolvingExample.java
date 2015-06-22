@@ -31,7 +31,10 @@ public class SolvingExample {
 	protected ConfigStrat strat = new ConfigStrat();
 	protected View[] views = {};
 
-	/** 3 nodes, 2 VMs on them, 2 waiting VMs */
+	/**
+	 * {@link #nbNodes} nodes, {@link #nbVMPerNode} VMs on each, plus
+	 * {@link #nbWaitings} waiting VMs
+	 */
 	protected void prepare() {
 		runnings = new VM[nbNodes * nbVMPerNode];
 		waitings = new VM[nbWaitings];

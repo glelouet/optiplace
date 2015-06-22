@@ -10,13 +10,7 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
@@ -24,11 +18,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -423,7 +413,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 	/**
 	 * if the vm has no IntVar representing its site, we create one.
-	 * 
+	 *
 	 * @param vmidx
 	 * @return
 	 */
@@ -434,8 +424,8 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 				ret = createIntegerConstant(0);
 				sites[vmidx] = ret;
 			} else {
-				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites());
-				ICF.element(ret, nodesSite, host(vmidx));
+				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites() - 1);
+				post(ICF.element(ret, nodesSite, host(vmidx)));
 			}
 		}
 		return ret;
@@ -629,6 +619,12 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 				cfg.setOnline(n);
 			} else {
 				cfg.setOffline(n);
+			}
+		}
+		for (int i = 0; i < source.nbSites(); i++) {
+			cfg.area(i, source.area(i).toArray(new String[] {}));
+			if (i != 0) {
+				cfg.addSite(source.getSite(i).collect(Collectors.toList()).toArray(new Node[] {}));
 			}
 		}
 		source.getVMs().forEach(vm -> {

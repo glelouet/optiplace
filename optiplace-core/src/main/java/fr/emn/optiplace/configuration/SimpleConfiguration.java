@@ -366,9 +366,11 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Set<String> area(int siteIdx, String... aliases) {
-		for (String s : aliases) {
-			if (!aliasesToIndex.containsKey(s)) {
-				aliasesToIndex.put(s, siteIdx);
+		if (aliases != null) {
+			for (String s : aliases) {
+				if (!aliasesToIndex.containsKey(s)) {
+					aliasesToIndex.put(s, siteIdx);
+				}
 			}
 		}
 		return aliasesToIndex.entrySet().parallelStream().filter(e -> e.getValue() == siteIdx).map(e -> e.getKey())
