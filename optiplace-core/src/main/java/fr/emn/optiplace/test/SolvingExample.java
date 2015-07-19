@@ -2,6 +2,7 @@ package fr.emn.optiplace.test;
 
 import java.util.Arrays;
 
+import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.center.configuration.Node;
@@ -20,6 +21,8 @@ public class SolvingExample {
 	protected VM[] runnings = null;
 	protected VM[] waitings = null;
 	protected Node[] nodes = null;
+	/** placed[i]{1..n} are the n VM placed on node i*/
+	protected VM[][] placed = null;
 
 	protected int nbNodes = 3;
 	protected int nbVMPerNode = 2;
@@ -38,12 +41,15 @@ public class SolvingExample {
 	protected void prepare() {
 		runnings = new VM[nbNodes * nbVMPerNode];
 		waitings = new VM[nbWaitings];
+		placed = new VM[nbNodes][nbVMPerNode];
 		nodes = new Node[nbNodes];
 		src = new SimpleConfiguration(resources);
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = src.addOnline("n" + i, nodeCapas);
 			for (int j = 0; j < nbVMPerNode; j++) {
-				runnings[i * nbVMPerNode + j] = src.addVM("vm_" + i + "_" + j, nodes[i], vmUse);
+				VM vm = src.addVM("vm_" + i + "_" + j, nodes[i], vmUse);
+				runnings[i * nbVMPerNode + j] = vm;
+				placed[i][j]=vm;
 			}
 		}
 		for (int i = 0; i < nbWaitings; i++) {
@@ -52,7 +58,7 @@ public class SolvingExample {
 		strat.setDisableCheckSource(true);
 	}
 
-	public Configuration solve(Configuration src, Rule... rules) {
+	public DeducedTarget solve(Configuration src, Rule... rules) {
 		SolvingProcess p = new SolvingProcess();
 		p.getCenter().setSource(src);
 		p.getCenter().getBaseView().getInternalRules().addAll(Arrays.asList(rules));
@@ -69,7 +75,7 @@ public class SolvingExample {
 			assert false : "null result of test";
 		}
 		assert c.checkBasics();
-		return c;
+		return p.getTarget();
 	}
 
 }

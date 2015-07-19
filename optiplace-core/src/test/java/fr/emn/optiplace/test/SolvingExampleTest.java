@@ -25,7 +25,7 @@ public class SolvingExampleTest extends SolvingExample {
 	@Test
 	public void testCreation() {
 		prepare();
-		Configuration d = solve(src);
+		Configuration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
 		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbNodes * nbVMPerNode);
 		Assert.assertEquals(d.nbVMs(VMSTATES.RUNNING), nbWaitings + nbNodes
