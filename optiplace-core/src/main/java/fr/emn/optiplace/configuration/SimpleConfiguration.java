@@ -385,7 +385,7 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public String toString() {
 		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
-		    + migrations + "\nresources : "
+		    + migrations + "\nsites : " + sites + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 

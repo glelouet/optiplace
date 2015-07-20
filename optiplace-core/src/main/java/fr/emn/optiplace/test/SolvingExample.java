@@ -47,8 +47,8 @@ public class SolvingExample {
 
 	protected Node[] makeNodes() {
 		Node[] ret = new Node[nbNodes];
-		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = src.addOnline("n" + i, nodeCapas);
+		for (int i = 0; i < nbNodes; i++) {
+			ret[i] = src.addOnline("n" + i, nodeCapas);
 		}
 		return ret;
 	}
