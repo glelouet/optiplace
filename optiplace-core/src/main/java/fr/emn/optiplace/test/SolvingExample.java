@@ -18,7 +18,6 @@ public class SolvingExample {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SolvingExample.class);
 
 	protected Configuration src = null;
-	protected VM[] runnings = null;
 	protected VM[] waitings = null;
 	protected Node[] nodes = null;
 	/** placed[i]{1..n} are the n VM placed on node i*/
@@ -39,23 +38,38 @@ public class SolvingExample {
 	 * {@link #nbWaitings} waiting VMs
 	 */
 	protected void prepare() {
-		runnings = new VM[nbNodes * nbVMPerNode];
-		waitings = new VM[nbWaitings];
-		placed = new VM[nbNodes][nbVMPerNode];
-		nodes = new Node[nbNodes];
 		src = new SimpleConfiguration(resources);
+		nodes = makeNodes();
+		placed = makeOnlines(nodes);
+		waitings = makeWaitings();
+		strat.setDisableCheckSource(true);
+	}
+
+	protected Node[] makeNodes() {
+		Node[] ret = new Node[nbNodes];
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = src.addOnline("n" + i, nodeCapas);
+		}
+		return ret;
+	}
+
+	protected VM[][] makeOnlines(Node[] nodes) {
+		VM[][] ret= new VM[nodes.length][nbVMPerNode];
+		for (int i = 0; i < nodes.length; i++) {
 			for (int j = 0; j < nbVMPerNode; j++) {
 				VM vm = src.addVM("vm_" + i + "_" + j, nodes[i], vmUse);
-				runnings[i * nbVMPerNode + j] = vm;
-				placed[i][j]=vm;
+				placed[i][j] = vm;
 			}
 		}
+		return ret;
+	}
+
+	protected VM[] makeWaitings() {
+		VM[] ret = new VM[nbWaitings];
 		for (int i = 0; i < nbWaitings; i++) {
-			waitings[i] = src.addVM("vm_" + i, null, vmUse);
+			ret[i] = src.addVM("vm_" + i, null, vmUse);
 		}
-		strat.setDisableCheckSource(true);
+		return ret;
 	}
 
 	public DeducedTarget solve(Configuration src, Rule... rules) {
