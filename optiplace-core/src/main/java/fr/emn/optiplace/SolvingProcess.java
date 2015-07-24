@@ -63,11 +63,7 @@ public class SolvingProcess extends OptiplaceProcess {
 
 		// if we have a view specified by the administrator (containing rules,
 		// objectives, etc.) then we add it at the end.
-		views = center.getViews();
-		if (center.getBaseView() != null) {
-			views = new ArrayList<>(views);
-			views.add(center.getBaseView());
-		}
+		views = new ArrayList<>(center.getViews());
 		for (ViewAsModule v : views) {
 			v.preProcessConfig(src);
 		}

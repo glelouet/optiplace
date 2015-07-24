@@ -1,3 +1,4 @@
+
 package fr.emn.optiplace.view;
 
 import java.util.ArrayList;
@@ -14,18 +15,19 @@ import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.center.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
+
 /**
- * A view that does nothing. classes inheriting from view should implement it to
- * get a minimal set of usefull creation tools.
+ * Common view behaviour. classes inheriting from view should implement it to
+ * get a minimal set of useful creation tools.
  * <ul>
  * <li>all variables created by a view should be added using
  * {@link #onNewVar(Var)}</li>
  * <li>all new constraints should be added to the model using
- * {@link #post(SConstraint)} instead of {@link #problem}.post()</li>
+ * {@link #post(SConstraint)} instead of {@link #problem#post(Constraint)}</li>
  * <li>any call to {@link #clear()} should call super.clear() and all
  * problem-relative variables should be cleaned in the clear()</li>
- * <li>any call to {@link #associate(IReconfigurationProblem)} should call
- * super.associate()</li>
+ * <li>any overwrite of {@link #associate(IReconfigurationProblem)} should call
+ * {@link EmptyView#associate(IReconfigurationProblem)}</li>
  * </ul>
  *
  * @author guillaume
@@ -128,10 +130,8 @@ public class EmptyView implements View {
 	}
 
 	@Override
-	public void extractActions(ActionGraph a, Configuration dest) {
-	}
+	public void extractActions(ActionGraph a, Configuration dest) {}
 
 	@Override
-	public void setConfig(ProvidedData conf) {
-	}
+	public void setConfig(ProvidedData conf) {}
 }

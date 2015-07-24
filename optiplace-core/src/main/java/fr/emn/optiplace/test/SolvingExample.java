@@ -9,6 +9,7 @@ import fr.emn.optiplace.center.configuration.Node;
 import fr.emn.optiplace.center.configuration.VM;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.solver.ConfigStrat;
+import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.View;
 
@@ -58,7 +59,7 @@ public class SolvingExample {
 		for (int i = 0; i < nodes.length; i++) {
 			for (int j = 0; j < nbVMPerNode; j++) {
 				VM vm = src.addVM("vm_" + i + "_" + j, nodes[i], vmUse);
-				placed[i][j] = vm;
+				ret[i][j] = vm;
 			}
 		}
 		return ret;
@@ -75,7 +76,9 @@ public class SolvingExample {
 	public DeducedTarget solve(Configuration src, Rule... rules) {
 		SolvingProcess p = new SolvingProcess();
 		p.getCenter().setSource(src);
-		p.getCenter().getBaseView().getInternalRules().addAll(Arrays.asList(rules));
+		EmptyView v = new EmptyView();
+		v.getInternalRules().addAll(Arrays.asList(rules));
+		p.getCenter().getViews().add(v);
 		p.strat(strat);
 		p.getCenter().getViews().addAll(Arrays.asList(views));
 		p.solve();
