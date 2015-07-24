@@ -1,4 +1,4 @@
-package fr.emn.optiplace.center.configuration;
+package fr.emn.optiplace.configuration;
 
 import java.util.Comparator;
 

@@ -6,10 +6,10 @@ package fr.emn.optiplace.configuration.parser;
 
 import java.io.*;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 

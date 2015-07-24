@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 
-import fr.emn.optiplace.center.configuration.ManagedElement;
+import fr.emn.optiplace.configuration.ManagedElement;
 
 
 /**

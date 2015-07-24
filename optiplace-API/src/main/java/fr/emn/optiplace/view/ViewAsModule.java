@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;

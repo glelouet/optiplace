@@ -4,8 +4,8 @@
 
 package fr.emn.optiplace.actions;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.ManagedElement;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.ManagedElement;
 
 
 /**

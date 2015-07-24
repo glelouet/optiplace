@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ReconfigurationResult;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 

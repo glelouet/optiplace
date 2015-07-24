@@ -7,7 +7,10 @@ import fr.emn.optiplace.view.annotations.Depends;
 import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.fakes.ConfView.FakeReader;
 
+
 /**
+ * a fake view to see if the autogeneration of data works
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */

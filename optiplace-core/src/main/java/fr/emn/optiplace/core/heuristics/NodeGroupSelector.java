@@ -20,8 +20,8 @@ import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.iterators.DisposableValueIterator;
 
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**

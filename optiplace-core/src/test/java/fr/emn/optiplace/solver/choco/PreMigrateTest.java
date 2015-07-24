@@ -4,10 +4,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
 
 /**
  * test when a VM is migrating in the source configuration
@@ -29,7 +29,7 @@ public class PreMigrateTest {
 	public void testOneVMShadowing() {
 		SolvingProcess sp = new SolvingProcess();
 		SimpleConfiguration sc = new SimpleConfiguration("mem");
-		sp.getCenter().setSource(sc);
+		sp.source(sc);
 		Node[] nodes = { sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2) };
 		VM[] vms = { sc.addVM("vm0", nodes[0], 2), sc.addVM("vm1", nodes[1], 1), sc.addVM("vm2", nodes[2], 1) };
 		sc.setMigrationTarget(vms[0], nodes[1]);

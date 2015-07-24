@@ -3,7 +3,7 @@ package fr.emn.optiplace.configuration.parser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 

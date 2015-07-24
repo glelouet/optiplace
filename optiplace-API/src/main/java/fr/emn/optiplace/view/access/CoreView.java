@@ -9,10 +9,10 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
-import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.center.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceUse;
 
 /**
  * View of the core problem. A core problem contains nodes, vms, and the hosting

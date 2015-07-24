@@ -3,9 +3,9 @@ package fr.emn.optiplace.view;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 
 /** @author guillaume */
 public abstract class ARule implements Rule {

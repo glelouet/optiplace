@@ -4,8 +4,12 @@
 
 package fr.emn.optiplace;
 
-import fr.emn.optiplace.center.BaseCenter;
+import java.util.ArrayList;
+import java.util.List;
+
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.ConfigStrat;
+import fr.emn.optiplace.view.View;
 
 
 /**
@@ -58,21 +62,28 @@ public abstract class OptiplaceProcess {
 	/** extract the interesting data from the solver result */
 	protected abstract void extractData();
 
-	protected BaseCenter center = new BaseCenter();
+	protected Configuration sourceConfig = null;
+
+	protected List<View> views = new ArrayList<>();
 
 	protected ConfigStrat strat = new ConfigStrat();
 
 	protected DeducedTarget target = new DeducedTarget();
 
-	/**
-	 * @return the center
-	 */
-	public BaseCenter getCenter() {
-		return center;
+	public Configuration source() {
+		return sourceConfig;
 	}
 
-	public void center(BaseCenter center) {
-		this.center = center;
+	public void source(Configuration source) {
+		sourceConfig = source;
+	}
+
+	public List<View> views() {
+		return views;
+	}
+
+	public void views(List<View> views) {
+		this.views = views;
 	}
 
 	/**

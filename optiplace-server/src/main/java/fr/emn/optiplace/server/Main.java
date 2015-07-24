@@ -11,7 +11,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 
 /**

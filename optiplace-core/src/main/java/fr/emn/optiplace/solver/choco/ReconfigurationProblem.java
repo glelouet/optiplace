@@ -22,12 +22,12 @@ import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
-import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.center.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import gnu.trove.list.array.TIntArrayList;

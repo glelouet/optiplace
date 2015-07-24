@@ -24,12 +24,12 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Configuration.VMSTATES;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
-import fr.emn.optiplace.center.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
@@ -54,32 +54,28 @@ public class SolvingProcess extends OptiplaceProcess {
 	/** the core problem, modified by the views */
 	protected ReconfigurationProblem problem;
 
-	ArrayList<ViewAsModule> views = null;
-
 	@Override
 	public void makeProblem() {
 		long st = System.currentTimeMillis();
-		Configuration src = center.getSource();
 
 		// if we have a view specified by the administrator (containing rules,
 		// objectives, etc.) then we add it at the end.
-		views = new ArrayList<>(center.getViews());
 		for (ViewAsModule v : views) {
-			v.preProcessConfig(src);
+			v.preProcessConfig(sourceConfig);
 		}
 
-		problem = new ReconfigurationProblem(src);
+		problem = new ReconfigurationProblem(sourceConfig);
 		if (strat.getPacker() == null) {
 			strat.setPacker(new DefaultPacker());
 		}
 
-		for (ResourceSpecification r : src.resources().values()) {
+		for (ResourceSpecification r : sourceConfig.resources().values()) {
 			problem.addResourceHandler(new ResourceHandler(r));
 		}
 
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
-		src.getVMs().forEach(vm -> {
+		sourceConfig.getVMs().forEach(vm -> {
 			Node node = problem.getSourceConfiguration().getMigrationTarget(vm);
 			if (node != null) {
 				problem.setShadow(vm, node);
@@ -298,9 +294,9 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.getObjective() != null) {
 			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 		}
-		Migrate.extractMigrations(center.getSource(), dest, target.getActions());
-		Allocate.extractAllocates(center.getSource(), dest, target.getActions());
-		for (ViewAsModule v : center.getViews()) {
+		Migrate.extractMigrations(sourceConfig, dest, target.getActions());
+		Allocate.extractAllocates(sourceConfig, dest, target.getActions());
+		for (ViewAsModule v : views) {
 			v.extractActions(target.getActions(), dest);
 		}
 

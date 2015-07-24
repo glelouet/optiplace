@@ -8,7 +8,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.center.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**

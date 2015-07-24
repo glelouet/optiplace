@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**

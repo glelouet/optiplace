@@ -10,8 +10,7 @@ import java.util.Properties;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.OptiplaceSolver;
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.center.BaseCenter;
-import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
 import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
 import fr.emn.optiplace.server.viewDataProviders.PlexerProvider;
@@ -87,12 +86,10 @@ public class OptiplaceServer implements OptiplaceSolver {
 				mapConfs.add(vc);
 			}
 		}
-		BaseCenter center = new BaseCenter();
 		List<View> views = vm.getViews(getViewDataProvider());
-		center.setSource(source);
-		center.getViews().addAll(views);
 		SolvingProcess sp = new SolvingProcess();
-		sp.center(center);
+		sp.source(source);
+		sp.views(views);
 		if (strat != null) {
 			sp.strat(strat);
 		}

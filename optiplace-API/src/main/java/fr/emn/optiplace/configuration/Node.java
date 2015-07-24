@@ -8,19 +8,13 @@
  * details. You should have received a copy of the GNU Lesser General Public
  * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
 
-package fr.emn.optiplace.center.configuration;
+package fr.emn.optiplace.configuration;
 
-/**
- * Simple implementation of VirtualMachine.
- * 
- * @author Guillaume Le Louët
- */
-public class VM extends ManagedElement {
+/** @author Fabien Hermenier */
+public class Node extends ManagedElement {
 
-	/**
-	 * @param name
-	 */
-	public VM(String name) {
+	/** @param name */
+	public Node(String name) {
 		super(name);
 	}
 

@@ -1,4 +1,4 @@
-package fr.emn.optiplace.center.configuration.resources;
+package fr.emn.optiplace.configuration.resources;
 
 import java.util.Arrays;
 

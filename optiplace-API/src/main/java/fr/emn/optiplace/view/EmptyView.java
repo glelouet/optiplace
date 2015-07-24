@@ -12,7 +12,7 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.center.configuration.Configuration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 

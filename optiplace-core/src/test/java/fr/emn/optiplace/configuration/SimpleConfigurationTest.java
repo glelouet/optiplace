@@ -10,11 +10,10 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014

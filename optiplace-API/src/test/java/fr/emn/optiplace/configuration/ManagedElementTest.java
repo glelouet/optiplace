@@ -10,7 +10,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.center.configuration.ManagedElement;
+import fr.emn.optiplace.configuration.ManagedElement;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2015

@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.Variable;
-import fr.emn.optiplace.center.configuration.resources.ResourceSpecification;
+
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**

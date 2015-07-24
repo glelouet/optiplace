@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.center.configuration.Configuration;
-import fr.emn.optiplace.center.configuration.Node;
-import fr.emn.optiplace.center.configuration.VM;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.Rule;
@@ -75,12 +75,12 @@ public class SolvingExample {
 
 	public DeducedTarget solve(Configuration src, Rule... rules) {
 		SolvingProcess p = new SolvingProcess();
-		p.getCenter().setSource(src);
+		p.source(src);
 		EmptyView v = new EmptyView();
 		v.getInternalRules().addAll(Arrays.asList(rules));
-		p.getCenter().getViews().add(v);
+		p.views().add(v);
 		p.strat(strat);
-		p.getCenter().getViews().addAll(Arrays.asList(views));
+		p.views().addAll(Arrays.asList(views));
 		p.solve();
 		Configuration c = p.getTarget().getDestination();
 		if (c == null) {

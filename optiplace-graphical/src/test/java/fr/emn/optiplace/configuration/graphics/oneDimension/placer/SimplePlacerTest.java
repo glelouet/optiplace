@@ -10,7 +10,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.center.configuration.Node;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.graphics.ColorMaker;
 import fr.emn.optiplace.configuration.graphics.Tile;
 import fr.emn.optiplace.configuration.graphics.oneDimension.placers.GroupedTile;
