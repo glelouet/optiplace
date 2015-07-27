@@ -44,7 +44,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 public interface Configuration {
 
 	static enum VMSTATES {
-		RUNNING, WAITING
+		RUNNING, WAITING, EXTERN
 	}
 
 	static enum NODESTATES {
@@ -62,7 +62,9 @@ public interface Configuration {
 		return !first.getNodes().parallel().filter(n -> !second.hasNode(n)).findAny().isPresent()
 		    && !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 		    && !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
-		    && !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent();
+		    && !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
+		    && !second.getExterns().parallel().filter(v -> !first.isExtern(v)).findAny().isPresent()
+		    && !first.getExterns().parallel().filter(v -> !second.isExtern(v)).findAny().isPresent();
 	}
 
 	/**
@@ -151,7 +153,9 @@ public interface Configuration {
 	 * @return the number of vms which are specified running on the node ; null if
 	 *         the node is not known
 	 */
-	int nbHosted(Node host);
+	default long nbHosted(Node host) {
+		return getHosted(host).count();
+	}
 
 	/**
 	 * @param n
@@ -200,6 +204,9 @@ public interface Configuration {
 		if (isWaiting(n)) {
 			return VMSTATES.WAITING;
 		}
+		if (isExterned(n)) {
+			return VMSTATES.EXTERN;
+		}
 		return null;
 	}
 
@@ -210,7 +217,9 @@ public interface Configuration {
 	 *          the virtual machine
 	 * @return true if the virtual machine is running
 	 */
-	boolean isRunning(VM vm);
+	default boolean isRunning(VM vm) {
+		return getLocation(vm) != null;
+	}
 
 	/**
 	 * Test if a virtual machine is waiting.
@@ -220,6 +229,18 @@ public interface Configuration {
 	 * @return true if the virtual machine is waiting
 	 */
 	boolean isWaiting(VM vm);
+
+	/**
+	 * test is a VM is hosted on an external site
+	 *
+	 * @param v
+	 *          a VM of the configuration
+	 * @return true if the VM is hosted on an external site
+	 */
+
+	default boolean isExterned(VM v) {
+		return getExtern(v) != null;
+	}
 
 	/**
 	 * check if a node is already present in this
@@ -379,9 +400,37 @@ public interface Configuration {
 	 * @param vm
 	 *          the virtual machine
 	 * @return the node hosting the virtual machine or {@code null} is the virtual
-	 *         machine is waiting
+	 *         machine is either waiting or on an external site
 	 */
 	Node getLocation(VM vm);
+
+	/**
+	 * add an external site to host some VMs
+	 *
+	 * @param siteName
+	 *          the name of the site. must be unique, as no VM nor Node uses it.
+	 */
+	void addExtern(String siteName);
+
+	Stream<String> getExterns();
+
+	boolean isExtern(String name);
+
+	/**
+	 *
+	 * @return the stream of VM that are hosted on external sites
+	 */
+	Stream<VM> getExterned();
+
+	/**
+	 * get the external site a VM is hosted on
+	 *
+	 * @param vm
+	 *          a VM of the configuration
+	 * @return the String id of an external if the VM is placed on an external, or
+	 *         null if waiting or placed on a Node
+	 */
+	String getExtern(VM vm);
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();

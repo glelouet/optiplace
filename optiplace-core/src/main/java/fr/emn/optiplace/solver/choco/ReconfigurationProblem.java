@@ -65,6 +65,8 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	/** All the nodes managed by the model. */
 	private Node[] nodes;
 
+	private String[] externs;
+
 	private TObjectIntHashMap<Node> revNodes;
 
 	/** for each node, the set of VMs it hosts. */
@@ -139,6 +141,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		}
 		List<Node> nodes_l = source.getNodes().collect(Collectors.toList());
 		nodes = nodes_l.toArray(new Node[0]);
+		externs = source.getExterns().collect(Collectors.toList()).toArray(new String[] {});
 		// System.err.println("nodes  : " + nodes_l);
 		grpId = new int[nodes.length];
 		revNodes = new TObjectIntHashMap<>(nodes.length);
@@ -172,6 +175,11 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	@Override
 	public VM[] vms() {
 		return vms;
+	}
+
+	@Override
+	public String[] externs() {
+		return externs;
 	}
 
 	@Override
@@ -248,6 +256,28 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 			return nodes[idx];
 		} else {
 			logger.warn("getting no node at pos " + idx);
+			return null;
+		}
+	}
+
+	@Override
+	public int extern(String name) {
+		if (name != null) {
+			for (int i = 0; i < externs.length; i++) {
+				if (name.equals(externs[i])) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public String extern(int idx) {
+		if (idx < externs.length && idx >= 0) {
+			return externs[idx];
+		} else {
+			logger.warn("getting no extern at pos " + idx);
 			return null;
 		}
 	}
@@ -347,7 +377,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		if (hosters == null) {
 			hosters = new IntVar[vms.length];
 			for (int i = 0; i < vms.length; i++) {
-				hosters[i] = createEnumIntVar(vmName(i) + ".hoster", 0, nodes.length - 1);
+				hosters[i] = createEnumIntVar(vmName(i) + ".hoster", 0, nodes.length + externs.length - 1);
 			}
 		}
 	}

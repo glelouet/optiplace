@@ -16,8 +16,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -37,6 +35,8 @@ public class SimpleConfiguration implements Configuration {
 	private final Set<Node> offlines = new LinkedHashSet<>();
 
 	private final Map<Node, Set<VM>> hosted = new LinkedHashMap<>();
+
+	private final LinkedHashMap<String, Set<VM>> externs = new LinkedHashMap<>();
 
 	private final Set<VM> waitings = new LinkedHashSet<>();
 
@@ -110,12 +110,6 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public int nbHosted(Node host) {
-		Set<VM> vms = hosted.get(host);
-		return vms == null ? 0 : vms.size();
-	}
-
-	@Override
 	public boolean isOnline(Node n) {
 		return hosted.containsKey(n);
 	}
@@ -123,11 +117,6 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public boolean isOffline(Node n) {
 		return offlines.contains(n);
-	}
-
-	@Override
-	public boolean isRunning(VM vm) {
-		return vmLocs.containsKey(vm);
 	}
 
 	@Override
@@ -287,7 +276,8 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Stream<VM> getHosted(Node n) {
-		return hosted.get(n).stream();
+		Set<VM> s = hosted.get(n);
+		return s != null ? s.stream() : Stream.empty();
 	}
 
 	@Override
@@ -422,5 +412,37 @@ public class SimpleConfiguration implements Configuration {
 	public int hashCode() {
 		return vmLocs.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode() + migrations.hashCode()
 		    + sites.hashCode();
+	}
+
+	@Override
+	public void addExtern(String siteName) {
+		if (!externs.containsKey(siteName)) {
+			externs.put(siteName, new LinkedHashSet<>());
+		}
+	}
+
+	@Override
+	public Stream<String> getExterns() {
+		return externs.keySet().stream();
+	}
+
+	@Override
+	public Stream<VM> getExterned() {
+		return externs.values().stream().flatMap(Set::stream);
+	}
+
+	@Override
+	public String getExtern(VM vm) {
+		for (Entry<String, Set<VM>> e : externs.entrySet()) {
+			if (e.getValue().contains(vm)) {
+				return e.getKey();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isExtern(String name) {
+		return externs.containsKey(name);
 	}
 }

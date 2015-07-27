@@ -63,9 +63,31 @@ public interface CoreView {
 	public VM vm(int idx);
 
 	/**
+	 *
+	 * @return the array of known externs
+	 */
+	public String[] externs();
+
+	/**
+	 *
+	 * @param name
+	 *          the name of the extern
+	 * @return the index of the hoster in {@link #externs()} array
+	 */
+	public int extern(String name);
+
+	/**
+	 *
+	 * @param idx
+	 *          the index of the extern in the {@link #externs()} array
+	 * @return the name of the extern
+	 */
+	public String extern(int idx);
+
+	/**
 	 * @param vm
 	 *          a virtual machine of the problem
-	 * @return the index of the node hosting this vm
+	 * @return the index of the node/extern hosting this vm
 	 */
 	public IntVar host(VM vm);
 
@@ -77,13 +99,15 @@ public interface CoreView {
 	 */
 	public IntVar site(VM vm);
 
+	public BoolVar externed(VM vm);
+
 	/**
-	 * set a VM as shadowing a node
+	 * set a VM as shadowing a node, eg when a VM is migrating.
 	 *
 	 * @param vm
 	 *          a VM that needs resources on another node (when migrated to it)
 	 * @param n
-	 *          the node this VM shadows
+	 *          the node this VM shadows (so the one she migrates to)
 	 * @return true if the VM was not shadowing a node before
 	 */
 	public boolean setShadow(VM vm, Node n);
