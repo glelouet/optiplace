@@ -63,8 +63,8 @@ public interface Configuration {
 		    && !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 		    && !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
 		    && !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
-		    && !second.getExterns().parallel().filter(v -> !first.isExtern(v)).findAny().isPresent()
-		    && !first.getExterns().parallel().filter(v -> !second.isExtern(v)).findAny().isPresent();
+		    && !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
+		    && !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent();
 	}
 
 	/**
@@ -407,14 +407,15 @@ public interface Configuration {
 	/**
 	 * add an external site to host some VMs
 	 *
-	 * @param siteName
-	 *          the name of the site. must be unique, as no VM nor Node uses it.
+	 * @param e
+	 *            the name of the site. must be unique, as no VM nor Node uses
+	 *            it.
 	 */
-	void addExtern(String siteName);
+	void addExtern(Extern e);
 
-	Stream<String> getExterns();
+	Stream<Extern> getExterns();
 
-	boolean isExtern(String name);
+	boolean hasExtern(Extern e);
 
 	/**
 	 *
@@ -426,11 +427,11 @@ public interface Configuration {
 	 * get the external site a VM is hosted on
 	 *
 	 * @param vm
-	 *          a VM of the configuration
-	 * @return the String id of an external if the VM is placed on an external, or
-	 *         null if waiting or placed on a Node
+	 *            a VM of the configuration
+	 * @return the external if the VM is placed on an external, or null if
+	 *         waiting or placed on a Node
 	 */
-	String getExtern(VM vm);
+	Extern getExtern(VM vm);
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();

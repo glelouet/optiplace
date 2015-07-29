@@ -12,7 +12,6 @@
 package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
@@ -28,13 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
-import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Specification of a reconfiguration problem. A bridge between the VMs, the
@@ -128,51 +125,6 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 * @return the node index if exists or -1 if the VM is not already placed
 	 */
 	int getCurrentLocation(int vmIdx);
-
-	/**
-	 * Get the variable associated to a group of VMs. If the group was not
-	 * defined, it is created. All the VMs must only belong to one group
-	 *
-	 * @param vms
-	 *          the group of virtual machines.
-	 * @return the variable associated to the group or null if at least one VM of
-	 *         the proposed new group already belong to a group
-	 */
-	IntVar getVMGroup(Set<VM> vms);
-
-	/**
-	 * Get all the defined groups of virtual machines.
-	 *
-	 * @return a set of group of VMs, may be empty
-	 */
-	Set<Set<VM>> getVMGroups();
-
-	/**
-	 * Get identifier associated to a group of nodes. If the group was not
-	 * defined, it is created.
-	 *
-	 * @param nodes
-	 *          the group to define
-	 * @return the value associated to the group. -1 if the maximum number of
-	 *         group of nodes has been reached.
-	 */
-	int getGroup(Set<Node> nodes);
-
-	/**
-	 * Get all the defined groups of nodes.
-	 *
-	 * @return a set of group of nodes, may be empty
-	 */
-	Set<Set<Node>> getNodesGroups();
-
-	/**
-	 * Get the different groups associated to a node.
-	 *
-	 * @param n
-	 *          the node
-	 * @return a list of groups, may be empty
-	 */
-	TIntArrayList getAssociatedGroups(Node n);
 
 	/**
 	 * Extract the result destination configuration.

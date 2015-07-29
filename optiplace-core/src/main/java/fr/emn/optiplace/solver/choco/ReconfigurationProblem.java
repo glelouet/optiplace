@@ -10,7 +10,11 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
@@ -18,11 +22,16 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VM;
@@ -30,7 +39,6 @@ import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
-import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
@@ -44,70 +52,75 @@ import gnu.trove.map.hash.TObjectIntHashMap;
  * @author Fabien Hermenier
  */
 @SuppressWarnings("serial")
-public final class ReconfigurationProblem extends Solver implements IReconfigurationProblem {
+public class ReconfigurationProblem extends Solver implements IReconfigurationProblem {
+
+	private static final Logger logger = LoggerFactory.getLogger(ReconfigurationProblem.class);
 
 	@Override
 	public Solver getSolver() {
 		return this;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ReconfigurationProblem.class);
-
-	/** The maximum number of group of nodes. */
+	/** The maximum number of group of VM. */
 	public static final Integer MAX_NB_GRP = 1000;
 
 	/** The source configuration. */
 	private final Configuration source;
 
-	/** The current location of the placed VMs. */
-	private int[] currentLocation;
+	/** All the virtual machines managed by the model. */
+	private VM[] vms;
+
+	private TObjectIntHashMap<VM> revVMs;
 
 	/** All the nodes managed by the model. */
 	private Node[] nodes;
 
-	private String[] externs;
-
 	private TObjectIntHashMap<Node> revNodes;
+
+	private Extern[] externs;
+
+	private TObjectIntHashMap<Extern> revExterns;
+
+	/** The current location of the placed VMs. */
+	private int[] currentLocation;
+
+	/**
+	 * for each vm, the location it is at. from 0 to nodes.length-1 it is hosted
+	 * on a Node, on nodes.length it is waiting, then it hosted on the extern
+	 * index-nodes.length-1
+	 */
+	protected IntVar[] vmLocation = null;
+
+	protected IntVar[] vmState = null;
+
+	protected IntVar[] vmNode = null;
+
+	protected IntVar[] vmExtern = null;
 
 	/** for each node, the set of VMs it hosts. */
 	private SetVar[] hosteds;
 
-	/** All the virtual machines managed by the model. */
-	private VM[] vms;
-
-	/** set to true to say a VM is migrated and remains active on its former host */
+	/**
+	 * set to true to say a VM is migrated and remains active on its former host
+	 * <br />
+	 * We need to be able to set the shadow of a VM in pre-process time so we
+	 * have more than just the shadow of the configuration. If a VM is already
+	 * shadowing we can't change that ; otherwise, a view can alter make that VM
+	 * shadow during the pre-process phase.
+	 */
 	private Node[] vm_is_shadow_byindex;
 
-	private TObjectIntHashMap<VM> revVMs;
+	/** for each VM, the site of its host */
+	protected IntVar[] sites;
 
-	/** The group variable associated to each virtual machine. */
-	private final List<IntVar> vmGrp;
-
-	/** The group variable associated to each group of VMs. */
-	private final Map<Set<VM>, IntVar> vmsGrp;
-
-	/** The value associated to each group of nodes. */
-	private final Map<Set<Node>, Integer> nodesGrp;
-
-	/** The groups associated to each node. */
-	private final List<TIntArrayList> nodeGrps;
-
-	/**
-	 * The group of nodes associated to each identifier. To synchronize with
-	 * nodesGrp.
-	 */
-	private final List<Set<Node>> revNodesGrp;
-
-	/** The next value to use when creating a nodeGrp. */
-	private int nextNodeGroupVal = 0;
-
-	private int[] grpId; // The group ID of each node
+	/** node i is in site nodeSites[i] */
+	protected int[] nodesSite;
 
 	/**
 	 * Make a new model.
 	 *
 	 * @param src
-	 *          The source configuration. It must be viable.
+	 *            The source configuration. It must be viable.
 	 */
 	public ReconfigurationProblem(Configuration src) {
 		source = src;
@@ -115,39 +128,33 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		makeConstantConfig();
 		makeHosters();
 		makeSites();
-
-		vmGrp = new ArrayList<IntVar>(vms.length);
-		for (int i = 0; i < vms.length; i++) {
-			vmGrp.add(i, null);
-		}
-		vmsGrp = new HashMap<Set<VM>, IntVar>();
-		nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			nodeGrps.add(i, new TIntArrayList());
-		}
-		nodesGrp = new HashMap<Set<Node>, Integer>();
-		revNodesGrp = new ArrayList<Set<Node>>(MAX_NB_GRP);
 	}
 
 	/** store the states of the nodes and the VMs from source */
-	private void makeConstantConfig() {
+	protected void makeConstantConfig() {
 		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VM[allVMs.size()]);
-		vm_is_shadow_byindex = new Node[vms.length];
-		Arrays.fill(vm_is_shadow_byindex, null);
 		revVMs = new TObjectIntHashMap<>(vms.length);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
 		}
+
+		vm_is_shadow_byindex = new Node[vms.length];
+		Arrays.fill(vm_is_shadow_byindex, null);
+
 		List<Node> nodes_l = source.getNodes().collect(Collectors.toList());
 		nodes = nodes_l.toArray(new Node[0]);
-		externs = source.getExterns().collect(Collectors.toList()).toArray(new String[] {});
-		// System.err.println("nodes  : " + nodes_l);
-		grpId = new int[nodes.length];
 		revNodes = new TObjectIntHashMap<>(nodes.length);
 		for (int i = 0; i < nodes.length; i++) {
 			revNodes.put(nodes[i], i);
 		}
+
+		externs = source.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
+		revExterns = new TObjectIntHashMap<>(externs.length);
+		for (int i = 0; i < externs.length; i++) {
+			revExterns.put(externs[i], i);
+		}
+
 		currentLocation = new int[vms.length];
 		for (VM vm : vms) {
 			currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getLocation(vm));
@@ -178,7 +185,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	@Override
-	public String[] externs() {
+	public Extern[] externs() {
 		return externs;
 	}
 
@@ -196,19 +203,12 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		return v;
 	}
 
-	@Override
-	public VM vm(int idx) {
-		if (idx < vms.length && idx >= 0) {
-			return vms[idx];
-		}
-		return null;
-	}
-
 	/**
-	 * converts an array of vms to an array of index of those vms in the problem.
+	 * converts an array of vms to an array of index of those vms in the
+	 * problem.
 	 *
 	 * @param vms
-	 *          the vms to convert, all of them must belong to the problem
+	 *            the vms to convert, all of them must belong to the problem
 	 * @return a new array of those vms.
 	 */
 	public int[] vms(VM... vms) {
@@ -251,17 +251,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	@Override
-	public Node node(int idx) {
-		if (idx < nodes.length && idx >= 0) {
-			return nodes[idx];
-		} else {
-			logger.warn("getting no node at pos " + idx);
-			return null;
-		}
-	}
-
-	@Override
-	public int extern(String name) {
+	public int extern(Extern e) {
 		if (name != null) {
 			for (int i = 0; i < externs.length; i++) {
 				if (name.equals(externs[i])) {
@@ -273,64 +263,15 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	@Override
-	public String extern(int idx) {
-		if (idx < externs.length && idx >= 0) {
-			return externs[idx];
-		} else {
-			logger.warn("getting no extern at pos " + idx);
-			return null;
-		}
+	public SetVar getVMState(VM vm) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public IntVar getVMGroup(Set<VM> vms) {
-		IntVar v = vmsGrp.get(vms);
-		if (v != null) {
-			return v;
-		}
-
-		v = createEnumIntVar("vmset" + vms.toString(), 0, MAX_NB_GRP);
-		for (VM vm : vms) {
-			vmGrp.set(vm(vm), v);
-		}
-		vmsGrp.put(vms, v);
-		return v;
-	}
-
-	@Override
-	public Set<Set<VM>> getVMGroups() {
-		return vmsGrp.keySet();
-	}
-
-	@Override
-	public int getGroup(Set<Node> node2s) {
-		if (nodesGrp.get(node2s) != null) {
-			return nodesGrp.get(node2s);
-		} else {
-			if (nextNodeGroupVal > MAX_NB_GRP) {
-				return -1;
-			}
-			int v = nextNodeGroupVal++;
-			nodesGrp.put(node2s, v);
-			revNodesGrp.add(v, node2s);
-			for (Node n : node2s) {
-				TIntArrayList l = nodeGrps.get(node(n));
-				l.add(v);
-				grpId[node(n)] = v;
-			}
-			// Set the group of the nodes
-			return v;
-		}
-	}
-
-	@Override
-	public Set<Set<Node>> getNodesGroups() {
-		return nodesGrp.keySet();
-	}
-
-	@Override
-	public TIntArrayList getAssociatedGroups(Node n) {
-		return nodeGrps.get(node(n));
+	public IntVar extern(VM vm) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -356,12 +297,9 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	/** number of VMs hosted on each node, indexed by node index */
 	private IntVar[] cards;
 
-	/** for each vm, the index of its hosting node */
-	protected IntVar[] hosters = null;
-
 	/**
-	 * should we name the variables by using the nodes and VMs index or using the
-	 * nodes and VM names ? default is : use their name
+	 * should we name the variables by using the nodes and VMs index or using
+	 * the nodes and VM names ? default is : use their name
 	 */
 	protected boolean useVMAndNodeIndex = false;
 
@@ -374,15 +312,22 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	protected void makeHosters() {
-		if (hosters == null) {
-			hosters = new IntVar[vms.length];
-			for (int i = 0; i < vms.length; i++) {
-				hosters[i] = createEnumIntVar(vmName(i) + ".hoster", 0, nodes.length + externs.length - 1);
-			}
+		int maxLocations = nodes.length + externs.length;
+		vmLocation = new IntVar[vms.length];
+		vmState = new IntVar[vms.length];
+		vmNode = new IntVar[vms.length];
+		vmExtern = new IntVar[vms.length];
+		for (int i = 0; i < vms.length; i++) {
+			vmLocation[i] = createEnumIntVar(vmName(i) + ".location", 0, maxLocations);
+			vmNode[i] = vmLocation[i];
+			vmExtern[i] = VF.offset(vmLocation[i], -nodes.length);
+			vmState[i] = createEnumIntVar(vmName(i) + "_state", 0, 2);
 		}
 	}
 
-	/** Make a set model. One set per node, that indicates the VMs it will run */
+	/**
+	 * Make a set model. One set per node, that indicates the VMs it will run
+	 */
 	protected void makeHosteds() {
 		if (hosteds == null) {
 			makeHosters();
@@ -401,7 +346,7 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 	}
 
 	public IntVar host(int idx) {
-		return hosters[idx];
+		return vmLocation[idx];
 	}
 
 	@Override
@@ -411,30 +356,24 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 
 	@Override
 	public IntVar[] hosts() {
-		return hosters;
+		return vmLocation;
 	}
 
 	@Override
 	public IntVar[] hosts(VM... vms) {
 		if (vms == null || vms.length == 0) {
-			return hosters;
+			return vmLocation;
 		} else {
 			IntVar[] ret = new IntVar[vms.length];
 			for (int i = 0; i < vms.length; i++) {
-				ret[i] = hosters[vm(vms[i])];
+				ret[i] = vmLocation[vm(vms[i])];
 			}
 			return ret;
 		}
 	}
 
-	/** for each VM, the site of its host */
-	protected IntVar[] sites;
-
-	/** node i is in site nodeSites[i] */
-	protected int[] nodesSite;
-
 	protected void makeSites() {
-		sites = new IntVar[hosters.length];
+		sites = new IntVar[vmLocation.length];
 		nodesSite = new int[nodes.length];
 		for (int i = 0; i < nodesSite.length; i++) {
 			nodesSite[i] = getSourceConfiguration().getSite(node(i));
@@ -686,7 +625,6 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		resources.put(handler.getSpecs().getType(), handler);
 	}
 
-
 	@Override
 	public ResourceUse getUse(String res) {
 		ResourceHandler handler = resources.get(res);
@@ -716,7 +654,9 @@ public final class ReconfigurationProblem extends Solver implements IReconfigura
 		return VF.one(getSolver());
 	}
 
-	/** @param objective */
+	/**
+	 * @param objective
+	 */
 	IntVar objective = null;
 
 	public void setObjective(IntVar objective) {

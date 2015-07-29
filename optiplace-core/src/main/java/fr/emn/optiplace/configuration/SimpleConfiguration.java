@@ -10,8 +10,18 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,7 +46,7 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Map<Node, Set<VM>> hosted = new LinkedHashMap<>();
 
-	private final LinkedHashMap<String, Set<VM>> externs = new LinkedHashMap<>();
+	private final LinkedHashMap<Extern, Set<VM>> externs = new LinkedHashMap<>();
 
 	private final Set<VM> waitings = new LinkedHashSet<>();
 
@@ -415,14 +425,14 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public void addExtern(String siteName) {
-		if (!externs.containsKey(siteName)) {
-			externs.put(siteName, new LinkedHashSet<>());
+	public void addExtern(Extern e) {
+		if (!externs.containsKey(e)) {
+			externs.put(e, new LinkedHashSet<>());
 		}
 	}
 
 	@Override
-	public Stream<String> getExterns() {
+	public Stream<Extern> getExterns() {
 		return externs.keySet().stream();
 	}
 
@@ -432,8 +442,8 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public String getExtern(VM vm) {
-		for (Entry<String, Set<VM>> e : externs.entrySet()) {
+	public Extern getExtern(VM vm) {
+		for (Entry<Extern, Set<VM>> e : externs.entrySet()) {
 			if (e.getValue().contains(vm)) {
 				return e.getKey();
 			}
@@ -442,7 +452,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean isExtern(String name) {
-		return externs.containsKey(name);
+	public boolean hasExtern(Extern e) {
+		return externs.containsKey(e);
 	}
 }

@@ -9,6 +9,7 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
+import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -32,7 +33,7 @@ public interface CoreView {
 
 	/**
 	 * @param n
-	 *          a node of the problem
+	 *            a node of the problem
 	 * @return the index of the node in the problem, or -1
 	 */
 	public int node(Node n);
@@ -41,7 +42,12 @@ public interface CoreView {
 	 * @param idx
 	 * @return the node at given position, or null
 	 */
-	public Node node(int idx);
+	public default Node node(int idx) {
+		if (idx < 0)
+			return null;
+		Node[] t = nodes();
+		return idx >= t.length ? null : t[idx];
+	}
 
 	/**
 	 * @return the array of vm of this problem, each vm being on its index,
@@ -51,7 +57,7 @@ public interface CoreView {
 
 	/**
 	 * @param vm
-	 *          a virtual machine of this problem
+	 *            a virtual machine of this problem
 	 * @return the internal index for this vm, or -1 if not known
 	 */
 	public int vm(VM vm);
@@ -60,70 +66,66 @@ public interface CoreView {
 	 * @param idx
 	 * @return the vm at given pos, or null
 	 */
-	public VM vm(int idx);
+	public default VM vm(int idx) {
+		if (idx < 0)
+			return null;
+		VM[] t = vms();
+		return idx >= t.length ? null : t[idx];
+	}
 
 	/**
 	 *
 	 * @return the array of known externs
 	 */
-	public String[] externs();
+	public Extern[] externs();
 
 	/**
 	 *
-	 * @param name
-	 *          the name of the extern
-	 * @return the index of the hoster in {@link #externs()} array
+	 * @param e
+	 *            the extern
+	 * @return the index of the extern in {@link #externs()} array or -1
 	 */
-	public int extern(String name);
+	public int extern(Extern e);
 
 	/**
 	 *
 	 * @param idx
-	 *          the index of the extern in the {@link #externs()} array
-	 * @return the name of the extern
+	 *            the index of the extern in the {@link #externs()} array
+	 * @return the corresponding extern
 	 */
-	public String extern(int idx);
+	public default Extern extern(int idx) {
+		if (idx < 0)
+			return null;
+		Extern[] t = externs();
+		return idx >= t.length ? null : t[idx];
+	}
+	
+	///////////////////////////////////////////////////
+	// state of the VM, and corresponding location
+
+	public static final int VM_RUNNING = 0, VM_EXTERNED = 1, VM_WAITING = 2;
+
+	/**
+	 * 
+	 * @param vm
+	 *            a VM of the source problem
+	 * @return a Variable constrained to 0: VM is hosted, 1:VM is externed, 2:
+	 *         VM is waiting {@link #VM_EXTERNED}{@link #VM_RUNNING}
+	 *         {@link #VM_WAITING}
+	 */
+	public SetVar getVMState(VM vm);
 
 	/**
 	 * @param vm
-	 *          a virtual machine of the problem
-	 * @return the index of the node/extern hosting this vm
+	 *            a virtual machine of the problem
+	 * @return the index of the node hosting this vm if the VM state is {@value #VM_RUNNING}
 	 */
 	public IntVar host(VM vm);
 
 	/**
-	 *
-	 * @param vm
-	 *          a virtual machine of the problem
-	 * @return the site index of the node hosting this VM
-	 */
-	public IntVar site(VM vm);
-
-	public BoolVar externed(VM vm);
-
-	/**
-	 * set a VM as shadowing a node, eg when a VM is migrating.
-	 *
-	 * @param vm
-	 *          a VM that needs resources on another node (when migrated to it)
-	 * @param n
-	 *          the node this VM shadows (so the one she migrates to)
-	 * @return true if the VM was not shadowing a node before
-	 */
-	public boolean setShadow(VM vm, Node n);
-
-	/**
-	 * get the node a VM shadows
-	 *
-	 * @param vm
-	 *          the VM on the center
-	 * @return a Node shadowed, if any, or null if none.
-	 */
-	public Node getShadow(VM vm);
-
-	/**
-	 * @return the internal array of IntVar, each corresponding to the hsoter of
-	 *         the vm at this index. eg hosts()[5] correspond to host(vm(5))
+	 * @return the internal array of IntVar, each corresponding to the hoster of
+	 *         the vm at this indexif this vm is in state {@link #VM_RUNNING}.
+	 *         eg hosts()[5] correspond to host(vm(5))
 	 */
 	public IntVar[] hosts();
 
@@ -132,14 +134,73 @@ public interface CoreView {
 	 * {@link #host(VM)}
 	 *
 	 * @params vms the vms to filter the hosters on if specified.
-	 * @return the array of VM hosters, indexed by the vms indexes or the position
-	 *         of each vm in vms if not null and not empty.
+	 * @return the array of VM hosters, indexed by the vms indexes or the
+	 *         position of each vm in vms if not null and not empty.
 	 */
 	IntVar[] hosts(VM... vms);
+	
+	/**
+	 * 
+	 * @param vm a VM of the problem
+	 * @return the index of the extern hosting this VM if the VM state is {@link #VM_EXTERNED}
+	 */
+	public IntVar extern(VM vm);
+
+	/**
+	 *
+	 * @param vm
+	 *            a virtual machine of the problem
+	 * @return the site index of the node hosting this VM
+	 */
+	public IntVar site(VM vm);
+
+	/**
+	 * set a VM as shadowing a node, eg when a VM is migrating.
+	 *
+	 * @param vm
+	 *            a VM of the source
+	 * @param n
+	 *            the node this VM shadows (so the one it migrates to)
+	 * @return true if the VM was not shadowing a node before
+	 */
+	public boolean setShadow(VM vm, Node n);
+
+	/**
+	 * get the node a VM shadows
+	 *
+	 * @param vm
+	 *            a VM of the center
+	 * @return a Node shadowed, if any, or null if none.
+	 */
+	public Node getShadow(VM vm);
+
+	/**
+	 * @param vm
+	 *            a vm of the problem
+	 * @return true if the vm change host from source to target
+	 */
+	public BoolVar isMigrated(VM vm);
+
+	/**
+	 * get the table of boolean for the VMs.
+	 *
+	 * @see #isMigrated(VM)
+	 * @return the table of IntVar, so that
+	 *         ret[i]==isLiveMigrate(getVirtualMachine(i))
+	 */
+	BoolVar[] isMigrateds();
+
+	/**
+	 * @return the number of migrations performed to pass from source to target
+	 */
+	public IntVar nbMigrations();
+
+	////////////////////////////////////////
+	// Node hosting of VM
 
 	/**
 	 * @param n
-	 *          a node of the problem
+	 *            a node of the problem
 	 * @return the number of vms hosted on this node
 	 */
 	public IntVar nbVM(Node n);
@@ -154,7 +215,7 @@ public interface CoreView {
 
 	/**
 	 * @param n
-	 *          a node of the problem
+	 *            a node of the problem
 	 * @return the set of all VMs hosted on this node in the dest configuration
 	 */
 	public SetVar hosted(Node n);
@@ -167,7 +228,7 @@ public interface CoreView {
 
 	/**
 	 * @param n
-	 *          a node of the problem
+	 *            a node of the problem
 	 * @return the boolean presence of a vm to host on the node
 	 */
 	public BoolVar isHoster(Node n);
@@ -185,36 +246,18 @@ public interface CoreView {
 	public IntVar nbHosters();
 
 	/**
-	 * @param vm
-	 *          a vm of the problem
-	 * @return true if the vm change host from source to target
-	 */
-	public BoolVar isMigrated(VM vm);
-
-	/**
-	 * get the table of boolean for the VMs.
-	 *
-	 * @see #isMigrated(VM)
-	 * @return the table of IntVar, so that
-	 *         ret[i]==isLiveMigrate(getVirtualMachine(i))
-	 */
-	BoolVar[] isMigrateds();
-
-	/**
 	 * get the variable representing the power state of a node in the resulting
 	 * configuration
 	 *
 	 * @param n
-	 *          a node
+	 *            a node
 	 * @return a Boolean {@link IntVar} , set to true if the node is supposed to
 	 *         be online.
 	 */
 	BoolVar isOnline(Node n);
 
-	/**
-	 * @return the number of migrations performed to pass from source to target
-	 */
-	public IntVar nbMigrations();
+	///////////////////////////////////////////////
+	// resource management.
 
 	/**
 	 * @return the map of types to the associated resource handlers
@@ -223,8 +266,8 @@ public interface CoreView {
 
 	/**
 	 * @param res
-	 *          the name of the resource to get the usage, should be present in
-	 *          {@link #getResourceSpecifications()} keys
+	 *            the name of the resource to get the usage, should be present
+	 *            in {@link #getResourceSpecifications()} keys
 	 * @return the variable of the uses of the resource
 	 */
 	ResourceUse getUse(String res);
