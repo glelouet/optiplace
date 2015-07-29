@@ -126,6 +126,8 @@ public interface Configuration {
 	 */
 	Stream<VM> getWaitings();
 
+	Stream<VM> getExterned();
+
 	/**
 	 * Get all the virtual machines involved in the configuration.
 	 *
@@ -192,19 +194,19 @@ public interface Configuration {
 	boolean isOffline(Node n);
 
 	/**
-	 * @param n
+	 * @param vm
 	 *          a VM
 	 * @return the state of the VM in the configuration, or null if the VM is not
 	 *         known
 	 */
-	default VMSTATES getState(VM n) {
-		if (isRunning(n)) {
+	default VMSTATES getState(VM vm) {
+		if (isRunning(vm)) {
 			return VMSTATES.RUNNING;
 		}
-		if (isWaiting(n)) {
+		if (isWaiting(vm)) {
 			return VMSTATES.WAITING;
 		}
-		if (isExterned(n)) {
+		if (isExterned(vm)) {
 			return VMSTATES.EXTERN;
 		}
 		return null;
@@ -217,9 +219,7 @@ public interface Configuration {
 	 *          the virtual machine
 	 * @return true if the virtual machine is running
 	 */
-	default boolean isRunning(VM vm) {
-		return getLocation(vm) != null;
-	}
+	boolean isRunning(VM vm);
 
 	/**
 	 * Test if a virtual machine is waiting.
@@ -238,9 +238,7 @@ public interface Configuration {
 	 * @return true if the VM is hosted on an external site
 	 */
 
-	default boolean isExterned(VM v) {
-		return getExtern(v) != null;
-	}
+	boolean isExterned(VM v);
 
 	/**
 	 * check if a node is already present in this
@@ -261,7 +259,7 @@ public interface Configuration {
 	 * @return true if a VM equal to this one already exist
 	 */
 	default boolean hasVM(VM vm) {
-		return isRunning(vm) || isWaiting(vm);
+		return isRunning(vm) || isWaiting(vm) || isExterned(vm);
 	}
 
 	/**
@@ -271,11 +269,11 @@ public interface Configuration {
 	 *
 	 * @param vm
 	 *          the virtual machine
-	 * @param node
-	 *          the node that will host the virtual machine.
+	 * @param hoster
+	 *          the managedelement that will host the virtual machine.
 	 * @return true if the vm is assigned to the node and was not before
 	 */
-	boolean setHost(VM vm, Node node);
+	boolean setHost(VM vm, VMHoster hoster);
 
 	/**
 	 * Set a virtual machine waiting. If the virtual machine is already in a other
@@ -296,14 +294,14 @@ public interface Configuration {
 	 *          null to set no migration, a Node to specify where the VM is
 	 *          migrating
 	 */
-	void setMigrationTarget(VM vm, Node n);
+	void setMigrationTarget(VM vm, VMHoster n);
 
 	/**
 	 * @param vm
 	 *          a VM of the center
 	 * @return a Node if that vm is migrating to this node, or null.
 	 */
-	Node getMigrationTarget(VM vm);
+	VMHoster getMigrationTarget(VM vm);
 
 	/**
 	 *
@@ -312,7 +310,7 @@ public interface Configuration {
 	 * @return true if the VM is migrating to another node
 	 */
 	default boolean isMigrating(VM vm) {
-		Node target = getMigrationTarget(vm);
+		VMHoster target = getMigrationTarget(vm);
 		return target != null && !target.equals(getLocation(vm));
 	}
 
@@ -329,7 +327,7 @@ public interface Configuration {
 	 *          {@link #resources()} size, and any missing will be set to 0.
 	 * @return a new VM with given specifications
 	 */
-	VM addVM(String vmName, Node host, int... resources);
+	VM addVM(String vmName, VMHoster host, int... resources);
 
 	/**
 	 * Remove a virtual machine.
@@ -374,6 +372,24 @@ public interface Configuration {
 	boolean remove(Node n);
 
 	/**
+	 *
+	 * @param hosted
+	 * @return
+	 */
+	default Node getNodeHost(VM hosted) {
+		return getState(hosted) == VMSTATES.RUNNING ? (Node) getLocation(hosted) : null;
+	}
+
+	/**
+	 *
+	 * @param hosted
+	 * @return
+	 */
+	default Extern getExternHost(VM hosted) {
+		return getState(hosted) == VMSTATES.EXTERN ? (Extern) getLocation(hosted) : null;
+	}
+
+	/**
 	 * Get the virtual machines that are running on a node.
 	 *
 	 * @param n
@@ -381,7 +397,7 @@ public interface Configuration {
 	 * @return a set of virtual machines, may be empty, eg if the Node is not
 	 *         present or is offline
 	 */
-	Stream<VM> getHosted(Node n);
+	Stream<VM> getHosted(VMHoster n);
 
 	/**
 	 * Get all the virtual machines running on a set of nodes.
@@ -390,7 +406,7 @@ public interface Configuration {
 	 *          the set of nodes
 	 * @return a set of virtual machines, may be empty
 	 */
-	default Stream<VM> getHosted(Set<Node> ns) {
+	default Stream<VM> getHosted(Set<VMHoster> ns) {
 		return ns.stream().map(this::getHosted).reduce(Stream::concat).get();
 	}
 
@@ -402,7 +418,7 @@ public interface Configuration {
 	 * @return the node hosting the virtual machine or {@code null} is the virtual
 	 *         machine is either waiting or on an external site
 	 */
-	Node getLocation(VM vm);
+	VMHoster getLocation(VM vm);
 
 	/**
 	 * add an external site to host some VMs
@@ -416,22 +432,6 @@ public interface Configuration {
 	Stream<Extern> getExterns();
 
 	boolean hasExtern(Extern e);
-
-	/**
-	 *
-	 * @return the stream of VM that are hosted on external sites
-	 */
-	Stream<VM> getExterned();
-
-	/**
-	 * get the external site a VM is hosted on
-	 *
-	 * @param vm
-	 *            a VM of the configuration
-	 * @return the external if the VM is placed on an external, or null if
-	 *         waiting or placed on a Node
-	 */
-	Extern getExtern(VM vm);
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();
@@ -505,10 +505,19 @@ public interface Configuration {
 	/**
 	 * add a new site containing given nodes. The nodes are first removed from
 	 * their site.
+	 * <p>
+	 * This can return subsequent lower indices if nodes are removed from their
+	 * site.<br />
+	 * eg <code> addSite(n1); addSite(n2); addsite(n1, n2)</code> will return
+	 * (1;2;1) since the last call will remove n1 and n2 from their sites, making
+	 * them empty.
 	 *
 	 * @param nodes
-	 *          the nodes contained in the site
+	 *          the nodes contained in the site. must not be null, and must
+	 *          contain at least one non-null element. any null element is
+	 *          discarded.
 	 * @return the index of the new site.
+	 *
 	 */
 	public int addSite(Node... nodes);
 

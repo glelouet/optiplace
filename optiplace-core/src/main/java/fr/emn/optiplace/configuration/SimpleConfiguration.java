@@ -10,18 +10,8 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,15 +34,17 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Set<Node> offlines = new LinkedHashSet<>();
 
-	private final Map<Node, Set<VM>> hosted = new LinkedHashMap<>();
+	private final LinkedHashMap<Node, Set<VM>> nodesVM = new LinkedHashMap<>();
 
-	private final LinkedHashMap<Extern, Set<VM>> externs = new LinkedHashMap<>();
+	private final LinkedHashMap<Extern, Set<VM>> externVM = new LinkedHashMap<>();
 
 	private final Set<VM> waitings = new LinkedHashSet<>();
 
-	private final Map<VM, Node> vmLocs = new LinkedHashMap<>();
+	/** VM to the host/extern it is hosted on. */
+	private final Map<VM, VMHoster> vmHoster = new LinkedHashMap<>();
 
-	private final Map<VM, Node> migrations = new LinkedHashMap<>();
+	/** VM to the target is is migrating to. */
+	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
 
 	public SimpleConfiguration(String... resources) {
 		if (resources == null || resources.length == 0) {} else {
@@ -71,7 +63,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Stream<Node> getOnlines() {
-		return hosted.keySet().stream();
+		return nodesVM.keySet().stream();
 	}
 
 	@Override
@@ -82,13 +74,13 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int nbNodes(NODESTATES state) {
 		if (state == null) {
-			return offlines.size() + hosted.size();
+			return offlines.size() + nodesVM.size();
 		}
 		switch (state) {
 			case OFFLINE:
 				return offlines.size();
 			case ONLINE:
-				return hosted.size();
+				return nodesVM.size();
 			default:
 				throw new UnsupportedOperationException();
 		}
@@ -96,7 +88,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Stream<VM> getRunnings() {
-		return vmLocs.keySet().stream();
+		return vmHoster.keySet().stream();
 	}
 
 	@Override
@@ -107,13 +99,15 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int nbVMs(VMSTATES state) {
 		if (state == null) {
-			return vmLocs.size() + waitings.size();
+			return vmHoster.size() + waitings.size();
 		}
 		switch (state) {
 			case RUNNING:
-				return vmLocs.size();
+				return nodesVM.values().parallelStream().mapToInt(Set::size).sum();
 			case WAITING:
 				return waitings.size();
+			case EXTERN:
+				return externVM.values().parallelStream().mapToInt(Set::size).sum();
 			default:
 				throw new UnsupportedOperationException();
 		}
@@ -121,7 +115,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public boolean isOnline(Node n) {
-		return hosted.containsKey(n);
+		return nodesVM.containsKey(n);
 	}
 
 	@Override
@@ -135,16 +129,37 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean setHost(VM vm, Node node2) {
-		if (vm == null || node2 == null || node2.equals(vmLocs.get(vm))) {
+	public boolean hasExtern(Extern e) {
+		return externVM.containsKey(e);
+	}
+
+	@Override
+	public boolean isRunning(VM vm) {
+		return nodesVM.containsKey(getLocation(vm));
+	}
+
+	@Override
+	public boolean isExterned(VM vm) {
+		return externVM.containsKey(getLocation(vm));
+	}
+
+	@Override
+	public boolean setHost(VM vm, VMHoster hoster) {
+		if (vm == null || hoster == null || hoster.equals(vmHoster.get(vm))) {
 			return false;
 		}
-		setOnline(node2);
 		waitings.remove(vm);
-		vmLocs.put(vm, node2);
-		hosted.get(node2).add(vm);
-		if (node2.equals(migrations.get(vm))) {
-			migrations.remove(vm);
+		vmHoster.put(vm, hoster);
+		if (hoster.equals(vmMigration.get(vm))) {
+			vmMigration.remove(vm);
+		}
+
+		if (hoster instanceof Node) {
+			setOnline((Node) hoster);
+			nodesVM.get(hoster).add(vm);
+		} else
+		  if (hoster instanceof Extern) {
+			externVM.get(hoster).add(vm);
 		}
 		return true;
 	}
@@ -154,12 +169,17 @@ public class SimpleConfiguration implements Configuration {
 		if (isWaiting(vm)) {
 			return false;
 		}
-		Node hoster = vmLocs.remove(vm);
+		VMHoster hoster = vmHoster.remove(vm);
 		if (hoster != null) {
-			hosted.get(hoster).remove(vm);
+			if (hoster instanceof Node) {
+				nodesVM.get(hoster).remove(vm);
+			} else
+			  if (hoster instanceof Extern) {
+				externVM.get(hoster).remove(vm);
+			}
 		}
 		waitings.add(vm);
-		migrations.remove(vm);
+		vmMigration.remove(vm);
 		return true;
 	}
 
@@ -167,8 +187,8 @@ public class SimpleConfiguration implements Configuration {
 	 *
 	 */
 	@Override
-	public Node getMigrationTarget(VM v) {
-		Node ret = migrations.get(v);
+	public VMHoster getMigrationTarget(VM v) {
+		VMHoster ret = vmMigration.get(v);
 		if (ret == getLocation(v)) {
 			ret = null;
 		}
@@ -176,19 +196,19 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public void setMigrationTarget(VM vm, Node n) {
-		if (vm == null || !vmLocs.containsKey(vm)) {
+	public void setMigrationTarget(VM vm, VMHoster h) {
+		if (vm == null || !vmHoster.containsKey(vm)) {
 			return;
 		}
-		if (n == null || n.equals(vmLocs.get(vm))) {
-			migrations.remove(vm);
+		if (h == null || h.equals(vmHoster.get(vm))) {
+			vmMigration.remove(vm);
 		} else {
-			migrations.put(vm, n);
+			vmMigration.put(vm, h);
 		}
 	}
 
 	@Override
-	public VM addVM(String vmName, Node host, int... resources) {
+	public VM addVM(String vmName, VMHoster host, int... resources) {
 		VM vm = new VM(vmName);
 		if (host == null) {
 			// we requested VM to be waiting.
@@ -207,16 +227,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public boolean remove(VM vm) {
-		if (waitings.remove(vm)) {
-			return true;
-		}
-		migrations.remove(vm);
-		Node hoster = vmLocs.remove(vm);
-		if (hoster != null) {
-			hosted.get(hoster).remove(vm);
-			return true;
-		}
-		return false;
+		return setWaiting(vm) && waitings.remove(vm) || waitings.remove(vm);
 	}
 
 	@Override
@@ -225,7 +236,7 @@ public class SimpleConfiguration implements Configuration {
 			return false;
 		}
 		offlines.remove(node2.getName());
-		hosted.put(node2, new LinkedHashSet<>());
+		nodesVM.put(node2, new LinkedHashSet<>());
 		return true;
 	}
 
@@ -254,12 +265,12 @@ public class SimpleConfiguration implements Configuration {
 		if (isOffline(node2)) {
 			return false;
 		}
-		Set<VM> vms = hosted.remove(node2);
+		Set<VM> vms = nodesVM.remove(node2);
 		if (vms != null) {
 			for (VM vm : vms) {
-				vmLocs.remove(vm);
+				vmHoster.remove(vm);
 				waitings.add(vm);
-				migrations.remove(vm);
+				vmMigration.remove(vm);
 			}
 		}
 		offlines.add(node2);
@@ -272,12 +283,12 @@ public class SimpleConfiguration implements Configuration {
 		if (offlines.remove(n)) {
 			return true;
 		}
-		Set<VM> vms = hosted.remove(n);
+		Set<VM> vms = nodesVM.remove(n);
 		if (vms != null) {
 			for (VM vm : vms) {
-				vmLocs.remove(vm);
+				vmHoster.remove(vm);
 				waitings.add(vm);
-				migrations.remove(vm);
+				vmMigration.remove(vm);
 			}
 			return true;
 		}
@@ -285,19 +296,19 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<VM> getHosted(Node n) {
-		Set<VM> s = hosted.get(n);
+	public Stream<VM> getHosted(VMHoster n) {
+		Set<VM> s = nodesVM.get(n);
 		return s != null ? s.stream() : Stream.empty();
 	}
 
 	@Override
-	public Node getLocation(VM vm) {
-		return vmLocs.get(vm);
+	public VMHoster getLocation(VM vm) {
+		return vmHoster.get(vm);
 	}
 
 	@Override
 	public Stream<Node> getOnlines(Predicate<Set<VM>> pred) {
-		return hosted.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
+		return nodesVM.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
 		    .map(Entry<Node, Set<VM>>::getKey);
 	}
 
@@ -313,7 +324,14 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int addSite(Node... nodes) {
 		Set<Node> site = new HashSet<Node>(Arrays.asList(nodes));
+		site.remove(null);
 		removeNodesFromSites(site);
+		for (int i = 0; i < sites.size(); i++) {
+			if(sites.get(i).isEmpty()){
+				sites.set(i, site);
+				return i;
+			}
+		}
 		sites.add(site);
 		return sites.size();
 	}
@@ -341,6 +359,9 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public int getSite(Node n) {
+		if (n == null) {
+			return -1;
+		}
 		for (int i = 0; i < sites.size(); i++) {
 			if (sites.get(i).contains(n)) {
 				return i + 1;
@@ -354,7 +375,7 @@ public class SimpleConfiguration implements Configuration {
 		if (idx == 0) {
 			return Configuration.super.getSite(idx);
 		}
-		if (idx > sites.size()) {
+		if (idx < 0 || idx > sites.size()) {
 			return Stream.empty();
 		} else {
 			return sites.get(idx - 1).stream();
@@ -383,8 +404,8 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public String toString() {
-		return "onlines : " + hosted + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
-		    + migrations + "\nsites : " + sites + "\nresources : "
+		return "onlines : " + nodesVM + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
+		    + vmMigration + "\nsites : " + sites + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 
@@ -397,7 +418,7 @@ public class SimpleConfiguration implements Configuration {
 			return false;
 		}
 		SimpleConfiguration o = (SimpleConfiguration) obj;
-		if (!vmLocs.equals(o.vmLocs)) {
+		if (!vmHoster.equals(o.vmHoster)) {
 			return false;
 		}
 		if (!offlines.equals(o.offlines)) {
@@ -409,7 +430,7 @@ public class SimpleConfiguration implements Configuration {
 		if (!resources.equals(o.resources)) {
 			return false;
 		}
-		if (!migrations.equals(o.migrations)) {
+		if (!vmMigration.equals(o.vmMigration)) {
 			return false;
 		}
 		if (!sites.equals(o.sites)) {
@@ -420,39 +441,34 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public int hashCode() {
-		return vmLocs.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode() + migrations.hashCode()
-		    + sites.hashCode();
+		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
+		    + vmMigration.hashCode() + sites.hashCode();
 	}
 
 	@Override
 	public void addExtern(Extern e) {
-		if (!externs.containsKey(e)) {
-			externs.put(e, new LinkedHashSet<>());
+		if (!externVM.containsKey(e)) {
+			externVM.put(e, new LinkedHashSet<>());
 		}
 	}
 
 	@Override
 	public Stream<Extern> getExterns() {
-		return externs.keySet().stream();
+		return externVM.keySet().stream();
 	}
 
 	@Override
 	public Stream<VM> getExterned() {
-		return externs.values().stream().flatMap(Set::stream);
+		return externVM.values().stream().flatMap(Set::stream);
 	}
 
 	@Override
-	public Extern getExtern(VM vm) {
-		for (Entry<Extern, Set<VM>> e : externs.entrySet()) {
+	public Extern getExternHost(VM vm) {
+		for (Entry<Extern, Set<VM>> e : externVM.entrySet()) {
 			if (e.getValue().contains(vm)) {
 				return e.getKey();
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public boolean hasExtern(Extern e) {
-		return externs.containsKey(e);
 	}
 }

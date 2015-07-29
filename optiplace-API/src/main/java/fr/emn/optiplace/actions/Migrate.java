@@ -22,7 +22,7 @@ public class Migrate implements Action {
 
 	public static void extractMigrations(Configuration from, Configuration to, ActionGraph actions) {
 		from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
-		    .forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
+		    .forEach(vm -> actions.add(new Migrate(vm, from.getNodeHost(vm), to.getNodeHost(vm))));
 	}
 
 	VM vm;

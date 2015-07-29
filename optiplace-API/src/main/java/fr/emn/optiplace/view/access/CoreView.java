@@ -43,8 +43,9 @@ public interface CoreView {
 	 * @return the node at given position, or null
 	 */
 	public default Node node(int idx) {
-		if (idx < 0)
+		if (idx < 0) {
 			return null;
+		}
 		Node[] t = nodes();
 		return idx >= t.length ? null : t[idx];
 	}
@@ -67,8 +68,9 @@ public interface CoreView {
 	 * @return the vm at given pos, or null
 	 */
 	public default VM vm(int idx) {
-		if (idx < 0)
+		if (idx < 0) {
 			return null;
+		}
 		VM[] t = vms();
 		return idx >= t.length ? null : t[idx];
 	}
@@ -94,8 +96,9 @@ public interface CoreView {
 	 * @return the corresponding extern
 	 */
 	public default Extern extern(int idx) {
-		if (idx < 0)
+		if (idx < 0) {
 			return null;
+		}
 		Extern[] t = externs();
 		return idx >= t.length ? null : t[idx];
 	}
@@ -120,24 +123,14 @@ public interface CoreView {
 	 *            a virtual machine of the problem
 	 * @return the index of the node hosting this vm if the VM state is {@value #VM_RUNNING}
 	 */
-	public IntVar host(VM vm);
+	public IntVar getHost(VM vm);
 
 	/**
 	 * @return the internal array of IntVar, each corresponding to the hoster of
 	 *         the vm at this indexif this vm is in state {@link #VM_RUNNING}.
 	 *         eg hosts()[5] correspond to host(vm(5))
 	 */
-	public IntVar[] hosts();
-
-	/**
-	 * get the array of VMs hosters. faster to iterate over it than using
-	 * {@link #host(VM)}
-	 *
-	 * @params vms the vms to filter the hosters on if specified.
-	 * @return the array of VM hosters, indexed by the vms indexes or the
-	 *         position of each vm in vms if not null and not empty.
-	 */
-	IntVar[] hosts(VM... vms);
+	public IntVar[] getHosts();
 	
 	/**
 	 * 
@@ -152,7 +145,7 @@ public interface CoreView {
 	 *            a virtual machine of the problem
 	 * @return the site index of the node hosting this VM
 	 */
-	public IntVar site(VM vm);
+	public IntVar getSite(VM vm);
 
 	/**
 	 * set a VM as shadowing a node, eg when a VM is migrating.
@@ -207,7 +200,7 @@ public interface CoreView {
 
 	/**
 	 * get the table {@link #nbVM(Node)} , indexed by the nodes index (
-	 * {@link #getNode(int)} )
+	 * {@link #getNodeHost(int)} )
 	 *
 	 * @return
 	 */

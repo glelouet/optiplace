@@ -10,11 +10,7 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
@@ -22,19 +18,11 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
@@ -124,13 +112,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 */
 	public ReconfigurationProblem(Configuration src) {
 		source = src;
-
 		makeConstantConfig();
 		makeHosters();
-		makeSites();
 	}
 
-	/** store the states of the nodes and the VMs from source */
+	/** create index for every item in the configuration (VM, Node, site, */
 	protected void makeConstantConfig() {
 		Set<VM> allVMs = source.getVMs().collect(Collectors.toSet());
 		vms = allVMs.toArray(new VM[allVMs.size()]);
@@ -157,7 +143,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 		currentLocation = new int[vms.length];
 		for (VM vm : vms) {
-			currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getLocation(vm));
+			currentLocation[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getNodeHost(vm));
+		}
+
+		sites = new IntVar[vmLocation.length];
+		nodesSite = new int[nodes.length];
+		for (int i = 0; i < nodesSite.length; i++) {
+			nodesSite[i] = getSourceConfiguration().getSite(node(i));
 		}
 	}
 
@@ -263,18 +255,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public SetVar getVMState(VM vm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IntVar extern(VM vm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public SetVar hosted(Node n) {
 		if (hosteds == null) {
 			makeHosteds();
@@ -312,6 +292,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	protected void makeHosters() {
+		if (vmLocation == null) {
 		int maxLocations = nodes.length + externs.length;
 		vmLocation = new IntVar[vms.length];
 		vmState = new IntVar[vms.length];
@@ -322,6 +303,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			vmNode[i] = vmLocation[i];
 			vmExtern[i] = VF.offset(vmLocation[i], -nodes.length);
 			vmState[i] = createEnumIntVar(vmName(i) + "_state", 0, 2);
+		}
 		}
 	}
 
@@ -340,44 +322,23 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(hosteds, hosts(), 0, 0);
+			Constraint c = SetConstraintsFactory.int_channel(hosteds, getHosts(), 0, 0);
 			post(c);
 		}
 	}
 
-	public IntVar host(int idx) {
-		return vmLocation[idx];
+	public IntVar getHost(int idx) {
+		return vmNode[idx];
 	}
 
 	@Override
-	public IntVar host(VM vm) {
-		return host(vm(vm));
+	public IntVar getHost(VM vm) {
+		return getHost(vm(vm));
 	}
 
 	@Override
-	public IntVar[] hosts() {
-		return vmLocation;
-	}
-
-	@Override
-	public IntVar[] hosts(VM... vms) {
-		if (vms == null || vms.length == 0) {
-			return vmLocation;
-		} else {
-			IntVar[] ret = new IntVar[vms.length];
-			for (int i = 0; i < vms.length; i++) {
-				ret[i] = vmLocation[vm(vms[i])];
-			}
-			return ret;
-		}
-	}
-
-	protected void makeSites() {
-		sites = new IntVar[vmLocation.length];
-		nodesSite = new int[nodes.length];
-		for (int i = 0; i < nodesSite.length; i++) {
-			nodesSite[i] = getSourceConfiguration().getSite(node(i));
-		}
+	public IntVar[] getHosts() {
+		return vmNode;
 	}
 
 	/**
@@ -386,7 +347,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * @param vmidx
 	 * @return
 	 */
-	protected IntVar site(int vmidx) {
+	public IntVar getSite(int vmidx) {
 		IntVar ret = sites[vmidx];
 		if (ret == null) {
 			if (getSourceConfiguration().nbSites() == 1) {
@@ -394,15 +355,27 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				sites[vmidx] = ret;
 			} else {
 				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites() - 1);
-				post(ICF.element(ret, nodesSite, host(vmidx)));
+				post(ICF.element(ret, nodesSite, getHost(vmidx)));
 			}
 		}
 		return ret;
 	}
 
 	@Override
-	public IntVar site(VM vm) {
-		return site(vm(vm));
+	public IntVar getSite(VM vm) {
+		return getSite(vm(vm));
+	}
+
+	@Override
+	public SetVar getVMState(VM vm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IntVar extern(VM vm) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// should cards[i] be the cardinality of each hosteds[i] or the number
@@ -503,7 +476,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(host(vmIndex), getUse(resource).getNodesUse(), ret);
+			nth(getHost(vmIndex), getUse(resource).getNodesUse(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -526,7 +499,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmIndex) + ".hosterMax" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(host(vmIndex), resources.get(resource).getCapacities(), ret);
+			nth(getHost(vmIndex), resources.get(resource).getCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -542,9 +515,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		isMigrateds = new BoolVar[vms().length];
 		for (int i = 0; i < isMigrateds.length; i++) {
 			VM vm = vm(i);
-			Node sourceHost = getSourceConfiguration().getLocation(vm);
+			Node sourceHost = getSourceConfiguration().getNodeHost(vm);
 			if (sourceHost != null) {
-				isMigrateds[i] = isDifferent(host(i), node(sourceHost));
+				isMigrateds[i] = isDifferent(getHost(i), node(sourceHost));
 			} else {
 				isMigrateds[i] = VF.one(getSolver());
 			}
@@ -597,9 +570,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			}
 		}
 		source.getVMs().forEach(vm -> {
-			Node target = source.getMigrationTarget(vm);
+			Node target = source.getNodeHost(vm);
 			if (target == null) {
-				cfg.setHost(vm, node(host(vm).getValue()));
+				cfg.setHost(vm, node(getHost(vm).getValue()));
 			} else {
 				cfg.setHost(vm, source.getLocation(vm));
 				cfg.setMigrationTarget(vm, target);

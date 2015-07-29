@@ -11,7 +11,7 @@
 package fr.emn.optiplace.configuration;
 
 /** @author Fabien Hermenier */
-public class Node extends ManagedElement {
+public class Node extends VMHoster {
 
 	/** @param name */
 	public Node(String name) {

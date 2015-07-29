@@ -75,8 +75,8 @@ public class SolvingProcess extends OptiplaceProcess {
 
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
-		sourceConfig.getVMs().forEach(vm -> {
-			Node node = problem.getSourceConfiguration().getMigrationTarget(vm);
+		sourceConfig.getRunnings().forEach(vm -> {
+			Node node = (Node) problem.getSourceConfiguration().getMigrationTarget(vm);
 			if (node != null) {
 				problem.setShadow(vm, node);
 				try {
@@ -96,7 +96,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		ChocoResourcePacker packer = strat.getPacker();
 		// all the resources should be added now, we pack them using the packing
 		// constraint.
-		for (Constraint c : packer.pack(problem.hosts(), problem.getUses())) {
+		for (Constraint c : packer.pack(problem.getHosts(), problem.getUses())) {
 			problem.getSolver().post(c);
 		}
 

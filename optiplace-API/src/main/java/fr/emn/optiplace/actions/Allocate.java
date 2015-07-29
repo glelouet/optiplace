@@ -23,7 +23,7 @@ public class Allocate implements Action {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Allocate.class);
 
 	public static void extractAllocates(Configuration from, Configuration to, ActionGraph actions) {
-		from.getWaitings().filter(to::isRunning).forEach(vm -> actions.add(new Allocate(vm, to.getLocation(vm))));
+		from.getWaitings().filter(to::isRunning).forEach(vm -> actions.add(new Allocate(vm, to.getNodeHost(vm))));
 	}
 
 	protected VM vm;
