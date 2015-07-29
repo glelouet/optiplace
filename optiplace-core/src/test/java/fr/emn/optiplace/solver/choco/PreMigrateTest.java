@@ -32,7 +32,7 @@ public class PreMigrateTest {
 		sp.source(sc);
 		Node[] nodes = { sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2) };
 		VM[] vms = { sc.addVM("vm0", nodes[0], 2), sc.addVM("vm1", nodes[1], 1), sc.addVM("vm2", nodes[2], 1) };
-		sc.setMigrationTarget(vms[0], nodes[1]);
+		sc.setMigTarget(vms[0], nodes[1]);
 		sp.solve();
 		Configuration dest = sp.getTarget().getDestination();
 		Assert.assertEquals(dest.getLocation(vms[0]), nodes[0]);

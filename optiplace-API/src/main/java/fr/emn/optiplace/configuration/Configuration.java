@@ -294,14 +294,32 @@ public interface Configuration {
 	 *          null to set no migration, a Node to specify where the VM is
 	 *          migrating
 	 */
-	void setMigrationTarget(VM vm, VMHoster n);
+	void setMigTarget(VM vm, VMHoster n);
 
 	/**
 	 * @param vm
 	 *          a VM of the center
 	 * @return a Node if that vm is migrating to this node, or null.
 	 */
-	VMHoster getMigrationTarget(VM vm);
+	VMHoster getMigTarget(VM vm);
+
+	default Node getNodeMig(VM vm) {
+		VMHoster h = getMigTarget(vm);
+		if (h instanceof Node) {
+			return (Node) h;
+		} else {
+			return null;
+		}
+	}
+
+	default Extern getExternMig(VM vm) {
+		VMHoster h = getMigTarget(vm);
+		if (h instanceof Extern) {
+			return (Extern) h;
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 *
@@ -310,7 +328,7 @@ public interface Configuration {
 	 * @return true if the VM is migrating to another node
 	 */
 	default boolean isMigrating(VM vm) {
-		VMHoster target = getMigrationTarget(vm);
+		VMHoster target = getMigTarget(vm);
 		return target != null && !target.equals(getLocation(vm));
 	}
 

@@ -76,7 +76,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
 		sourceConfig.getRunnings().forEach(vm -> {
-			Node node = (Node) problem.getSourceConfiguration().getMigrationTarget(vm);
+			Node node = (Node) problem.getSourceConfiguration().getMigTarget(vm);
 			if (node != null) {
 				problem.setShadow(vm, node);
 				try {

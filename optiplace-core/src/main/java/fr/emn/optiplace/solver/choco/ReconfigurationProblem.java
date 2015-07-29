@@ -575,7 +575,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				cfg.setHost(vm, node(getHost(vm).getValue()));
 			} else {
 				cfg.setHost(vm, source.getLocation(vm));
-				cfg.setMigrationTarget(vm, target);
+				cfg.setMigTarget(vm, target);
 			}
 		});
 		source.resources().forEach(cfg.resources()::put);

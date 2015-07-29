@@ -187,7 +187,7 @@ public class SimpleConfiguration implements Configuration {
 	 *
 	 */
 	@Override
-	public VMHoster getMigrationTarget(VM v) {
+	public VMHoster getMigTarget(VM v) {
 		VMHoster ret = vmMigration.get(v);
 		if (ret == getLocation(v)) {
 			ret = null;
@@ -196,7 +196,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public void setMigrationTarget(VM vm, VMHoster h) {
+	public void setMigTarget(VM vm, VMHoster h) {
 		if (vm == null || !vmHoster.containsKey(vm)) {
 			return;
 		}
