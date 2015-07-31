@@ -446,10 +446,12 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public void addExtern(Extern e) {
-		if (!externVM.containsKey(e)) {
-			externVM.put(e, new LinkedHashSet<>());
+	public Extern addExtern(String name) {
+		Extern ret = new Extern(name);
+		if (!externVM.containsKey(ret)) {
+			externVM.put(ret, new LinkedHashSet<>());
 		}
+		return ret;
 	}
 
 	@Override

@@ -102,21 +102,21 @@ public interface CoreView {
 		Extern[] t = externs();
 		return idx >= t.length ? null : t[idx];
 	}
-	
+
 	///////////////////////////////////////////////////
 	// state of the VM, and corresponding location
 
 	public static final int VM_RUNNING = 0, VM_EXTERNED = 1, VM_WAITING = 2;
 
 	/**
-	 * 
+	 *
 	 * @param vm
 	 *            a VM of the source problem
 	 * @return a Variable constrained to 0: VM is hosted, 1:VM is externed, 2:
 	 *         VM is waiting {@link #VM_EXTERNED}{@link #VM_RUNNING}
 	 *         {@link #VM_WAITING}
 	 */
-	public SetVar getVMState(VM vm);
+	public IntVar getState(VM vm);
 
 	/**
 	 * @param vm
@@ -131,13 +131,15 @@ public interface CoreView {
 	 *         eg hosts()[5] correspond to host(vm(5))
 	 */
 	public IntVar[] getHosts();
-	
+
 	/**
-	 * 
-	 * @param vm a VM of the problem
-	 * @return the index of the extern hosting this VM if the VM state is {@link #VM_EXTERNED}
+	 *
+	 * @param vm
+	 *          a VM of the problem
+	 * @return the variable constrained to the index of the extern hosting this VM
+	 *         if the VM state is {@link #VM_EXTERNED}
 	 */
-	public IntVar extern(VM vm);
+	public IntVar getExtern(VM vm);
 
 	/**
 	 *

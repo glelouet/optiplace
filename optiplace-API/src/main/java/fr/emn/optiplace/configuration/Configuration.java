@@ -445,7 +445,7 @@ public interface Configuration {
 	 *            the name of the site. must be unique, as no VM nor Node uses
 	 *            it.
 	 */
-	void addExtern(Extern e);
+	Extern addExtern(String name);
 
 	Stream<Extern> getExterns();
 

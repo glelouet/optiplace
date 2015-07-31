@@ -17,7 +17,7 @@ import org.chocosolver.util.ESat;
 /**
  * <p>
  * A propagator on an IntVar x, an index idx and a table of increasing values v.
- * Ensure x in v[idx-1]+1...v[idx], with ranges[-1]=-inf and v[v.length]=+inf
+ * Ensure x in v[idx-1]+1...v[idx], with v[-1]=-inf and v[v.length]=+inf
  * </p>
  * <p>
  * example : IntVar x is 0..50, IntVar idx is 0..3, ranges are 10,15,45<br />
