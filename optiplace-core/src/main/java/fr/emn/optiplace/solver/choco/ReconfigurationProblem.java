@@ -10,7 +10,11 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
@@ -19,11 +23,19 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
@@ -119,12 +131,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	// the IntVar for Externs and Sites only exist if there is at least two sites,
 	///////////////////////////////////////////////// and one extern.
 
-	/**
-	 * for each vm, the location it is at. from 0 to nodes.length-1 it is hosted
-	 * on a Node, on nodes.length to nodes.length+extern.legnth-1 it is hosted on
-	 * the extern and on nodes.length+extern.length it is waiting.
-	 */
-	protected IntVar[] vmLocation = null;
 
 	/**
 	 * VM state. see {@link CoreView#VM_RUNNING},{@link CoreView#VM_EXTERNED},
@@ -169,13 +175,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/** make the location variables */
 	protected void makeDynamicConfig() {
 		if (getSourceConfiguration().nbSites() > 1) {
-			sites = new IntVar[vmLocation.length];
+			sites = new IntVar[vms.length];
 		} else {
 			// if we have only one site (the default site) we don't need to have a
 			// IntVar
 			// because getSite(vm) will return 0 (the index of the default site)
 		}
-		vmLocation = new IntVar[vms.length];
 		vmState = new IntVar[vms.length];
 		vmNode = new IntVar[vms.length];
 		if (externs.length > 0) {
@@ -193,37 +198,19 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				if (waiting) {
 					// VM can be set to running or waiting.
 					vmState[i] = createEnumIntVar(vmName(i) + "_state", VM_RUN_WAIT);
-					vmLocation[i] = createEnumIntVar(vmName(i) + "_loc", -1, nodes.length);
-					vmNode[i] = createEnumIntVar("" + vmName(i) + ".location", -1, nodes.length);
-					vmNode[i] = vmLocation[i];
-					// if state=running, then vmNode=location, else vmNode=-1
-					post(ICF.element(vmNode[i], new IntVar[] {
-					    vmNode[i], createIntegerConstant(-1), createIntegerConstant(-1)
-					}, vmState[i], 0));
+					vmNode[i] = createEnumIntVar("" + vmName(i) + "_node", -1, nodes.length - 1);
 				} else {
 					// VM is only running.
 					vmState[i] = createIntegerConstant(VM_RUNNING);
-					vmLocation[i] = createEnumIntVar(vmName(i) + "_loc", 0, nodes.length - 1);
-					vmNode[i] = vmLocation[i];
+					vmNode[i] = createEnumIntVar(vmName(i) + "_node", 0, nodes.length - 1);
 				}
 			} else {
 				// VM can be running or externed or waiting.
 				vmState[i] = createEnumIntVar(vmName(i) + "_state", waiting ? VM_RUN_WAIT_EXT : VM_RUN_EXT);
-				vmLocation[i] = createEnumIntVar(vmName(i) + "_loc", 0, nodes.length + externs.length - (waiting ? 0 : 1));
-				post(new Constraint("state_" + vmName(i) + "_propagator",
-				    new RangePropagator(vmLocation[i], vmState[i], nodes.length - 1, nodes.length + externs.length - 1)));
-				// TODO vmNode and vmExtern.
-				vmNode[i] = createEnumIntVar("" + vmName(i) + "_loc", -1, nodes.length - 1);
-				post(ICF.element(vmNode[i], new IntVar[] {
-				    vmNode[i], createIntegerConstant(-1), createIntegerConstant(-1)
-				}, vmState[i], 0));
-				vmExtern[i] = createEnumIntVar("" + vmName(i) + "_loc", -1, nodes.length - 1);
-				post(ICF.element(vmNode[i], new IntVar[] {
-				    createIntegerConstant(-1), vmExtern[i], createIntegerConstant(-1)
-				}, vmState[i], 0));
+				vmNode[i] = createEnumIntVar("" + vmName(i) + "_node", -1, nodes.length - 1);
+				vmExtern[i] = createEnumIntVar("" + vmName(i) + "_ext", -1, externs.length - 1);
 				// constrain the state of the VM and the extern it is hosted on :
-				// extern>-1
-				// => state==externed
+				// extern>-1 <=> state==externed
 				LCF.ifThenElse(ICF.arithm(vmExtern[i], ">", -1), ICF.arithm(vmState[i], "=", VM_EXTERNED),
 				    ICF.arithm(vmState[i], "!=", VM_EXTERNED));
 			}
