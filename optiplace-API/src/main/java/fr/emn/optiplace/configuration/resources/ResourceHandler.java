@@ -1,3 +1,4 @@
+
 package fr.emn.optiplace.configuration.resources;
 
 import org.chocosolver.solver.variables.IntVar;
@@ -6,20 +7,21 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
+
 /**
  * <p>
- * The link between a {@link ResourceSpecification}, which specifies the use and
- * capacity of VMs and Nodes, and a {@link IReconfigurationProblem} which has
- * IntVar to store information<br />
- * store the data related to the specifications in the problem
+ * The link between a {@link ResourceSpecification}, which maps VM and Nodes to
+ * their use and capacity, and a {@link IReconfigurationProblem} which has
+ * indexed VM and Nodes.<br />
+ * Store the data related to the specifications in the problem
  * </p>
  * <p>
  * must be constructed with its {@link ResourceSpecification}, then
  * {@link #associate(IReconfigurationProblem)} to the problem.<br />
- * This is then indexed by its specifications ' type in the problem's {@link
- * ReconfigurationProblem.#getUse(String)}, {@link
- * ReconfigurationProblem.#getUses()} and {@link
- * ReconfigurationProblem.#getHandlers()}
+ * This is then indexed by its specifications' type in the problem's
+ * {@link ReconfigurationProblem.#getUse(String)},
+ * {@link ReconfigurationProblem.#getUses()} and
+ * {@link ReconfigurationProblem.#getHandlers()}
  * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
@@ -28,7 +30,9 @@ public class ResourceHandler {
 
 	private final ResourceSpecification specs;
 
-	/** @return the internal resource specifications */
+	/**
+	 * @return the internal resource specifications
+	 */
 	public ResourceSpecification getSpecs() {
 		return specs;
 	}
@@ -141,22 +145,30 @@ public class ResourceHandler {
 		return specs.getUse(vm);
 	}
 
-	/** @return the minVMUsage */
+	/**
+	 * @return the minVMUsage
+	 */
 	public int getMinVMUse() {
 		return minVMUse;
 	}
 
-	/** @return the maxVMUsage */
+	/**
+	 * @return the maxVMUsage
+	 */
 	public int getMaxVMUse() {
 		return maxVMUse;
 	}
 
-	/** @return the minNodeCapa */
+	/**
+	 * @return the minNodeCapa
+	 */
 	public int getMinNodeCapa() {
 		return minNodeCapa;
 	}
 
-	/** @return the maxNodeCapa */
+	/**
+	 * @return the maxNodeCapa
+	 */
 	public int getMaxNodeCapa() {
 		return maxNodeCapa;
 	}

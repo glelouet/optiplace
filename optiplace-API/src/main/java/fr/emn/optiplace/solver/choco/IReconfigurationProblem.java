@@ -12,26 +12,28 @@
 package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
+import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.access.VariablesManager;
+
 
 /**
  * Specification of a reconfiguration problem. A bridge between the VMs, the
@@ -165,6 +167,10 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	void addResourceHandler(ResourceHandler handler);
 
+	default void addResource(ResourceSpecification rs) {
+		addResourceHandler(new ResourceHandler(rs));
+	}
+
 	/********************* Operations on variables *****************/
 
 	/**
@@ -173,10 +179,11 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 * @return a new variable constrained to ret=left+right
 	 */
 	default IntVar plus(IntVar left, IntVar right) {
-		IntVar ret =
-		             createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
-		                 left.getUB() + right.getUB());
-		getSolver().post(ICF.sum(new IntVar[] { left, right }, ret));
+		IntVar ret = createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
+		    left.getUB() + right.getUB());
+		getSolver().post(ICF.sum(new IntVar[] {
+		    left, right
+		}, ret));
 		return ret;
 	}
 
@@ -207,8 +214,8 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 		return VF.offset(x, y);
 	}
 
-	default IntVar mult(IntVar x, int valTrue) {
-		return VF.scale(x, valTrue);
+	default IntVar mult(IntVar x, int multiplier) {
+		return VF.scale(x, multiplier);
 	}
 
 	/**
@@ -369,7 +376,9 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 		return ICF.arithm(x, "!=", y).reif();
 	}
 
-	/** @return a new variables constrained to ret == x?!=y */
+	/**
+	 * @return a new variables constrained to ret == x?!=y
+	 */
 	default BoolVar isDifferent(IntVar x, int y) {
 		return ICF.arithm(x, "!=", y).reif();
 	}
@@ -425,6 +434,9 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	static int[] getMinMax(IntVar[] array) {
 		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
 		for (IntVar idv : array) {
+			if (idv == null) {
+				continue;
+			}
 			if (idv.getLB() < min) {
 				min = idv.getLB();
 			}
@@ -432,7 +444,9 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 				max = idv.getUB();
 			}
 		}
-		return new int[] { min, max };
+		return new int[] {
+		    min, max
+		};
 	}
 
 	/**
@@ -510,6 +524,66 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 			name = x.getName() + ">0";
 		}
 		return ICF.arithm(x, ">", 0).reif();
+	}
+
+	/**
+	 * affect a variable according to the state of a VM.
+	 * <p>
+	 * if one of the potential IntVar (onX) is null, then the corresponding state
+	 * is removed from the IntVar state of the vm.This reduces the need to check
+	 * for VM state or removing the values manually
+	 * </p>
+	 *
+	 * @param v
+	 *          the VM to follow the state
+	 * @param var
+	 *          the variable to assign
+	 * @param onRunning
+	 *          the value of var if VM is running
+	 * @param onExtern
+	 *          the value of var if VM is externed
+	 * @param onWaiting
+	 *          the value of var ir VM is waiting
+	 */
+	default void switchState(VM v, IntVar var, IntVar onRunning, IntVar onExtern, IntVar onWaiting) {
+		IntVar[] vars = {
+		    onRunning, onExtern, onWaiting
+		};
+		IntVar state = getState(v);
+		int nbNonNull = (int) Stream.of(vars).filter(a -> a != null).count();
+		switch (nbNonNull) {
+			case 0:
+				throw new UnsupportedOperationException("can't assign an IntVar( " + var + ")to null value");
+			case 1:
+				post(ICF.arithm(var, "=", onRunning != null ? onRunning : onExtern != null ? onExtern : onWaiting));
+				try {
+					state.instantiateTo(onRunning != null ? VM_RUNNING : onExtern != null ? VM_EXTERNED : VM_WAITING, Cause.Null);
+				}
+				catch (ContradictionException e) {
+					throw new UnsupportedOperationException(e);
+				}
+			break;
+			case 2:
+				try {
+					if (onRunning == null) {
+						state.removeValue(VM_RUNNING, Cause.Null);
+					}
+					if (onExtern == null) {
+						state.removeValue(VM_EXTERNED, Cause.Null);
+					}
+					if (onWaiting == null) {
+						state.removeValue(VM_WAITING, Cause.Null);
+					}
+				}
+				catch (ContradictionException e) {
+					throw new UnsupportedOperationException(e);
+				}
+			case 3:
+				post(ICF.arithm(var, "=", nth(getState(v), vars)));
+			default:
+				throw new UnsupportedOperationException(
+				    "unsupported nuber of non null variables " + nbNonNull + " in " + Arrays.asList(vars));
+		}
 	}
 
 	public ProblemStatistics getStatistics();

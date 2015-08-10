@@ -14,7 +14,7 @@ import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 /**
  * How to create and explore a problem.<br />
  * <p>
- * Contains parameters, such as limiting the exploration fo the solution tree,
+ * Contains parameters, such as limiting the exploration of the solution tree,
  * using a specific packer for the resources, reducing the objective value,
  * logging the solutions and choices, or showing some events
  * </p>
@@ -52,7 +52,7 @@ public class ConfigStrat {
 	 *          the maxSearchTime to set, in ms
 	 */
 	public void setMaxSearchTime(long timeMS) {
-		this.maxSearchTime = timeMS;
+		maxSearchTime = timeMS;
 	}
 
 	/**
