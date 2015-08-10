@@ -22,8 +22,8 @@ public class PreMigrateTest {
 
 	/**
 	 * three nodes with resource capacity of 2 ; three VMs with resource use of 2,
-	 * 1, 1 ; the first vm also is migrating to second node. So the only solutions
-	 * require to move the second VM to the third node
+	 * 1, 1 ; the first vm also is migrating to second node.<br />
+	 * So the only solution is to move the second VM to the third node
 	 */
 	@Test
 	public void testOneVMShadowing() {
@@ -36,7 +36,8 @@ public class PreMigrateTest {
 		sp.solve();
 		Configuration dest = sp.getTarget().getDestination();
 		Assert.assertEquals(dest.getLocation(vms[0]), nodes[0]);
-		Assert.assertEquals(dest.getLocation(vms[1]), nodes[2]);
+		Assert.assertEquals(dest.getLocation(vms[1]), nodes[1]);
+		Assert.assertEquals(dest.getMigTarget(vms[1]), nodes[2]);
 		Assert.assertEquals(dest.getLocation(vms[2]), nodes[2]);
 	}
 }

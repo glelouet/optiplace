@@ -575,7 +575,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	IntVar nbLiveMigrations = null;
 
 	protected void makeIsMigrateds() {
-		if (vmsIsMigrated == null) {
+		if (vmsIsMigrated != null) {
 			return;
 		}
 		vmsIsMigrated = new BoolVar[vms().length];
@@ -615,31 +615,33 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public Configuration extractConfiguration() {
-		Configuration cfg = new SimpleConfiguration();
+		Configuration ret = new SimpleConfiguration();
 		for (Node n : nodes) {
 			if (source.isOnline(n)) {
-				cfg.setOnline(n);
+				ret.setOnline(n);
 			} else {
-				cfg.setOffline(n);
+				ret.setOffline(n);
 			}
 		}
 		for (int i = 0; i < source.nbSites(); i++) {
-			cfg.area(i, source.area(i).toArray(new String[] {}));
+			ret.area(i, source.area(i).toArray(new String[] {}));
 			if (i != 0) {
-				cfg.addSite(source.getSite(i).collect(Collectors.toList()).toArray(new Node[] {}));
+				ret.addSite(source.getSite(i).collect(Collectors.toList()).toArray(new Node[] {}));
 			}
 		}
 		source.getVMs().forEach(vm -> {
-			Node target = source.getNodeHost(vm);
-			if (target == null) {
-				cfg.setHost(vm, node(getHost(vm).getValue()));
+			Node sourceHost = source.getNodeHost(vm);
+			Node destHost = node(getHost(vm).getValue());
+			if (sourceHost == null) {
+				// VM waiting : we instantiate it on the node.
+				ret.setHost(vm, destHost);
 			} else {
-				cfg.setHost(vm, source.getLocation(vm));
-				cfg.setMigTarget(vm, target);
+				ret.setHost(vm, sourceHost);
+				ret.setMigTarget(vm, destHost);
 			}
 		});
-		source.resources().forEach(cfg.resources()::put);
-		return cfg;
+		source.resources().forEach(ret.resources()::put);
+		return ret;
 	}
 
 	@Override
