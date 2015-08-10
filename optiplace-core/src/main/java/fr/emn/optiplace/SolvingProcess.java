@@ -28,7 +28,6 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Configuration.VMSTATES;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
@@ -70,7 +69,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		}
 
 		for (ResourceSpecification r : sourceConfig.resources().values()) {
-			problem.addResourceHandler(new ResourceHandler(r));
+			problem.addResource(r);
 		}
 
 		// each vm migrating on the source configuration must keep migrating, and
