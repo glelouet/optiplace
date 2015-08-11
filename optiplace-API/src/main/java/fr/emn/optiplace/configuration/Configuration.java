@@ -68,6 +68,14 @@ public interface Configuration {
 	}
 
 	/**
+	 * get an element with given name if it exists
+	 *
+	 * @param name
+	 * @return
+	 */
+	ManagedElement getElementByName(String name);
+
+	/**
 	 * Get the list of nodes that are online.
 	 *
 	 * @return a Stream of all the nodes online in this configuration
@@ -134,7 +142,7 @@ public interface Configuration {
 	 * @return a Stream, may be empty
 	 */
 	default Stream<VM> getVMs() {
-		return Stream.concat(getRunnings(), getWaitings());
+		return Stream.concat(getRunnings(), Stream.concat(getWaitings(), getExterned()));
 	}
 
 	/**
@@ -442,8 +450,11 @@ public interface Configuration {
 	 * add an external site to host some VMs
 	 *
 	 * @param e
-	 *            the name of the site. must be unique, as no VM nor Node uses
-	 *            it.
+	 *          the name of the exter. must be unique, as no
+	 *          {@link ManagedElement} uses it
+	 * @return the extern with this name if already present, a new Extern with
+	 *         this name if no ManagedElement with this name, or null if anohter
+	 *         ManagedElement has this name
 	 */
 	Extern addExtern(String name);
 
@@ -521,35 +532,16 @@ public interface Configuration {
 	 */
 
 	/**
-	 * add a new site containing given nodes. The nodes are first removed from
-	 * their site.
-	 * <p>
-	 * This can return subsequent lower indices if nodes are removed from their
-	 * site.<br />
-	 * eg <code> addSite(n1); addSite(n2); addsite(n1, n2)</code> will return
-	 * (1;2;1) since the last call will remove n1 and n2 from their sites, making
-	 * them empty.
-	 *
-	 * @param nodes
-	 *          the nodes contained in the site. must not be null, and must
-	 *          contain at least one non-null element. any null element is
-	 *          discarded.
-	 * @return the index of the new site.
-	 *
-	 */
-	public int addSite(Node... nodes);
-
-	/**
 	 * add nodes to a site at given index
 	 *
-	 * @param siteIdx
-	 *          the requested site index. If no site is at given index, call
-	 *          {@link #addSite(Node...)}
+	 * @param siteName
+	 *          the requested site name, or null to add the node to no site.
 	 * @param nodes
-	 *          the nodes to add to the site
-	 * @return the index of the site the nodes were put in.
+	 *          the nodes to add to the site, or none to create an empty site or
+	 *          retrieve an existing site
+	 * @return the site with given name
 	 */
-	public int addSite(int siteIdx, Node... nodes);
+	public Site addSite(String siteName, Node... nodes);
 
 	/**
 	 *
@@ -563,37 +555,16 @@ public interface Configuration {
 	 *          a Node of the configuration
 	 * @return the index of the site this node belongs to
 	 */
-	public int getSite(Node n);
+	public Site getSite(Node n);
 
 	/**
 	 *
-	 * @param idx
-	 *          an index of existing site
-	 * @return a stream over the nodes contained in this site.
+	 * @param Site
+	 *          a site
+	 * @return a stream over the nodes contained in this site. if this site is not
+	 *         present, return an empty stream ; if this site is null, return the
+	 *         stream of the nodes with no site.
 	 */
-	public default Stream<Node> getSite(int idx) {
-		return getNodes().filter(n -> getSite(n) == idx);
-	}
-
-	/**
-	 * add aliases to a site. If an alias is already used for another site, it is
-	 * not added to this site's aliases
-	 *
-	 * @param siteIdx
-	 *          the index of the site
-	 * @param aliases
-	 *          names to alias this site with
-	 * @return the unmodifiable set of aliases for this site.
-	 */
-	public Set<String> area(int siteIdx, String... aliases);
-
-	/**
-	 * get a site index from an alias
-	 *
-	 * @param alias
-	 *          the alias of the site
-	 * @return the index of the site, or -1 if this alias is not linked to a site.
-	 */
-	public int area(String alias);
+	public Stream<Node> getNodes(Site site);
 
 }

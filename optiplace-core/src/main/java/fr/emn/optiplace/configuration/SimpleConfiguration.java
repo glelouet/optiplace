@@ -13,7 +13,6 @@ package fr.emn.optiplace.configuration;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
@@ -39,6 +38,8 @@ public class SimpleConfiguration implements Configuration {
 	private final LinkedHashMap<Extern, Set<VM>> externVM = new LinkedHashMap<>();
 
 	private final Set<VM> waitings = new LinkedHashSet<>();
+
+	private final HashMap<String, ManagedElement> nameToElement = new HashMap<>();
 
 	/** VM to the host/extern it is hosted on. */
 	private final Map<VM, VMHoster> vmHoster = new LinkedHashMap<>();
@@ -242,20 +243,34 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Node addOnline(String name, int... resources) {
-		Node n = new Node(name);
-		setOnline(n);
-		if (resources != null && resources.length > 0) {
-			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
-			for (int i = 0; i < specs.length && i < resources.length; i++) {
-				specs[i].toCapacities().put(n, resources[i]);
+		ManagedElement contained = getElementByName(name);
+		if (contained != null) {
+			if (contained instanceof Node) {
+				return (Node) contained;
+			} else {
+				return null;
 			}
+		} else {
+			Node n = new Node(name);
+			nameToElement.put(name, n);
+			setOnline(n);
+			if (resources != null && resources.length > 0) {
+				ResourceSpecification[] specs = this.resources.values()
+				    .toArray(new ResourceSpecification[this.resources.size()]);
+				for (int i = 0; i < specs.length && i < resources.length; i++) {
+					specs[i].toCapacities().put(n, resources[i]);
+				}
+			}
+			return n;
 		}
-		return n;
 	}
 
 	@Override
 	public Node addOffline(String name, int... resources) {
 		Node ret = addOnline(name, resources);
+		if (ret == null) {
+			return null;
+		}
 		setOffline(ret);
 		return ret;
 	}
@@ -313,99 +328,74 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	// the site i is at pos i-1
-	ArrayList<Set<Node>> sites = new ArrayList<>();
+	LinkedHashMap<Site, Set<Node>> sitesToNodes = new LinkedHashMap<>();
 
 	protected void removeNodesFromSites(Collection<Node> c) {
-		for (Set<Node> set : sites) {
+		for (Set<Node> set : sitesToNodes.values()) {
 			set.removeAll(c);
 		}
 	}
 
 	@Override
-	public int addSite(Node... nodes) {
-		Set<Node> site = new HashSet<Node>(Arrays.asList(nodes));
-		site.remove(null);
-		removeNodesFromSites(site);
-		for (int i = 0; i < sites.size(); i++) {
-			if(sites.get(i).isEmpty()){
-				sites.set(i, site);
-				return i;
-			}
-		}
-		sites.add(site);
-		return sites.size();
-	}
-
-	@Override
-	public int addSite(int siteIdx, Node... nodes) {
-		if (siteIdx == 0) {
+	public Site addSite(String siteName, Node... nodes) {
+		if (siteName == null) {
 			removeNodesFromSites(Arrays.asList(nodes));
-			return siteIdx;
+			return null;
 		}
-		if (siteIdx > sites.size()) {
-			return addSite(nodes);
+		Site site = null;
+		ManagedElement contained = getElementByName(siteName);
+		if (contained != null) {
+			if (contained instanceof Site) {
+				site = (Site) contained;
+			} else {
+				return null;
+			}
+		} else {
+			site = new Site(siteName);
+			nameToElement.put(siteName, site);
+			sitesToNodes.put(site, new HashSet<>());
 		}
 		List<Node> l = Arrays.asList(nodes);
 		removeNodesFromSites(l);
-		Set<Node> s = sites.get(siteIdx - 1);
+		Set<Node> s = sitesToNodes.get(site);
 		s.addAll(l);
-		return siteIdx;
+		return site;
 	}
 
 	@Override
 	public int nbSites() {
-		return sites.size() + 1;
+		return sitesToNodes.size() + 1;
 	}
 
 	@Override
-	public int getSite(Node n) {
+	public Site getSite(Node n) {
 		if (n == null) {
-			return -1;
+			return null;
 		}
-		for (int i = 0; i < sites.size(); i++) {
-			if (sites.get(i).contains(n)) {
-				return i + 1;
+		for (Entry<Site, Set<Node>> e : sitesToNodes.entrySet()) {
+			if (e.getValue().contains(n)) {
+				return e.getKey();
 			}
 		}
-		return 0;
+		return null;
 	}
 
 	@Override
-	public Stream<Node> getSite(int idx) {
-		if (idx == 0) {
-			return Configuration.super.getSite(idx);
+	public Stream<Node> getNodes(Site site) {
+		if (site == null) {
+			return getNodes().filter(n -> getSite(n) == null);
 		}
-		if (idx < 0 || idx > sites.size()) {
-			return Stream.empty();
-		} else {
-			return sites.get(idx - 1).stream();
+		Set<Node> set = sitesToNodes.get(site);
+		if (set != null) {
+			return set.stream();
 		}
-	}
-
-	protected HashMap<String, Integer> aliasesToIndex = new HashMap<>();
-
-	@Override
-	public Set<String> area(int siteIdx, String... aliases) {
-		if (aliases != null) {
-			for (String s : aliases) {
-				if (!aliasesToIndex.containsKey(s)) {
-					aliasesToIndex.put(s, siteIdx);
-				}
-			}
-		}
-		return aliasesToIndex.entrySet().parallelStream().filter(e -> e.getValue() == siteIdx).map(e -> e.getKey())
-		    .collect(Collectors.toSet());
-	}
-
-	@Override
-	public int area(String alias) {
-		return aliasesToIndex.getOrDefault(alias, -1);
+		return Stream.empty();
 	}
 
 	@Override
 	public String toString() {
 		return "onlines : " + nodesVM + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
-		    + vmMigration + "\nsites : " + sites + "\nresources : "
+		    + vmMigration + "\nsites : " + sitesToNodes + "\nresources : "
 		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
 	}
 
@@ -433,7 +423,7 @@ public class SimpleConfiguration implements Configuration {
 		if (!vmMigration.equals(o.vmMigration)) {
 			return false;
 		}
-		if (!sites.equals(o.sites)) {
+		if (!sitesToNodes.equals(o.sitesToNodes)) {
 			return false;
 		}
 		return true;
@@ -442,16 +432,29 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int hashCode() {
 		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
-		    + vmMigration.hashCode() + sites.hashCode();
+		    + vmMigration.hashCode() + sitesToNodes.hashCode();
+	}
+
+	@Override
+	public ManagedElement getElementByName(String name) {
+		return nameToElement.get(name);
 	}
 
 	@Override
 	public Extern addExtern(String name) {
-		Extern ret = new Extern(name);
-		if (!externVM.containsKey(ret)) {
+		ManagedElement contained = getElementByName(name);
+		if (contained != null) {
+			if (contained instanceof Extern) {
+				return (Extern) contained;
+			} else {
+				return null;
+			}
+		} else {
+			Extern ret = new Extern(name);
 			externVM.put(ret, new LinkedHashSet<>());
+			nameToElement.put(name, ret);
+			return ret;
 		}
-		return ret;
 	}
 
 	@Override
