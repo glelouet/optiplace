@@ -110,20 +110,37 @@ public interface CoreView {
 
 	/**
 	 *
-	 * @param vm
-	 *            a VM of the source problem
-	 * @return a Variable constrained to 0: VM is hosted, 1:VM is externed, 2:
-	 *         VM is waiting {@link #VM_EXTERNED}{@link #VM_RUNNING}
+	 * @param vmindex
+	 *          a VM of the source problem
+	 * @return a Variable constrained to 0: VM is hosted, 1:VM is externed, 2: VM
+	 *         is waiting {@link #VM_EXTERNED}{@link #VM_RUNNING}
 	 *         {@link #VM_WAITING}
 	 */
-	public IntVar getState(VM vm);
+	public IntVar getState(int vmindex);
 
 	/**
-	 * @param vm
-	 *            a virtual machine of the problem
-	 * @return the index of the node hosting this vm if the VM state is {@value #VM_RUNNING}
+	 * shortcut for {@link #getState(int) getState(vm(vm))}
 	 */
-	public IntVar getHost(VM vm);
+	public default IntVar getState(VM vm) {
+		return getState(vm(vm));
+	}
+
+	/**
+	 * get the host variable of the specified vm
+	 *
+	 * @param vmindex
+	 *          the index of the vm in the
+	 * @return the intvar constrained to the Node index hosting the VM, or -1 if
+	 *         vm not running.
+	 */
+	public IntVar getHost(int vmindex);
+
+	/**
+	 * shortcut for {@link #getHost(int) getHost(vm(vm))}
+	 */
+	public default IntVar getHost(VM vm) {
+		return getHost(vm(vm));
+	}
 
 	/**
 	 * @return the internal array of IntVar, each corresponding to the hoster of
@@ -133,13 +150,19 @@ public interface CoreView {
 	public IntVar[] getHosts();
 
 	/**
-	 *
-	 * @param vm
-	 *          a VM of the problem
+	 * @param vmindex
+	 *          the index of a vm
 	 * @return the variable constrained to the index of the extern hosting this VM
 	 *         if the VM state is {@link #VM_EXTERNED}
 	 */
-	public IntVar getExtern(VM vm);
+	public IntVar getExtern(int vmindex);
+
+	/**
+	 * shortcut to {@link #getExtern(int) getExtern(vm(vm))}
+	 */
+	public default IntVar getExtern(VM vm) {
+		return getExtern(vm(vm));
+	}
 
 	/**
 	 *

@@ -373,13 +373,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 	}
 
+	@Override
 	public IntVar getHost(int idx) {
 		return vmsNode[idx];
-	}
-
-	@Override
-	public IntVar getHost(VM vm) {
-		return getHost(vm(vm));
 	}
 
 	@Override
@@ -419,25 +415,23 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public IntVar getState(VM vm) {
-		int idx = vm(vm);
-		if (idx == -1) {
+	public IntVar getState(int vmindex) {
+		if (vmindex == -1) {
 			return null;
 		} else {
-			return vmsState[idx];
+			return vmsState[vmindex];
 		}
 	}
 
 	@Override
-	public IntVar getExtern(VM vm) {
+	public IntVar getExtern(int vmindex) {
 		if (vmsExtern == null) {
 			return createIntegerConstant(-1);
 		}
-		int idx = vm(vm);
-		if (idx == -1) {
+		if (vmindex == -1) {
 			return null;
 		} else {
-			return vmsExtern[idx];
+			return vmsExtern[vmindex];
 		}
 	}
 
