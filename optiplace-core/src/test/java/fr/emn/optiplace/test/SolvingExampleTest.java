@@ -9,8 +9,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.configuration.Node;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -25,6 +25,7 @@ public class SolvingExampleTest extends SolvingExample {
 	@Test
 	public void testCreation() {
 		prepare();
+		strat.setMoveMigratingVMs(true);
 		Configuration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
 		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbNodes * nbVMPerNode);

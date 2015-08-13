@@ -32,6 +32,7 @@ public class SolvingProcessTest {
 		c.addVM("v1", n1, 1);
 		c.addVM("v2", n2, 1);
 		SolvingProcess sp = new SolvingProcess();
+		sp.getStrat().setMoveMigratingVMs(true);
 		sp.source(c);
 		// sp.getStrat().setLogChoices(true);
 		sp.solve();

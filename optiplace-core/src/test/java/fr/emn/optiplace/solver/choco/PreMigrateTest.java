@@ -28,6 +28,7 @@ public class PreMigrateTest {
 	@Test
 	public void testOneVMShadowing() {
 		SolvingProcess sp = new SolvingProcess();
+		sp.getStrat().setMoveMigratingVMs(true);
 		SimpleConfiguration sc = new SimpleConfiguration("mem");
 		sp.source(sc);
 		Node[] nodes = { sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2) };

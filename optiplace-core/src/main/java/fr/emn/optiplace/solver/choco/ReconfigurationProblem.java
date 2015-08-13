@@ -632,6 +632,18 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return nbLiveMigrations;
 	}
 
+	private boolean isMoveMigrateVM = false;
+
+	/**
+	 * set weither the vms that migrate are moved from their host or only their
+	 * migration target is set
+	 *
+	 * @param move
+	 */
+	public void setMoveMigrateVMs(boolean move) {
+		isMoveMigrateVM = move;
+	}
+
 	@Override
 	public Configuration extractConfiguration() {
 		Configuration ret = new SimpleConfiguration();
@@ -652,7 +664,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				// VM waiting : we instantiate it on the node.
 				ret.setHost(vm, destHost);
 			} else {
-				ret.setHost(vm, sourceHost);
+				if (isMoveMigrateVM) {
+					ret.setHost(vm, sourceHost);
+				}
 				ret.setMigTarget(vm, destHost);
 			}
 		});

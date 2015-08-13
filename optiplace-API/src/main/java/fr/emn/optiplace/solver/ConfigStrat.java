@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.chocosolver.solver.search.loop.monitors.ISearchMonitor;
 
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 
@@ -39,6 +40,8 @@ public class ConfigStrat {
 	private boolean logSolutions = false;
 
 	private boolean logChoices = false;
+
+	private boolean moveMigratingVM = false;
 
 	/**
 	 * @return the maxSearchTime
@@ -248,6 +251,22 @@ public class ConfigStrat {
 	 */
 	public void setLogHeuristicsSelection(boolean log) {
 		logHeuristicsSelection = log;
+	}
+
+	public void setMoveMigratingVMs(boolean move) {
+		moveMigratingVM = move;
+	}
+
+	/**
+	 * should we make the VMs that migrate move from their host to another ? if
+	 * false (default value), the
+	 * {@link Configuration#getMigTarget(fr.emn.optiplace.configuration.VM)} is
+	 * set as the migration destination and the VM is not moved from its host.
+	 *
+	 * @return
+	 */
+	public boolean isMoveMigrateVMs() {
+		return moveMigratingVM;
 	}
 
 }

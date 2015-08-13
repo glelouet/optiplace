@@ -25,6 +25,7 @@ public class OptiplaceDefaultServerTest {
 	@Test
 	public void testSimpleSolve() {
 		OptiplaceServer test = new OptiplaceServer();
+		test.getStrat().setMoveMigratingVMs(true);
 		// test.getStrat().setLogChoices(true);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM");
 		Node n1 = cfg.addOnline("n1", 1, 20);
@@ -57,6 +58,7 @@ public class OptiplaceDefaultServerTest {
 		int nbVmsPerNode = 5;
 		int nbWaitingVms = 10;
 		OptiplaceServer test = new OptiplaceServer();
+		test.getStrat().setMoveMigratingVMs(true);
 		// test.getStrat().setLogChoices(true);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];

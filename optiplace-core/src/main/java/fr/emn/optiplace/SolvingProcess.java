@@ -232,6 +232,7 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	@Override
 	public void makeSearch() {
+		problem.setMoveMigrateVMs(strat.isMoveMigrateVMs());
 		long st = System.currentTimeMillis();
 		if (problem.getObjective() != null) {
 			problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
@@ -241,43 +242,6 @@ public class SolvingProcess extends OptiplaceProcess {
 		// TODO what to do with an ObjectiveReducer ?
 		target.setSearchTime(System.currentTimeMillis() - st);
 	}
-
-	/**
-	 *
-	 */
-	// Commented to pass from choco 2 to choco 3
-	// TODO implement this in choco 3
-	// private void searchAndReduce() {
-	// BranchAndBound bb = (BranchAndBound) problem.getSearchStrategy();
-	// MinIntObjManager obj = (MinIntObjManager) bb.getObjectiveManager();
-	// Field f = null;
-	// try {
-	// f = IntObjectiveManager.class.getDeclaredField("targetBound");
-	// f.setAccessible(true);
-	// } catch (Exception e) {
-	// logger.warn("while getting the field", e);
-	// }
-	// problem.launch();
-	// Solution s = null;
-	// if (problem.isFeasible() == Boolean.TRUE) {
-	// do {
-	// int objVal = ((IntVar) problem.getObjective()).getVal();
-	// s = problem.getSearchStrategy().getSolutionPool().getBestSolution();
-	// int newMax = (int) Math.ceil(strat.getReducer().reduce(objVal)) - 1;
-	// if (f != null) {
-	// try {
-	// f.set(obj, new Integer(newMax));
-	// } catch (Exception e) {
-	// logger.warn("", e);
-	// }
-	// }
-	// } while (problem.nextSolution() == Boolean.TRUE);
-	// } else {
-	// return;
-	// }
-	// problem.worldPopUntil(problem.getSearchStrategy().baseWorld);
-	// problem.restoreSolution(s);
-	// }
 
 	@Override
 	public void extractData() {
