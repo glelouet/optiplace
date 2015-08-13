@@ -120,8 +120,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 		nodesSite = new int[nodes.length];
 		for (int i = 0; i < nodesSite.length; i++) {
-			nodesSite[i] = revSites.get(source.getSite(node(i)));
+			Site site = source.getSite(node(i));
+			nodesSite[i] = site == null ? -1 : revSites.get(source.getSite(node(i)));
 		}
+		// System.err
+		// .println("nodesites are : " +
+		// Arrays.stream(nodesSite).mapToObj(Integer::new).collect(Collectors.toList()));
 	}
 
 	/////////////////////////////////////////////////
@@ -172,7 +176,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	/** make the location variables */
 	protected void makeDynamicConfig() {
-		if (getSourceConfiguration().nbSites() > 1) {
+		if (getSourceConfiguration().nbSites() > 0) {
 			vmSites = new IntVar[vms.length];
 		} else {
 			// if we have only one site (the default site) we don't need to have a
@@ -414,29 +418,21 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * @param vmidx
 	 * @return
 	 */
+	@Override
 	public IntVar getSite(int vmidx) {
 		if (vmSites == null) {
-			return createIntegerConstant(0);
+			return createIntegerConstant(-1);
 		}
 		if (vmidx == -1) {
 			return null;
 		}
 		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
-			if (getSourceConfiguration().nbSites() == 1) {
-				ret = createIntegerConstant(0);
-				vmSites[vmidx] = ret;
-			} else {
-				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites() - 1);
-				post(ICF.element(ret, nodesSite, getHost(vmidx)));
-			}
+			ret = createBoundIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
+			post(ICF.element(ret, nodesSite, getHost(vmidx)));
+			vmSites[vmidx] = ret;
 		}
 		return ret;
-	}
-
-	@Override
-	public IntVar getSite(VM vm) {
-		return getSite(vm(vm));
 	}
 
 	@Override
@@ -665,6 +661,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				ret.setHost(vm, destHost);
 			} else {
 				if (isMoveMigrateVM) {
+					ret.setHost(vm, destHost);
+				} else {
 					ret.setHost(vm, sourceHost);
 				}
 				ret.setMigTarget(vm, destHost);

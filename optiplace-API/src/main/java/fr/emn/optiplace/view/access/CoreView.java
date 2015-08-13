@@ -183,7 +183,11 @@ public interface CoreView {
 	 *            a virtual machine of the problem
 	 * @return the site index of the node hosting this VM
 	 */
-	public IntVar getSite(VM vm);
+	public default IntVar getSite(VM vm) {
+		return getSite(vm(vm));
+	}
+
+	public IntVar getSite(int vmidx);
 
 	/**
 	 * set a VM as shadowing a node, eg when a VM is migrating.
