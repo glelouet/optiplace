@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
@@ -104,13 +102,13 @@ public class SimpleConfigurationTest {
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = c.addOnline("n" + i);
 		}
+		Assert.assertEquals(c.nbSites(), 0);
+		Assert.assertEquals(c.getNodes(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
+		Site site1 = c.addSite("site1", nodes[2], nodes[3]);
 		Assert.assertEquals(c.nbSites(), 1);
-		Assert.assertEquals(c.getSite(0).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
-		int site1 = c.addSite(nodes[2], nodes[3]);
-		Assert.assertEquals(site1, 1);
-		Assert.assertEquals(c.nbSites(), 2);
-		Assert.assertEquals(c.getSite(1).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
-		Assert.assertEquals(c.getSite(0).collect(Collectors.toSet()).size(), 6);
+		Assert.assertEquals(c.getNodes(site1).collect(Collectors.toSet()),
+		    new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
+		Assert.assertEquals(c.getNodes(null).collect(Collectors.toSet()).size(), 6);
 	}
 
 }

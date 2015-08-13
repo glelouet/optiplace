@@ -364,7 +364,7 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public int nbSites() {
-		return sitesToNodes.size() + 1;
+		return sitesToNodes.size();
 	}
 
 	@Override
@@ -378,6 +378,11 @@ public class SimpleConfiguration implements Configuration {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public Stream<Site> getSites() {
+		return sitesToNodes.keySet().stream();
 	}
 
 	@Override

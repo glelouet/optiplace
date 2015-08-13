@@ -11,6 +11,7 @@ import org.chocosolver.solver.variables.SetVar;
 
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
@@ -100,6 +101,18 @@ public interface CoreView {
 			return null;
 		}
 		Extern[] t = externs();
+		return idx >= t.length ? null : t[idx];
+	}
+
+	public Site[] sites();
+
+	public int site(Site site);
+
+	public default Site site(int idx) {
+		if (idx < 0) {
+			return null;
+		}
+		Site[] t = sites();
 		return idx >= t.length ? null : t[idx];
 	}
 

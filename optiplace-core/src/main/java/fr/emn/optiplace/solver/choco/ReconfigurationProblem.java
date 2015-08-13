@@ -75,6 +75,10 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	private TObjectIntHashMap<Extern> revExterns;
 
+	private Site[] sites;
+
+	private TObjectIntHashMap<Site> revSites;
+
 	/** The current location of the placed VMs. */
 	private int[] vmsSourceNode;
 
@@ -108,9 +112,15 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			revExterns.put(externs[i], i);
 		}
 
+		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
+		revSites = new TObjectIntHashMap<>(sites.length);
+		for (int i = 0; i < sites.length; i++) {
+			revSites.put(sites[i], i);
+		}
+
 		nodesSite = new int[nodes.length];
 		for (int i = 0; i < nodesSite.length; i++) {
-			nodesSite[i] = getSourceConfiguration().getSite(node(i));
+			nodesSite[i] = revSites.get(source.getSite(node(i)));
 		}
 	}
 
@@ -144,7 +154,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	private Node[] vmsShadow;
 
 	/** for each VM, the site of its host */
-	protected IntVar[] sites;
+	protected IntVar[] vmSites;
 
 	/** node i is in site nodeSites[i] */
 	protected int[] nodesSite;
@@ -163,7 +173,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/** make the location variables */
 	protected void makeDynamicConfig() {
 		if (getSourceConfiguration().nbSites() > 1) {
-			sites = new IntVar[vms.length];
+			vmSites = new IntVar[vms.length];
 		} else {
 			// if we have only one site (the default site) we don't need to have a
 			// IntVar
@@ -250,6 +260,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
+	public Site[] sites() {
+		return sites;
+	}
+
+	@Override
 	public Configuration getSourceConfiguration() {
 		return source;
 	}
@@ -311,10 +326,20 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public int extern(Extern e) {
-		if (name != null) {
-			return revExterns.get(e);
+		int v = revExterns.get(e);
+		if (v == 0 && !externs[0].equals(e)) {
+			return -1;
 		}
-		return -1;
+		return v;
+	}
+
+	@Override
+	public int site(Site site) {
+		int v = revSites.get(site);
+		if (v == 0 && !sites[0].equals(site)) {
+			return -1;
+		}
+		return v;
 	}
 
 	@Override
@@ -390,17 +415,17 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * @return
 	 */
 	public IntVar getSite(int vmidx) {
-		if (sites == null) {
+		if (vmSites == null) {
 			return createIntegerConstant(0);
 		}
 		if (vmidx == -1) {
 			return null;
 		}
-		IntVar ret = sites[vmidx];
+		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
 			if (getSourceConfiguration().nbSites() == 1) {
 				ret = createIntegerConstant(0);
-				sites[vmidx] = ret;
+				vmSites[vmidx] = ret;
 			} else {
 				ret = createBoundIntVar(vmName(vmidx) + "_site", 0, getSourceConfiguration().nbSites() - 1);
 				post(ICF.element(ret, nodesSite, getHost(vmidx)));
@@ -617,12 +642,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				ret.setOffline(n);
 			}
 		}
-		for (int i = 0; i < source.nbSites(); i++) {
-			ret.area(i, source.area(i).toArray(new String[] {}));
-			if (i != 0) {
-				ret.addSite(source.getSite(i).collect(Collectors.toList()).toArray(new Node[] {}));
-			}
-		}
+		source.getSites().forEach(s -> {
+			ret.addSite(s.getName(), source.getNodes(s).collect(Collectors.toList()).toArray(new Node[] {}));
+		});
 		source.getVMs().forEach(vm -> {
 			Node sourceHost = source.getNodeHost(vm);
 			Node destHost = node(getHost(vm).getValue());

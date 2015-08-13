@@ -545,7 +545,7 @@ public interface Configuration {
 
 	/**
 	 *
-	 * @return the number of sites in the configuration, is always at least one.
+	 * @return the number of sites declared in this configuration
 	 */
 	public int nbSites();
 
@@ -556,6 +556,8 @@ public interface Configuration {
 	 * @return the index of the site this node belongs to
 	 */
 	public Site getSite(Node n);
+
+	public Stream<Site> getSites();
 
 	/**
 	 *

@@ -32,11 +32,13 @@ public class OptiplaceDefaultServerTest {
 		VM vm1 = cfg.addVM("vm1", n1, 5, 5);
 		VM vm2 = cfg.addVM("vm2", n1, 1, 10);
 		DeducedTarget res = test.solve(cfg);
+		Configuration dest = res.getDestination();
 		Assert.assertEquals(res.getSearchSolutions(), 1);
-		Assert.assertEquals(res.getDestination().nbHosted(n2), 1);
-		Assert.assertEquals(res.getDestination().nbHosted(n1), 1);
-		Assert.assertEquals(res.getDestination().getLocation(vm1), n2);
-		Assert.assertEquals(res.getDestination().getLocation(vm2), n1);
+		Assert.assertEquals(dest.nbHosted(n2), 0, "dest is " + dest);
+		Assert.assertEquals(dest.getMigTarget(vm1), n2);
+		Assert.assertEquals(dest.nbHosted(n1), 2);
+		Assert.assertEquals(dest.getLocation(vm1), n1);
+		Assert.assertEquals(dest.getLocation(vm2), n1);
 	}
 
 	/**
