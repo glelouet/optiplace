@@ -163,7 +163,7 @@ public interface Configuration {
 	 * @return the number of vms which are specified running on the node ; null if
 	 *         the node is not known
 	 */
-	default long nbHosted(Node host) {
+	default long nbHosted(VMHoster host) {
 		return getHosted(host).count();
 	}
 

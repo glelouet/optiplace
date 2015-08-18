@@ -399,9 +399,25 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public String toString() {
-		return "onlines : " + nodesVM + "\nofflines : " + offlines + "\nwaitings : " + waitings + "\nmigrations : "
-		    + vmMigration + "\nsites : " + sitesToNodes + "\nresources : "
-		    + resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t);
+		StringBuilder sb = new StringBuilder();
+		sb.append("onlines : ").append(nodesVM);
+		if (!offlines.isEmpty()) {
+			sb.append("\nofflines : ").append(offlines);
+		}
+		if (!waitings.isEmpty()) {
+			sb.append("\nwaitings : ").append(waitings);
+		}
+		if (!vmMigration.isEmpty()) {
+			sb.append("\nmigrations : ").append(vmMigration);
+		}
+		if (!sitesToNodes.isEmpty()) {
+			sb.append("\nsites : ").append(sitesToNodes);
+		}
+		if (!resources.isEmpty()) {
+			sb.append("\nresources : ")
+			    .append(resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t));
+		}
+		return sb.toString();
 	}
 
 	@Override
