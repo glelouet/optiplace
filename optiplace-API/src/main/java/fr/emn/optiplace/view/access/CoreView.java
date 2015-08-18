@@ -146,13 +146,13 @@ public interface CoreView {
 	 * @return the intvar constrained to the Node index hosting the VM, or -1 if
 	 *         vm not running.
 	 */
-	public IntVar getHost(int vmindex);
+	public IntVar getNode(int vmindex);
 
 	/**
-	 * shortcut for {@link #getHost(int) getHost(vm(vm))}
+	 * shortcut for {@link #getNode(int) getHost(vm(vm))}
 	 */
-	public default IntVar getHost(VM vm) {
-		return getHost(vm(vm));
+	public default IntVar getNode(VM vm) {
+		return getNode(vm(vm));
 	}
 
 	/**
@@ -160,7 +160,7 @@ public interface CoreView {
 	 *         the vm at this indexif this vm is in state {@link #VM_RUNNING}.
 	 *         eg hosts()[5] correspond to host(vm(5))
 	 */
-	public IntVar[] getHosts();
+	public IntVar[] getNodes();
 
 	/**
 	 * @param vmindex
@@ -176,6 +176,8 @@ public interface CoreView {
 	public default IntVar getExtern(VM vm) {
 		return getExtern(vm(vm));
 	}
+
+	public IntVar[] getExterns();
 
 	/**
 	 *
@@ -242,7 +244,7 @@ public interface CoreView {
 
 	/**
 	 * get the table {@link #nbVM(Node)} , indexed by the nodes index (
-	 * {@link #getNodeHost(int)} )
+	 * {@link #getNode(int)} )
 	 *
 	 * @return
 	 */

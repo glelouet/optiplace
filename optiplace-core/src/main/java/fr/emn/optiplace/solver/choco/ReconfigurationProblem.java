@@ -397,18 +397,18 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(nodesVMs, getHosts(), 0, 0);
+			Constraint c = SetConstraintsFactory.int_channel(nodesVMs, getNodes(), 0, 0);
 			post(c);
 		}
 	}
 
 	@Override
-	public IntVar getHost(int idx) {
+	public IntVar getNode(int idx) {
 		return vmsNode[idx];
 	}
 
 	@Override
-	public IntVar[] getHosts() {
+	public IntVar[] getNodes() {
 		return vmsNode;
 	}
 
@@ -429,7 +429,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
-			post(ICF.element(ret, nodesSite, getHost(vmidx)));
+			post(ICF.element(ret, nodesSite, getNode(vmidx)));
 			vmSites[vmidx] = ret;
 		}
 		return ret;
@@ -454,6 +454,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		} else {
 			return vmsExtern[vmindex];
 		}
+	}
+
+	@Override
+	public IntVar[] getExterns() {
+		return vmsExtern;
 	}
 
 	// should cards[i] be the cardinality of each hosteds[i] or the number
@@ -554,7 +559,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(getHost(vmIndex), getUse(resource).getNodesUse(), ret);
+			nth(getNode(vmIndex), getUse(resource).getNodesUse(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -577,7 +582,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmIndex) + ".hosterMax_" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(getHost(vmIndex), resources.get(resource).getCapacities(), ret);
+			nth(getNode(vmIndex), resources.get(resource).getCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -598,7 +603,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			VM vm = vm(i);
 			Node sourceHost = getSourceConfiguration().getNodeHost(vm);
 			if (sourceHost != null) {
-				vmsIsMigrated[i] = isDifferent(getHost(i), node(sourceHost));
+				vmsIsMigrated[i] = isDifferent(getNode(i), node(sourceHost));
 			} else {
 				vmsIsMigrated[i] = VF.one(getSolver());
 			}
@@ -662,7 +667,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				return;
 			}
 			Node sourceHost = source.getNodeHost(vm);
-			Node destHost = node(getHost(vm).getValue());
+			Node destHost = node(getNode(vm).getValue());
 			if (sourceHost == null) {
 				// VM waiting : we instantiate it on the node.
 				ret.setHost(vm, destHost);

@@ -77,7 +77,6 @@ public class OptiplaceDefaultServerTest {
 		int nbWaitingVms = 10;
 		OptiplaceServer test = new OptiplaceServer();
 		test.getStrat().setMoveMigratingVMs(true);
-		// test.getStrat().setLogChoices(true);
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];

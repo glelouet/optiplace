@@ -53,8 +53,8 @@ public class ReconfigurationProblemTest {
 
 	@Test
 	public void checkHosters() throws ContradictionException {
-		pb.getHost(vm1_0).removeValue(pb.node(n0), Cause.Null);
-		pb.getHost(vm1_1).removeValue(pb.node(n0), Cause.Null);
+		pb.getNode(vm1_0).removeValue(pb.node(n0), Cause.Null);
+		pb.getNode(vm1_1).removeValue(pb.node(n0), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 

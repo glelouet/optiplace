@@ -76,7 +76,7 @@ public class ReconfigurationProblemWaitingExternTest {
 		System.err.println("propagate");
 		pb.propagate();
 		System.err.println("propagate done");
-		Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_EXTERNED) && pb.getHost(vm0).isInstantiatedTo(-1),
-		    "" + pb.getState(vm0) + " ; " + pb.getHost(vm0));
+		Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_EXTERNED) && pb.getNode(vm0).isInstantiatedTo(-1),
+		    "" + pb.getState(vm0) + " ; " + pb.getNode(vm0));
 	}
 }

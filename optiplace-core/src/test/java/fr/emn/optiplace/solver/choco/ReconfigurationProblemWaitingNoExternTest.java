@@ -75,17 +75,17 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	public void testStatePropagation() {
 		try {
 			// System.err.println("instantiating " + pb.getHost(vm0) + " to -1");
-			pb.getHost(vm0).instantiateTo(-1, Cause.Null);
+			pb.getNode(vm0).instantiateTo(-1, Cause.Null);
 			// System.err.println("instantiating " + pb.getHost(vm1) + " to " +
 			// pb.node(n0));
-			pb.getHost(vm1).instantiateTo(pb.node(n0), Cause.Null);
+			pb.getNode(vm1).instantiateTo(pb.node(n0), Cause.Null);
 			pb.getState(vm2).instantiateTo(CoreView.VM_WAITING, Cause.Null);
 			pb.propagate();
 			Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_WAITING),
 			    "" + pb.getState(vm0) + " should be " + CoreView.VM_WAITING);
 			Assert.assertTrue(pb.getState(vm1).isInstantiatedTo(CoreView.VM_RUNNING),
 			    "" + pb.getState(vm1) + " should be " + CoreView.VM_RUNNING);
-			Assert.assertTrue(pb.getHost(vm2).isInstantiatedTo(-1), "" + pb.getHost(vm2) + " should be -1");
+			Assert.assertTrue(pb.getNode(vm2).isInstantiatedTo(-1), "" + pb.getNode(vm2) + " should be -1");
 		}
 		catch (ContradictionException e) {
 			e.printStackTrace(System.err);
