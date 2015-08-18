@@ -22,24 +22,42 @@ public class OptiplaceDefaultServerTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(OptiplaceDefaultServerTest.class);
 
+	/**
+	 * two resources : CPU and MEM <br />
+	 * <p>
+	 * One node with 1, 20 capacity<br />
+	 * One Node with 20, 1 capacity<br />
+	 * </p>
+	 * </p>
+	 * One VM with 1,10 use<br />
+	 * One VM with 10,1 use<br />
+	 * The first VM fits on the first Node, the second VM fits on the second Node.
+	 * <br />
+	 * Both VM are placed on the first node : the second VM should be migrated to
+	 * the second Node.
+	 * </p>
+	 *
+	 */
 	@Test
 	public void testSimpleSolve() {
 		OptiplaceServer test = new OptiplaceServer();
-		test.getStrat().setMoveMigratingVMs(true);
-		// test.getStrat().setLogChoices(true);
+
 		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM");
 		Node n1 = cfg.addOnline("n1", 1, 20);
-		Node n2 = cfg.addOnline("n2", 10, 5);
-		VM vm1 = cfg.addVM("vm1", n1, 5, 5);
-		VM vm2 = cfg.addVM("vm2", n1, 1, 10);
+		Node n2 = cfg.addOnline("n2", 20, 1);
+		VM vm1 = cfg.addVM("vm1", n1, 1, 10);
+		VM vm2 = cfg.addVM("vm2", n1, 10, 1);
+
 		DeducedTarget res = test.solve(cfg);
 		Configuration dest = res.getDestination();
+
 		Assert.assertEquals(res.getSearchSolutions(), 1);
-		Assert.assertEquals(dest.nbHosted(n2), 0, "dest is " + dest);
-		Assert.assertEquals(dest.getMigTarget(vm1), n2);
 		Assert.assertEquals(dest.nbHosted(n1), 2);
+		Assert.assertEquals(dest.nbHosted(n2), 0, "dest is " + dest);
 		Assert.assertEquals(dest.getLocation(vm1), n1);
 		Assert.assertEquals(dest.getLocation(vm2), n1);
+		Assert.assertEquals(dest.getMigTarget(vm1), null);
+		Assert.assertEquals(dest.getMigTarget(vm2), n2);
 	}
 
 	/**
