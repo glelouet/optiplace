@@ -328,18 +328,18 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	// the site i is at pos i-1
-	LinkedHashMap<Site, Set<Node>> sitesToNodes = new LinkedHashMap<>();
+	LinkedHashMap<Site, Set<VMHoster>> sitesToNodes = new LinkedHashMap<>();
 
-	protected void removeNodesFromSites(Collection<Node> c) {
-		for (Set<Node> set : sitesToNodes.values()) {
+	protected void removeNodesFromSites(Collection<VMHoster> c) {
+		for (Set<VMHoster> set : sitesToNodes.values()) {
 			set.removeAll(c);
 		}
 	}
 
 	@Override
-	public Site addSite(String siteName, Node... nodes) {
+	public Site addSite(String siteName, VMHoster... hosters) {
 		if (siteName == null) {
-			removeNodesFromSites(Arrays.asList(nodes));
+			removeNodesFromSites(Arrays.asList(hosters));
 			return null;
 		}
 		Site site = null;
@@ -355,9 +355,9 @@ public class SimpleConfiguration implements Configuration {
 			nameToElement.put(siteName, site);
 			sitesToNodes.put(site, new HashSet<>());
 		}
-		List<Node> l = Arrays.asList(nodes);
+		List<VMHoster> l = Arrays.asList(hosters);
 		removeNodesFromSites(l);
-		Set<Node> s = sitesToNodes.get(site);
+		Set<VMHoster> s = sitesToNodes.get(site);
 		s.addAll(l);
 		return site;
 	}
@@ -368,12 +368,12 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Site getSite(Node n) {
-		if (n == null) {
+	public Site getSite(VMHoster h) {
+		if (h == null) {
 			return null;
 		}
-		for (Entry<Site, Set<Node>> e : sitesToNodes.entrySet()) {
-			if (e.getValue().contains(n)) {
+		for (Entry<Site, Set<VMHoster>> e : sitesToNodes.entrySet()) {
+			if (e.getValue().contains(h)) {
 				return e.getKey();
 			}
 		}
@@ -386,11 +386,11 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<Node> getNodes(Site site) {
+	public Stream<VMHoster> getNodes(Site site) {
 		if (site == null) {
-			return getNodes().filter(n -> getSite(n) == null);
+			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}
-		Set<Node> set = sitesToNodes.get(site);
+		Set<VMHoster> set = sitesToNodes.get(site);
 		if (set != null) {
 			return set.stream();
 		}

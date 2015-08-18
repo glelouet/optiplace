@@ -654,6 +654,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			ret.addSite(s.getName(), source.getNodes(s).collect(Collectors.toList()).toArray(new Node[] {}));
 		});
 		source.getVMs().forEach(vm -> {
+			// if the VM was already migrating, we keep migrating.
+			VMHoster oldtarget = source.getMigTarget(vm);
+			if (oldtarget != null) {
+				ret.setHost(vm, source.getLocation(vm));
+				ret.setMigTarget(vm, oldtarget);
+				return;
+			}
 			Node sourceHost = source.getNodeHost(vm);
 			Node destHost = node(getHost(vm).getValue());
 			if (sourceHost == null) {
@@ -665,6 +672,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				} else {
 					ret.setHost(vm, sourceHost);
 				}
+				// setMigTarget does not set a migrate if the VM is already placed on
+		    // the hoster (same as
+		    // setMigTarget(vm,vmhoster(vm)==destHost?null:destHost) )
 				ret.setMigTarget(vm, destHost);
 			}
 		});

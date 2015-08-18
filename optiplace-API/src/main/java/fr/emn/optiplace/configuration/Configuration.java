@@ -541,7 +541,7 @@ public interface Configuration {
 	 *          retrieve an existing site
 	 * @return the site with given name
 	 */
-	public Site addSite(String siteName, Node... nodes);
+	public Site addSite(String siteName, VMHoster... hosters);
 
 	/**
 	 *
@@ -555,7 +555,7 @@ public interface Configuration {
 	 *          a Node of the configuration
 	 * @return the index of the site this node belongs to
 	 */
-	public Site getSite(Node n);
+	public Site getSite(VMHoster n);
 
 	public Stream<Site> getSites();
 
@@ -567,6 +567,7 @@ public interface Configuration {
 	 *         present, return an empty stream ; if this site is null, return the
 	 *         stream of the nodes with no site.
 	 */
-	public Stream<Node> getNodes(Site site);
+	public Stream<VMHoster> getNodes(Site site);
+
 
 }
