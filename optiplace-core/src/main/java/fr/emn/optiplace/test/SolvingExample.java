@@ -35,6 +35,7 @@ public class SolvingExample {
 	protected View[] views = {};
 
 	/**
+	 * prepare the configuration {@link #src}<br />
 	 * {@link #nbNodes} nodes, {@link #nbVMPerNode} VMs on each, plus
 	 * {@link #nbWaitings} waiting VMs
 	 */

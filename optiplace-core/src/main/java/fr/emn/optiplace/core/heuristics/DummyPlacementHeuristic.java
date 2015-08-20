@@ -47,6 +47,12 @@ public class DummyPlacementHeuristic {
 		for (IntVar v : m.getNodes()) {
 			vars.add(v);
 		}
+		IntVar[] exts = m.getExterns();
+		if (exts != null) {
+			for (IntVar v : exts) {
+				vars.add(v);
+			}
+		}
 		for (IntVar v : m.getSolver().retrieveIntVars()) {
 			vars.add(v);
 		}

@@ -7,6 +7,7 @@
 package fr.emn.optiplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ import fr.emn.optiplace.solver.choco.ReconfigurationProblem;
 import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
+
 
 /**
  * basic implementation of the optiplace solving process.
@@ -80,7 +82,8 @@ public class SolvingProcess extends OptiplaceProcess {
 				problem.setShadow(vm, node);
 				try {
 					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
 			}
@@ -92,11 +95,13 @@ public class SolvingProcess extends OptiplaceProcess {
 		for (ViewAsModule view : views) {
 			view.getRequestedRules().forEach(cc -> cc.inject(problem));
 		}
-		ChocoResourcePacker packer = strat.getPacker();
-		// all the resources should be added now, we pack them using the packing
-		// constraint.
-		for (Constraint c : packer.pack(problem.getNodes(), problem.getUses())) {
-			problem.getSolver().post(c);
+		if (sourceConfig.nbNodes(null) > 0) {
+			ChocoResourcePacker packer = strat.getPacker();
+			// all the resources should be added now, we pack them using the packing
+			// constraint.
+			for (Constraint c : packer.pack(problem.getNodes(), problem.getUses())) {
+				problem.getSolver().post(c);
+			}
 		}
 
 		target.setBuildTime(System.currentTimeMillis() - st);
@@ -145,10 +150,8 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
-			problem.getSolver()
-					.set(
-							new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-									makeProveHeuristic(goalMaker)));
+			problem.getSolver().set(new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+			    makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -172,8 +175,8 @@ public class SolvingProcess extends OptiplaceProcess {
 	@SuppressWarnings("unchecked")
 	AbstractStrategy<Variable> makeFindHeuristic() {
 		// heuristic to find a solution fast
-		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(problem.getSourceConfiguration()
-				.getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
+		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(
+		    problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 		ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
 		l.add(diveSrc);
 		// then add all heuristics from the view, in the views reverse order.
@@ -236,6 +239,11 @@ public class SolvingProcess extends OptiplaceProcess {
 		long st = System.currentTimeMillis();
 		if (problem.getObjective() != null) {
 			problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
+			if (problem.getSolutionRecorder().getLastSolution() == null) {
+				logger.debug("no solution found");
+				logger.debug(" variables : " + Arrays.asList(problem.getSolver().getVars()));
+				logger.debug(" constraints : " + Arrays.asList(problem.getSolver().getCstrs()));
+			}
 		} else {
 			problem.getSolver().findSolution();
 		}
@@ -266,5 +274,6 @@ public class SolvingProcess extends OptiplaceProcess {
 		target.setSearchBacktracks(m.getBackTrackCount());
 		target.setSearchNodes(m.getNodeCount());
 		target.setSearchSolutions(problem.getSolutionRecorder().getSolutions().size());
+		System.err.println("changed from " + sourceConfig + " to " + dest);
 	}
 }

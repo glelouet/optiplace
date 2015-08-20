@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.slf4j.LoggerFactory;
+
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 
@@ -475,7 +477,7 @@ public interface Configuration {
 			}
 
 		},
-		RUNNING_OR_WAITING {
+		RUNNING_OR_EXTERN_OR_WAITING {
 
 			@Override
 			public boolean check(Configuration c) {
@@ -488,7 +490,7 @@ public interface Configuration {
 			@Override
 			public boolean check(Configuration c) {
 				return !c.getRunnings().filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
-				    .findFirst().isPresent();
+		        .peek(System.err::println).findFirst().isPresent();
 			}
 
 		};
@@ -499,6 +501,7 @@ public interface Configuration {
 	default boolean checkBasics() {
 		for (BasicChecks b : BasicChecks.values()) {
 			if (!b.check(this)) {
+				LoggerFactory.getLogger(BasicChecks.class).debug("check failed " + b);
 				return false;
 			}
 		}

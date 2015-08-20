@@ -655,6 +655,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				ret.setOffline(n);
 			}
 		}
+		for (Extern e : externs) {
+			ret.addExtern(e.getName());
+		}
 		source.getSites().forEach(s -> {
 			ret.addSite(s.getName(), source.getNodes(s).collect(Collectors.toList()).toArray(new Node[] {}));
 		});
@@ -666,10 +669,20 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				ret.setMigTarget(vm, oldtarget);
 				return;
 			}
-			Node sourceHost = source.getNodeHost(vm);
-			Node destHost = node(getNode(vm).getValue());
+			VMHoster sourceHost = source.getNodeHost(vm);
 			if (sourceHost == null) {
-				// VM waiting : we instantiate it on the node.
+				sourceHost = source.getExternHost(vm);
+			}
+			VMHoster destHost = null;
+			if (getState(vm).isInstantiatedTo(VM_RUNNING)) {
+				destHost = node(getNode(vm).getValue());
+			}
+			if (getState(vm).isInstantiatedTo(VM_EXTERNED)) {
+				destHost=extern(getExtern(vm).getValue());
+			}
+			System.err.println("vm " + vm + " in state " + getState(vm) + " is moved from " + sourceHost + " to " + destHost);
+			if (sourceHost == null) {
+				// VM waiting : we instantiate it on the hoster.
 				ret.setHost(vm, destHost);
 			} else {
 				if (isMoveMigrateVM) {

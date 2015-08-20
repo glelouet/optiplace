@@ -146,8 +146,11 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public boolean setHost(VM vm, VMHoster hoster) {
-		if (vm == null || hoster == null || hoster.equals(vmHoster.get(vm))) {
+		if (vm == null || hoster != null && hoster.equals(vmHoster.get(vm))) {
 			return false;
+		}
+		if (hoster == null) {
+			return setWaiting(vm);
 		}
 		waitings.remove(vm);
 		vmHoster.put(vm, hoster);
@@ -313,6 +316,9 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public Stream<VM> getHosted(VMHoster n) {
 		Set<VM> s = nodesVM.get(n);
+		if (s == null) {
+			s=externVM.get(n);
+		}
 		return s != null ? s.stream() : Stream.empty();
 	}
 
@@ -403,6 +409,9 @@ public class SimpleConfiguration implements Configuration {
 		sb.append("onlines : ").append(nodesVM);
 		if (!offlines.isEmpty()) {
 			sb.append("\nofflines : ").append(offlines);
+		}
+		if (!externVM.isEmpty()) {
+			sb.append("\nexterns : ").append(externVM);
 		}
 		if (!waitings.isEmpty()) {
 			sb.append("\nwaitings : ").append(waitings);
