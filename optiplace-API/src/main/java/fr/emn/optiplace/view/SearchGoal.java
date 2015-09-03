@@ -59,19 +59,6 @@ public interface SearchGoal {
 	    VariableSelector<IntVar> varSelector, IntValueSelector valSelector, IntVar... vars) {
 		return new IntStrategy(vars, varSelector, valSelector, ISF.assign()) {
 
-			// @SuppressWarnings("rawtypes")
-			// @Override
-			// public Decision getDecision() {
-			// Decision ret = super.getDecision();
-			// System.err.println(toString() + " returned " + ret);
-			// if (ret == null) {
-			// for(IntVar var : vars){
-			// System.err.println(var);
-			// }
-			// }
-			// return ret;
-			// }
-
 			@Override
 			public String toString() {
 				return name;
@@ -83,18 +70,6 @@ public interface SearchGoal {
 	public static SetStrategy makeAssignHeuristic(String name, VariableSelector<SetVar> varS, SetValueSelector valS,
 	    boolean enforceFirst, SetVar... sets) {
 		return new SetStrategy(sets, varS, valS, enforceFirst) {
-
-			// @Override
-			// public Decision<SetVar> getDecision() {
-			// Decision<SetVar> ret = super.getDecision();
-			// System.err.println(toString() + " returned " + ret);
-			// if (ret == null) {
-			// for (SetVar var : vars) {
-			// System.err.println(var);
-			// }
-			// }
-			// return ret;
-			// }
 
 			@Override
 			public String toString() {

@@ -428,6 +428,17 @@ public interface Configuration {
 	Stream<VM> getHosted(VMHoster n);
 
 	/**
+	 * get the number of VM executed on given hoster
+	 * 
+	 * @param host
+	 *            an hoster of the configuration
+	 * @return the number of VM that are specified running on given hoster
+	 */
+	default Stream<VM> getMigratings(VMHoster host) {
+		return getVMs().filter(v -> getMigTarget(v) == host);
+	}
+
+	/**
 	 * Get all the virtual machines running on a set of nodes.
 	 *
 	 * @param ns
@@ -439,14 +450,28 @@ public interface Configuration {
 	}
 
 	/**
-	 * Get the location of a virtual machine.
+	 * Get the location of a virtual machine. This is the Hoster that is
+	 * executing it right now.
 	 *
 	 * @param vm
-	 *          the virtual machine
-	 * @return the node hosting the virtual machine or {@code null} is the virtual
-	 *         machine is either waiting or on an external site
+	 *            the virtual machine
+	 * @return the node or extern hosting the virtual machine or {@code null} is
+	 *         the virtual machine is waiting
 	 */
 	VMHoster getLocation(VM vm);
+
+	/**
+	 * get the future location of a VM once the migrations are done.
+	 * 
+	 * @param v
+	 *            a VM of the configuration
+	 * @return the migration target of the VM or the location if no migration
+	 *         present
+	 */
+	default VMHoster getFutureLocation(VM vm) {
+		VMHoster ret = getMigTarget(vm);
+		return ret == null ? getLocation(vm) : ret;
+	}
 
 	/**
 	 * add an external site to host some VMs
@@ -467,6 +492,9 @@ public interface Configuration {
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();
 
+	/**
+	 * some basic checks to perform on a configuration
+	 */
 	static enum BasicChecks {
 
 		OFFLINE_OR_ONLINE {
@@ -490,7 +518,7 @@ public interface Configuration {
 			@Override
 			public boolean check(Configuration c) {
 				return !c.getRunnings().filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
-		        .peek(System.err::println).findFirst().isPresent();
+						.findFirst().isPresent();
 			}
 
 		};

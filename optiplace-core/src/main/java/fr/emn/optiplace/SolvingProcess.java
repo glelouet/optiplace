@@ -274,6 +274,5 @@ public class SolvingProcess extends OptiplaceProcess {
 		target.setSearchBacktracks(m.getBackTrackCount());
 		target.setSearchNodes(m.getNodeCount());
 		target.setSearchSolutions(problem.getSolutionRecorder().getSolutions().size());
-		System.err.println("changed from " + sourceConfig + " to " + dest);
 	}
 }

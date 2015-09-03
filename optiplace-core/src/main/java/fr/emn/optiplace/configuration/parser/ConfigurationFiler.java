@@ -4,7 +4,12 @@
 
 package fr.emn.optiplace.configuration.parser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -20,7 +25,6 @@ import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
  */
 public class ConfigurationFiler {
 
-	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationFiler.class);
 
 	File file;
@@ -69,7 +73,7 @@ public class ConfigurationFiler {
 							}
 						}
 					} else {
-						System.err.println("node name null : " + nodeName);
+						logger.debug("node name null : " + nodeName);
 					}
 				}
 			}

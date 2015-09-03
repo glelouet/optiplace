@@ -141,7 +141,7 @@ public class ViewDescription {
 				w.write(DEPPARAM + depends + "\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace(System.err);
+			logger.warn("", e);
 		}
 	}
 

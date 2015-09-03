@@ -10,7 +10,11 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Solver;
@@ -19,18 +23,27 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Site;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
 import gnu.trove.map.hash.TObjectIntHashMap;
-
 
 /**
  * A CSP to model a reconfiguration plan composed of time bounded actions. In
@@ -55,8 +68,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/** The maximum number of group of VM. */
 	public static final Integer MAX_NB_GRP = 1000;
 
-	///////////////////////////////////////// :
 	// static objects of the problem
+	//
 
 	/** The source configuration. */
 	private final Configuration source;
@@ -123,16 +136,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			Site site = source.getSite(node(i));
 			nodesSite[i] = site == null ? -1 : revSites.get(source.getSite(node(i)));
 		}
-		// System.err
-		// .println("nodesites are : " +
-		// Arrays.stream(nodesSite).mapToObj(Integer::new).collect(Collectors.toList()));
 	}
 
-	/////////////////////////////////////////////////
 	// dynamic variables (managed by the solver)
-	// the IntVar array for Externs is null if no extern, the intvar for sites is
-	// null if no more than one site defined.
-	/////////////////////////////////////////////////
+	//
+	// the IntVar array for Externs is null if no extern, the intvar for sites
+	// is null if no site defined.
 
 	/**
 	 * VM state. see {@link CoreView#VM_RUNNING},{@link CoreView#VM_EXTERNED},
@@ -150,8 +159,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/**
 	 * set to true to say a VM is migrated and remains active on its former host
 	 * <br />
-	 * We need to be able to set the shadow of a VM in pre-process time so we have
-	 * more than just the shadow of the configuration. If a VM is already
+	 * We need to be able to set the shadow of a VM in pre-process time so we
+	 * have more than just the shadow of the configuration. If a VM is already
 	 * shadowing we can't change that ; otherwise, a view can alter make that VM
 	 * shadow during the pre-process phase.
 	 */
@@ -163,40 +172,36 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/** node i is in site nodeSites[i] */
 	protected int[] nodesSite;
 
-	// a few int[] containing the possible run state of VMs
-	protected static final int[] VM_RUN_WAIT = new int[] {
-	    VM_RUNNING, VM_WAITING
-	};
-	protected static final int[] VM_RUN_EXT = new int[] {
-	    VM_RUNNING, VM_EXTERNED
-	};
-	protected static final int[] VM_RUN_WAIT_EXT = new int[] {
-	    VM_RUNNING, VM_WAITING, VM_EXTERNED
-	};
+	// a few int[] containing the possible run state of VMs. they are used to
+	// instantiate the state var of a VM
+	protected static final int[] VM_RUN_WAIT = new int[] { VM_RUNNING, VM_WAITING };
+	protected static final int[] VM_RUN_EXT = new int[] { VM_RUNNING, VM_EXTERNED };
+	protected static final int[] VM_WAIT_EXT = new int[] { VM_WAITING, VM_EXTERNED };
+	protected static final int[] VM_RUN_WAIT_EXT = new int[] { VM_RUNNING, VM_WAITING, VM_EXTERNED };
 
 	/** make the location variables */
 	protected void makeDynamicConfig() {
 		if (getSourceConfiguration().nbSites() > 0) {
 			vmSites = new IntVar[vms.length];
 		} else {
-			// if we have only one site (the default site) we don't need to have a
-			// IntVar
-			// because getSite(vm) will return 0 (the index of the default site)
+			// if we have only one site (the default site) we don't need to have
+			// a IntVar[] because getSite(vm) will return -1 (the index of the
+			// default site)
 		}
 		vmsState = new IntVar[vms.length];
 		vmsNode = new IntVar[vms.length];
 		if (externs.length > 0) {
 			vmsExtern = new IntVar[vms.length];
 		} else {
-			// if we have no extern we don't need an IntVar because getExtern(vm) will
+			// if we have no extern we don't need an IntVar because
+			// getExtern(vm) will
 			// return -1
 		}
 		for (int i = 0; i < vms.length; i++) {
 			VM vm = vm(i);
 			boolean waiting = source.isWaiting(vm);
 			if (vmsExtern == null) {
-				// VM can no be set to extern (no extern)
-				// vmexterns[] is null so no IntVar for the vms
+				// vm waiting or running
 				if (waiting) {
 					// VM can be set to running or waiting.
 					vmsState[i] = createEnumIntVar(vmName(i) + "_state", VM_RUN_WAIT);
@@ -211,15 +216,17 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				vmsState[i] = createEnumIntVar(vmName(i) + "_state", waiting ? VM_RUN_WAIT_EXT : VM_RUN_EXT);
 				vmsNode[i] = createEnumIntVar("" + vmName(i) + "_node", -1, nodes.length - 1);
 				vmsExtern[i] = createEnumIntVar("" + vmName(i) + "_ext", -1, externs.length - 1);
-				// constrain the state of the VM and the extern it is hosted on :
+				// constrain the state of the VM and the extern it is hosted on
+				// :
 				// extern>-1 <=> state==externed
 				LCF.ifThenElse(ICF.arithm(vmsExtern[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_EXTERNED),
-				    ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
+						ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
 			}
-			// constrain the state of the VM and the node it is hosted on : host>-1
+			// constrain the state of the VM and the node it is hosted on :
+			// host>-1
 			// => state==running
 			LCF.ifThenElse(ICF.arithm(vmsNode[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_RUNNING),
-			    ICF.arithm(vmsState[i], "!=", VM_RUNNING));
+					ICF.arithm(vmsState[i], "!=", VM_RUNNING));
 		}
 	}
 
@@ -227,7 +234,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * Make a new model.
 	 *
 	 * @param src
-	 *          The source configuration. It must be viable.
+	 *            The source configuration. It must be viable.
 	 */
 	public ReconfigurationProblem(Configuration src) {
 		source = src;
@@ -283,10 +290,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	/**
-	 * converts an array of vms to an array of index of those vms in the problem.
+	 * converts an array of vms to an array of index of those vms in the
+	 * problem.
 	 *
 	 * @param vms
-	 *          the vms to convert, all of them must belong to the problem
+	 *            the vms to convert, all of them must belong to the problem
 	 * @return a new array of those vms.
 	 */
 	public int[] vms(VM... vms) {
@@ -370,8 +378,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	private IntVar[] nodesCards;
 
 	/**
-	 * should we name the variables by using the nodes and VMs index or using the
-	 * nodes and VM names ? default is : use their name
+	 * should we name the variables by using the nodes and VMs index or using
+	 * the nodes and VM names ? default is : use their name
 	 */
 	protected boolean useVMAndNodeIndex = false;
 
@@ -678,9 +686,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				destHost = node(getNode(vm).getValue());
 			}
 			if (getState(vm).isInstantiatedTo(VM_EXTERNED)) {
-				destHost=extern(getExtern(vm).getValue());
+				destHost = extern(getExtern(vm).getValue());
 			}
-			System.err.println("vm " + vm + " in state " + getState(vm) + " is moved from " + sourceHost + " to " + destHost);
 			if (sourceHost == null) {
 				// VM waiting : we instantiate it on the hoster.
 				ret.setHost(vm, destHost);
@@ -690,9 +697,10 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				} else {
 					ret.setHost(vm, sourceHost);
 				}
-				// setMigTarget does not set a migrate if the VM is already placed on
-		    // the hoster (same as
-		    // setMigTarget(vm,vmhoster(vm)==destHost?null:destHost) )
+				// setMigTarget does not set a migrate if the VM is already
+				// placed on
+				// the hoster (same as
+				// setMigTarget(vm,vmhoster(vm)==destHost?null:destHost) )
 				ret.setMigTarget(vm, destHost);
 			}
 		});
@@ -704,7 +712,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public SolvingStatistics getSolvingStatistics() {
 		IMeasures mes = getMeasures();
 		return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(), (long) (mes.getTimeCount() * 1000),
-		    super.hasReachedLimit());
+				super.hasReachedLimit());
 	}
 
 	/** each resource added is associated to this and stored in this map. */
@@ -728,7 +736,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public ResourceUse[] getUses() {
 		return resources.values().stream().map(ResourceHandler::getResourceUse).collect(Collectors.toList())
-		    .toArray(new ResourceUse[] {});
+				.toArray(new ResourceUse[] {});
 	}
 
 	@Override

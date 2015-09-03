@@ -31,7 +31,6 @@ import fr.emn.optiplace.view.annotations.ViewDesc;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class PluginParser extends AbstractProcessor {
 
-	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginParser.class);
 
 	public static final String DESCRIPTORFILENAME = "optiplace.description";
@@ -46,7 +45,7 @@ public class PluginParser extends AbstractProcessor {
 		}
 		Set<? extends Element> els = roundEnv.getElementsAnnotatedWith(ViewDesc.class);
 		if (els.size() != 1) {
-			System.err.println("cannot generate plugin desc for : " + els);
+			logger.debug("cannot generate plugin desc for : " + els);
 			return true;
 		}
 		Element el = els.stream().findAny().get();

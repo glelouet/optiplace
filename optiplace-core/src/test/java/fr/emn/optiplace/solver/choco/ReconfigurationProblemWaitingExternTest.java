@@ -1,14 +1,13 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.exception.ContradictionException;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.*;
-import fr.emn.optiplace.view.access.CoreView;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
 
 
 /**
@@ -55,28 +54,4 @@ public class ReconfigurationProblemWaitingExternTest {
 		pb = new ReconfigurationProblem(src);
 	}
 
-	/**
-	 * <ol>
-	 * <li>extern is set to 0 : state is externed, host=-1</li>
-	 * <li>extern is set to -1 : state is not externed</li>
-	 * <li>state is externed : host=-1</li>
-	 * <li>host is set to 0 : extern is -1</li>
-	 * <li>host is set to -1 :state is waiting|externed</li>
-	 * <li>host is set to -1 and VM was on host :state is externed</li>
-	 * </ol>
-	 */
-	@Test
-	public void testPropagate() throws ContradictionException {
-		pb.getExtern(vm0).instantiateTo(0, Cause.Null);
-		// pb.getExtern(vm1).instantiateTo(-1, Cause.Null);
-		// pb.getState(vm2).instantiateTo(CoreView.VM_EXTERNED, Cause.Null);
-		// pb.getHost(vm3).instantiateTo(0, Cause.Null);
-		// pb.getHost(vm4).instantiateTo(-1, Cause.Null);
-		// pb.getHost(vm5).instantiateTo(-1, Cause.Null);
-		System.err.println("propagate");
-		pb.propagate();
-		System.err.println("propagate done");
-		Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_EXTERNED) && pb.getNode(vm0).isInstantiatedTo(-1),
-		    "" + pb.getState(vm0) + " ; " + pb.getNode(vm0));
-	}
 }
