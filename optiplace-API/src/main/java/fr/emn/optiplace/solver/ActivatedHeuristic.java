@@ -3,6 +3,8 @@
  */
 package fr.emn.optiplace.solver;
 
+import java.util.Arrays;
+
 import org.chocosolver.memory.IStateBool;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
@@ -16,13 +18,30 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * an heuristics which can make decisions after it has ended up giving decisions
- * on a previous pass.
+ * an heuristics which makes decisions only if a certain criterion is met.
  * </p>
  * <p>
- * it contains a propagator which must be added in the solver ; then call the
- * {@link #isActivated()} to know if this heuristic can make a decision.
+ * It observes a list of variables used in the criterion.<br />
+ * Its {@link #isActivated()} must be called when exploring to check if this
+ * heuristic can make a decision.
  * </p>
+ * <p>
+ * The observed variables are monitored by {@link #monitor}, a final variable
+ * which simply calls {@link #dirty()} when a variable is modified. This reduces
+ * the CPU cost of calculating the {@link #activated} value each time one
+ * variable is modified.
+ * </p>
+ * <p>
+ * Internally, the {@link #activated} flag is stored and returned by
+ * {@link #isActivated()}, but when an observed variable is modified the
+ * {@link #dirty} flag is set to require re-computation of this
+ * {@link #activated} value. <br />
+ * The {@link #dirty} and {@link #activated} flags are stored as
+ * {@link IStateBool} to ensure backtracking will restore the correct values.
+ * </p>
+ * 
+ * @param <T>
+ *            The type of variables to make decisions on (eg IntVar or SetVar)
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
@@ -44,35 +63,50 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 		return e;
 	}
 
-	// /////////////////////////////////////////////////////////////////
-
+	/**
+	 * set {@link #checkActivated()} when {@link #isActivated()} is called and
+	 * {@link #dirty} is true
+	 */
 	private final IStateBool activated;
 
-	/** set to true when the observed variables are modified */
+	/**
+	 * set to true when the observed variables are modified
+	 */
 	private final IStateBool dirty;
 
-	protected void dirty() {
-		this.dirty.set(true);;
+	/**
+	 * an observed variable is modified
+	 */
+	protected final void dirty() {
+		this.dirty.set(true);
 	}
 
-	public boolean isActivated() {
+	/**
+	 * 
+	 * @return can the heuristic make a decision over the deciion variables ?
+	 */
+	public final boolean isActivated() {
 		if (dirty.get()) {
 			activated.set(checkActivated());
-			dirty.set(false);;
+			dirty.set(false);
 		}
 		return activated.get();
 	}
 
-	/** check whether the variables of the heuristic can be branched on */
+	/**
+	 * check whether the heuristic can make a decision
+	 */
 	abstract protected boolean checkActivated();
 
-	protected IVariableMonitor<Variable> monitor = new IVariableMonitor<Variable>()
-	{
+	/**
+	 * the monitor on the observed variables.
+	 */
+	protected final IVariableMonitor<Variable> monitor = new IVariableMonitor<Variable>() {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public void onUpdate(Variable var, IEventType evt) throws ContradictionException {
+		public final void onUpdate(Variable var, IEventType evt) throws ContradictionException {
 			dirty();
 		}
 	};
@@ -98,9 +132,9 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	/**
 	 *
 	 * @param decisionVars
-	 *          The variables of the problem on which to make decisions
+	 *            The variables of the problem on which to make decisions
 	 * @param observedVars
-	 *          the Variables of the problem which help decide when to branch.
+	 *            the Variables of the problem which help decide when to branch.
 	 */
 	public ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
 		super(decisionVars);
@@ -115,12 +149,28 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 		dirty = var.getSolver().getEnvironment().makeBool(true);
 	}
 
-	public ActivatedHeuristic(T[] vars) {
+	/**
+	 * redirects to {@link #ActivatedHeuristic(Variable[], Variable[])} on vars,
+	 * vars
+	 * 
+	 * @param vars
+	 *            the variables to branch on and observe
+	 */
+	@SafeVarargs
+	public ActivatedHeuristic(T... vars) {
 		this(vars, vars);
+	}
+
+	protected String toString = null;
+
+	protected String makeToString() {
+		return getClass().getSimpleName() + Arrays.asList(getVariables());
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName();
+		if (toString == null)
+			toString = makeToString();
+		return toString;
 	}
 }

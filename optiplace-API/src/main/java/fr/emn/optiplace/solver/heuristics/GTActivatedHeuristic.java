@@ -7,11 +7,14 @@ import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
 import org.chocosolver.solver.variables.IntVar;
+
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 
 /**
- * an activated heuristic which ensures (like a constraint) that a&lt;b<br />
- * meaning a.min&lt;b.min and a.max&lt;b.max .
+ * an activated heuristic considering two variables, that ensures (like a
+ * constraint) that a&lt;b<br />
+ * meaning a.min&lt;b.min and a.max&lt;b.max .<br />
+ * Mainly used for tests
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  *
