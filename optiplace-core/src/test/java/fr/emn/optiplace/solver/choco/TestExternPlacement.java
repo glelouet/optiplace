@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.test.SolvingExample;
 import fr.emn.optiplace.view.access.CoreView;
 

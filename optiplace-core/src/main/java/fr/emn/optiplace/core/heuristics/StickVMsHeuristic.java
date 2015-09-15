@@ -40,13 +40,6 @@ public class StickVMsHeuristic {
 		Var2ValSelector heuristic = new Var2ValSelector(hosters, srcLoc) {
 
 			private static final long serialVersionUID = 1L;
-
-			// @Override
-			// public IntVar getVariable(IntVar[] variables) {
-			// IntVar var = super.getVariable(variables);
-			// logger.error("StickVMHeuristic.Var2val returned " + var);
-			// return var;
-			// }
 		};
 		return SearchGoal.makeAssignHeuristic(StickVMsHeuristic.class.getSimpleName(), heuristic, heuristic, hosters);
 	}

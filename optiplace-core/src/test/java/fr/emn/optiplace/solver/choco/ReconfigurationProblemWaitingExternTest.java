@@ -8,6 +8,7 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.core.ReconfigurationProblem;
 
 
 /**

@@ -8,7 +8,7 @@
  * details. You should have received a copy of the GNU Lesser General Public
  * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
 
-package fr.emn.optiplace.solver.choco;
+package fr.emn.optiplace.core;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +42,7 @@ import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
+import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
 import gnu.trove.map.hash.TObjectIntHashMap;
 

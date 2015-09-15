@@ -10,6 +10,8 @@ import java.io.FileReader;
 import java.util.stream.Stream;
 
 /**
+ * A {@link ProvidedData} based on a File Reader.
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
 public class FileViewData implements ProvidedData {
