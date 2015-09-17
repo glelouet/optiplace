@@ -12,11 +12,8 @@ package fr.emn.optiplace.view;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ReconfigurationResult;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -86,42 +83,4 @@ public interface Rule {
   default boolean isSatisfied(ReconfigurationResult plan) {
     return isSatisfied(plan.getDestination());
   }
-
-  /**
-   * Get the virtual machines involved in the constraints.
-   *
-   * @return a set of virtual machines.
-   */
-  Set<VM> getVMs();
-
-  /**
-   * Get the nodes explicitly involved in the constraints.
-   *
-   * @return a set of nodes that may be empty
-   */
-  Set<Node> getNodes();
-
-  /** The possible types for the constraint. */
-  public static enum Type {
-    /**
-     * The rule can be enforced at the beginning of a reconfiguration
-     * problem. It is simple, as "vm a is on host b" or
-     * "Node a has less than ten vms". Note that this depends on the
-     * representation of the constrained variables.
-     */
-    STATIC,
-    /**
-     * The constraint restrict the relative placement of several vms or
-     * complex constraints eg "VM a and b are on the same node", or
-     * "Node a has less vms than node b".
-     */
-    DYNAMIC
-  }
-
-  /**
-   * Get the type of the constraint.
-   *
-   * @return a possible type
-   */
-  Type getType();
 }

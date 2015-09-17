@@ -66,9 +66,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return this;
 	}
 
-	/** The maximum number of group of VM. */
-	public static final Integer MAX_NB_GRP = 1000;
-
 	// static objects of the problem
 	//
 
@@ -160,8 +157,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	/**
 	 * set to true to say a VM is migrated and remains active on its former host
 	 * <br />
-	 * We need to be able to set the shadow of a VM in pre-process time so we
-	 * have more than just the shadow of the configuration. If a VM is already
+	 * We need to be able to set the shadow of a VM in pre-process time so we have
+	 * more than just the shadow of the configuration. If a VM is already
 	 * shadowing we can't change that ; otherwise, a view can alter make that VM
 	 * shadow during the pre-process phase.
 	 */
@@ -172,6 +169,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	/** node i is in site nodeSites[i] */
 	protected int[] nodesSite;
+
+	/**
+	 * for each VM, -1 if VM waiting, the index of the node if that node hosts the
+	 * VM, or the index of the extern + #nodes if that extern hosts the VM
+	 */
+	protected IntVar[] vmHosters;
 
 	// a few int[] containing the possible run state of VMs. they are used to
 	// instantiate the state var of a VM
@@ -229,13 +232,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			LCF.ifThenElse(ICF.arithm(vmsNode[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_RUNNING),
 					ICF.arithm(vmsState[i], "!=", VM_RUNNING));
 		}
+		vmHosters = new IntVar[vms.length];
 	}
 
 	/**
 	 * Make a new model.
 	 *
 	 * @param src
-	 *            The source configuration. It must be viable.
+	 *          The source configuration. It must be viable.
 	 */
 	public ReconfigurationProblem(Configuration src) {
 		source = src;
@@ -291,11 +295,10 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	/**
-	 * converts an array of vms to an array of index of those vms in the
-	 * problem.
+	 * converts an array of vms to an array of index of those vms in the problem.
 	 *
 	 * @param vms
-	 *            the vms to convert, all of them must belong to the problem
+	 *          the vms to convert, all of them must belong to the problem
 	 * @return a new array of those vms.
 	 */
 	public int[] vms(VM... vms) {
@@ -347,6 +350,27 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
+	public int vmHoster(VMHoster h) {
+		if (h == null)
+			return -1;
+		if (h instanceof Node) {
+			return node((Node) h);
+		} else if (h instanceof Extern) {
+			return extern((Extern) h) + nodes.length;
+		} else {
+			logger.warn("incorrect class " + h.getClass());
+			return -1;
+		}
+	}
+
+	@Override
+	public VMHoster vmHoster(int i) {
+		if (i < 0 || i >= nodes.length + externs.length)
+			return null;
+		return (i < nodes.length) ? node(i) : extern(i - nodes.length);
+	}
+
+	@Override
 	public int site(Site site) {
 		int v = revSites.get(site);
 		if (v == 0 && !sites[0].equals(site)) {
@@ -379,8 +403,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	private IntVar[] nodesCards;
 
 	/**
-	 * should we name the variables by using the nodes and VMs index or using
-	 * the nodes and VM names ? default is : use their name
+	 * should we name the variables by using the nodes and VMs index or using the
+	 * nodes and VM names ? default is : use their name
 	 */
 	protected boolean useVMAndNodeIndex = false;
 
@@ -419,6 +443,19 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar[] getNodes() {
 		return vmsNode;
+	}
+
+	@Override
+	public IntVar getHoster(int idx) {
+		IntVar ret = vmHosters[idx];
+		if (ret == null) {
+			VM v = vm(idx);
+			ret = createBoundIntVar(vmName(idx) + "_hoster", getSourceConfiguration().isWaiting(v) ? -1 : 0,
+					nodes.length + externs.length);
+			switchState(v, ret, getNode(idx), VF.offset(getExtern(idx), nodes.length), createIntegerConstant(-1));
+			vmHosters[idx] = ret;
+		}
+		return ret;
 	}
 
 	/**
@@ -510,6 +547,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return ret;
 	}
 
+	@Override
 	public BoolVar isHoster(int idx) {
 		if (nodesIsHostings == null) {
 			nodesIsHostings = new BoolVar[nodes().length];
@@ -520,11 +558,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			nodesIsHostings[idx] = ret;
 		}
 		return ret;
-	}
-
-	@Override
-	public BoolVar isHoster(Node n) {
-		return isHoster(node(n));
 	}
 
 	@Override

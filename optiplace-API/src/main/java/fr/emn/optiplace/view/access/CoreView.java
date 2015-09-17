@@ -13,6 +13,7 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceUse;
 
@@ -104,6 +105,18 @@ public interface CoreView {
 		return idx >= t.length ? null : t[idx];
 	}
 
+	/**
+	 * 
+	 * @param h
+	 *          an hoster of the configuration
+	 * @return the index of the node if a node is given in parameters, the index
+	 *         of the extern+#nodes if an exetern is given in parameter, or -1 if
+	 *         h not known.
+	 */
+	public int vmHoster(VMHoster h);
+
+	public VMHoster vmHoster(int i);
+
 	public Site[] sites();
 
 	public int site(Site site);
@@ -192,6 +205,20 @@ public interface CoreView {
 	public IntVar getSite(int vmidx);
 
 	/**
+	 * 
+	 * @param vm
+	 *          a vm of the problem
+	 * @return a variable constrained to be -1 if the VM is waiting, node(n) if
+	 *         the VM is executed on the node n, extern(e)+nodes.length if the
+	 *         extern e is executing the vm.
+	 */
+	public default IntVar getHoster(VM vm) {
+		return getHoster(vm(vm));
+	}
+
+	public IntVar getHoster(int vmidx);
+
+	/**
 	 * set a VM as shadowing a node, eg when a VM is migrating.
 	 *
 	 * @param vm
@@ -268,7 +295,11 @@ public interface CoreView {
 	 *            a node of the problem
 	 * @return the boolean presence of a vm to host on the node
 	 */
-	public BoolVar isHoster(Node n);
+	public default BoolVar isHoster(Node n) {
+		return isHoster(node(n));
+	}
+
+	public BoolVar isHoster(int idx);
 
 	/**
 	 *
