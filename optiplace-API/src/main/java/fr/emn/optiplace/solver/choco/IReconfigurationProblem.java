@@ -20,7 +20,11 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.VariableFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -578,8 +582,10 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 				catch (ContradictionException e) {
 					throw new UnsupportedOperationException(e);
 				}
+			break;
 			case 3:
 				post(ICF.arithm(var, "=", nth(getState(v), vars)));
+			break;
 			default:
 				throw new UnsupportedOperationException(
 				    "unsupported nuber of non null variables " + nbNonNull + " in " + Arrays.asList(vars));
