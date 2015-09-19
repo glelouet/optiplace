@@ -418,7 +418,7 @@ public interface Configuration {
 	}
 
 	/**
-	 * Get the virtual machines that are running on a node.
+	 * Get the virtual machines that are running on an hoster.
 	 *
 	 * @param n
 	 *          the node
@@ -429,7 +429,7 @@ public interface Configuration {
 
 	/**
 	 * get the number of VM executed on given hoster
-	 * 
+	 *
 	 * @param host
 	 *            an hoster of the configuration
 	 * @return the number of VM that are specified running on given hoster
@@ -462,7 +462,7 @@ public interface Configuration {
 
 	/**
 	 * get the future location of a VM once the migrations are done.
-	 * 
+	 *
 	 * @param v
 	 *            a VM of the configuration
 	 * @return the migration target of the VM or the location if no migration
@@ -582,9 +582,9 @@ public interface Configuration {
 
 	/**
 	 *
-	 * @param n
-	 *          a Node of the configuration
-	 * @return the index of the site this node belongs to
+	 * @param h
+	 *          a Hoster of the configuration
+	 * @return the index of the site this hoster belongs to
 	 */
 	public Site getSite(VMHoster n);
 
