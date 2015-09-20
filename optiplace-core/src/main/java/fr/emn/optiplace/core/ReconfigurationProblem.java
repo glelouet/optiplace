@@ -637,17 +637,24 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	IntVar nbLiveMigrations = null;
 
 	protected void makeIsMigrateds() {
-		if (vmsIsMigrated != null) {
-			return;
+		if (vmsIsMigrated == null) {
+			vmsIsMigrated = new BoolVar[vms().length];
 		}
-		vmsIsMigrated = new BoolVar[vms().length];
+		Configuration cfg = getSourceConfiguration();
 		for (int i = 0; i < vmsIsMigrated.length; i++) {
 			VM vm = vm(i);
-			Node sourceHost = getSourceConfiguration().getNodeHost(vm);
-			if (sourceHost != null) {
-				vmsIsMigrated[i] = isDifferent(getNode(i), node(sourceHost));
-			} else {
-				vmsIsMigrated[i] = VF.one(getSolver());
+			switch (cfg.getState(vm)) {
+			case WAITING:
+				vmsIsMigrated[i] = isDifferent(getState(i), createIntegerConstant(CoreView.VM_WAITING));
+				break;
+			case RUNNING:
+				vmsIsMigrated[i] = isDifferent(getNode(i), node(cfg.getNodeHost(vm)));
+				break;
+			case EXTERN:
+				vmsIsMigrated[i] = isDifferent(getExtern(i), extern(cfg.getExternHost(vm)));
+				break;
+			default:
+				throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
 			}
 		}
 	}

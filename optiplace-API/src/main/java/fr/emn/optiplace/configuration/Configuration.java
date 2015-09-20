@@ -402,7 +402,8 @@ public interface Configuration {
 	/**
 	 *
 	 * @param hosted
-	 * @return
+	 *          a vm of the problem
+	 * @return the node hosting the VM or null
 	 */
 	default Node getNodeHost(VM hosted) {
 		return getState(hosted) == VMSTATES.RUNNING ? (Node) getLocation(hosted) : null;
