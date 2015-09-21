@@ -10,6 +10,8 @@
 
 package fr.emn.optiplace.configuration;
 
+import static java.util.stream.Stream.concat;
+
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -697,16 +699,44 @@ public interface Configuration {
 	 */
 	public boolean isTagged(ManagedElement e, String tag);
 
-	public Stream<VM> getVMTagged(String tag);
+	/**
+	 * check if a hoster or its site is tagged with given tag
+	 *
+	 * @param h
+	 *          a hoster
+	 * @param tag
+	 *          the tag to check
+	 * @return true if h or its site is tagged with tag
+	 */
+	public default boolean isHosterTagged(VMHoster h, String tag) {
+		return isTagged(h, tag) || isTagged(getSite(h), tag);
+	}
 
-	public Stream<Node> getNodeTagged(String tag);
+	public Stream<VM> getVmsTagged(String tag);
 
-	public Stream<Extern> getExternTagged(String tag);
+	public Stream<Node> getNodesTagged(String tag);
 
-	public Stream<Site> getSiteTagged(String tag);
+	public Stream<Extern> getExternsTagged(String tag);
+
+	public Stream<Site> getSitesTagged(String tag);
 
 	public Stream<String> getTags(ManagedElement e);
 
-	public Stream<String> getAllTags();
+	/**
+	 *
+	 * @return the stream of all tags that are applied to at least one element of
+	 *         the center.
+	 */
+	public default Stream<String> getAllTags() {
+		return concat(concat(getVmsTags(), getNodesTags()), concat(getSitesTags(), getSitesTags())).distinct();
+	}
+
+	public Stream<String> getVmsTags();
+
+	public Stream<String> getNodesTags();
+
+	public Stream<String> getExternsTags();
+
+	public Stream<String> getSitesTags();
 
 }

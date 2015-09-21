@@ -10,8 +10,6 @@
 
 package fr.emn.optiplace.configuration;
 
-import static java.util.stream.Stream.concat;
-
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -428,6 +426,18 @@ public class SimpleConfiguration implements Configuration {
 			sb.append("\nresources : ")
 			    .append(resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t));
 		}
+		if (!nodesTags.isEmpty()) {
+			sb.append("\nnodesTags : ").append(nodesTags);
+		}
+		if (!vmsTags.isEmpty()) {
+			sb.append("\nvmsTags : ").append(vmsTags);
+		}
+		if (!sitesTags.isEmpty()) {
+			sb.append("\nsitesTags : ").append(sitesTags);
+		}
+		if (!externsTags.isEmpty()) {
+			sb.append("\nexternsTags : ").append(externsTags);
+		}
 		return sb.toString();
 	}
 
@@ -458,13 +468,18 @@ public class SimpleConfiguration implements Configuration {
 		if (!sitesToNodes.equals(o.sitesToNodes)) {
 			return false;
 		}
+		if (!nodesTags.equals(o.nodesTags) || !vmsTags.equals(o.vmsTags) || !externsTags.equals(o.externsTags)
+		    || !sitesTags.equals(o.sitesTags)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
-		    + vmMigration.hashCode() + sitesToNodes.hashCode();
+		    + vmMigration.hashCode() + sitesToNodes.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
+		    + externsTags.hashCode() + sitesTags.hashCode();
 	}
 
 	@Override
@@ -576,6 +591,9 @@ public class SimpleConfiguration implements Configuration {
 			return;
 		}
 		set.remove(n);
+		if (set.isEmpty()) {
+			nodesTags.remove(tag);
+		}
 	}
 
 	@Override
@@ -585,6 +603,9 @@ public class SimpleConfiguration implements Configuration {
 			return;
 		}
 		set.remove(e);
+		if (set.isEmpty()) {
+			externsTags.remove(tag);
+		}
 	}
 
 	@Override
@@ -594,6 +615,9 @@ public class SimpleConfiguration implements Configuration {
 			return;
 		}
 		set.remove(v);
+		if (set.isEmpty()) {
+			vmsTags.remove(tag);
+		}
 	}
 
 	@Override
@@ -603,6 +627,9 @@ public class SimpleConfiguration implements Configuration {
 			return;
 		}
 		set.remove(s);
+		if (set.isEmpty()) {
+			sitesTags.remove(tag);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -623,25 +650,25 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<VM> getVMTagged(String tag) {
+	public Stream<VM> getVmsTagged(String tag) {
 		Set<VM> set = vmsTags.get(tag);
 		return set == null ? Stream.empty() : set.stream();
 	}
 
 	@Override
-	public Stream<Node> getNodeTagged(String tag) {
+	public Stream<Node> getNodesTagged(String tag) {
 		Set<Node> set = nodesTags.get(tag);
 		return set == null ? Stream.empty() : set.stream();
 	}
 
 	@Override
-	public Stream<Extern> getExternTagged(String tag) {
+	public Stream<Extern> getExternsTagged(String tag) {
 		Set<Extern> set = externsTags.get(tag);
 		return set == null ? Stream.empty() : set.stream();
 	}
 
 	@Override
-	public Stream<Site> getSiteTagged(String tag) {
+	public Stream<Site> getSitesTagged(String tag) {
 		Set<Site> set = sitesTags.get(tag);
 		return set == null ? Stream.empty() : set.stream();
 	}
@@ -668,12 +695,23 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<String> getAllTags() {
-		return concat(
-		    concat(nodesTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey),
-		        vmsTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey)),
-		    concat(sitesTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey),
-		        externsTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey)));
+	public Stream<String> getVmsTags() {
+		return vmsTags.keySet().stream();
+	}
+
+	@Override
+	public Stream<String> getExternsTags() {
+		return externsTags.keySet().stream();
+	}
+
+	@Override
+	public Stream<String> getNodesTags() {
+		return nodesTags.keySet().stream();
+	}
+
+	@Override
+	public Stream<String> getSitesTags() {
+		return sitesTags.keySet().stream();
 	}
 
 }
