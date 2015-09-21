@@ -10,6 +10,8 @@
 
 package fr.emn.optiplace.configuration;
 
+import static java.util.stream.Stream.concat;
+
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -317,7 +319,7 @@ public class SimpleConfiguration implements Configuration {
 	public Stream<VM> getHosted(VMHoster n) {
 		Set<VM> s = nodesVM.get(n);
 		if (s == null) {
-			s=externVM.get(n);
+			s = externVM.get(n);
 		}
 		return s != null ? s.stream() : Stream.empty();
 	}
@@ -506,4 +508,172 @@ public class SimpleConfiguration implements Configuration {
 		}
 		return null;
 	}
+
+	//////////////////////////////////////////
+	// host tags
+
+	protected HashMap<String, Set<VM>> vmsTags = new HashMap<>();
+	protected HashMap<String, Set<Site>> sitesTags = new HashMap<>();
+	protected HashMap<String, Set<Node>> nodesTags = new HashMap<>();
+	protected HashMap<String, Set<Extern>> externsTags = new HashMap<>();
+
+	@Override
+	public void tagNode(Node n, String tag) {
+		if (n == null || tag == null) {
+			return;
+		}
+		Set<Node> s = nodesTags.get(tag);
+		if (s == null) {
+			s = new HashSet<>();
+			nodesTags.put(tag, s);
+		}
+		s.add(n);
+	}
+
+	@Override
+	public void tagExtern(Extern e, String tag) {
+		if (e == null || tag == null) {
+			return;
+		}
+		Set<Extern> s = externsTags.get(tag);
+		if (s == null) {
+			s = new HashSet<>();
+			externsTags.put(tag, s);
+		}
+		s.add(e);
+	}
+
+	@Override
+	public void tagVM(VM v, String tag) {
+		if (v == null || tag == null) {
+			return;
+		}
+		Set<VM> s = vmsTags.get(tag);
+		if (s == null) {
+			s = new HashSet<>();
+			vmsTags.put(tag, s);
+		}
+		s.add(v);
+	}
+
+	@Override
+	public void tagSite(Site s, String tag) {
+		if (s == null || tag == null) {
+			return;
+		}
+		Set<Site> set = sitesTags.get(tag);
+		if (set == null) {
+			set = new HashSet<>();
+			sitesTags.put(tag, set);
+		}
+		set.add(s);
+	}
+
+	@Override
+	public void delTagNode(Node n, String tag) {
+		Set<Node> set = nodesTags.get(tag);
+		if (set == null) {
+			return;
+		}
+		set.remove(n);
+	}
+
+	@Override
+	public void delTagExtern(Extern e, String tag) {
+		Set<Extern> set = externsTags.get(tag);
+		if (set == null) {
+			return;
+		}
+		set.remove(e);
+	}
+
+	@Override
+	public void delTagVM(VM v, String tag) {
+		Set<VM> set = vmsTags.get(tag);
+		if (set == null) {
+			return;
+		}
+		set.remove(v);
+	}
+
+	@Override
+	public void delTagSite(Site s, String tag) {
+		Set<Site> set = sitesTags.get(tag);
+		if (set == null) {
+			return;
+		}
+		set.remove(s);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean isTagged(ManagedElement e, String tag) {
+		if (e == null || tag == null) {
+			return false;
+		}
+		for (Map<String, Set<? extends ManagedElement>> m : new Map[] {
+		    vmsTags, nodesTags, externsTags, sitesTags
+		}) {
+			Set<? extends ManagedElement> set = m.get(tag);
+			if (set != null && set.contains(e)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public Stream<VM> getVMTagged(String tag) {
+		Set<VM> set = vmsTags.get(tag);
+		return set == null ? Stream.empty() : set.stream();
+	}
+
+	@Override
+	public Stream<Node> getNodeTagged(String tag) {
+		Set<Node> set = nodesTags.get(tag);
+		return set == null ? Stream.empty() : set.stream();
+	}
+
+	@Override
+	public Stream<Extern> getExternTagged(String tag) {
+		Set<Extern> set = externsTags.get(tag);
+		return set == null ? Stream.empty() : set.stream();
+	}
+
+	@Override
+	public Stream<Site> getSiteTagged(String tag) {
+		Set<Site> set = sitesTags.get(tag);
+		return set == null ? Stream.empty() : set.stream();
+	}
+
+	@Override
+	public Stream<String> getTags(ManagedElement me) {
+		if (me == null) {
+			return Stream.empty();
+		}
+		if (me instanceof Node) {
+			return nodesTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
+		}
+		if (me instanceof VM) {
+			return vmsTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
+		}
+		if (me instanceof Extern) {
+			return externsTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
+		}
+		if (me instanceof Site) {
+			return sitesTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
+		}
+		throw new UnsupportedOperationException(
+		    "can not stream the tags of the managedelement " + me + " with unsupported class " + me.getClass());
+	}
+
+	@Override
+	public Stream<String> getAllTags() {
+		return concat(
+		    concat(nodesTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey),
+		        vmsTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey)),
+		    concat(sitesTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey),
+		        externsTags.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(Entry::getKey)));
+	}
+
 }

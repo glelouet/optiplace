@@ -54,7 +54,7 @@ public interface Configuration {
 	}
 
 	/**
-	 * tooling to compare if two configurations have same vms and same nodes
+	 * tooling to compare if two configurations have same vms, nodes and externs
 	 *
 	 * @param first
 	 * @param second
@@ -73,7 +73,8 @@ public interface Configuration {
 	 * get an element with given name if it exists
 	 *
 	 * @param name
-	 * @return
+	 *          a name to check for an element
+	 * @return the element with corresponding name if exists, or null.
 	 */
 	ManagedElement getElementByName(String name);
 
@@ -432,7 +433,7 @@ public interface Configuration {
 	 * get the number of VM executed on given hoster
 	 *
 	 * @param host
-	 *            an hoster of the configuration
+	 *          an hoster of the configuration
 	 * @return the number of VM that are specified running on given hoster
 	 */
 	default Stream<VM> getMigratings(VMHoster host) {
@@ -451,11 +452,11 @@ public interface Configuration {
 	}
 
 	/**
-	 * Get the location of a virtual machine. This is the Hoster that is
-	 * executing it right now.
+	 * Get the location of a virtual machine. This is the Hoster that is executing
+	 * it right now.
 	 *
 	 * @param vm
-	 *            the virtual machine
+	 *          the virtual machine
 	 * @return the node or extern hosting the virtual machine or {@code null} is
 	 *         the virtual machine is waiting
 	 */
@@ -465,7 +466,7 @@ public interface Configuration {
 	 * get the future location of a VM once the migrations are done.
 	 *
 	 * @param v
-	 *            a VM of the configuration
+	 *          a VM of the configuration
 	 * @return the migration target of the VM or the location if no migration
 	 *         present
 	 */
@@ -519,7 +520,7 @@ public interface Configuration {
 			@Override
 			public boolean check(Configuration c) {
 				return !c.getRunnings().filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
-						.findFirst().isPresent();
+		        .findFirst().isPresent();
 			}
 
 		};
@@ -601,5 +602,100 @@ public interface Configuration {
 	 */
 	public Stream<VMHoster> getNodes(Site site);
 
+	///////////////////////////////////
+	// host tags
+
+	/**
+	 * tag an element of the configuration with a tag
+	 *
+	 * @param element
+	 * @param tag
+	 */
+	public default void tag(ManagedElement element, String tag) {
+		if (element == null) {
+			return;
+		}
+		if (element instanceof Node) {
+			tagNode((Node) element, tag);
+		} else
+		  if (element instanceof Extern) {
+			tagExtern((Extern) element, tag);
+		} else
+		    if (element instanceof VM) {
+			tagVM((VM) element, tag);
+		} else
+		      if (element instanceof Site) {
+			tagSite((Site) element, tag);
+		} else {
+			throw new UnsupportedOperationException(
+			    "can't tag element " + element + " with unsupported type in switch : " + element.getClass());
+		}
+	}
+
+	public void tagNode(Node n, String tag);
+
+	public void tagExtern(Extern e, String tag);
+
+	public void tagVM(VM v, String tag);
+
+	public void tagSite(Site s, String tag);
+
+	public default void tag(String elementName, String tag) {
+		tag(getElementByName(elementName), tag);
+	}
+
+	public default void delTag(ManagedElement element, String tag) {
+		if (element == null) {
+			return;
+		}
+		if (element instanceof Node) {
+			delTagNode((Node) element, tag);
+		} else
+		  if (element instanceof Extern) {
+			delTagExtern((Extern) element, tag);
+		} else
+		    if (element instanceof VM) {
+			delTagVM((VM) element, tag);
+		} else
+		      if (element instanceof Site) {
+			delTagSite((Site) element, tag);
+		} else {
+			throw new UnsupportedOperationException(
+			    "can't deltag element " + element + " with unsupported type in switch : " + element.getClass());
+		}
+	}
+
+	public void delTagNode(Node n, String tag);
+
+	public void delTagExtern(Extern e, String tag);
+
+	public void delTagVM(VM v, String tag);
+
+	public void delTagSite(Site s, String tag);
+
+	public default void delTag(String elementName, String tag) {
+		delTag(getElementByName(elementName), tag);
+	}
+
+	/**
+	 * check if an element has given tag
+	 *
+	 * @param e
+	 * @param tag
+	 * @return
+	 */
+	public boolean isTagged(ManagedElement e, String tag);
+
+	public Stream<VM> getVMTagged(String tag);
+
+	public Stream<Node> getNodeTagged(String tag);
+
+	public Stream<Extern> getExternTagged(String tag);
+
+	public Stream<Site> getSiteTagged(String tag);
+
+	public Stream<String> getTags(ManagedElement e);
+
+	public Stream<String> getAllTags();
 
 }
