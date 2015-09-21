@@ -54,7 +54,8 @@ public interface Configuration {
 	}
 
 	/**
-	 * tooling to compare if two configurations have same vms, nodes and externs
+	 * tooling to compare if two configurations have same vms, nodes, sites and
+	 * externs
 	 *
 	 * @param first
 	 * @param second
@@ -66,7 +67,9 @@ public interface Configuration {
 		    && !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
 		    && !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
 		    && !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
-		    && !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent();
+		    && !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent()
+		    && !second.getSites().parallel().filter(v -> !first.hasSite(v)).findAny().isPresent()
+		    && !first.getSites().parallel().filter(v -> !second.hasSite(v)).findAny().isPresent();
 	}
 
 	/**
@@ -591,6 +594,14 @@ public interface Configuration {
 	public Site getSite(VMHoster n);
 
 	public Stream<Site> getSites();
+
+	public default boolean hasSite(Site s) {
+		if (s == null) {
+			return false;
+		}
+		ManagedElement me = getElementByName(s.getName());
+		return me != null && me instanceof Site;
+	}
 
 	/**
 	 *
