@@ -31,10 +31,10 @@ public class SimpleConfigurationTest {
 		VM vm2 = test.addVM("vm2", null, 10, 20);
 		ResourceSpecification cpu = test.resources().get("CPU");
 		ResourceSpecification mem = test.resources().get("MEM");
-		Assert.assertEquals(cpu.getUse(vm1), 2);
-		Assert.assertEquals(cpu.getUse(vm2), 10);
-		Assert.assertEquals(mem.getUse(vm1), 5);
-		Assert.assertEquals(mem.getUse(vm2), 20);
+		Assert.assertEquals(cpu.getLoad(vm1), 2);
+		Assert.assertEquals(cpu.getLoad(vm2), 10);
+		Assert.assertEquals(mem.getLoad(vm1), 5);
+		Assert.assertEquals(mem.getLoad(vm2), 20);
 	}
 
 	@Test

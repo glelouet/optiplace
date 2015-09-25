@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -355,7 +355,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		vmsShadow[vm_i] = n;
 		int h_i = node(n);
 		for (ResourceHandler rh : resources.values()) {
-			rh.getResourceUse().addUse(h_i, vm_i);
+			rh.getResourceLoad().addUse(h_i, vm_i);
 		}
 		return true;
 	}
@@ -638,7 +638,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(getNode(vmIndex), getUse(resource).getNodesUse(), ret);
+			nth(getNode(vmIndex), getUse(resource).getNodesLoad(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -803,18 +803,18 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public ResourceUse getUse(String res) {
+	public ResourceLoad getUse(String res) {
 		ResourceHandler handler = resources.get(res);
 		if (handler == null) {
 			logger.debug("handler for resource " + res + " is null, resources are " + resources);
 		}
-		return handler == null ? null : resources.get(res).getResourceUse();
+		return handler == null ? null : resources.get(res).getResourceLoad();
 	}
 
 	@Override
-	public ResourceUse[] getUses() {
-		return resources.values().stream().map(ResourceHandler::getResourceUse).collect(Collectors.toList())
-		    .toArray(new ResourceUse[] {});
+	public ResourceLoad[] getUses() {
+		return resources.values().stream().map(ResourceHandler::getResourceLoad).collect(Collectors.toList())
+		    .toArray(new ResourceLoad[] {});
 	}
 
 	@Override

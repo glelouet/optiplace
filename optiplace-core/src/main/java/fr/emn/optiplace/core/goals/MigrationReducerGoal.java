@@ -45,7 +45,7 @@ public class MigrationReducerGoal implements SearchGoal {
 	    logger.warn("can not get the resource specification for " + resourceName);
 	    return null;
 	}
-	return rp.scalar(rp.isMigrateds(), rh.getVmsUses());
+	return rp.scalar(rp.isMigrateds(), rh.getVmsLoads());
     }
 
     @Override

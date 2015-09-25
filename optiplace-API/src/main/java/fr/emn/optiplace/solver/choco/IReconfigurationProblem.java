@@ -143,7 +143,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	/******************** variables linked to resources ***********************/
 
 	default IntVar getNodeUse(String resource, Node n) {
-		return getResourcesHandlers().get(resource).getNodeUses()[node(n)];
+		return getResourcesHandlers().get(resource).getNodeLoads()[node(n)];
 	}
 
 	default int getNodeCap(String resource, Node n) {

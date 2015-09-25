@@ -53,7 +53,7 @@ public class ResourcesSpecificationTest {
 	    }
 
 	    @Override
-	    public int getUse(VM vm) {
+	    public int getLoad(VM vm) {
 		throw new UnsupportedOperationException();
 	    }
 
@@ -107,7 +107,7 @@ public class ResourcesSpecificationTest {
 	    }
 
 	    @Override
-	    public int getUse(VM vm) {
+	    public int getLoad(VM vm) {
 		return uses.get(vm);
 	    }
 

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.search.strategy.IntStrategyFactory;
@@ -42,7 +43,6 @@ import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
-
 /**
  * basic implementation of the optiplace solving process.
  *
@@ -59,8 +59,8 @@ public class SolvingProcess extends OptiplaceProcess {
 	public void makeProblem() {
 		long st = System.currentTimeMillis();
 
-		// if we have a view specified by the administrator (containing rules,
-		// objectives, etc.) then we add it at the end.
+		// each view can pre-process the configuration, creating or removing VM,
+		// nodes, etc.
 		for (ViewAsModule v : views) {
 			v.preProcessConfig(sourceConfig);
 		}
@@ -82,8 +82,7 @@ public class SolvingProcess extends OptiplaceProcess {
 				problem.setShadow(vm, node);
 				try {
 					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
 			}
@@ -110,13 +109,18 @@ public class SolvingProcess extends OptiplaceProcess {
 
 	@Override
 	public void configLogging() {
-		if (strat.isLogBasics() || strat.isLogSolutions() || strat.isLogChoices()) {
+		if (strat.isLogSolutions() || strat.isLogChoices() || strat.isLogContradictions()) {
+			if (strat.isLogStats())
+				Chatterbox.showStatistics(problem.getSolver());
 			// FIXME not working on choco 3.3.0
 			if (strat.isLogSolutions()) {
 				Chatterbox.showSolutions(problem.getSolver());
 			}
 			if (strat.isLogChoices()) {
 				Chatterbox.showDecisions(problem.getSolver());
+			}
+			if (strat.isLogContradictions()) {
+				problem.getSolver().plugMonitor((IMonitorContradiction) cex -> System.err.println(cex));
 			}
 		}
 		strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
@@ -151,7 +155,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
 			problem.getSolver().set(new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-			    makeProveHeuristic(goalMaker)));
+					makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -176,7 +180,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	AbstractStrategy<Variable> makeFindHeuristic() {
 		// heuristic to find a solution fast
 		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(
-		    problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
+				problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 		ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
 		l.add(diveSrc);
 		// then add all heuristics from the view, in the views reverse order.

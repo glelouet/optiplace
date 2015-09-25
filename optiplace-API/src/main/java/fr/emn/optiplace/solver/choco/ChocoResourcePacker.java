@@ -5,7 +5,7 @@ import java.util.List;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 
 public interface ChocoResourcePacker {
 
@@ -21,6 +21,6 @@ public interface ChocoResourcePacker {
    *            the bins
    * @return
    */
-	public List<Constraint> pack(IntVar[] binAssign, ResourceUse... resourceUse);
+	public List<Constraint> pack(IntVar[] binAssign, ResourceLoad... resourceUse);
 
 }

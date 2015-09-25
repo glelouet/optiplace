@@ -37,13 +37,13 @@ public class ResourceHandler {
 		return specs;
 	}
 
-	protected IntVar[] nodesUsesByIndex = null;
+	protected IntVar[] nodesLoadsByIndex = null;
 	protected int minVMUse = Integer.MAX_VALUE;
 	protected int maxVMUse = Integer.MAX_VALUE;
 	protected int minNodeCapa = Integer.MAX_VALUE;
 	protected int maxNodeCapa = Integer.MIN_VALUE;
 	protected int[] nodesCapacities = null;
-	protected int[] vmsUses = null;
+	protected int[] vmsLoads = null;
 	protected IReconfigurationProblem associatedPb = null;
 
 	public ResourceHandler(ResourceSpecification specs) {
@@ -55,7 +55,7 @@ public class ResourceHandler {
 	 * stores the actual IntVar [] of Node uses. is used for fast access to the
 	 * variables in a solver context
 	 */
-	protected ResourceUse resourceUse = null;
+	protected ResourceLoad resourceLoad = null;
 
 	/**
 	 * create the variables in the problem and store them in this object.
@@ -71,15 +71,15 @@ public class ResourceHandler {
 		associatedPb = pb;
 		Node[] nodes = pb.nodes();
 		VM[] vms = pb.vms();
-		nodesUsesByIndex = new IntVar[nodes.length];
-		vmsUses = new int[vms.length];
+		nodesLoadsByIndex = new IntVar[nodes.length];
+		vmsLoads = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
 			Integer iuse = specs.toUses().get(vms[i]);
 			if (iuse == null) {
 				throw new UnsupportedOperationException("vm " + vms[i] + " not specified in resources " + specs.toUses());
 			}
 			int use = iuse;
-			vmsUses[i] = use;
+			vmsLoads[i] = use;
 			if (maxVMUse < use) {
 				maxVMUse = use;
 			}
@@ -98,25 +98,25 @@ public class ResourceHandler {
 			if (minNodeCapa > capa) {
 				minNodeCapa = capa;
 			}
-			nodesUsesByIndex[i] = pb.createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
+			nodesLoadsByIndex[i] = pb.createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
-		resourceUse = new ResourceUse(vmsUses, nodesUsesByIndex);
+		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex);
 	}
 
-	public ResourceUse getResourceUse() {
-		return resourceUse;
+	public ResourceLoad getResourceLoad() {
+		return resourceLoad;
 	}
 
 	/**
 	 * @return the table of IntVar corresponding to the resource load for each
 	 *         node(ie the sum of the use of its hosted vms)
 	 */
-	public IntVar[] getNodeUses() {
-		return nodesUsesByIndex;
+	public IntVar[] getNodeLoads() {
+		return nodesLoadsByIndex;
 	}
 
-	public IntVar getNodeUse(Node n) {
-		return nodesUsesByIndex[associatedPb.node(n)];
+	public IntVar getNodeLoad(Node n) {
+		return nodesLoadsByIndex[associatedPb.node(n)];
 	}
 
 	/**
@@ -137,25 +137,25 @@ public class ResourceHandler {
 	 * @return the array of vms consumptions, indexed by the vms index in the
 	 *         problem associated
 	 */
-	public int[] getVmsUses() {
-		return vmsUses;
+	public int[] getVmsLoads() {
+		return vmsLoads;
 	}
 
-	public int getVMUse(VM vm) {
-		return specs.getUse(vm);
+	public int getVMLoad(VM vm) {
+		return specs.getLoad(vm);
 	}
 
 	/**
 	 * @return the minVMUsage
 	 */
-	public int getMinVMUse() {
+	public int getMinVMLoad() {
 		return minVMUse;
 	}
 
 	/**
 	 * @return the maxVMUsage
 	 */
-	public int getMaxVMUse() {
+	public int getMaxVMLoad() {
 		return maxVMUse;
 	}
 

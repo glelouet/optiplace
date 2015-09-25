@@ -8,7 +8,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 /**
@@ -20,10 +20,10 @@ public class DefaultPacker implements ChocoResourcePacker {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefaultPacker.class);
 
 	@Override
-	public List<Constraint> pack(IntVar[] binAssign, ResourceUse... resourceUse) {
+	public List<Constraint> pack(IntVar[] binAssign, ResourceLoad... resourceUse) {
 		ArrayList<Constraint> res = new ArrayList<>();
-		for (ResourceUse ru : resourceUse) {
-			IntVar[] nodesUses = ru.getNodesUse();
+		for (ResourceLoad ru : resourceUse) {
+			IntVar[] nodesUses = ru.getNodesLoad();
 			if (ru.isAdditionalUse()) {
 				// if the resource has additional use for nodes : use(node n) = use0 +
 				// sum(vm v on n) (use(vm)) . So we need to add constant value to the

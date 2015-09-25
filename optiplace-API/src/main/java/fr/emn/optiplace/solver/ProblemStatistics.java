@@ -174,7 +174,7 @@ public class ProblemStatistics {
 			int minVMUse = Integer.MAX_VALUE, maxVMUse = 0;
 			double sumUse = 0;
 			for (VM v : target.vms()) {
-				int u = res.getUse(v);
+				int u = res.getLoad(v);
 				sumUse += u;
 				minVMUse = Math.min(minVMUse, u);
 				maxVMUse = Math.max(maxVMUse, u);

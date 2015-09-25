@@ -35,11 +35,13 @@ public class ConfigStrat {
 
 	private ArrayList<ISearchMonitor> displayers = new ArrayList<ISearchMonitor>();
 
-	private boolean logBasics = false;
+	private boolean logStats = false;
 
 	private boolean logSolutions = false;
 
 	private boolean logChoices = false;
+
+	private boolean logContradictions = false;
 
 	private boolean moveMigratingVM = false;
 
@@ -117,30 +119,23 @@ public class ConfigStrat {
 	 */
 	public void setLogChoices(boolean logChoices) {
 		this.logChoices = logChoices;
-		if (logChoices) {
-			setLogBasics(true);
-		}
 	}
 
 	/**
-	 * @return the logBasics
+	 * @return the logStats
 	 */
-	public boolean isLogBasics() {
-		return logBasics;
+	public boolean isLogStats() {
+		return logStats;
 	}
 
 	/**
-	 * @param logBasics
+	 * @param logStats
 	 *          should we log the initialization and end data of the solver ? If
 	 *          false imples setLogSolutions(false) and setLogChoices(false) the
 	 *          logBasics to set
 	 */
-	public void setLogBasics(boolean logBasics) {
-		this.logBasics = logBasics;
-		if (!logBasics) {
-			setLogChoices(false);
-			setLogSolutions(false);
-		}
+	public void setLogStats(boolean logStats) {
+		this.logStats = logStats;
 	}
 
 	/**
@@ -157,9 +152,14 @@ public class ConfigStrat {
 	 */
 	public void setLogSolutions(boolean logSolutions) {
 		this.logSolutions = logSolutions;
-		if (logSolutions) {
-			setLogBasics(true);
-		}
+	}
+
+	public boolean isLogContradictions() {
+		return logContradictions;
+	}
+
+	public void setLogContradictions(boolean logContradictions) {
+		this.logContradictions = logContradictions;
 	}
 
 	protected boolean disableCheckSource = false;

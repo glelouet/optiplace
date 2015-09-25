@@ -79,7 +79,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public int getUse(VM vm) {
+	public int getLoad(VM vm) {
 		return vmsUses.get(vm);
 	}
 

@@ -15,7 +15,7 @@ import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.configuration.resources.ResourceUse;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 
 /**
  * View of the core problem. A core problem contains nodes, vms, and the hosting
@@ -338,13 +338,13 @@ public interface CoreView {
 	 *            in {@link #getResourceSpecifications()} keys
 	 * @return the variable of the uses of the resource
 	 */
-	ResourceUse getUse(String res);
+	ResourceLoad getUse(String res);
 
 	/**
-	 * create a new table of the different {@link ResourceUse}
+	 * create a new table of the different {@link ResourceLoad}
 	 *
 	 * @return
 	 */
-	ResourceUse[] getUses();
+	ResourceLoad[] getUses();
 
 }

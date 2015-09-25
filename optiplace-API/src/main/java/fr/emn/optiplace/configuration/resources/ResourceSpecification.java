@@ -21,7 +21,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	/** @return the type of the resources, used as an ID. */
 	String getType();
 
-	int getUse(VM vm);
+	int getLoad(VM vm);
 
 	/**
 	 * @param vms
@@ -32,7 +32,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	default int[] getUses(VM... vms) {
 		int[] ret = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			ret[i] = getUse(vms[i]);
+			ret[i] = getLoad(vms[i]);
 		}
 		return ret;
 	}
@@ -76,7 +76,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 		int sum = 0;
 		if (vms != null) {
 			for (VM vm : vms) {
-				sum += getUse(vm);
+				sum += getLoad(vm);
 			}
 		}
 		return sum;
@@ -92,12 +92,12 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return the use of the node
 	 */
 	default int getUse(Configuration cfg, Node n) {
-		return cfg.getHosted(n).collect(Collectors.summingInt(this::getUse));
+		return cfg.getHosted(n).collect(Collectors.summingInt(this::getLoad));
 	}
 
 	/** get the total use of the VMs running in the center */
 	default int getUse(Configuration cfg) {
-		return cfg.getVMs().mapToInt(this::getUse).sum();
+		return cfg.getVMs().mapToInt(this::getLoad).sum();
 	}
 
 	/** get the total capacity of the nodes which are online */
@@ -115,7 +115,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return true if there is enough resource on n to host vm.
 	 */
 	default boolean canHost(Configuration cfg, Node n, VM vm) {
-		return getUse(cfg, n) + getUse(vm) <= getCapacity(n);
+		return getUse(cfg, n) + getLoad(vm) <= getCapacity(n);
 	}
 
 	/**
@@ -132,7 +132,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 			return new Comparator<VM>() {
 				@Override
 				public int compare(VM o1, VM o2) {
-					return getUse(o1) - getUse(o2);
+					return getLoad(o1) - getLoad(o2);
 				}
 
 				@Override
@@ -144,7 +144,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 			return new Comparator<VM>() {
 				@Override
 				public int compare(VM o1, VM o2) {
-					return getUse(o2) - getUse(o1);
+					return getLoad(o2) - getLoad(o1);
 				}
 
 				@Override

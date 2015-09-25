@@ -13,7 +13,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * </p>
  * <p>
  * A {@link ResourceSpecification} + a {@link IReconfigurationProblem} = a
- * {@link ResourceUse} . <br />
+ * {@link ResourceLoad} . <br />
  * Represents the effective use of a resource in a Choco problem, with IntVar
  * corresponding to the Vms static uses and the nodes dynamic uses. The uses are
  * assumed to be packed using the problem's packer.
@@ -21,7 +21,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
  */
-public class ResourceUse {
+public class ResourceLoad {
 
 	/**
 	 * effective constant resource usage; ie the item i uses use[i] on the
@@ -29,21 +29,21 @@ public class ResourceUse {
 	 */
 	int[] itemsConsumptions = null;
 
-	/** effective resource use of a bin (Node). */
-	IntVar[] binsUse = null;
+	/** effective resource load of a bin (Node). */
+	IntVar[] binsLoad = null;
 
 	/** increased constant resource use on a bin */
 	protected int[] nodesAdditionalByIndex = null;
 
 	protected boolean hasAdditionalUse = false;
 
-	public ResourceUse() {
+	public ResourceLoad() {
 	}
 
-	public ResourceUse(int[] vmsUse, IntVar[] binsUse) {
-		itemsConsumptions = vmsUse;
-		this.binsUse = binsUse;
-		nodesAdditionalByIndex = new int[binsUse.length];
+	public ResourceLoad(int[] vmsLoad, IntVar[] binsLoad) {
+		itemsConsumptions = vmsLoad;
+		this.binsLoad = binsLoad;
+		nodesAdditionalByIndex = new int[binsLoad.length];
 		Arrays.fill(nodesAdditionalByIndex, 0);
 	}
 
@@ -53,8 +53,8 @@ public class ResourceUse {
 	}
 
 	/** @return the uses of the nodes */
-	public IntVar[] getNodesUse() {
-		return binsUse;
+	public IntVar[] getNodesLoad() {
+		return binsLoad;
 	}
 
 	/**

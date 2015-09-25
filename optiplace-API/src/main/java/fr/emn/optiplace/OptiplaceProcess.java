@@ -5,6 +5,8 @@
 package fr.emn.optiplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import fr.emn.optiplace.configuration.Configuration;
@@ -83,7 +85,14 @@ public abstract class OptiplaceProcess {
 	}
 
 	public void views(List<View> views) {
-		this.views = views;
+		this.views.clear();
+		if (views != null)
+			this.views.addAll(views);
+	}
+
+	/** set the views in the problem */
+	public void views(View... views) {
+		views(views != null ? Arrays.asList(views) : Collections.emptyList());
 	}
 
 	/**
