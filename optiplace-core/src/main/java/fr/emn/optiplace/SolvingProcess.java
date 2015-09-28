@@ -39,7 +39,7 @@ import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
-import fr.emn.optiplace.solver.heuristics.EmbeddedActivatedHeuristic;
+import fr.emn.optiplace.solver.heuristics.Static2Activated;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
@@ -227,12 +227,12 @@ public class SolvingProcess extends OptiplaceProcess {
 		for (int i = views.size() - 1; i >= 0; i--) {
 			lah.addAll(views.get(i).getActivatedHeuristics());
 		}
-		lah.add(new EmbeddedActivatedHeuristic<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
+		lah.add(new Static2Activated<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
 		HeuristicsList ret = new HeuristicsList(problem.getSolver(), lah.toArray(new ActivatedHeuristic[0]));
 		ret.setLogActivated(strat.isLogHeuristicsSelection());
 		if (strat.isLogHeuristicsSelection()) {
-			logger.debug("proveheuristic is : " + ret);
+			logger.debug("proveheuristic is : " + ret.getLeaders());
 		}
 		return ret;
 	}

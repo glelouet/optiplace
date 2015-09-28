@@ -7,6 +7,7 @@ import java.util.List;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
@@ -22,8 +23,24 @@ public class DefaultPacker implements ChocoResourcePacker {
 	@Override
 	public List<Constraint> pack(IntVar[] binAssign, ResourceLoad... resourceUse) {
 		ArrayList<Constraint> res = new ArrayList<>();
+		// at least one VM can be set to non-running ?
+		boolean hasNonRunning = false;
+		for (IntVar i : binAssign)
+			if (i.getLB() < 0) {
+				hasNonRunning = true;
+				break;
+			}
 		for (ResourceLoad ru : resourceUse) {
 			IntVar[] nodesUses = ru.getNodesLoad();
+			if(hasNonRunning) {
+				IntVar nonRunningNode = VF.bounded("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(),
+						binAssign[0].getSolver());
+				IntVar[] newNodesUses = new IntVar[nodesUses.length + 1];
+				newNodesUses[0] = nonRunningNode;
+				for (int i = 1; i < newNodesUses.length; i++)
+					newNodesUses[i] = nodesUses[i - 1];
+				nodesUses = newNodesUses;
+			}
 			if (ru.isAdditionalUse()) {
 				// if the resource has additional use for nodes : use(node n) = use0 +
 				// sum(vm v on n) (use(vm)) . So we need to add constant value to the
@@ -32,14 +49,14 @@ public class DefaultPacker implements ChocoResourcePacker {
 				for (int i = 0; i < nodesUses.length; i++) {
 					sumElems[i] = ru.getAdditionalUse()[i] == 0 ? nodesUses[i] : nodesUses[i].duplicate();
 				}
-				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsUses(), sumElems, 0)));
+				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsLoads(), sumElems, hasNonRunning ? -1 : 0)));
 				for (int i = 0; i < nodesUses.length; i++) {
 					if (sumElems[i] != nodesUses[i]) {
 						res.add(ICF.arithm(nodesUses[i], "=", sumElems[i], "+", ru.getAdditionalUse()[i]));
 					}
 				}
 			} else {
-				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsUses(), nodesUses, 0)));
+				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsLoads(), nodesUses, hasNonRunning ? -1 : 0)));
 			}
 		}
 		return res;

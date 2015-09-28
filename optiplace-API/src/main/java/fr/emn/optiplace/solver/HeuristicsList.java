@@ -5,6 +5,7 @@
 package fr.emn.optiplace.solver;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -52,7 +53,7 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 		return ret;
 	}
 
-	private final ActivatedHeuristic<?>[] list;
+	private final ActivatedHeuristic<?>[] leaders;
 	boolean inserted = false;
 
 	protected boolean logActivated = false;
@@ -62,10 +63,10 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 	}
 
 	@SafeVarargs
-	public HeuristicsList(Solver s, ActivatedHeuristic<?>... list) {
-		super(concatVars(list));
+	public HeuristicsList(Solver s, ActivatedHeuristic<?>... leaders) {
+		super(concatVars(leaders));
 		solver = s;
-		this.list = list;
+		this.leaders = leaders;
 	}
 
 	@Override
@@ -77,12 +78,12 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 	@Override
 	public Decision<Variable> getDecision() {
 		if (!inserted) {
-			for (ActivatedHeuristic<? extends Variable> element : list) {
+			for (ActivatedHeuristic<? extends Variable> element : leaders) {
 				element.addMonitors();
 			}
 			inserted = true;
 		}
-		for (ActivatedHeuristic<? extends Variable> ah : list) {
+		for (ActivatedHeuristic<? extends Variable> ah : leaders) {
 			if (ah.isActivated()) {
 				Decision<Variable> d = (Decision<Variable>) ah.getDecision();
 				if (d != null) {
@@ -93,9 +94,9 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 				}
 			}
 		}
-		// no good decision : we won't be called again by the solver, so we
-		// remove the propagators
-		for (ActivatedHeuristic<? extends Variable> element : list) {
+		// the heuristics didn't find a decision : we won't be called again by the
+		// solver, so we remove the monitors
+		for (ActivatedHeuristic<? extends Variable> element : leaders) {
 			element.remMonitors();
 		}
 		inserted = false;
@@ -104,6 +105,10 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + Arrays.asList(list);
+		return getClass().getSimpleName() + Arrays.asList(leaders);
+	}
+
+	public List<ActivatedHeuristic<? extends Variable>> getLeaders() {
+		return Arrays.asList(leaders);
 	}
 }

@@ -10,18 +10,18 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
 
 /**
  * Bring an AbstractStrategy in an activatedHeuristic. The activatedHeuristic is
- * activated as long as the embedded strategy did not return null to
+ * activated as long as the internal strategy did not return null to
  * getDecision();
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  *
  */
-public class EmbeddedActivatedHeuristic<T extends Variable> extends ActivatedHeuristic<T> {
+public class Static2Activated<T extends Variable> extends ActivatedHeuristic<T> {
 
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmbeddedActivatedHeuristic.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Static2Activated.class);
 
 	protected final AbstractStrategy<T> strat;
 
@@ -29,7 +29,7 @@ public class EmbeddedActivatedHeuristic<T extends Variable> extends ActivatedHeu
 	 * @param variables
 	 * @param observed
 	 */
-	public EmbeddedActivatedHeuristic(AbstractStrategy<T> strat) {
+	public Static2Activated(AbstractStrategy<T> strat) {
 		super(strat.getVariables(), new Variable[0]);
 		this.strat = strat;
 		nullRet = strat.getVariables()[0].getSolver().getEnvironment().makeBool(false);

@@ -48,7 +48,7 @@ public class ResourceLoad {
 	}
 
 	/** @return the constant consumption of the vms */
-	public int[] getVMsUses() {
+	public int[] getVMsLoads() {
 		return itemsConsumptions;
 	}
 
@@ -86,4 +86,12 @@ public class ResourceLoad {
 		nodesAdditionalByIndex[n_i] += itemsConsumptions[v_i];
 		hasAdditionalUse = true;
 	}
+
+	public int getTotalVMLoads() {
+		int ret = 0;
+		for (int i : itemsConsumptions)
+			ret += i;
+		return ret;
+	}
+
 }
