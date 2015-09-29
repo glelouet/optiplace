@@ -24,6 +24,7 @@ import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.Variable;
 import org.slf4j.LoggerFactory;
 
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 
@@ -44,6 +45,8 @@ public class DummyPlacementHeuristic {
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
 		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
+		for (VM v : m.vms())
+			vars.add(m.getState(v));
 		for (IntVar v : m.getNodes()) {
 			vars.add(v);
 		}
