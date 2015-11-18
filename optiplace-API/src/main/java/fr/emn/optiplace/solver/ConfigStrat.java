@@ -10,6 +10,7 @@ import org.chocosolver.solver.search.loop.monitors.ISearchMonitor;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
+import fr.emn.optiplace.view.SearchGoal;
 
 
 /**
@@ -44,6 +45,8 @@ public class ConfigStrat {
 	private boolean logContradictions = false;
 
 	private boolean moveMigratingVM = false;
+
+	private SearchGoal searchGoal = null;
 
 	/**
 	 * @return the maxSearchTime
@@ -267,6 +270,14 @@ public class ConfigStrat {
 	 */
 	public boolean isMoveMigrateVMs() {
 		return moveMigratingVM;
+	}
+
+	public SearchGoal getSearchGoal() {
+		return searchGoal;
+	}
+
+	public void setSearchGoal(SearchGoal goal) {
+		searchGoal = goal;
 	}
 
 }

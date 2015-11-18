@@ -49,8 +49,19 @@ public class ManagedElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this
-		    || obj != null && this.getClass().equals(obj.getClass()) && ((ManagedElement) obj).name.equals(name);
+		if (obj == this) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!this.getClass().equals(obj.getClass())) {
+			return false;
+		}
+		if (!((ManagedElement) obj).name.equals(name)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

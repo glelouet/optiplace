@@ -100,7 +100,8 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int nbVMs(VMSTATES state) {
 		if (state == null) {
-			return vmHoster.size() + waitings.size();
+			int ret = vmHoster.size() + waitings.size();
+			return ret;
 		}
 		switch (state) {
 			case RUNNING:
@@ -488,7 +489,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Extern addExtern(String name) {
+	public Extern addExtern(String name, int... resources) {
 		ManagedElement contained = getElementByName(name);
 		if (contained != null) {
 			if (contained instanceof Extern) {
@@ -500,6 +501,13 @@ public class SimpleConfiguration implements Configuration {
 			Extern ret = new Extern(name);
 			externVM.put(ret, new LinkedHashSet<>());
 			nameToElement.put(name, ret);
+			if (resources != null && resources.length > 0) {
+				ResourceSpecification[] specs = this.resources.values()
+				    .toArray(new ResourceSpecification[this.resources.size()]);
+				for (int i = 0; i < specs.length && i < resources.length; i++) {
+					specs[i].toCapacities().put(ret, resources[i]);
+				}
+			}
 			return ret;
 		}
 	}

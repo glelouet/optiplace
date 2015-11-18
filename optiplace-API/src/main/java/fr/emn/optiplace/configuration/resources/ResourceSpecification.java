@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
@@ -37,7 +38,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 		return ret;
 	}
 
-	int getCapacity(Node n);
+	int getCapacity(VMHoster h);
 
 	/**
 	 * @param nodes
@@ -63,7 +64,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return a map of the capacities of the nodes. should return a value even if
 	 *         a node is not present.
 	 */
-	Map<Node, Integer> toCapacities();
+	Map<VMHoster, Integer> toCapacities();
 
 	/**
 	 * get the sum of the uses of vms

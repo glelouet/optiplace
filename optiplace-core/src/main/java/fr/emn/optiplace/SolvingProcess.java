@@ -32,7 +32,6 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
-import fr.emn.optiplace.core.goals.MigrationReducerGoal;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
@@ -42,6 +41,7 @@ import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.heuristics.Static2Activated;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
+
 
 /**
  * basic implementation of the optiplace solving process.
@@ -82,7 +82,8 @@ public class SolvingProcess extends OptiplaceProcess {
 				problem.setShadow(vm, node);
 				try {
 					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
 			}
@@ -110,8 +111,9 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void configLogging() {
 		if (strat.isLogSolutions() || strat.isLogChoices() || strat.isLogContradictions()) {
-			if (strat.isLogStats())
+			if (strat.isLogStats()) {
 				Chatterbox.showStatistics(problem.getSolver());
+			}
 			// FIXME not working on choco 3.3.0
 			if (strat.isLogSolutions()) {
 				Chatterbox.showSolutions(problem.getSolver());
@@ -131,21 +133,17 @@ public class SolvingProcess extends OptiplaceProcess {
 		long st = System.currentTimeMillis();
 
 		// get the goal if any
-		SearchGoal goalMaker = null;
-		for (ViewAsModule v : views) {
-			SearchGoal sg = v.getSearchGoal();
-			if (sg != null) {
-				if (goalMaker != null) {
-					logger.info("goal " + goalMaker + " overriden by goal " + sg + " from view " + v);
-				}
-				goalMaker = sg;
-			}
-		}
+		SearchGoal goalMaker = strat.getSearchGoal();
 		if (goalMaker == null) {
-			if (problem.getResourcesHandlers().containsKey("MEM")) {
-				goalMaker = new MigrationReducerGoal("MEM");
+			for (ViewAsModule v : views) {
+				SearchGoal sg = v.getSearchGoal();
+				if (sg != null) {
+					if (goalMaker != null) {
+						logger.info("goal " + goalMaker + " overriden by goal " + sg + " from view " + v);
+					}
+					goalMaker = sg;
+				}
 			}
-
 		}
 		if (goalMaker != null) {
 			problem.setObjective(goalMaker.getObjective(problem));
@@ -155,7 +153,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
 			problem.getSolver().set(new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-					makeProveHeuristic(goalMaker)));
+			    makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -180,7 +178,7 @@ public class SolvingProcess extends OptiplaceProcess {
 	AbstractStrategy<Variable> makeFindHeuristic() {
 		// heuristic to find a solution fast
 		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(
-				problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
+		    problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 		ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
 		l.add(diveSrc);
 		// then add all heuristics from the view, in the views reverse order.

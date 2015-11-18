@@ -4,17 +4,9 @@
 
 package fr.emn.optiplace.configuration.parser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 
@@ -96,6 +88,26 @@ public class ConfigurationFiler {
 				}
 			}
 
+		} else if (line.startsWith("externs : {")) {
+			if (line.length() > "externs : {}".length()) {
+				line = line.substring("externs : {".length(), line.length() - 2);
+				String[] lines = line.split("], ");
+				for (String l2 : lines) {
+					String[] l2s = l2.split("=\\[");
+					String externName = l2s[0];
+					if (externName.length() != 0) {
+						Extern e = cfg.addExtern(externName);
+						if (l2s.length > 1) {
+							String[] vms = l2s[1].split(", ");
+							for (String vm : vms) {
+								cfg.addVM(vm, e);
+							}
+						}
+					} else {
+						logger.debug("extern name null : " + externName);
+					}
+				}
+			}
 		} else
 		      if (line.startsWith(" ")) {
 			line = line.substring(" ".length());
@@ -107,7 +119,11 @@ public class ConfigurationFiler {
 				String[] nodes = l2s[1].substring(0, l2s[1].length() - 1).split(", ");
 				for (String r : nodes) {
 					String[] rs = r.split("=");
-					res.toCapacities().put(new Node(rs[0]), Integer.parseInt(rs[1]));
+					ManagedElement me = cfg.getElementByName(rs[0]);
+					if (me == null || !(me instanceof VMHoster)) {
+						throw new UnsupportedOperationException();
+					}
+					res.toCapacities().put((VMHoster) me, Integer.parseInt(rs[1]));
 				}
 			}
 			if (l2s[2].length() > 1) {

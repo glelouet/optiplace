@@ -20,7 +20,6 @@ import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
  */
 public class Main {
 
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Main.class);
 
     /**
@@ -53,7 +52,7 @@ public class Main {
 	String confPath = line.hasOption('c') ? line.getOptionValue('c') : null;
 	File f = new File(confPath, "conf.conf");
 	if (!f.exists()) {
-	    System.err.println("error : no configuration found : " + f.getAbsolutePath());
+			logger.error("error : no configuration found : " + f.getAbsolutePath());
 	    return;
 	}
 	ConfigurationFiler cf = new ConfigurationFiler(f);

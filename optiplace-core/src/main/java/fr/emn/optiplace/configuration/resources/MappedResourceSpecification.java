@@ -1,6 +1,7 @@
 /**
  *
  */
+
 package fr.emn.optiplace.configuration.resources;
 
 import java.util.HashMap;
@@ -9,8 +10,9 @@ import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.view.ProvidedDataReader;
+
 
 /**
  * Store the map of nodes capacities and vms uses in an internal structure.
@@ -42,25 +44,25 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	/**
-   *
-   */
+	 *
+	 */
 	public MappedResourceSpecification(String type) {
 		this.type = type;
 	}
 
-	private HashMap<Node, Integer> nodesCapacities = new HashMap<Node, Integer>();
+	private HashMap<VMHoster, Integer> hostersCapacities = new HashMap<>();
 
 	@Override
-	public Map<Node, Integer> toCapacities() {
-		return nodesCapacities;
+	public Map<VMHoster, Integer> toCapacities() {
+		return hostersCapacities;
 	}
 
 	/**
 	 * @param nodesCapacities
 	 *          the nodesCapacities to set
 	 */
-	public void setNodesCapacities(HashMap<Node, Integer> nodesCapacities) {
-		this.nodesCapacities = nodesCapacities;
+	public void setNodesCapacities(HashMap<VMHoster, Integer> nodesCapacities) {
+		hostersCapacities = nodesCapacities;
 	}
 
 	private HashMap<VM, Integer> vmsUses = new HashMap<VM, Integer>();
@@ -84,15 +86,15 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public int getCapacity(Node n) {
-		return nodesCapacities.get(n);
+	public int getCapacity(VMHoster h) {
+		return hostersCapacities.get(h);
 	}
 
 	@Override
 	public void readLine(String line) {
 		if (line.startsWith(START_NODE_CAPA)) {
 			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
-			nodesCapacities.put(new Node(para[0]), Integer.parseInt(para[1]));
+			hostersCapacities.put(new Node(para[0]), Integer.parseInt(para[1]));
 		} else if (line.startsWith(START_VM_USE)) {
 			String[] para = line.substring(START_VM_USE.length()).split(" = ");
 			vmsUses.put(new VM(para[0]), Integer.parseInt(para[1]));
@@ -100,7 +102,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	public Stream<String> lines() {
-		Stream<String> nodes = nodesCapacities.entrySet().stream().map(e -> {
+		Stream<String> nodes = hostersCapacities.entrySet().stream().map(e -> {
 			return START_NODE_CAPA + e.getKey().getName() + " = " + e.getValue();
 		});
 		Stream<String> vms = vmsUses.entrySet().stream().map(e -> {
@@ -114,7 +116,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	@Override
 	public String toString() {
-		return type + nodesCapacities + vmsUses;
+		return type + hostersCapacities + vmsUses;
 	}
 
 	@Override
@@ -126,6 +128,15 @@ public class MappedResourceSpecification implements ResourceSpecification {
 			return false;
 		}
 		MappedResourceSpecification o = (MappedResourceSpecification) obj;
-		return type.equals(o.type) && nodesCapacities.equals(o.nodesCapacities) && vmsUses.equals(o.vmsUses);
+		if (!type.equals(o.type)) {
+			return false;
+		}
+		if (!hostersCapacities.equals(o.hostersCapacities)) {
+			return false;
+		}
+		if (!vmsUses.equals(o.vmsUses)) {
+			return false;
+		}
+		return true;
 	}
 }

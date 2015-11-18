@@ -24,13 +24,9 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
  * <p>
- * Node and VirtualMachine in a datacenter.<br />
- * VMs are hosted by an online Node or waiting, and Nodes are either online or
- * offline<
- * </p>
- * <p>
- * Most methods do NOT handle the case where a Node or VM is null, although some
- * methods may return null values.
+ * Node, Extern and VirtualMachine in a datacenter.<br />
+ * VMs are hosted by an online Node, an extern or waiting, and Nodes are either
+ * online or offline<
  * </p>
  * <p>
  * The VM and Node are stored in their add/state change order, meaning two
@@ -39,7 +35,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  * If the list of Nodes or VMs is the same for two configuration created in the
  * same way, the position in the list does not mean anything about the age of
  * the Element. Actually, the full list of Nodes and VMs is a concatenation of
- * the different state elements.
+ * the different state-specific lists of elements.
  * </p>
  *
  * @author Fabien Hermenier
@@ -253,7 +249,6 @@ public interface Configuration {
 	 *          a VM of the configuration
 	 * @return true if the VM is hosted on an external site
 	 */
-
 	boolean isExterned(VM v);
 
 	/**
@@ -441,8 +436,8 @@ public interface Configuration {
 	 *          an hoster of the configuration
 	 * @return the number of VM that are specified running on given hoster
 	 */
-	default Stream<VM> getMigratings(VMHoster host) {
-		return getVMs().filter(v -> getMigTarget(v) == host);
+	default Stream<VM> getFutureHosted(VMHoster host) {
+		return getVMs().filter(v -> host.equals(getFutureLocation(v)));
 	}
 
 	/**
@@ -490,7 +485,7 @@ public interface Configuration {
 	 *         this name if no ManagedElement with this name, or null if anohter
 	 *         ManagedElement has this name
 	 */
-	Extern addExtern(String name);
+	Extern addExtern(String name, int... resources);
 
 	Stream<Extern> getExterns();
 
