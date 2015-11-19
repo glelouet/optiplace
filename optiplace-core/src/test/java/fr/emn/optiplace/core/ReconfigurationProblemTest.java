@@ -2,7 +2,7 @@
  *
  */
 
-package fr.emn.optiplace.solver.choco;
+package fr.emn.optiplace.core;
 
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.exception.ContradictionException;

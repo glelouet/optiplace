@@ -4,7 +4,12 @@
 
 package fr.emn.optiplace.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -71,6 +76,11 @@ public class ProblemStatisticsTest {
 			@Override
 			public int getCapacity(VMHoster h) {
 				return capacities.get(h);
+			}
+
+			@Override
+			public Stream<VMHoster> findHostersWithLess(int val) {
+				throw new UnsupportedOperationException();
 			}
 		};
 

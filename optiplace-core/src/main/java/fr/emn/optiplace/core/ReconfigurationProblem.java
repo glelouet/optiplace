@@ -10,7 +10,11 @@
 
 package fr.emn.optiplace.core;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
@@ -20,19 +24,29 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Site;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
 import gnu.trove.map.hash.TObjectIntHashMap;
-
 
 /**
  * A CSP to model a reconfiguration plan composed of time bounded actions. In
@@ -166,18 +180,10 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	// a few int[] containing the possible run state of VMs. they are used to
 	// instantiate the state var of a VM
-	protected static final int[] VM_RUN_WAIT = new int[] {
-	    VM_RUNNING, VM_WAITING
-	};
-	protected static final int[] VM_RUN_EXT = new int[] {
-	    VM_RUNNING, VM_EXTERNED
-	};
-	protected static final int[] VM_WAIT_EXT = new int[] {
-	    VM_WAITING, VM_EXTERNED
-	};
-	protected static final int[] VM_RUN_WAIT_EXT = new int[] {
-	    VM_RUNNING, VM_WAITING, VM_EXTERNED
-	};
+	protected static final int[] VM_RUN_WAIT = new int[] { VM_RUNNING, VM_WAITING };
+	protected static final int[] VM_RUN_EXT = new int[] { VM_RUNNING, VM_EXTERNED };
+	protected static final int[] VM_WAIT_EXT = new int[] { VM_WAITING, VM_EXTERNED };
+	protected static final int[] VM_RUN_WAIT_EXT = new int[] { VM_RUNNING, VM_WAITING, VM_EXTERNED };
 
 	/** make the location variables */
 	protected void makeDynamicConfig() {
@@ -187,6 +193,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			// if we have only one site (the default site) we don't need to have
 			// a IntVar[] because getSite(vm) will return -1 (the index of the
 			// default site)
+			vmSites = null;
 		}
 		vmsState = new IntVar[vms.length];
 		vmsNode = new IntVar[vms.length];
@@ -199,10 +206,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		for (int i = 0; i < vms.length; i++) {
 			VM vm = vm(i);
-			boolean waiting = source.isWaiting(vm);
 			if (vmsExtern == null) {
-				// vm waiting or running
-				if (waiting) {
+				// vm must be waiting or running
+				if (source.isWaiting(vm)) {
 					// VM can be set to running or waiting.
 					vmsState[i] = createEnumIntVar(vmName(i) + "_state", VM_RUN_WAIT);
 					vmsNode[i] = createEnumIntVar("" + vmName(i) + "_node", -1, nodes.length - 1);
@@ -213,20 +219,40 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				}
 			} else {
 				// VM can be running or externed or waiting.
-				vmsState[i] = createEnumIntVar(vmName(i) + "_state", waiting ? VM_RUN_WAIT_EXT : VM_RUN_EXT);
+				vmsState[i] = createEnumIntVar(vmName(i) + "_state", source.isWaiting(vm) ? VM_RUN_WAIT_EXT : VM_RUN_EXT);
 				vmsNode[i] = createEnumIntVar("" + vmName(i) + "_node", -1, nodes.length - 1);
 				vmsExtern[i] = createEnumIntVar("" + vmName(i) + "_ext", -1, externs.length - 1);
 				// constrain the state of the VM and the extern it is hosted on
 				// :
 				// extern>-1 <=> state==externed
 				LCF.ifThenElse(ICF.arithm(vmsExtern[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_EXTERNED),
-				    ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
+						ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
 			}
 			// constrain the state of the VM and the node it is hosted on :
-			// host>-1
-			// => state==running
+			// host>-1 => state==running
 			LCF.ifThenElse(ICF.arithm(vmsNode[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_RUNNING),
-			    ICF.arithm(vmsState[i], "!=", VM_RUNNING));
+					ICF.arithm(vmsState[i], "!=", VM_RUNNING));
+
+			// remove all the externs that can't host the VM
+			if (vmsState[i].contains(VM_EXTERNED)) {
+				IntVar extern = vmsExtern[i];
+				for (ResourceSpecification specs : source.resources().values()) {
+					int use = specs.getUse(vm);
+					if (use > 0) {
+						// if the VM requires a resource, for this resource we remove all
+						// externs that have less of that resource than the VM needs.
+						specs.findHostersWithLess(use)
+								.filter(h -> h instanceof Extern)
+								.mapToInt(e -> extern((Extern) e))
+								.forEach(val -> {
+									try {
+										extern.removeValue(val, Cause.Null);
+									} catch (Exception e) {
+									}
+								});
+					}
+				}
+			}
 		}
 		vmHosters = new IntVar[vms.length];
 	}
@@ -238,15 +264,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	protected void removeHostTags() {
 		source.getVmsTags().forEach(tag -> {
 			// for eachvm tag :
-		  // get the nodes not tagged with this tag
+			// get the nodes not tagged with this tag
 			List<Integer> li = Arrays.stream(nodes()).filter(n -> !source.isHosterTagged(n, tag)).map(this::node)
-		      .collect(Collectors.toList());
+					.collect(Collectors.toList());
 			for (IntVar iv : getNodes()) {
 				for (Integer nodeidx : li) {
 					try {
 						iv.removeValue(nodeidx, Cause.Null);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						logger.warn("while removing host not supporting tag " + tag, e);
 					}
 				}
@@ -254,13 +279,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 			// get the externs not tagged with this tag
 			li = Arrays.stream(externs()).filter(e -> !source.isHosterTagged(e, tag)).map(this::extern)
-		      .collect(Collectors.toList());
+					.collect(Collectors.toList());
 			for (IntVar iv : getExterns()) {
 				for (Integer externidx : li) {
 					try {
 						iv.removeValue(externidx, Cause.Null);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						logger.warn("while removing host not supporting tag " + tag, e);
 					}
 				}
@@ -390,8 +414,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		if (h instanceof Node) {
 			return node((Node) h);
-		} else
-		  if (h instanceof Extern) {
+		} else if (h instanceof Extern) {
 			return extern((Extern) h) + nodes.length;
 		} else {
 			logger.warn("incorrect class " + h.getClass());
@@ -488,7 +511,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			VM v = vm(idx);
 			ret = createBoundIntVar(vmName(idx) + "_hoster", getSourceConfiguration().isWaiting(v) ? -1 : 0,
-			    nodes.length + externs.length);
+					nodes.length + externs.length);
 			switchState(v, ret, getNode(idx), VF.offset(getExtern(idx), nodes.length), createIntegerConstant(-1));
 			vmHosters[idx] = ret;
 		}
@@ -681,17 +704,17 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		for (int i = 0; i < vmsIsMigrated.length; i++) {
 			VM vm = vm(i);
 			switch (cfg.getState(vm)) {
-				case WAITING:
-					vmsIsMigrated[i] = isDifferent(getState(i), createIntegerConstant(CoreView.VM_WAITING));
+			case WAITING:
+				vmsIsMigrated[i] = isDifferent(getState(i), createIntegerConstant(CoreView.VM_WAITING));
 				break;
-				case RUNNING:
-					vmsIsMigrated[i] = isDifferent(getNode(i), node(cfg.getNodeHost(vm)));
+			case RUNNING:
+				vmsIsMigrated[i] = isDifferent(getNode(i), node(cfg.getNodeHost(vm)));
 				break;
-				case EXTERN:
-					vmsIsMigrated[i] = isDifferent(getExtern(i), extern(cfg.getExternHost(vm)));
+			case EXTERN:
+				vmsIsMigrated[i] = isDifferent(getExtern(i), extern(cfg.getExternHost(vm)));
 				break;
-				default:
-					throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
+			default:
+				throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
 			}
 		}
 	}
@@ -776,9 +799,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 					ret.setHost(vm, sourceHost);
 				}
 				// setMigTarget does not set a migrate if the VM is already
-		    // placed on
-		    // the hoster (same as
-		    // setMigTarget(vm,vmhoster(vm)==destHost?null:destHost) )
+				// placed on
+				// the hoster (same as
+				// setMigTarget(vm,vmhoster(vm)==destHost?null:destHost) )
 				ret.setMigTarget(vm, destHost);
 			}
 		});
@@ -790,7 +813,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public SolvingStatistics getSolvingStatistics() {
 		IMeasures mes = getMeasures();
 		return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(), (long) (mes.getTimeCount() * 1000),
-		    super.hasReachedLimit());
+				super.hasReachedLimit());
 	}
 
 	/** each resource added is associated to this and stored in this map. */
@@ -814,7 +837,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public ResourceLoad[] getUses() {
 		return resources.values().stream().map(ResourceHandler::getResourceLoad).collect(Collectors.toList())
-		    .toArray(new ResourceLoad[] {});
+				.toArray(new ResourceLoad[] {});
 	}
 
 	@Override

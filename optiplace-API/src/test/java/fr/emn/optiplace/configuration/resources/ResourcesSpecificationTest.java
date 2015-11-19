@@ -4,7 +4,14 @@
 
 package fr.emn.optiplace.configuration.resources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -62,6 +69,11 @@ public class ResourcesSpecificationTest {
 			public int getCapacity(VMHoster n) {
 				return capacities.get(n);
 			}
+
+			@Override
+			public Stream<VMHoster> findHostersWithLess(int val) {
+				throw new UnsupportedOperationException();
+			}
 		};
 		ArrayList<Node> list = new ArrayList<>(Arrays.asList(nodes));
 
@@ -114,6 +126,11 @@ public class ResourcesSpecificationTest {
 
 			@Override
 			public int getCapacity(VMHoster n) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Stream<VMHoster> findHostersWithLess(int val) {
 				throw new UnsupportedOperationException();
 			}
 		};

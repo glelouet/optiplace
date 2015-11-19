@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
@@ -201,5 +202,14 @@ public interface ResourceSpecification extends ProvidedDataReader {
 		}
 		return ret;
 	}
+
+	/**
+	 * find all the hosters with strictly less capacity than given value
+	 * 
+	 * @param val
+	 *          the value to compare the hosters capacities to
+	 * @return a new stream of the Hosters
+	 */
+	public Stream<VMHoster> findHostersWithLess(int val);
 
 }

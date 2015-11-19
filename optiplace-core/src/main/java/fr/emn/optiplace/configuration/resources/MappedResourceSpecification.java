@@ -6,6 +6,7 @@ package fr.emn.optiplace.configuration.resources;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
@@ -138,5 +139,10 @@ public class MappedResourceSpecification implements ResourceSpecification {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Stream<VMHoster> findHostersWithLess(int val) {
+		return hostersCapacities.entrySet().stream().filter(e -> e.getValue() < val).map(Entry::getKey);
 	}
 }
