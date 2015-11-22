@@ -458,6 +458,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(nodeName(idx) + ".#VMs", 0, c.nbVMs());
 			post(SetConstraintsFactory.cardinality(nodeVMs(idx), ret));
+			nodesCards[idx] = ret;
 		}
 		return ret;
 	}
@@ -475,6 +476,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(externName(idx) + ".#VMs", 0, c.nbVMs());
 			post(SetConstraintsFactory.cardinality(externVMs(idx), ret));
+			externCards[idx] = ret;
 		}
 		return ret;
 	}

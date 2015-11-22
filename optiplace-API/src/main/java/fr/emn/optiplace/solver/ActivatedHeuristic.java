@@ -145,6 +145,7 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 		} else {
 			var = decisionVars[0];
 		}
+		assert var != null : "no variable to get the solver from";
 		activated = var.getSolver().getEnvironment().makeBool(false);
 		dirty = var.getSolver().getEnvironment().makeBool(true);
 	}
