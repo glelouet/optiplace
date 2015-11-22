@@ -95,7 +95,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	/** create index for every item in the configuration (VM, Node, site) */
 	protected void makeConstantConfig() {
-
 		vmsShadow = new Node[b.vms().length];
 		Arrays.fill(vmsShadow, null);
 	}
@@ -172,8 +171,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			vmsExtern = new IntVar[c.nbVMs()];
 		} else {
 			// if we have no extern we don't need an IntVar because
-			// getExtern(vm) will
-			// return -1
+			// getExtern(vm) will return -1
+			vmsExtern = null;
 		}
 		for (int i = 0; i < c.nbVMs(); i++) {
 			VM vm = b.vm(i);
@@ -192,9 +191,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				// VM can be running or externed or waiting.
 				vmsState[i] = v.createEnumIntVar(vmName(i) + "_state", c.isWaiting(vm) ? VM_RUN_WAIT_EXT : VM_RUN_EXT);
 				vmsNode[i] = v.createEnumIntVar("" + vmName(i) + "_node", -1, c.nbNodes() - 1);
-				vmsExtern[i] = v.createEnumIntVar("" + vmName(i) + "_ext", -1, c.nbNodes() - 1);
-				// constrain the state of the VM and the extern it is hosted on
-				// :
+				vmsExtern[i] = v.createEnumIntVar("" + vmName(i) + "_ext", -1, c.nbExterns() - 1);
+				// constrain the state of the VM and the extern it is hosted on:
 				// extern>-1 <=> state==externed
 				LCF.ifThenElse(ICF.arithm(vmsExtern[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_EXTERNED),
 						ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
