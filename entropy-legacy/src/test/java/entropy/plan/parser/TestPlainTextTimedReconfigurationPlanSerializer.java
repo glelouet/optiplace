@@ -38,7 +38,7 @@ public class TestPlainTextTimedReconfigurationPlanSerializer {
       }
     }
     VirtualMachine[] vms = new SimpleVirtualMachine[10];
-    for (int i = 0; i < vms.length; i++) {
+    for (int i = 0; i < c.nbVMs(); i++) {
       vms[i] = new SimpleVirtualMachine("VM" + (i + 1), 1, 1, 1);
     }
     c.addWaiting(vms[0]);

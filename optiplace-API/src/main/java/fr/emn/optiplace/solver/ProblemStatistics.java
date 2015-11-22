@@ -4,7 +4,15 @@
 
 package fr.emn.optiplace.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.Node;
@@ -74,7 +82,7 @@ public class ProblemStatistics {
 			models2Nodes = new HashMap<>();
 			Integer[] capa = new Integer[getResources().length];
 			List<Integer> capal = Arrays.asList(capa);
-			for (Node n : target.nodes()) {
+			for (Node n : target.b().nodes()) {
 				for (int i = 0; i < capa.length; i++) {
 					capa[i] = getResources()[i].getCapacity(n);
 				}
@@ -132,7 +140,7 @@ public class ProblemStatistics {
 		}
 		ArrayList<Node> ret = comparators2sorted.get(compl);
 		if (ret == null) {
-			ret = new ArrayList<>(Arrays.asList(target.nodes()));
+			ret = new ArrayList<>(Arrays.asList(target.b().nodes()));
 			ListIterator<Comparator<? super Node>> li = compl.listIterator(compl.size());
 			while (li.hasPrevious()) {
 				Comparator<? super Node> cn = li.previous();
@@ -165,7 +173,7 @@ public class ProblemStatistics {
 			ResourceSpecification res = resources[i];
 			int minNodeCapa = Integer.MAX_VALUE, maxNodeCapa = 0;
 			double sumCapa = 0;
-			for (Node n : target.nodes()) {
+			for (Node n : target.b().nodes()) {
 				int c = res.getCapacity(n);
 				sumCapa += c;
 				minNodeCapa = Math.min(minNodeCapa, c);
@@ -173,7 +181,7 @@ public class ProblemStatistics {
 			}
 			int minVMUse = Integer.MAX_VALUE, maxVMUse = 0;
 			double sumUse = 0;
-			for (VM v : target.vms()) {
+			for (VM v : target.b().vms()) {
 				int u = res.getLoad(v);
 				sumUse += u;
 				minVMUse = Math.min(minVMUse, u);

@@ -9,13 +9,14 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
+import fr.emn.optiplace.solver.choco.Bridge;
+import fr.emn.optiplace.solver.choco.VariablesManager;
 
 /**
  * View of the core problem. A core problem contains nodes, vms, and the hosting
@@ -29,105 +30,22 @@ import fr.emn.optiplace.configuration.resources.ResourceLoad;
 public interface CoreView {
 
 	/**
-	 * @return an array of the nodes of the problem, each at its index position
+	 * 
+	 * @return the bridge between the configuration and the internal indexes
 	 */
-	public Node[] nodes();
-
-	/**
-	 * @param n
-	 *            a node of the problem
-	 * @return the index of the node in the problem, or -1
-	 */
-	public int node(Node n);
-
-	/**
-	 * @param idx
-	 * @return the node at given position, or null
-	 */
-	public default Node node(int idx) {
-		if (idx < 0) {
-			return null;
-		}
-		Node[] t = nodes();
-		return idx >= t.length ? null : t[idx];
-	}
-
-	/**
-	 * @return the array of vm of this problem, each vm being on its index,
-	 *         meaning vm(i)= vms[i]
-	 */
-	public VM[] vms();
-
-	/**
-	 * @param vm
-	 *            a virtual machine of this problem
-	 * @return the internal index for this vm, or -1 if not known
-	 */
-	public int vm(VM vm);
-
-	/**
-	 * @param idx
-	 * @return the vm at given pos, or null
-	 */
-	public default VM vm(int idx) {
-		if (idx < 0) {
-			return null;
-		}
-		VM[] t = vms();
-		return idx >= t.length ? null : t[idx];
-	}
-
-	/**
-	 *
-	 * @return the array of known externs
-	 */
-	public Extern[] externs();
-
-	/**
-	 *
-	 * @param e
-	 *            the extern
-	 * @return the index of the extern in {@link #externs()} array or -1
-	 */
-	public int extern(Extern e);
-
-	/**
-	 *
-	 * @param idx
-	 *            the index of the extern in the {@link #externs()} array
-	 * @return the corresponding extern
-	 */
-	public default Extern extern(int idx) {
-		if (idx < 0) {
-			return null;
-		}
-		Extern[] t = externs();
-		return idx >= t.length ? null : t[idx];
-	}
+	public Bridge b();
 
 	/**
 	 * 
-	 * @param h
-	 *          an hoster of the configuration
-	 * @return the index of the node if a node is given in parameters, the index
-	 *         of the extern+#nodes if an exetern is given in parameter, or -1 if
-	 *         h not known.
+	 * @return the manager of variables. Create simple or constrained variables
 	 */
-	public int vmHoster(VMHoster h);
+	public VariablesManager v();
 
-	public VMHoster vmHoster(int i);
-
-	public Site[] sites();
-
-	public int site(Site site);
-
-	public default Site site(int idx) {
-		if (idx < 0) {
-			return null;
-		}
-		Site[] t = sites();
-		return idx >= t.length ? null : t[idx];
-	}
+	/**
+	 * 
+	 * @return the source configuration of the problem.
+	 */
+	public Configuration c();
 
 	///////////////////////////////////////////////////
 	// state of the VM, and corresponding location
@@ -148,7 +66,7 @@ public interface CoreView {
 	 * shortcut for {@link #getState(int) getState(vm(vm))}
 	 */
 	public default IntVar getState(VM vm) {
-		return getState(vm(vm));
+		return getState(b().vm(vm));
 	}
 
 	/**
@@ -165,7 +83,7 @@ public interface CoreView {
 	 * shortcut for {@link #getNode(int) getHost(vm(vm))}
 	 */
 	public default IntVar getNode(VM vm) {
-		return getNode(vm(vm));
+		return getNode(b().vm(vm));
 	}
 
 	/**
@@ -187,7 +105,7 @@ public interface CoreView {
 	 * shortcut to {@link #getExtern(int) getExtern(vm(vm))}
 	 */
 	public default IntVar getExtern(VM vm) {
-		return getExtern(vm(vm));
+		return getExtern(b().vm(vm));
 	}
 
 	public IntVar[] getExterns();
@@ -199,7 +117,7 @@ public interface CoreView {
 	 * @return the site index of the node hosting this VM
 	 */
 	public default IntVar getSite(VM vm) {
-		return getSite(vm(vm));
+		return getSite(b().vm(vm));
 	}
 
 	public IntVar getSite(int vmidx);
@@ -213,7 +131,7 @@ public interface CoreView {
 	 *         extern e is executing the vm.
 	 */
 	public default IntVar getHoster(VM vm) {
-		return getHoster(vm(vm));
+		return getHoster(b().vm(vm));
 	}
 
 	public IntVar getHoster(int vmidx);
@@ -267,15 +185,15 @@ public interface CoreView {
 	 *            a node of the problem
 	 * @return the number of vms hosted on this node
 	 */
-	public IntVar nbVM(Node n);
+	public IntVar nbVMs(Node n);
 
 	/**
-	 * get the table {@link #nbVM(Node)} , indexed by the nodes index (
+	 * get the table {@link #nbVMs(Node)} , indexed by the nodes index (
 	 * {@link #getNode(int)} )
 	 *
 	 * @return
 	 */
-	IntVar[] nbVMs();
+	IntVar[] nbVMsNodes();
 
 	/**
 	 * @param n
@@ -284,11 +202,9 @@ public interface CoreView {
 	 */
 	public SetVar hosted(Node n);
 
-	/**
-	 * @return the array of setVar, each setvar at index i corresponding to the
-	 *         set of VMs hosted by the Node i in the dest configuration.
-	 */
-	public SetVar[] hosteds();
+	SetVar hosted(Extern e);
+
+	public IntVar nbVMs(Extern e);
 
 	/**
 	 * @param n
@@ -296,7 +212,7 @@ public interface CoreView {
 	 * @return the boolean presence of a vm to host on the node
 	 */
 	public default BoolVar isHoster(Node n) {
-		return isHoster(node(n));
+		return isHoster(b().node(n));
 	}
 
 	public BoolVar isHoster(int idx);
@@ -346,5 +262,7 @@ public interface CoreView {
 	 * @return
 	 */
 	ResourceLoad[] getUses();
+
+	Configuration extractConfiguration();
 
 }

@@ -14,7 +14,6 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
 
 
@@ -54,21 +53,21 @@ public class ReconfigurationProblemTest {
 
 	@Test
 	public void checkHosters() throws ContradictionException {
-		pb.getNode(vm1_0).removeValue(pb.node(n0), Cause.Null);
-		pb.getNode(vm1_1).removeValue(pb.node(n0), Cause.Null);
+		pb.getNode(vm1_0).removeValue(pb.b().node(n0), Cause.Null);
+		pb.getNode(vm1_1).removeValue(pb.b().node(n0), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
 	@Test(dependsOnMethods = "checkHosters")
 	public void checkHosted() throws ContradictionException {
-		pb.hosted(n0).removeFromEnvelope(pb.vm(vm1_0), Cause.Null);
-		pb.hosted(n0).removeFromEnvelope(pb.vm(vm1_1), Cause.Null);
+		pb.hosted(n0).removeFromEnvelope(pb.b().vm(vm1_0), Cause.Null);
+		pb.hosted(n0).removeFromEnvelope(pb.b().vm(vm1_1), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
 	@Test(dependsOnMethods = "checkHosted")
 	public void checknbVM() throws ContradictionException {
-		pb.nbVM(n0).updateUpperBound(2, Cause.Null);
+		pb.nbVMs(n0).updateUpperBound(2, Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 

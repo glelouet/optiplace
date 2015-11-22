@@ -34,7 +34,7 @@ public class StickVMsHeuristic {
 		int[] srcLoc = new int[vms.length];
 		IntVar[] hosters = new IntVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			srcLoc[i] = p.node(p.getSourceConfiguration().getNodeHost(vms[i]));
+			srcLoc[i] = p.b().node(p.getSourceConfiguration().getNodeHost(vms[i]));
 			hosters[i] = p.getNode(vms[i]);
 		}
 		Var2ValSelector heuristic = new Var2ValSelector(hosters, srcLoc) {
@@ -67,7 +67,9 @@ public class StickVMsHeuristic {
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 		VM[] vms = rp.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]);
-		if (vms == null || vms.length == 0) { return ret; }
+		if (vms == null || vms.length == 0) {
+			return ret;
+		}
 		Arrays.sort(vms, cmp);
 		ret.add(makeStickVMs(vms, rp));
 		return ret;

@@ -70,7 +70,7 @@ public class TestTimedReconfigurationExecuter {
     MockDriver.MAX_JITTER = 5000;
     Configuration cfg = new SimpleConfiguration();
     VirtualMachine[] vms = new SimpleVirtualMachine[6];
-    for (int i = 0; i < vms.length; i++) {
+    for (int i = 0; i < c.nbVMs(); i++) {
       vms[i] = new SimpleVirtualMachine("VM" + (i + 1), 1, 1, 1);
     }
     Node[] ns = new SimpleNode[5];
@@ -101,7 +101,7 @@ public class TestTimedReconfigurationExecuter {
     MockDriver.MAX_JITTER = 2000;
     Configuration cfg = new SimpleConfiguration();
     VirtualMachine[] vms = new SimpleVirtualMachine[6];
-    for (int i = 0; i < vms.length; i++) {
+    for (int i = 0; i < c.nbVMs(); i++) {
       vms[i] = new SimpleVirtualMachine("VM" + (i + 1), 1, 1, 1);
     }
     Node[] ns = new SimpleNode[5];

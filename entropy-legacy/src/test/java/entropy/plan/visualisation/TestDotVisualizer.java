@@ -50,9 +50,9 @@ public class TestDotVisualizer {
   public void testToDot() {
     Configuration cfg = new SimpleConfiguration();
     VirtualMachine[] vms = new VirtualMachine[7];
-    Node[] ns = new Node[vms.length];
+    Node[] ns = new Node[c.nbVMs()];
 
-    for (int i = 0; i < vms.length; i++) {
+    for (int i = 0; i < c.nbVMs(); i++) {
       vms[i] = new SimpleVirtualMachine("VM" + i, 1, 1, 1);
       ns[i] = new SimpleNode("N" + i, 1, 1, 1);
       cfg.addOnline(ns[i]);

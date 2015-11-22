@@ -79,7 +79,7 @@ public class ReconfigurationProblemWaitingNoExternTest {
 			pb.getNode(vm0).instantiateTo(-1, Cause.Null);
 			// System.err.println("instantiating " + pb.getHost(vm1) + " to " +
 			// pb.node(n0));
-			pb.getNode(vm1).instantiateTo(pb.node(n0), Cause.Null);
+			pb.getNode(vm1).instantiateTo(pb.b().node(n0), Cause.Null);
 			pb.getState(vm2).instantiateTo(CoreView.VM_WAITING, Cause.Null);
 			pb.propagate();
 			Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_WAITING),

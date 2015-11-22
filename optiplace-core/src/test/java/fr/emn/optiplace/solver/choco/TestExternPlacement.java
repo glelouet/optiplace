@@ -2,6 +2,7 @@ package fr.emn.optiplace.solver.choco;
 
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,11 +36,13 @@ public class TestExternPlacement extends SolvingExample {
 		Extern e = cfg.addExtern("extern");
 
 		ReconfigurationProblem p = new ReconfigurationProblem(cfg);
+		p.getSolver().plugMonitor((IMonitorContradiction) cex -> System.err.println(cex));
 		p.getState(vm1).instantiateTo(CoreView.VM_EXTERNED, Cause.Null);
 		p.getState(vm2).removeValue(CoreView.VM_WAITING, Cause.Null);
+
 		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getExtern(vm1).getValue(), p.extern(e));
-		Assert.assertEquals(p.getExtern(vm2).getValue(), p.extern(e));
+		Assert.assertEquals(p.getExtern(vm1).getValue(), p.b().extern(e));
+		Assert.assertEquals(p.getExtern(vm2).getValue(), p.b().extern(e));
 	}
 
 }

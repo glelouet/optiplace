@@ -124,6 +124,10 @@ public interface Configuration {
 	 */
 	int nbNodes(NODESTATES state);
 
+	default int nbNodes() {
+		return nbNodes(null);
+	}
+
 	/**
 	 * Get the virtual machines that are running.
 	 *
@@ -158,6 +162,10 @@ public interface Configuration {
 	 *         null
 	 */
 	int nbVMs(VMSTATES state);
+
+	default int nbVMs() {
+		return nbVMs(null);
+	}
 
 	/**
 	 * get the number of VMs running on given node
@@ -490,6 +498,8 @@ public interface Configuration {
 	Stream<Extern> getExterns();
 
 	boolean hasExtern(Extern e);
+
+	int nbExterns();
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();

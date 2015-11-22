@@ -1,9 +1,9 @@
 package fr.emn.optiplace.view;
 
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.VariablesManager;
 import fr.emn.optiplace.view.access.ConstraintsManager;
 import fr.emn.optiplace.view.access.CoreView;
-import fr.emn.optiplace.view.access.VariablesManager;
 
 /**
  * A view is given access to the problem through this interface.<br />

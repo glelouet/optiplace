@@ -13,7 +13,9 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
+import fr.emn.optiplace.solver.choco.VariablesManager;
 
 
 /**
@@ -42,25 +44,34 @@ public class EmptyView implements View {
 		debugVarsAndPosts = debug;
 	}
 
-	protected IReconfigurationProblem problem = null;
+	public IReconfigurationProblem pb = null;
 
 	@Override
 	public IReconfigurationProblem getProblem() {
-		return problem;
+		return pb;
 	}
+
+	public VariablesManager v;
+
+	public Bridge b;
+
+	public Configuration c;
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {
 		clear();
-		problem = rp;
+		pb = rp;
+		c = rp.c();
+		b = rp.b();
+		v = rp.v();
 	}
 
-	/** remove all data added to the last {@link #problem} and cached */
+	/** remove all data added to the last {@link #pb} and cached */
 	@Override
 	public void clear() {
 		addedConstraints.clear();
 		addedVars.clear();
-		problem = null;
+		pb = null;
 	}
 
 	protected LinkedHashSet<Constraint> addedConstraints = new LinkedHashSet<>();
@@ -71,7 +82,7 @@ public class EmptyView implements View {
 			if (debugVarsAndPosts) {
 				logger.debug(getClass().getSimpleName() + " posted " + cc);
 			}
-			problem.getSolver().post(cc);
+			pb.getSolver().post(cc);
 		}
 	}
 

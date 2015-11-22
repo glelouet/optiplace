@@ -45,7 +45,7 @@ public class DummyPlacementHeuristic {
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
 		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
-		for (VM v : m.vms())
+		for (VM v : m.b().vms())
 			vars.add(m.getState(v));
 		for (IntVar v : m.getNodes()) {
 			vars.add(v);

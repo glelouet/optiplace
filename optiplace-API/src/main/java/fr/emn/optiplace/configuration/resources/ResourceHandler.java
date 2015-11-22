@@ -69,8 +69,8 @@ public class ResourceHandler {
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
 		associatedPb = pb;
-		Node[] nodes = pb.nodes();
-		VM[] vms = pb.vms();
+		Node[] nodes = pb.b().nodes();
+		VM[] vms = pb.b().vms();
 		nodesLoadsByIndex = new IntVar[nodes.length];
 		vmsLoads = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
@@ -98,7 +98,7 @@ public class ResourceHandler {
 			if (minNodeCapa > capa) {
 				minNodeCapa = capa;
 			}
-			nodesLoadsByIndex[i] = pb.createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
+			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
 		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex);
 	}
@@ -116,7 +116,7 @@ public class ResourceHandler {
 	}
 
 	public IntVar getNodeLoad(Node n) {
-		return nodesLoadsByIndex[associatedPb.node(n)];
+		return nodesLoadsByIndex[associatedPb.b().node(n)];
 	}
 
 	/**

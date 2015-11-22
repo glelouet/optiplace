@@ -18,13 +18,10 @@ import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +33,6 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.view.access.CoreView;
-import fr.emn.optiplace.view.access.VariablesManager;
 
 
 /**
@@ -46,7 +42,7 @@ import fr.emn.optiplace.view.access.VariablesManager;
  * @author Fabien Hermenier
  * @author Guillaume Le Louët
  */
-public interface IReconfigurationProblem extends CoreView, VariablesManager {
+public interface IReconfigurationProblem extends CoreView {
 
 	public static final Logger logger = LoggerFactory.getLogger(IReconfigurationProblem.class);
 
@@ -64,55 +60,6 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	SolvingStatistics getSolvingStatistics();
 
-	/**** creation of variables *********************************/
-
-	@Override
-	default IntVar createIntegerConstant(int val) {
-		return VariableFactory.fixed(val, getSolver());
-	}
-
-	@Override
-	default BoolVar createBoolVar(String name) {
-		return VariableFactory.bool(name, getSolver());
-	}
-
-	@Override
-	default IntVar createEnumIntVar(String name, int... sortedValues) {
-		return VariableFactory.enumerated(name, sortedValues, getSolver());
-	}
-
-	@Override
-	default IntVar createEnumIntVar(String name, int min, int max) {
-		return VariableFactory.enumerated(name, min, max, getSolver());
-	}
-
-	/** creates an int variable whom range goes from min to max */
-	@Override
-	default IntVar createBoundIntVar(String name, int min, int max) {
-		return VariableFactory.bounded(name, min, max, getSolver());
-	}
-
-	@Override
-	default SetVar createEnumSetVar(String name, int... values) {
-		return VariableFactory.set(name, values, getSolver());
-	}
-
-	@Override
-	default SetVar createRangeSetVar(String name, int min, int max) {
-		return VariableFactory.set(name, min, max, getSolver());
-	}
-
-	default SetVar toSet(IntVar... vars) {
-		Solver s = getSolver();
-		if (vars == null || vars.length == 0) {
-			return VF.set("empty set", new int[] {}, s);
-		}
-		int[] minmax = getMinMax(vars);
-		SetVar ret = VF.set("setof" + Arrays.asList(vars), minmax[0], minmax[1], s);
-		s.post(SCF.int_values_union(vars, ret));
-		return ret;
-	}
-
 	/***** Variables linked to Nodes and VMs *************************/
 
 	/**
@@ -123,31 +70,14 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	Configuration getSourceConfiguration();
 
-	/**
-	 * Get the current location of a VM.
-	 *
-	 * @param vmIdx
-	 *          the index of the virtual machine
-	 * @return the node index if exists or -1 if the VM is not already placed
-	 */
-	int getCurrentLocation(int vmIdx);
-
-	/**
-	 * Extract the result destination configuration.
-	 *
-	 * @return a configuration corresponding to the result computed by the
-	 *         {@link #getSolver()} solve
-	 */
-	Configuration extractConfiguration();
-
 	/******************** variables linked to resources ***********************/
 
 	default IntVar getNodeUse(String resource, Node n) {
-		return getResourcesHandlers().get(resource).getNodeLoads()[node(n)];
+		return getResourcesHandlers().get(resource).getNodeLoads()[b().node(n)];
 	}
 
 	default int getNodeCap(String resource, Node n) {
-		return getResourcesHandlers().get(resource).getCapacities()[node(n)];
+		return getResourcesHandlers().get(resource).getCapacities()[b().node(n)];
 	}
 
 	default IntVar getUsedCPU(Node n) {
@@ -183,7 +113,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 * @return a new variable constrained to ret=left+right
 	 */
 	default IntVar plus(IntVar left, IntVar right) {
-		IntVar ret = createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
+		IntVar ret = v().createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
 		    left.getUB() + right.getUB());
 		getSolver().post(ICF.sum(new IntVar[] {
 		    left, right
@@ -197,12 +127,12 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	default IntVar sum(IntVar... vars) {
 		if (vars == null || vars.length == 0) {
-			return createIntegerConstant(0);
+			return v().createIntegerConstant(0);
 		}
 		if (vars.length == 1) {
 			return vars[0];
 		}
-		IntVar ret = createBoundIntVar("sum(" + Arrays.asList(vars) + ")");
+		IntVar ret = v().createBoundIntVar("sum(" + Arrays.asList(vars) + ")");
 		getSolver().post(ICF.sum(vars, ret));
 		return ret;
 	}
@@ -239,6 +169,16 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	}
 
 	/**
+	 * 
+	 * @Override public int vm(VM vm) { int v = revVMs.get(vm); if (v == 0 &&
+	 *           !vms[0].equals(vm)) { return -1; } return v; }
+	 * 
+	 *           /** converts an array of vms to an array of index of those vms in
+	 *           the problem.
+	 *
+	 * @param vms
+	 *          the vms to convert, all of them must belong to the problem
+	 * @return
 	 * @param x
 	 *          a variable
 	 * @param a
@@ -262,7 +202,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	default IntVar linear(IntVar x, int a, int b) {
 		if (a == 0) {
-			return createIntegerConstant(b);
+			return v().createIntegerConstant(b);
 		}
 		if (a == 1) {
 			return plus(x, b);
@@ -280,7 +220,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	default IntVar mult(IntVar left, IntVar right) {
 		if (left.isInstantiatedTo(0) || right.isInstantiatedTo(0)) {
-			return createIntegerConstant(0);
+			return v().createIntegerConstant(0);
 		}
 		if (left.isInstantiatedTo(1)) {
 			return right;
@@ -288,7 +228,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 		if (right.isInstantiatedTo(1)) {
 			return left;
 		}
-		IntVar ret = createBoundIntVar("(" + left.getName() + ")*(" + right.getName() + ")");
+		IntVar ret = v().createBoundIntVar("(" + left.getName() + ")*(" + right.getName() + ")");
 		mult(left, right, ret);
 		return ret;
 	}
@@ -304,7 +244,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 * @return a variable constrained to ret * y = x
 	 */
 	default IntVar div(IntVar x, int y) {
-		IntVar ret = createBoundIntVar("(" + x.getName() + ")/" + y);
+		IntVar ret = v().createBoundIntVar("(" + x.getName() + ")/" + y);
 		getSolver().post(ICF.times(ret, y, x));
 		return ret;
 	}
@@ -351,7 +291,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 			}
 			sb.append(v.getName() + "⋅" + m);
 		}
-		IntVar ret = createBoundIntVar(sb.append("]").toString(), min, max);
+		IntVar ret = v().createBoundIntVar(sb.append("]").toString(), min, max);
 		getSolver().post(ICF.scalar(pos, mults, ret));
 		return ret;
 	}
@@ -413,7 +353,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 			return values[0];
 		}
 		int[] minmax = getMinMax(values);
-		IntVar ret = createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+		IntVar ret = v().createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		maxOfList(ret, values);
 		return ret;
 	}
@@ -465,7 +405,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 			return values[0];
 		}
 		int[] minmax = getMinMax(values);
-		IntVar ret = createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+		IntVar ret = v().createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		minOfList(ret, values);
 
 		return ret;
@@ -478,7 +418,7 @@ public interface IReconfigurationProblem extends CoreView, VariablesManager {
 	 */
 	default IntVar nth(IntVar index, IntVar[] array) {
 		int[] minmax = getMinMax(array);
-		IntVar ret = createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
+		IntVar ret = v().createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
 		nth(index, array, ret);
 		return ret;
 	}
