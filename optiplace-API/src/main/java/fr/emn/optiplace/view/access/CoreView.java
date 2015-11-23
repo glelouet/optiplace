@@ -187,6 +187,8 @@ public interface CoreView {
 	 */
 	public IntVar nbVMs(Node n);
 
+	public IntVar nbVMsOnNode(int nodeIdx);
+
 	/**
 	 * get the table {@link #nbVMs(Node)} , indexed by the nodes index (
 	 * {@link #getNode(int)} )
@@ -205,6 +207,8 @@ public interface CoreView {
 	SetVar hosted(Extern e);
 
 	public IntVar nbVMs(Extern e);
+
+	public IntVar nbVMsOnExtern(int externIdx);
 
 	/**
 	 * @param n

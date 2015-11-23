@@ -500,7 +500,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * number of vms on it.
 	 */
 	protected BoolVar makeIsHosting(int nodeIdx) {
-		BoolVar ret = boolenize(nbVMsOnNode(nodeIdx), b.node(nodeIdx).getName() + "?hosting");
+		BoolVar ret = v.boolenize(nbVMsOnNode(nodeIdx), b.node(nodeIdx).getName() + "?hosting");
 		return ret;
 	}
 
@@ -558,7 +558,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(getNode(vmIndex), getUse(resource).getNodesLoad(), ret);
+			v.nth(getNode(vmIndex), getUse(resource).getNodesLoad(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -581,7 +581,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterMax_" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			nth(getNode(vmIndex), resources.get(resource).getCapacities(), ret);
+			v.nth(getNode(vmIndex), resources.get(resource).getCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -602,13 +602,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			VM vm = b.vm(i);
 			switch (cfg.getState(vm)) {
 			case WAITING:
-				vmsIsMigrated[i] = isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING));
+				vmsIsMigrated[i] = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING));
 				break;
 			case RUNNING:
-				vmsIsMigrated[i] = isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)));
+				vmsIsMigrated[i] = v.isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)));
 				break;
 			case EXTERN:
-				vmsIsMigrated[i] = isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)));
+				vmsIsMigrated[i] = v.isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)));
 				break;
 			default:
 				throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
@@ -634,7 +634,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar nbMigrations() {
 		if (nbLiveMigrations == null) {
-			nbLiveMigrations = sum(isMigrateds());
+			nbLiveMigrations = v.sum(isMigrateds());
 		}
 		return nbLiveMigrations;
 	}
