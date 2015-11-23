@@ -1,11 +1,8 @@
 package fr.emn.optiplace.view;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
@@ -18,6 +15,7 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
+import fr.emn.optiplace.view.annotations.Goal;
 import fr.emn.optiplace.view.annotations.Parameter;
 
 /**
@@ -212,6 +210,19 @@ public interface ViewAsModule {
 				if (required == null || required == a.required()) {
 					ret.add(a.confName());
 				}
+			}
+		}
+		return ret;
+	}
+
+	default Set<String> extractGoals() {
+		HashSet<String> ret = new HashSet<>();
+		for (Method m : getClass().getMethods()) {
+			// a goal is annotated with @Goal
+			// a goal method returns a subclass of SearchGoal
+			if (m.getAnnotation(Goal.class) != null && SearchGoal.class.isAssignableFrom(m.getReturnType())
+			    && m.getParameterCount() == 0) {
+				ret.add(m.getName().toLowerCase());
 			}
 		}
 		return ret;

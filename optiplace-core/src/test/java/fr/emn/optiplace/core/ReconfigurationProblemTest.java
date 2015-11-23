@@ -79,4 +79,11 @@ public class ReconfigurationProblemTest {
 			    "" + vm + " state is not running : " + pb.getState(vm));
 		}
 	}
+
+	@Test
+	public void testGoalNbMigrations() {
+		Configuration src = new SimpleConfiguration();
+		ReconfigurationProblem rp = new ReconfigurationProblem(src);
+
+	}
 }

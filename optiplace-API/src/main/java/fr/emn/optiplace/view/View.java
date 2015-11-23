@@ -1,5 +1,8 @@
+
 package fr.emn.optiplace.view;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.chocosolver.solver.constraints.Constraint;
@@ -7,6 +10,8 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
+import fr.emn.optiplace.view.annotations.Goal;
+
 
 /**
  * <p>
@@ -55,59 +60,89 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public interface View extends ViewAsModule {
 
-    /**
-     * shortcut for {@link #getRequestedRules()}.add(cst)
-     *
-     * @param cst
-     */
-    public void addRule(Rule cst);
+	/**
+	 * shortcut for {@link #getRequestedRules()}.add(cst)
+	 *
+	 * @param cst
+	 */
+	public void addRule(Rule cst);
 
-    /**
-     * add a constraint to the problem, if not already added, and store it in
-     * the list of added constraints.
-     *
-     * @param eq
-     *            the constraint to add to the problem
-     */
-    public void post(Constraint eq);
+	/**
+	 * add a constraint to the problem, if not already added, and store it in the
+	 * list of added constraints.
+	 *
+	 * @param eq
+	 *          the constraint to add to the problem
+	 */
+	public void post(Constraint eq);
 
-    /**
-     * Declares a new variable has been created by this view. Only variables
-     * directly created by the view should be declared, i.e. the views must not
-     * declare the variables created by other views.
-     *
-     * @param var
-     */
-    public void onNewVar(Variable var);
+	/**
+	 * Declares a new variable has been created by this view. Only variables
+	 * directly created by the view should be declared, i.e. the views must not
+	 * declare the variables created by other views.
+	 *
+	 * @param var
+	 */
+	public void onNewVar(Variable var);
 
-    /**
-     * @return an unmodifiable list of the variables that have been added to the
-     *         model by this view
-     */
-    public List<Variable> getAddedVars();
+	/**
+	 * @return an unmodifiable list of the variables that have been added to the
+	 *         model by this view
+	 */
+	public List<Variable> getAddedVars();
 
-    /**
-     * @return an unmodifiable list of the constraints that have been posted to
-     *         the model by this view
-     */
-    public List<Constraint> getAddedConstraints();
+	/**
+	 * @return an unmodifiable list of the constraints that have been posted to
+	 *         the model by this view
+	 */
+	public List<Constraint> getAddedConstraints();
 
-    /**
-     * set the required configuration. If this implementation does not require a
-     * configuration, such as having no specification in {@link
-     * ViewDesc.#configURI()}, this should do nothing.
-     *
-     * @param conf
-     *            the configuration retrieved by the core for this view, from
-     *            its description annotation.
-     */
-    public void setConfig(ProvidedData conf);
+	/**
+	 * set the required configuration. If this implementation does not require a
+	 * configuration, such as having no specification in
+	 * {@link ViewDesc.#configURI()}, this should do nothing.
+	 *
+	 * @param conf
+	 *          the configuration retrieved by the core for this view, from its
+	 *          description annotation.
+	 */
+	public void setConfig(ProvidedData conf);
 
-    /** @return the problem */
-    public IReconfigurationProblem getProblem();
+	/** @return the problem */
+	public IReconfigurationProblem getProblem();
 
-    public default String getName() {
-	return getClass().getName();
-    }
+	public default String getName() {
+		return getClass().getName();
+	}
+
+	/**
+	 * propose a goal correspond to a String id
+	 *
+	 * @param goalID
+	 *          the name of the goal
+	 * @return a new SearchGoal linked to this view to extract the corresponding
+	 *         IntVar and heuristics. return null if no corresponding goal. The
+	 *         default implementation returns a SearchGoal provided by a method of
+	 *         the same name that goalId and annotated with {@link Goal}
+	 */
+	public default SearchGoal getGoal(String goalID) {
+		for (Method m : getClass().getMethods()) {
+			Goal g = m.getAnnotation(Goal.class);
+			// a goal is annotated with @Goal
+			// a goal method returns a subclass of SearchGoal
+			if (g != null && SearchGoal.class.isAssignableFrom(m.getReturnType()) && m.getParameterCount() == 0) {
+				if (m.getName().toLowerCase().equals(goalID)) {
+					try {
+						return (SearchGoal) m.invoke(this);
+					}
+					catch (
+					    IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						logger.warn("can't invoke method " + m + " to get a searchGoal", e);
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 }

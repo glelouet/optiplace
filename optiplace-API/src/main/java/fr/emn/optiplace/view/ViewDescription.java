@@ -7,12 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Describe the dependencies, and configuration parameters of a view. Should be
@@ -39,13 +34,17 @@ public class ViewDescription {
 	/** same as {@link #requiredConf} but for optional configured fields */
 	protected Set<String> optionalConf;
 
-	/** list of views this view depends on. */
+	/** views this view depends on. */
 	protected Set<String> depends;
+
+	/** goals proposed by this view */
+	protected Set<String> goals;
 
 	public static final String CLASSPARAM = "class=";
 	public static final String REQCONFPARAM = "requiredConf=";
 	public static final String OPTCONFPARAM = "optionConf=";
 	public static final String DEPPARAM = "dependsOn=";
+	public static final String GOALPARAM = "goals=";
 
 	public static String removeFirstAndLastChar(String s) {
 		String ret = s.substring(1, s.length() - 1);
@@ -76,6 +75,11 @@ public class ViewDescription {
 		if (line.startsWith(DEPPARAM)) {
 			line = line.substring(DEPPARAM.length() + 1, line.length() - 1);
 			depends = new HashSet<>(Arrays.asList(line.split(", ")));
+			return;
+		}
+		if (line.startsWith(GOALPARAM)) {
+			line = line.substring(GOALPARAM.length() + 1, line.length() - 1);
+			goals = new HashSet<>(Arrays.asList(line.split(", ")));
 			return;
 		}
 	logger.warn("dropped description line : " + line);
@@ -118,6 +122,7 @@ public class ViewDescription {
 		optionalConf = v.extractConfigurations(false);
 		requiredConf = v.extractConfigurations(true);
 		name = v.getClass().getSimpleName();
+		goals = v.extractGoals();
 	}
 
 	public void read(BufferedReader reader) {
@@ -139,6 +144,9 @@ public class ViewDescription {
 			}
 			if (depends != null && !depends.isEmpty()) {
 				w.write(DEPPARAM + depends + "\n");
+			}
+			if (goals != null && !goals.isEmpty()) {
+				w.write(GOALPARAM + goals + "\n");
 			}
 		} catch (IOException e) {
 			logger.warn("", e);

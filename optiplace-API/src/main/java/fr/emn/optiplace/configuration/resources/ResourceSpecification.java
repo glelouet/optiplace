@@ -6,10 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
@@ -116,8 +113,13 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the vm
 	 * @return true if there is enough resource on n to host vm.
 	 */
-	default boolean canHost(Configuration cfg, Node n, VM vm) {
-		return getUse(cfg, n) + getLoad(vm) <= getCapacity(n);
+	default boolean canHost(Configuration cfg, VMHoster n, VM vm) {
+		if (n instanceof Node) {
+			return getUse(cfg, (Node) n) + getLoad(vm) <= getCapacity(n);
+		} else if (n instanceof Extern) {
+			return getLoad(vm) <= getCapacity(n);
+		}
+		throw new UnsupportedOperationException("can't handle the class " + n.getClass());
 	}
 
 	/**
@@ -205,7 +207,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 	/**
 	 * find all the hosters with strictly less capacity than given value
-	 * 
+	 *
 	 * @param val
 	 *          the value to compare the hosters capacities to
 	 * @return a new stream of the Hosters

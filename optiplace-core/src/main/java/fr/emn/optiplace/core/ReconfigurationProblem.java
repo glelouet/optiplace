@@ -23,20 +23,11 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -46,6 +37,7 @@ import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.VariablesManager;
 import fr.emn.optiplace.view.access.CoreView;
+import fr.emn.optiplace.view.annotations.Goal;
 
 /**
  * A CSP to model a reconfiguration plan composed of time bounded actions. In
@@ -450,6 +442,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return vmsExtern;
 	}
 
+	@Override
 	public IntVar nbVMsOnNode(int idx) {
 		if (nodesCards == null) {
 			nodesCards = new IntVar[c.nbNodes()];
@@ -468,6 +461,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return nbVMsOnNode(b.node(n));
 	}
 
+	@Override
 	public IntVar nbVMsOnExtern(int idx) {
 		if (externCards == null) {
 			externCards = new IntVar[c.nbExterns()];
@@ -488,8 +482,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public IntVar[] nbVMsNodes() {
-		for (int i = 0; i < nodesCards.length; i++)
+		for (int i = 0; i < nodesCards.length; i++) {
 			nbVMsOnNode(i);
+		}
 		return nodesCards;
 	}
 
@@ -631,6 +626,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return vmsIsMigrated;
 	}
 
+	@Goal
 	@Override
 	public IntVar nbMigrations() {
 		if (nbLiveMigrations == null) {

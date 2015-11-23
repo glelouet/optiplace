@@ -6,8 +6,8 @@ package fr.emn.optiplace.actions;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 
@@ -22,19 +22,19 @@ public class Migrate implements Action {
 
 	public static void extractMigrations(Configuration from, Configuration to, ActionGraph actions) {
 		from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
-		    .forEach(vm -> actions.add(new Migrate(vm, from.getNodeHost(vm), to.getNodeHost(vm))));
+		    .forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
 	}
 
 	VM vm;
-	Node from;
-	Node to;
+	VMHoster from;
+	VMHoster to;
 
 	/**
 	 * @param vm
 	 * @param from
 	 * @param to
 	 */
-	public Migrate(VM vm, Node from, Node to) {
+	public Migrate(VM vm, VMHoster from, VMHoster to) {
 		super();
 		this.vm = vm;
 		this.from = from;
@@ -45,11 +45,11 @@ public class Migrate implements Action {
 		return vm;
 	}
 
-	public Node getFrom() {
+	public VMHoster getFrom() {
 		return from;
 	}
 
-	public Node getTo() {
+	public VMHoster getTo() {
 		return to;
 	}
 
