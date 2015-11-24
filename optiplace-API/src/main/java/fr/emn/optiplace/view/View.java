@@ -1,8 +1,6 @@
 
 package fr.emn.optiplace.view;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.chocosolver.solver.constraints.Constraint;
@@ -10,7 +8,6 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
-import fr.emn.optiplace.view.annotations.Goal;
 
 
 /**
@@ -74,7 +71,9 @@ public interface View extends ViewAsModule {
 	 * @param eq
 	 *          the constraint to add to the problem
 	 */
-	public void post(Constraint eq);
+	public default void post(Constraint eq) {
+		getProblem().post(eq);
+	}
 
 	/**
 	 * Declares a new variable has been created by this view. Only variables
@@ -83,7 +82,8 @@ public interface View extends ViewAsModule {
 	 *
 	 * @param var
 	 */
-	public void onNewVar(Variable var);
+	public default void onNewVar(Variable var) {
+	}
 
 	/**
 	 * @return an unmodifiable list of the variables that have been added to the
@@ -106,43 +106,14 @@ public interface View extends ViewAsModule {
 	 *          the configuration retrieved by the core for this view, from its
 	 *          description annotation.
 	 */
-	public void setConfig(ProvidedData conf);
+	public default void setConfig(ProvidedData conf) {
+	}
 
 	/** @return the problem */
 	public IReconfigurationProblem getProblem();
 
 	public default String getName() {
 		return getClass().getName();
-	}
-
-	/**
-	 * propose a goal correspond to a String id
-	 *
-	 * @param goalID
-	 *          the name of the goal
-	 * @return a new SearchGoal linked to this view to extract the corresponding
-	 *         IntVar and heuristics. return null if no corresponding goal. The
-	 *         default implementation returns a SearchGoal provided by a method of
-	 *         the same name that goalId and annotated with {@link Goal}
-	 */
-	public default SearchGoal getGoal(String goalID) {
-		for (Method m : getClass().getMethods()) {
-			Goal g = m.getAnnotation(Goal.class);
-			// a goal is annotated with @Goal
-			// a goal method returns a subclass of SearchGoal
-			if (g != null && SearchGoal.class.isAssignableFrom(m.getReturnType()) && m.getParameterCount() == 0) {
-				if (m.getName().toLowerCase().equals(goalID)) {
-					try {
-						return (SearchGoal) m.invoke(this);
-					}
-					catch (
-					    IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						logger.warn("can't invoke method " + m + " to get a searchGoal", e);
-					}
-				}
-			}
-		}
-		return null;
 	}
 
 }

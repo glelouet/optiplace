@@ -42,7 +42,6 @@ import fr.emn.optiplace.solver.heuristics.Static2Activated;
 import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.ViewAsModule;
 
-
 /**
  * basic implementation of the optiplace solving process.
  *
@@ -82,8 +81,7 @@ public class SolvingProcess extends OptiplaceProcess {
 				problem.setShadow(vm, node);
 				try {
 					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new UnsupportedOperationException("catch this", e);
 				}
 			}
@@ -131,12 +129,12 @@ public class SolvingProcess extends OptiplaceProcess {
 	@Override
 	public void configSearch() {
 		long st = System.currentTimeMillis();
-
 		// get the goal if any
-		SearchGoal goalMaker = strat.getSearchGoal();
-		if (goalMaker == null) {
+		SearchGoal goalMaker = null;
+		String goalId = strat.getGoalId();
+		if (goalId != null) {
 			for (ViewAsModule v : views) {
-				SearchGoal sg = v.getSearchGoal();
+				SearchGoal sg = v.getGoal(goalId);
 				if (sg != null) {
 					if (goalMaker != null) {
 						logger.info("goal " + goalMaker + " overriden by goal " + sg + " from view " + v);
@@ -153,7 +151,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
 			problem.getSolver().set(new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
-			    makeProveHeuristic(goalMaker)));
+					makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -178,12 +176,12 @@ public class SolvingProcess extends OptiplaceProcess {
 	AbstractStrategy<Variable> makeFindHeuristic() {
 		// heuristic to find a solution fast
 		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(
-		    problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
+				problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 		ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
 		l.add(diveSrc);
 		// then add all heuristics from the view, in the views reverse order.
 		for (int i = views.size() - 1; i >= 0; i--) {
-			l.addAll(views.get(i).getFindHeuristics());
+			l.addAll(views.get(i).getSatisfactionHeuristics());
 		}
 		l.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
 		return IntStrategyFactory.sequencer(l.toArray(new AbstractStrategy[0]));
@@ -205,10 +203,6 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (goalMaker != null) {
 			strats.addAll(goalMaker.getHeuristics(problem));
 		}
-		// then add all heuristics from the view, in the views reverse order.
-		for (int i = views.size() - 1; i >= 0; i--) {
-			strats.addAll(views.get(i).getSearchHeuristics());
-		}
 		// then add default heuristics.
 		if (problem.getResourcesHandlers().get("MEM") != null) {
 			strats.addAll(new StickVMsHeuristic(problem.getResourcesHandlers().get("MEM").getSpecs()).getHeuristics(problem));
@@ -221,9 +215,6 @@ public class SolvingProcess extends OptiplaceProcess {
 		List<ActivatedHeuristic<? extends Variable>> lah = new ArrayList<>();
 		if (goalMaker != null) {
 			lah.addAll(goalMaker.getActivatedHeuristics(problem));
-		}
-		for (int i = views.size() - 1; i >= 0; i--) {
-			lah.addAll(views.get(i).getActivatedHeuristics());
 		}
 		lah.add(new Static2Activated<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
 

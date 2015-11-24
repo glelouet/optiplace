@@ -54,6 +54,18 @@ public interface SearchGoal {
 		return Collections.emptyList();
 	}
 
+	/**
+	 * get the heuristics to find a solution. They should focus more on the
+	 * possibility of a solution than the optimization of the problem, in order to
+	 * find a quick correct solution
+	 */
+	public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
+		return Collections.emptyList();
+	}
+
+	///////////////////////////////////////////////////////////
+	// Tooling for creation of strategies
+
 	@SuppressWarnings("serial")
 	public static AbstractStrategy<? extends Variable> makeAssignHeuristic(String name,
 	    VariableSelector<IntVar> varSelector, IntValueSelector valSelector, IntVar... vars) {

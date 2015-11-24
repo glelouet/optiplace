@@ -11,7 +11,6 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -124,25 +123,4 @@ public class EmptyView implements View {
 
 	protected ArrayList<AbstractStrategy<? extends Variable>> searchHeuristics = new ArrayList<>();
 
-	@Override
-	public List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
-		return searchHeuristics;
-	}
-
-	protected SearchGoal searchGoal = null;
-
-	@Override
-	public SearchGoal getSearchGoal() {
-		return searchGoal;
-	}
-
-	public void setSearchGoal(SearchGoal sg) {
-		searchGoal = sg;
-	}
-
-	@Override
-	public void extractActions(ActionGraph a, Configuration dest) {}
-
-	@Override
-	public void setConfig(ProvidedData conf) {}
 }

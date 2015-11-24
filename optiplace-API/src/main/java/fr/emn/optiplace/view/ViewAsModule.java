@@ -1,8 +1,13 @@
 package fr.emn.optiplace.view;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
@@ -12,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
 import fr.emn.optiplace.view.annotations.Goal;
@@ -39,10 +43,10 @@ public interface ViewAsModule {
 	}
 
 	/**
-	 * modify the destination configuration before extracing the actions.
+	 * modify the destination configuration before extracting the actions.
 	 *
 	 * @param config
-	 *          the dest configuration to modify
+	 *          the destination configuration to modify
 	 */
 	default void postProcessConfig(Configuration config) {
 	}
@@ -57,49 +61,15 @@ public interface ViewAsModule {
 	void associate(IReconfigurationProblem rp);
 
 	/**
+	 * empty any {@link IReconfigurationProblem} - related internal data. This
+	 * should be called within {@link #associate(IReconfigurationProblem)}.
+	 */
+	public void clear();
+
+	/**
 	 * @return the stream of constraints added by the administrator.
 	 * */
 	public Stream<Rule> getRequestedRules();
-
-	/**
-	 * get the heuristics to find quickly a solution. They should focus more on
-	 * the possibility of a solution than the optimization of the problem, in
-	 * order to find a quick correct solution
-	 */
-	public default List<AbstractStrategy<? extends Variable>> getFindHeuristics() {
-		return Collections.emptyList();
-	}
-
-	/**
-	 * get the heuristics specified in the view
-	 *
-	 * @return the list of heuristics made by the view from its internal
-	 *         algorithms. <br />
-	 *         The LAST added view's algorithms are used first, but in the order
-	 *         they were provided by the view. That means the last views have the
-	 *         highest priority.
-	 */
-	public default List<AbstractStrategy<? extends Variable>> getSearchHeuristics() {
-		return Collections.emptyList();
-	}
-
-	/**
-	 * get the heuristics that are activated upon given solver states. default
-	 * returns an empty list
-	 */
-	public default List<ActivatedHeuristic<? extends Variable>> getActivatedHeuristics() {
-		return Collections.emptyList();
-	}
-
-	/**
-	 * @return the (optionnal) goal specified by the view.<br />
-	 *         The LAST view's specified goal is used, so if any view v2 added
-	 *         after this view specifies its own goal the solver will use only
-	 *         v2's goal.
-	 */
-	public default SearchGoal getSearchGoal() {
-		return null;
-	}
 
 	/**
 	 * is called by the solver when the solving of the problem has ended. As such,
@@ -110,10 +80,8 @@ public interface ViewAsModule {
 	 * @param dest
 	 *          the destination configuration
 	 */
-	public void extractActions(ActionGraph actionGraph, Configuration dest);
-
-	/** empty any {@link IReconfigurationProblem} - related internal data. */
-	public void clear();
+	public default void extractActions(ActionGraph actionGraph, Configuration dest) {
+	}
 
 	/**
 	 * provides view to fulfill the dependencies.
@@ -145,7 +113,7 @@ public interface ViewAsModule {
 	 * extract the list of views needed to use this view. The returned names are
 	 * formatted using Class.getName().
 	 *
-	 * @return
+	 * @return a new modifiable set of String.
 	 */
 	default Set<String> extractDependencies() {
 		HashSet<String> ret = new HashSet<>();
@@ -160,7 +128,7 @@ public interface ViewAsModule {
 	/**
 	 * set the data used in this view. The fields annotated with {@link Parameter}
 	 * are found by reflection, their object is then cast to a ProvidedDataReader
-	 * which then reads the data .
+	 * which then reads the ViewData obtained from the {@link ViewDataProvider}.
 	 *
 	 * @param prv
 	 *          the provider of ViewData
@@ -226,6 +194,40 @@ public interface ViewAsModule {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * propose a goal correspond to a String id
+	 *
+	 * @param goalID
+	 *          the name of the goal
+	 * @return a new SearchGoal linked to this view to extract the corresponding
+	 *         IntVar and heuristics. return null if no corresponding goal. The
+	 *         default implementation returns a SearchGoal provided by a method of
+	 *         the same name that goalId and annotated with {@link Goal}
+	 */
+	public default SearchGoal getGoal(String goalID) {
+		for (Method m : getClass().getMethods()) {
+			Goal g = m.getAnnotation(Goal.class);
+			// a goal is annotated with @Goal
+			// a goal method returns a subclass of SearchGoal
+			if (g != null && SearchGoal.class.isAssignableFrom(m.getReturnType()) && m.getParameterCount() == 0) {
+				if (m.getName().toLowerCase().equals(goalID)) {
+					try {
+						SearchGoal ret = (SearchGoal) m.invoke(this);
+						if (ret != null)
+							return ret;
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						logger.warn("can't invoke method " + m + " to get a searchGoal", e);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public default List<? extends AbstractStrategy<? extends Variable>> getSatisfactionHeuristics() {
+		return Collections.emptyList();
 	}
 
 }

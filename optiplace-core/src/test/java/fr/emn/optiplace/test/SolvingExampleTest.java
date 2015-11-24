@@ -31,7 +31,6 @@ public class SolvingExampleTest extends SolvingExample {
 		// resources = new String[] {};
 
 		prepare();
-		strat.setSearchGoal(null);
 		// strat.setMoveMigratingVMs(true);
 		Configuration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
