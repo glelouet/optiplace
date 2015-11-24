@@ -33,7 +33,8 @@ public interface ViewAsModule {
 	static final Logger logger = LoggerFactory.getLogger(ViewAsModule.class);
 
 	/**
-	 * modify the source configuration of the center before calling the solver.<br />
+	 * modify the source configuration of the center before calling the solver.
+	 * <br />
 	 * This allows eg to add new VMs, resources, nodes.
 	 *
 	 * @param config
@@ -68,7 +69,7 @@ public interface ViewAsModule {
 
 	/**
 	 * @return the stream of constraints added by the administrator.
-	 * */
+	 */
 	public Stream<Rule> getRequestedRules();
 
 	/**
@@ -187,11 +188,12 @@ public interface ViewAsModule {
 		HashSet<String> ret = new HashSet<>();
 		for (Method m : getClass().getMethods()) {
 			// a goal is annotated with @Goal
-			// a goal method returns a subclass of SearchGoal
-			if (m.getAnnotation(Goal.class) != null && SearchGoal.class.isAssignableFrom(m.getReturnType())
-			    && m.getParameterCount() == 0) {
-				ret.add(m.getName().toLowerCase());
-			}
+			if (m.getAnnotation(Goal.class) != null)
+				// a goal method returns a subclass of SearchGoal
+				if (SearchGoal.class.isAssignableFrom(m.getReturnType()))
+					if (m.getParameterCount() == 0) {
+						ret.add(m.getName().toLowerCase());
+					}
 		}
 		return ret;
 	}

@@ -6,8 +6,14 @@ package fr.emn.optiplace.view;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.Writer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Describe the dependencies, and configuration parameters of a view. Should be
@@ -20,21 +26,20 @@ public class ViewDescription {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(ViewDescription.class);
 
-	public String name;
-
 	/** full class name of the view, necessary to retrieve it from a jar */
 	public String clazz;
 
 	/**
-	 * keys are fields for the view which need to be configured, configuration is
-	 * in the associated value. eg (att1 - file1.txt)
+	 * required configuration files (x.conf) for the view to be activated
 	 */
 	protected Set<String> requiredConf;
 
 	/** same as {@link #requiredConf} but for optional configured fields */
 	protected Set<String> optionalConf;
 
-	/** views this view depends on. */
+	/**
+	 * views this view depends on. Those views should be injected by the Server
+	 */
 	protected Set<String> depends;
 
 	/** goals proposed by this view */
@@ -52,7 +57,7 @@ public class ViewDescription {
 	}
 
 	/**
-	 * translate a configuration line from eg a file describing the view.
+	 * translate a configuration line from a text description the view.
 	 *
 	 * @param line
 	 */
@@ -121,7 +126,6 @@ public class ViewDescription {
 		clazz = v.getClass().getName();
 		optionalConf = v.extractConfigurations(false);
 		requiredConf = v.extractConfigurations(true);
-		name = v.getClass().getSimpleName();
 		goals = v.extractGoals();
 	}
 
@@ -151,6 +155,13 @@ public class ViewDescription {
 		} catch (IOException e) {
 			logger.warn("", e);
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringWriter sb = new StringWriter();
+		write(sb);
+		return sb.toString();
 	}
 
 }
