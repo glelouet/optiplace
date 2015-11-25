@@ -145,6 +145,12 @@ public class SolvingProcess extends OptiplaceProcess {
 		}
 		if (goalMaker != null) {
 			problem.setObjective(goalMaker.getObjective(problem));
+		} else if (goalId != null) {
+			logger.warn("error : can't find any objective with id " + goalId + " in present views. available goal ids are :");
+			for (ViewAsModule v : views) {
+				logger.warn(" (" + v.getClass().getSimpleName() + ")" + v.extractGoals());
+			}
+			throw new UnsupportedOperationException();
 		}
 
 		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
