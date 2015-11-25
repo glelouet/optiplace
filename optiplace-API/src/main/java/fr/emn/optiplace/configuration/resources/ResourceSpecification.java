@@ -59,10 +59,34 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	Map<VM, Integer> toUses();
 
 	/**
+	 * set the use of a VM
+	 * 
+	 * @param v
+	 *          the VM
+	 * @param use
+	 *          the use value of this VM
+	 */
+	default void use(VM v, int use) {
+		toUses().put(v, use);
+	}
+
+	/**
 	 * @return a map of the capacities of the nodes. should return a value even if
 	 *         a node is not present.
 	 */
 	Map<VMHoster, Integer> toCapacities();
+
+	/**
+	 * set the capacity of the hoster
+	 * 
+	 * @param h
+	 *          the hoster
+	 * @param capacity
+	 *          the capacity value of the hoster
+	 */
+	default void capacity(VMHoster h, int capacity) {
+		toCapacities().put(h, capacity);
+	}
 
 	/**
 	 * get the sum of the uses of vms

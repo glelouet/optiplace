@@ -83,12 +83,14 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	@Override
 	public int getLoad(VM vm) {
-		return vmsUses.get(vm);
+		Integer ret = vmsUses.get(vm);
+		return ret == null ? 0 : ret;
 	}
 
 	@Override
 	public int getCapacity(VMHoster h) {
-		return hostersCapacities.get(h);
+		Integer ret = hostersCapacities.get(h);
+		return ret == null ? 0 : ret;
 	}
 
 	@Override

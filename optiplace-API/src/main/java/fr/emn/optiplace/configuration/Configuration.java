@@ -505,6 +505,16 @@ public interface Configuration {
 	LinkedHashMap<String, ResourceSpecification> resources();
 
 	/**
+	 * ensure a resource is present
+	 * 
+	 * @param name
+	 *          the name of the resource
+	 * @return the present resource specification, or a new one if not present
+	 *         yet.
+	 */
+	ResourceSpecification addResource(String name);
+
+	/**
 	 * some basic checks to perform on a configuration
 	 */
 	static enum BasicChecks {
