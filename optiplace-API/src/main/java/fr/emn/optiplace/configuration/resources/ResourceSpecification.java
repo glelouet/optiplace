@@ -32,7 +32,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 	/**
 	 * get the use value of a VM
-	 * 
+	 *
 	 * @param vm
 	 *          the VM
 	 * @return the use value of a VM if set, or 0 if not set.
@@ -254,6 +254,8 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the predicate on the hosters capacities
 	 * @return a new stream of the Hosters
 	 */
-	public Stream<VMHoster> findHosters(Predicate<Integer> filter);
+	public default Stream<VMHoster> findHosters(Configuration c, Predicate<Integer> filter) {
+		return c.getHosters(null).filter(h -> filter.test(getCapacity(h)));
+	}
 
 }

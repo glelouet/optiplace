@@ -5,8 +5,6 @@
 package fr.emn.optiplace.configuration.resources;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
@@ -131,11 +129,6 @@ public class MappedResourceSpecification implements ResourceSpecification {
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public Stream<VMHoster> findHosters(Predicate<Integer> filter) {
-		return hostersCapacities.entrySet().stream().filter(e -> filter.test(e.getValue())).map(Entry::getKey);
 	}
 
 	@Override

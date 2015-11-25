@@ -10,6 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.SolvingProcess;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -84,6 +85,21 @@ public class ReconfigurationProblemTest {
 	public void testGoalNbMigrations() {
 		Configuration src = new SimpleConfiguration();
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
+	}
 
+	@Test
+	public void testBugZeroResource() {
+		SimpleConfiguration c = new SimpleConfiguration("mem");
+		Node n = c.addOnline("n", 4);
+		VM v = c.addVM("v", n, 2);
+
+		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
+
+		SolvingProcess test = new SolvingProcess();
+		test.getStrat().setMoveMigratingVMs(true);
+		test.source(c);
+		test.solve();
+		Configuration t = test.getTarget().getDestination();
+		Assert.assertNull(t);
 	}
 }

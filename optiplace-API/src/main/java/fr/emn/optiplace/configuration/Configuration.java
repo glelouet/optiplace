@@ -628,7 +628,7 @@ public interface Configuration {
 	 *         present, return an empty stream ; if this site is null, return the
 	 *         stream of the nodes with no site.
 	 */
-	public Stream<VMHoster> getNodes(Site site);
+	public Stream<VMHoster> getHosters(Site site);
 
 	///////////////////////////////////
 	// host tags

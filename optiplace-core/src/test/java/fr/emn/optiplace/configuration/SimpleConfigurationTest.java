@@ -103,12 +103,12 @@ public class SimpleConfigurationTest {
 			nodes[i] = c.addOnline("n" + i);
 		}
 		Assert.assertEquals(c.nbSites(), 0);
-		Assert.assertEquals(c.getNodes(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
+		Assert.assertEquals(c.getHosters(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
 		Site site1 = c.addSite("site1", nodes[2], nodes[3]);
 		Assert.assertEquals(c.nbSites(), 1);
-		Assert.assertEquals(c.getNodes(site1).collect(Collectors.toSet()),
+		Assert.assertEquals(c.getHosters(site1).collect(Collectors.toSet()),
 		    new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
-		Assert.assertEquals(c.getNodes(null).collect(Collectors.toSet()).size(), 6);
+		Assert.assertEquals(c.getHosters(null).collect(Collectors.toSet()).size(), 6);
 	}
 
 }

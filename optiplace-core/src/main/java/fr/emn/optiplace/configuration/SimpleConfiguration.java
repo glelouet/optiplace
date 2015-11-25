@@ -403,7 +403,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public Stream<VMHoster> getNodes(Site site) {
+	public Stream<VMHoster> getHosters(Site site) {
 		if (site == null) {
 			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}

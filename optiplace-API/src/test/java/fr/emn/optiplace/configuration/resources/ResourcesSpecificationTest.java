@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
@@ -51,7 +52,7 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public Stream<VMHoster> findHosters(Predicate<Integer> filter) {
+			public Stream<VMHoster> findHosters(Configuration c, Predicate<Integer> filter) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -110,7 +111,7 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public Stream<VMHoster> findHosters(Predicate<Integer> val) {
+			public Stream<VMHoster> findHosters(Configuration c, Predicate<Integer> val) {
 				throw new UnsupportedOperationException();
 			}
 
