@@ -31,9 +31,11 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	void use(VM v, int use);
 
 	/**
-	 *
+	 * get the use value of a VM
+	 * 
 	 * @param vm
-	 * @return
+	 *          the VM
+	 * @return the use value of a VM if set, or 0 if not set.
 	 */
 	int getUse(VM vm);
 
@@ -47,6 +49,15 @@ public interface ResourceSpecification extends ProvidedDataReader {
 		return ret;
 	}
 
+	/**
+	 * set the use of a VM
+	 *
+	 * @param v
+	 *          the VM
+	 * @param use
+	 *          the use value
+	 * @return this.
+	 */
 	default ResourceSpecification with(VM v, int use) {
 		use(v, use);
 		return this;
@@ -98,6 +109,15 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 */
 	void capacity(VMHoster h, int capacity);
 
+	/**
+	 * set the capacity of an hoster
+	 *
+	 * @param h
+	 *          the hoster
+	 * @param capa
+	 *          the hoster capacity value
+	 * @return this
+	 */
 	default ResourceSpecification with(VMHoster h, int capa) {
 		capacity(h, capa);
 		return this;
