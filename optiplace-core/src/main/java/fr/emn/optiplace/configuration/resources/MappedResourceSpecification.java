@@ -5,8 +5,8 @@
 package fr.emn.optiplace.configuration.resources;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.Node;
@@ -53,11 +53,6 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	private HashMap<VMHoster, Integer> hostersCapacities = new HashMap<>();
 
-	@Override
-	public Map<VMHoster, Integer> toCapacities() {
-		return hostersCapacities;
-	}
-
 	/**
 	 * @param nodesCapacities
 	 *          the nodesCapacities to set
@@ -68,11 +63,6 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	private HashMap<VM, Integer> vmsUses = new HashMap<VM, Integer>();
 
-	@Override
-	public Map<VM, Integer> toUses() {
-		return vmsUses;
-	}
-
 	/**
 	 * @param vmsUses
 	 *          the vmsUses to set
@@ -82,9 +72,9 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public int getLoad(VM vm) {
+	public int getUse(VM vm) {
 		Integer ret = vmsUses.get(vm);
-		return ret == null ? 0 : ret;
+		return ret != null ? ret : 0;
 	}
 
 	@Override
@@ -144,7 +134,17 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public Stream<VMHoster> findHostersWithLess(int val) {
-		return hostersCapacities.entrySet().stream().filter(e -> e.getValue() < val).map(Entry::getKey);
+	public Stream<VMHoster> findHosters(Predicate<Integer> filter) {
+		return hostersCapacities.entrySet().stream().filter(e -> filter.test(e.getValue())).map(Entry::getKey);
+	}
+
+	@Override
+	public void use(VM v, int use) {
+		vmsUses.put(v, use);
+	}
+
+	@Override
+	public void capacity(VMHoster h, int capacity) {
+		hostersCapacities.put(h, capacity);
 	}
 }

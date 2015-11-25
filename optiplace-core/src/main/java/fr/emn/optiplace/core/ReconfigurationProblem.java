@@ -202,7 +202,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 					if (use > 0) {
 						// if the VM requires a resource, for this resource we remove all
 						// externs that have less of that resource than the VM needs.
-						specs.findHostersWithLess(use).filter(h -> h instanceof Extern).mapToInt(e -> b.extern((Extern) e))
+						specs.findHosters(val -> val < use).filter(h -> h instanceof Extern).mapToInt(e -> b.extern((Extern) e))
 								.forEach(val -> {
 									try {
 										extern.removeValue(val, Cause.Null);

@@ -4,13 +4,8 @@
 
 package fr.emn.optiplace.configuration.resources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
@@ -33,7 +28,7 @@ public class ResourcesSpecificationTest {
 	@Test
 	public void testComparatorNodeSort() {
 		Node[] nodes = new Node[10];
-		Map<Node, Integer> capacities = new HashMap<>();
+		Map<VMHoster, Integer> capacities = new HashMap<>();
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = new Node("n" + i);
 			capacities.put(nodes[i], i + i % 2 * 10);
@@ -42,21 +37,6 @@ public class ResourcesSpecificationTest {
 
 			@Override
 			public void readLine(String line) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Map<VM, Integer> toUses() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Map<VMHoster, Integer> toCapacities() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public int getLoad(VM vm) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -71,8 +51,23 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public Stream<VMHoster> findHostersWithLess(int val) {
+			public Stream<VMHoster> findHosters(Predicate<Integer> filter) {
 				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public void use(VM v, int use) {
+				throw new UnsupportedOperationException("implement this !");
+			}
+
+			@Override
+			public int getUse(VM vm) {
+				throw new UnsupportedOperationException("implement this !");
+			}
+
+			@Override
+			public void capacity(VMHoster h, int capacity) {
+				capacities.put(h, capacity);
 			}
 		};
 		ArrayList<Node> list = new ArrayList<>(Arrays.asList(nodes));
@@ -105,21 +100,6 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public Map<VM, Integer> toUses() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Map<VMHoster, Integer> toCapacities() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public int getLoad(VM vm) {
-				return uses.get(vm);
-			}
-
-			@Override
 			public String getType() {
 				throw new UnsupportedOperationException();
 			}
@@ -130,8 +110,24 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public Stream<VMHoster> findHostersWithLess(int val) {
+			public Stream<VMHoster> findHosters(Predicate<Integer> val) {
 				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public void use(VM v, int use) {
+				uses.put(v, use);
+			}
+
+			@Override
+			public int getUse(VM vm) {
+				Integer ret = uses.get(vm);
+				return ret != null ? ret : 0;
+			}
+
+			@Override
+			public void capacity(VMHoster h, int capacity) {
+				throw new UnsupportedOperationException("implement this !");
 			}
 		};
 		ArrayList<VM> list = new ArrayList<>(Arrays.asList(vms));

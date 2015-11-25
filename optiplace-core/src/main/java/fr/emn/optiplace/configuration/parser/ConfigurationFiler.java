@@ -123,14 +123,14 @@ public class ConfigurationFiler {
 					if (me == null || !(me instanceof VMHoster)) {
 						throw new UnsupportedOperationException();
 					}
-					res.toCapacities().put((VMHoster) me, Integer.parseInt(rs[1]));
+					res.capacity((VMHoster) me, Integer.parseInt(rs[1]));
 				}
 			}
 			if (l2s[2].length() > 1) {
 				String[] vms = l2s[2].substring(0, l2s[2].length() - 1).split(", ");
 				for (String v : vms) {
 					String[] vs = v.split("=");
-					res.toUses().put(new VM(vs[0]), Integer.parseInt(vs[1]));
+					res.use(new VM(vs[0]), Integer.parseInt(vs[1]));
 				}
 			}
 		}

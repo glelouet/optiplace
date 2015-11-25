@@ -4,11 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.SolvingProcess;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.*;
 
 public class ReconfigurationPoblemTestExternResources {
 
@@ -27,7 +23,7 @@ public class ReconfigurationPoblemTestExternResources {
 		Assert.assertEquals(out.getFutureLocation(running), n);
 		Assert.assertEquals(out.getFutureLocation(waiting), e);
 
-		cfg.resources().get("mem").toCapacities().put(e, 5);
+		cfg.resource("mem").capacity(e, 5);
 		cfg.setHost(waiting, e);
 		sp = new SolvingProcess();
 		sp.source(cfg);

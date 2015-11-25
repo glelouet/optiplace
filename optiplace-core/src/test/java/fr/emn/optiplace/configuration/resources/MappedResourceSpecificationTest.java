@@ -25,6 +25,6 @@ public class MappedResourceSpecificationTest {
 		test.readLine("" + MappedResourceSpecification.START_NODE_CAPA + "nod = 25");
 		test.readLine("" + MappedResourceSpecification.START_VM_USE + "vma = 12");
 		Assert.assertEquals(test.getCapacity(new Node("nod")), 25);
-		Assert.assertEquals(test.getLoad(new VM("vma")), 12);
+		Assert.assertEquals(test.getUse(new VM("vma")), 12);
 	}
 }

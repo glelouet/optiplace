@@ -4,15 +4,7 @@
 
 package fr.emn.optiplace.solver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.Node;
@@ -182,7 +174,7 @@ public class ProblemStatistics {
 			int minVMUse = Integer.MAX_VALUE, maxVMUse = 0;
 			double sumUse = 0;
 			for (VM v : target.b().vms()) {
-				int u = res.getLoad(v);
+				int u = res.getUse(v);
 				sumUse += u;
 				minVMUse = Math.min(minVMUse, u);
 				maxVMUse = Math.max(maxVMUse, u);

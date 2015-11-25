@@ -2,7 +2,7 @@ package fr.emn.optiplace.configuration.resources;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,8 +20,37 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	/** @return the type of the resources, used as an ID. */
 	String getType();
 
-	int getLoad(VM vm);
+	/**
+	 * set the use of a VM
+	 *
+	 * @param v
+	 *          the VM
+	 * @param use
+	 *          the use value of this VM
+	 */
+	void use(VM v, int use);
 
+	/**
+	 *
+	 * @param vm
+	 * @return
+	 */
+	int getUse(VM vm);
+
+	default int sumUses(VM... vms) {
+		int ret = 0;
+		if (vms != null) {
+			for (VM v : vms) {
+				ret += getUse(v);
+			}
+		}
+		return ret;
+	}
+
+	default ResourceSpecification with(VM v, int use) {
+		use(v, use);
+		return this;
+	}
 	/**
 	 * @param vms
 	 *          the vms to get the usages. Should not contain null values.
@@ -31,11 +60,18 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	default int[] getUses(VM... vms) {
 		int[] ret = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			ret[i] = getLoad(vms[i]);
+			ret[i] = getUse(vms[i]);
 		}
 		return ret;
 	}
 
+	/**
+	 * get the capacity of an hoster
+	 *
+	 * @param h
+	 *          an hoster
+	 * @return the capacity is set, 0 if not set.
+	 */
 	int getCapacity(VMHoster h);
 
 	/**
@@ -53,56 +89,18 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	}
 
 	/**
-	 * @return a map of the usages of the vms. Should return a value even if a vm
-	 *         is not present.
-	 */
-	Map<VM, Integer> toUses();
-
-	/**
-	 * set the use of a VM
-	 * 
-	 * @param v
-	 *          the VM
-	 * @param use
-	 *          the use value of this VM
-	 */
-	default void use(VM v, int use) {
-		toUses().put(v, use);
-	}
-
-	/**
-	 * @return a map of the capacities of the nodes. should return a value even if
-	 *         a node is not present.
-	 */
-	Map<VMHoster, Integer> toCapacities();
-
-	/**
 	 * set the capacity of the hoster
-	 * 
+	 *
 	 * @param h
 	 *          the hoster
 	 * @param capacity
 	 *          the capacity value of the hoster
 	 */
-	default void capacity(VMHoster h, int capacity) {
-		toCapacities().put(h, capacity);
-	}
+	void capacity(VMHoster h, int capacity);
 
-	/**
-	 * get the sum of the uses of vms
-	 *
-	 * @param vms
-	 *          the virtualMachines hosted on the given node
-	 * @return the sum of the use of the vms
-	 */
-	default int getUse(VM... vms) {
-		int sum = 0;
-		if (vms != null) {
-			for (VM vm : vms) {
-				sum += getLoad(vm);
-			}
-		}
-		return sum;
+	default ResourceSpecification with(VMHoster h, int capa) {
+		capacity(h, capa);
+		return this;
 	}
 
 	/**
@@ -115,12 +113,12 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return the use of the node
 	 */
 	default int getUse(Configuration cfg, Node n) {
-		return cfg.getHosted(n).collect(Collectors.summingInt(this::getLoad));
+		return cfg.getHosted(n).collect(Collectors.summingInt(this::getUse));
 	}
 
 	/** get the total use of the VMs running in the center */
 	default int getUse(Configuration cfg) {
-		return cfg.getVMs().mapToInt(this::getLoad).sum();
+		return cfg.getVMs().mapToInt(this::getUse).sum();
 	}
 
 	/** get the total capacity of the nodes which are online */
@@ -139,9 +137,9 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 */
 	default boolean canHost(Configuration cfg, VMHoster n, VM vm) {
 		if (n instanceof Node) {
-			return getUse(cfg, (Node) n) + getLoad(vm) <= getCapacity(n);
+			return getUse(cfg, (Node) n) + getUse(vm) <= getCapacity(n);
 		} else if (n instanceof Extern) {
-			return getLoad(vm) <= getCapacity(n);
+			return getUse(vm) <= getCapacity(n);
 		}
 		throw new UnsupportedOperationException("can't handle the class " + n.getClass());
 	}
@@ -160,7 +158,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 			return new Comparator<VM>() {
 				@Override
 				public int compare(VM o1, VM o2) {
-					return getLoad(o1) - getLoad(o2);
+					return getUse(o1) - getUse(o2);
 				}
 
 				@Override
@@ -172,7 +170,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 			return new Comparator<VM>() {
 				@Override
 				public int compare(VM o1, VM o2) {
-					return getLoad(o2) - getLoad(o1);
+					return getUse(o2) - getUse(o1);
 				}
 
 				@Override
@@ -230,12 +228,12 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	}
 
 	/**
-	 * find all the hosters with strictly less capacity than given value
+	 * find all the hosters which capacity respects given predicate
 	 *
-	 * @param val
-	 *          the value to compare the hosters capacities to
+	 * @param filter
+	 *          the predicate on the hosters capacities
 	 * @return a new stream of the Hosters
 	 */
-	public Stream<VMHoster> findHostersWithLess(int val);
+	public Stream<VMHoster> findHosters(Predicate<Integer> filter);
 
 }

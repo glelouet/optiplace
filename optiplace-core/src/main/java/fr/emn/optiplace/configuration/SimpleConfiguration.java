@@ -63,7 +63,7 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public ResourceSpecification addResource(String name) {
+	public ResourceSpecification resource(String name) {
 		ResourceSpecification ret = resources.get(name);
 		if (ret == null) {
 			ret = new MappedResourceSpecification(name);
@@ -234,7 +234,7 @@ public class SimpleConfiguration implements Configuration {
 		if (resources != null && resources.length > 0) {
 			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
 			for (int i = 0; i < specs.length && i < resources.length; i++) {
-				specs[i].toUses().put(vm, resources[i]);
+				specs[i].use(vm, resources[i]);
 			}
 		}
 		return vm;
@@ -272,7 +272,7 @@ public class SimpleConfiguration implements Configuration {
 				ResourceSpecification[] specs = this.resources.values()
 				    .toArray(new ResourceSpecification[this.resources.size()]);
 				for (int i = 0; i < specs.length && i < resources.length; i++) {
-					specs[i].toCapacities().put(n, resources[i]);
+					specs[i].capacity(n, resources[i]);
 				}
 			}
 			return n;
@@ -515,7 +515,7 @@ public class SimpleConfiguration implements Configuration {
 				ResourceSpecification[] specs = this.resources.values()
 				    .toArray(new ResourceSpecification[this.resources.size()]);
 				for (int i = 0; i < specs.length && i < resources.length; i++) {
-					specs[i].toCapacities().put(ret, resources[i]);
+					specs[i].capacity(ret, resources[i]);
 				}
 			}
 			return ret;

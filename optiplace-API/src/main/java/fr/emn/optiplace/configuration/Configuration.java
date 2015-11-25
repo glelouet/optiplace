@@ -506,13 +506,13 @@ public interface Configuration {
 
 	/**
 	 * ensure a resource is present
-	 * 
+	 *
 	 * @param name
 	 *          the name of the resource
 	 * @return the present resource specification, or a new one if not present
 	 *         yet.
 	 */
-	ResourceSpecification addResource(String name);
+	ResourceSpecification resource(String name);
 
 	/**
 	 * some basic checks to perform on a configuration
@@ -572,7 +572,7 @@ public interface Configuration {
 	 * @return the minimum of capa(n)/use(VM) for each resource of specs
 	 */
 	public static double maxNBVms(Node n, VM vm, Stream<ResourceSpecification> specs) {
-		return specs.mapToDouble(s -> 1.0 * s.getCapacity(n) / s.getLoad(vm)).min().getAsDouble();
+		return specs.mapToDouble(s -> 1.0 * s.getCapacity(n) / s.getUse(vm)).min().getAsDouble();
 	}
 
 	/********************

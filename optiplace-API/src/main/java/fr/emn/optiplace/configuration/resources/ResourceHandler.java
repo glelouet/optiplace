@@ -74,11 +74,7 @@ public class ResourceHandler {
 		nodesLoadsByIndex = new IntVar[nodes.length];
 		vmsLoads = new int[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			Integer iuse = specs.toUses().get(vms[i]);
-			if (iuse == null) {
-				throw new UnsupportedOperationException("vm " + vms[i] + " not specified in resources " + specs.toUses());
-			}
-			int use = iuse;
+			int use = specs.getUse(vms[i]);
 			vmsLoads[i] = use;
 			if (maxVMUse < use) {
 				maxVMUse = use;
@@ -90,7 +86,7 @@ public class ResourceHandler {
 		nodesCapacities = new int[nodes.length];
 		for (int i = 0; i < nodes.length; i++) {
 			Node n = nodes[i];
-			int capa = specs.toCapacities().get(n);
+			int capa = specs.getCapacity(n);
 			nodesCapacities[i] = capa;
 			if (maxNodeCapa < capa) {
 				maxNodeCapa = capa;
@@ -142,7 +138,7 @@ public class ResourceHandler {
 	}
 
 	public int getVMLoad(VM vm) {
-		return specs.getLoad(vm);
+		return specs.getUse(vm);
 	}
 
 	/**
