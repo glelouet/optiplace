@@ -23,11 +23,20 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -406,23 +415,38 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	/**
-	 * if the vm has no IntVar representing its site, we create one.
+	 * for each hoster at index i+1, hosterSite[i]=site(hoster[i])
+	 */
+	protected int[] hosterSite = null;
+
+	/**
+	 * get the IntVar indexed to the site index of the VM
 	 *
 	 * @param vmidx
-	 * @return
+	 *          the index of the VM
+	 * @return the variable representing the destination site of the VM, or -1 if
+	 *         no site.
 	 */
 	@Override
 	public IntVar getSite(int vmidx) {
 		if (vmSites == null) {
 			return v.createIntegerConstant(-1);
 		}
-		if (vmidx == -1) {
+		if (vmidx == -1 || vmidx >= c.nbVMs()) {
 			return null;
+		}
+		if (hosterSite == null) {
+			hosterSite = new int[c.nbExterns() + c.nbNodes() + 1];
+			hosterSite[0] = -1;
+			for (int i = 0; i < c.nbNodes(); i++)
+				hosterSite[i + 1] = b.site(c.getSite(b.node(i)));
+			for (int i = 0; i < c.nbExterns(); i++)
+				hosterSite[i + 1 + c.nbNodes()] = b.site(c.getSite(b.extern(i)));
 		}
 		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
-			post(ICF.element(ret, b.nodesSites(), getNode(vmidx)));
+			post(ICF.element(ret, hosterSite, getHoster(vmidx), -1, "detect"));
 			vmSites[vmidx] = ret;
 		}
 		return ret;
@@ -673,7 +697,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			ret.addExtern(e.getName());
 		}
 		c.getSites().forEach(s -> {
-			ret.addSite(s.getName(), c.getHosters(s).collect(Collectors.toList()).toArray(new Node[] {}));
+			ret.addSite(s.getName(), c.getHosters(s).collect(Collectors.toList()).toArray(new VMHoster[] {}));
 		});
 		c.getVMs().forEach(vm -> {
 			// if the VM was already migrating, we keep migrating.
