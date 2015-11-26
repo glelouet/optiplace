@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
-
 /**
  * <p>
  * Node, Extern and VirtualMachine in a datacenter.<br />
@@ -61,13 +60,13 @@ public interface Configuration {
 	 */
 	public static boolean sameElements(Configuration first, Configuration second) {
 		return !first.getNodes().parallel().filter(n -> !second.hasNode(n)).findAny().isPresent()
-		    && !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
-		    && !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
-		    && !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
-		    && !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
-		    && !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent()
-		    && !second.getSites().parallel().filter(v -> !first.hasSite(v)).findAny().isPresent()
-		    && !first.getSites().parallel().filter(v -> !second.hasSite(v)).findAny().isPresent();
+				&& !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
+				&& !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
+				&& !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
+				&& !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
+				&& !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent()
+				&& !second.getSites().parallel().filter(v -> !first.hasSite(v)).findAny().isPresent()
+				&& !first.getSites().parallel().filter(v -> !second.hasSite(v)).findAny().isPresent();
 	}
 
 	/**
@@ -78,6 +77,29 @@ public interface Configuration {
 	 * @return the element with corresponding name if exists, or null.
 	 */
 	ManagedElement getElementByName(String name);
+
+	/**
+	 * get an element with a name and a given type in the configuration
+	 * 
+	 * @param name
+	 *          the name of the element
+	 * @param clazz
+	 *          the type of the element
+	 * @return a corresponding element if exists, null if no element with given
+	 *         name, throws an exception if incorrect type
+	 * @throws ClassCastException
+	 *           if an element with given name is present but does not have a
+	 *           subclass of clazz
+	 */
+	@SuppressWarnings("unchecked")
+	default <T extends ManagedElement> T getElementByName(String name, Class<T> clazz) throws ClassCastException {
+		ManagedElement ret = getElementByName(name);
+		if (ret == null)
+			return null;
+		if (clazz.isAssignableFrom(clazz))
+			return (T) ret;
+		throw new ClassCastException("cannot cast " + ret + " to " + clazz);
+	}
 
 	/**
 	 * Get the list of nodes that are online.
@@ -367,11 +389,11 @@ public interface Configuration {
 	VM addVM(String vmName, VMHoster host, int... resources);
 
 	/**
-	 * Remove a virtual machine.
+	 * Ensure we don't have a VM with given name
 	 *
 	 * @param vm
 	 *          the virtual machine to remove
-	 * @return true if this VM was present
+	 * @return true if this VM was present and is removed
 	 */
 	boolean remove(VM vm);
 
@@ -400,7 +422,7 @@ public interface Configuration {
 	boolean setOffline(Node node);
 
 	/**
-	 * Remove a node and set all its vms to waiting
+	 * Ensure we don't have a Node with given name.
 	 *
 	 * @param n
 	 *          the node to remove
@@ -484,14 +506,16 @@ public interface Configuration {
 	}
 
 	/**
-	 * add an external site to host some VMs
+	 * Ensure we have an Extern with given name and given resources
 	 *
-	 * @param e
-	 *          the name of the exter. must be unique, as no
-	 *          {@link ManagedElement} uses it
+	 * @param name
+	 *          the name of the extern.
+	 * @param resources
+	 *          optional resources capacity of the extern. can be null, or an
+	 *          array of any size.
 	 * @return the extern with this name if already present, a new Extern with
-	 *         this name if no ManagedElement with this name, or null if anohter
-	 *         ManagedElement has this name
+	 *         this name if no ManagedElement with this name, or null if another
+	 *         non-extern ManagedElement has this name
 	 */
 	Extern addExtern(String name, int... resources);
 
@@ -500,6 +524,8 @@ public interface Configuration {
 	boolean hasExtern(Extern e);
 
 	int nbExterns();
+
+	boolean remove(Extern e);
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();
@@ -540,7 +566,7 @@ public interface Configuration {
 			@Override
 			public boolean check(Configuration c) {
 				return !c.getRunnings().filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
-		        .findFirst().isPresent();
+						.findFirst().isPresent();
 			}
 
 		};
@@ -585,14 +611,15 @@ public interface Configuration {
 	 */
 
 	/**
-	 * add nodes to a site at given index
+	 * Ensure a list of hosters is added to a Site with given name.
 	 *
 	 * @param siteName
-	 *          the requested site name, or null to add the node to no site.
-	 * @param nodes
-	 *          the nodes to add to the site, or none to create an empty site or
+	 *          the requested site name, or null to add the hosters to no site.
+	 * @param hosters
+	 *          the hosters to add to the site, or none to create an empty site or
 	 *          retrieve an existing site
-	 * @return the site with given name
+	 * @return The corresponding site, or null if sitename was null or already in
+	 *         use by a non-site element.
 	 */
 	public Site addSite(String siteName, VMHoster... hosters);
 
@@ -620,6 +647,8 @@ public interface Configuration {
 		return me != null && me instanceof Site;
 	}
 
+	boolean remove(Site site);
+
 	/**
 	 *
 	 * @param Site
@@ -645,18 +674,15 @@ public interface Configuration {
 		}
 		if (element instanceof Node) {
 			tagNode((Node) element, tag);
-		} else
-		  if (element instanceof Extern) {
+		} else if (element instanceof Extern) {
 			tagExtern((Extern) element, tag);
-		} else
-		    if (element instanceof VM) {
+		} else if (element instanceof VM) {
 			tagVM((VM) element, tag);
-		} else
-		      if (element instanceof Site) {
+		} else if (element instanceof Site) {
 			tagSite((Site) element, tag);
 		} else {
 			throw new UnsupportedOperationException(
-			    "can't tag element " + element + " with unsupported type in switch : " + element.getClass());
+					"can't tag element " + element + " with unsupported type in switch : " + element.getClass());
 		}
 	}
 
@@ -678,18 +704,15 @@ public interface Configuration {
 		}
 		if (element instanceof Node) {
 			delTagNode((Node) element, tag);
-		} else
-		  if (element instanceof Extern) {
+		} else if (element instanceof Extern) {
 			delTagExtern((Extern) element, tag);
-		} else
-		    if (element instanceof VM) {
+		} else if (element instanceof VM) {
 			delTagVM((VM) element, tag);
-		} else
-		      if (element instanceof Site) {
+		} else if (element instanceof Site) {
 			delTagSite((Site) element, tag);
 		} else {
 			throw new UnsupportedOperationException(
-			    "can't deltag element " + element + " with unsupported type in switch : " + element.getClass());
+					"can't deltag element " + element + " with unsupported type in switch : " + element.getClass());
 		}
 	}
 

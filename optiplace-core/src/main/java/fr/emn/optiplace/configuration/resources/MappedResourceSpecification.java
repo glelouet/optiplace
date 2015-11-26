@@ -7,6 +7,7 @@ package fr.emn.optiplace.configuration.resources;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
+import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
@@ -133,11 +134,23 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	@Override
 	public void use(VM v, int use) {
+		if (use == 0)
+			vmsUses.remove(v);
+		else
 		vmsUses.put(v, use);
 	}
 
 	@Override
 	public void capacity(VMHoster h, int capacity) {
+		if (capacity == 0)
+			hostersCapacities.remove(h);
+		else
 		hostersCapacities.put(h, capacity);
+	}
+
+	@Override
+	public void remove(ManagedElement e) {
+		vmsUses.remove(e);
+		hostersCapacities.remove(e);
 	}
 }

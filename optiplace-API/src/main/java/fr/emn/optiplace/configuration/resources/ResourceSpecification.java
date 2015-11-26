@@ -6,7 +6,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.ManagedElement;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
@@ -257,5 +262,14 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	public default Stream<VMHoster> findHosters(Configuration c, Predicate<Integer> filter) {
 		return c.getHosters(null).filter(h -> filter.test(getCapacity(h)));
 	}
+
+	/**
+	 * ensures an element has no reference. In most implementations that should be
+	 * the same as settings its capacity/use to 0.
+	 * 
+	 * @param e
+	 *          the element
+	 */
+	public void remove(ManagedElement e);
 
 }

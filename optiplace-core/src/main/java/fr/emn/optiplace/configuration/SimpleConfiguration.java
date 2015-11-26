@@ -10,15 +10,26 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
-
 
 /**
  * Default implementation of Configuration. The elements are stored in
@@ -31,6 +42,8 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  */
 public class SimpleConfiguration implements Configuration {
 
+	private static final Logger logger = LoggerFactory.getLogger(SimpleConfiguration.class);
+
 	private final Set<Node> offlines = new LinkedHashSet<>();
 
 	private final LinkedHashMap<Node, Set<VM>> nodesVM = new LinkedHashMap<>();
@@ -39,6 +52,10 @@ public class SimpleConfiguration implements Configuration {
 
 	private final Set<VM> waitings = new LinkedHashSet<>();
 
+	/**
+	 * elements present in the configuration. The element names are non case
+	 * sensitive.
+	 */
 	private final HashMap<String, ManagedElement> nameToElement = new HashMap<>();
 
 	/** VM to the host/extern it is hosted on. */
@@ -48,7 +65,8 @@ public class SimpleConfiguration implements Configuration {
 	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
 
 	public SimpleConfiguration(String... resources) {
-		if (resources == null || resources.length == 0) {} else {
+		if (resources == null || resources.length == 0) {
+		} else {
 			for (String r : resources) {
 				this.resources.put(r, new MappedResourceSpecification(r));
 			}
@@ -88,12 +106,12 @@ public class SimpleConfiguration implements Configuration {
 			return offlines.size() + nodesVM.size();
 		}
 		switch (state) {
-			case OFFLINE:
-				return offlines.size();
-			case ONLINE:
-				return nodesVM.size();
-			default:
-				throw new UnsupportedOperationException();
+		case OFFLINE:
+			return offlines.size();
+		case ONLINE:
+			return nodesVM.size();
+		default:
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -114,14 +132,14 @@ public class SimpleConfiguration implements Configuration {
 			return ret;
 		}
 		switch (state) {
-			case RUNNING:
-				return nodesVM.values().parallelStream().mapToInt(Set::size).sum();
-			case WAITING:
-				return waitings.size();
-			case EXTERN:
-				return externVM.values().parallelStream().mapToInt(Set::size).sum();
-			default:
-				throw new UnsupportedOperationException();
+		case RUNNING:
+			return nodesVM.values().parallelStream().mapToInt(Set::size).sum();
+		case WAITING:
+			return waitings.size();
+		case EXTERN:
+			return externVM.values().parallelStream().mapToInt(Set::size).sum();
+		default:
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -172,9 +190,10 @@ public class SimpleConfiguration implements Configuration {
 		if (hoster instanceof Node) {
 			setOnline((Node) hoster);
 			nodesVM.get(hoster).add(vm);
-		} else
-		  if (hoster instanceof Extern) {
+		} else if (hoster instanceof Extern) {
 			externVM.get(hoster).add(vm);
+		} else {
+			logger.warn("can't handle hoster " + hoster + " of class " + hoster.getClass(), new Exception());
 		}
 		return true;
 	}
@@ -188,8 +207,7 @@ public class SimpleConfiguration implements Configuration {
 		if (hoster != null) {
 			if (hoster instanceof Node) {
 				nodesVM.get(hoster).remove(vm);
-			} else
-			  if (hoster instanceof Extern) {
+			} else if (hoster instanceof Extern) {
 				externVM.get(hoster).remove(vm);
 			}
 		}
@@ -224,25 +242,49 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public VM addVM(String vmName, VMHoster host, int... resources) {
-		VM vm = new VM(vmName);
+		if (vmName == null)
+			return null;
+		VM ret;
+		try {
+			ret = getElementByName(vmName, VM.class);
+			if (ret == null)
+				ret = new VM(vmName);
+		} catch (ClassCastException e) {
+			return null;
+		}
 		if (host == null) {
 			// we requested VM to be waiting.
-			setWaiting(vm);
+			setWaiting(ret);
 		} else {
-			setHost(vm, host);
+			setHost(ret, host);
 		}
 		if (resources != null && resources.length > 0) {
 			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
 			for (int i = 0; i < specs.length && i < resources.length; i++) {
-				specs[i].use(vm, resources[i]);
+				specs[i].use(ret, resources[i]);
 			}
 		}
-		return vm;
+		return ret;
 	}
 
 	@Override
 	public boolean remove(VM vm) {
-		return setWaiting(vm) && waitings.remove(vm) || waitings.remove(vm);
+		if (vm == null)
+			return false;
+		// we ensure we have a VM of same name.
+		try {
+			vm = getElementByName(vm.getName(), VM.class);
+			if (vm == null)
+				return false;
+		} catch (ClassCastException cce) {
+			return false;
+		}
+		setWaiting(vm);
+		waitings.remove(vm);
+		VM rem = vm;
+		vmsTags.values().stream().forEach(s -> s.remove(rem));
+		forgetElement(vm);
+		return true;
 	}
 
 	@Override
@@ -257,30 +299,33 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Node addOnline(String name, int... resources) {
-		ManagedElement contained = getElementByName(name);
-		if (contained != null) {
-			if (contained instanceof Node) {
-				return (Node) contained;
-			} else {
-				return null;
+		if (name == null)
+			return null;
+		Node ret;
+		try {
+			ret = getElementByName(name, Node.class);
+			if (ret == null) {
+				ret = new Node(name);
+				nameToElement.put(name.toLowerCase(), ret);
+				setOnline(ret);
+
 			}
-		} else {
-			Node n = new Node(name);
-			nameToElement.put(name, n);
-			setOnline(n);
-			if (resources != null && resources.length > 0) {
-				ResourceSpecification[] specs = this.resources.values()
-				    .toArray(new ResourceSpecification[this.resources.size()]);
-				for (int i = 0; i < specs.length && i < resources.length; i++) {
-					specs[i].capacity(n, resources[i]);
-				}
-			}
-			return n;
+		} catch (ClassCastException cce) {
+			return null;
 		}
+		if (resources != null && resources.length > 0) {
+			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
+			for (int i = 0; i < specs.length && i < resources.length; i++) {
+				specs[i].capacity(ret, resources[i]);
+			}
+		}
+		return ret;
 	}
 
 	@Override
 	public Node addOffline(String name, int... resources) {
+		if (name == null)
+			return null;
 		Node ret = addOnline(name, resources);
 		if (ret == null) {
 			return null;
@@ -290,27 +335,9 @@ public class SimpleConfiguration implements Configuration {
 	}
 
 	@Override
-	public boolean setOffline(Node node2) {
-		if (isOffline(node2)) {
+	public boolean setOffline(Node n) {
+		if (isOffline(n)) {
 			return false;
-		}
-		Set<VM> vms = nodesVM.remove(node2);
-		if (vms != null) {
-			for (VM vm : vms) {
-				vmHoster.remove(vm);
-				waitings.add(vm);
-				vmMigration.remove(vm);
-			}
-		}
-		offlines.add(node2);
-		return true;
-	}
-
-	@Override
-	public boolean remove(Node n) {
-		// if node offline : remove it from offlines, then it's ok
-		if (offlines.remove(n)) {
-			return true;
 		}
 		Set<VM> vms = nodesVM.remove(n);
 		if (vms != null) {
@@ -319,9 +346,29 @@ public class SimpleConfiguration implements Configuration {
 				waitings.add(vm);
 				vmMigration.remove(vm);
 			}
-			return true;
 		}
-		return false;
+		offlines.add(n);
+		return true;
+	}
+
+	@Override
+	public boolean remove(Node n) {
+		if (n == null)
+			return false;
+		// we ensure we have a Node of same name.
+		try {
+			n = getElementByName(n.getName(), Node.class);
+			if (n == null)
+				return false;
+		} catch (ClassCastException cce) {
+			return false;
+		}
+		setOffline(n);
+		offlines.remove(n);
+		Node rem = n;
+		nodesTags.values().stream().forEach(s -> s.remove(rem));
+		forgetElement(n);
+		return true;
 	}
 
 	@Override
@@ -341,14 +388,13 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public Stream<Node> getOnlines(Predicate<Set<VM>> pred) {
 		return nodesVM.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
-		    .map(Entry<Node, Set<VM>>::getKey);
+				.map(Entry<Node, Set<VM>>::getKey);
 	}
 
-	// the site i is at pos i-1
-	LinkedHashMap<Site, Set<VMHoster>> sitesToNodes = new LinkedHashMap<>();
+	LinkedHashMap<Site, Set<VMHoster>> sitesToHosters = new LinkedHashMap<>();
 
-	protected void removeNodesFromSites(Collection<VMHoster> c) {
-		for (Set<VMHoster> set : sitesToNodes.values()) {
+	protected void removeHostersFromSites(Collection<VMHoster> c) {
+		for (Set<VMHoster> set : sitesToHosters.values()) {
 			set.removeAll(c);
 		}
 	}
@@ -356,32 +402,33 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public Site addSite(String siteName, VMHoster... hosters) {
 		if (siteName == null) {
-			removeNodesFromSites(Arrays.asList(hosters));
+			removeHostersFromSites(Arrays.asList(hosters));
 			return null;
 		}
-		Site site = null;
-		ManagedElement contained = getElementByName(siteName);
-		if (contained != null) {
-			if (contained instanceof Site) {
-				site = (Site) contained;
+		Site ret;
+		Set<VMHoster> set = null;
+		try {
+			ret = getElementByName(siteName, Site.class);
+			if (ret == null) {
+				ret = new Site(siteName);
+				nameToElement.put(siteName.toLowerCase(), ret);
+				set = new HashSet<>();
+				sitesToHosters.put(ret, set);
 			} else {
-				return null;
+				set = sitesToHosters.get(ret);
 			}
-		} else {
-			site = new Site(siteName);
-			nameToElement.put(siteName, site);
-			sitesToNodes.put(site, new HashSet<>());
+		} catch (ClassCastException e) {
+			return null;
 		}
 		List<VMHoster> l = Arrays.asList(hosters);
-		removeNodesFromSites(l);
-		Set<VMHoster> s = sitesToNodes.get(site);
-		s.addAll(l);
-		return site;
+		removeHostersFromSites(l);
+		set.addAll(l);
+		return ret;
 	}
 
 	@Override
 	public int nbSites() {
-		return sitesToNodes.size();
+		return sitesToHosters.size();
 	}
 
 	@Override
@@ -389,7 +436,7 @@ public class SimpleConfiguration implements Configuration {
 		if (h == null) {
 			return null;
 		}
-		for (Entry<Site, Set<VMHoster>> e : sitesToNodes.entrySet()) {
+		for (Entry<Site, Set<VMHoster>> e : sitesToHosters.entrySet()) {
 			if (e.getValue().contains(h)) {
 				return e.getKey();
 			}
@@ -399,7 +446,26 @@ public class SimpleConfiguration implements Configuration {
 
 	@Override
 	public Stream<Site> getSites() {
-		return sitesToNodes.keySet().stream();
+		return sitesToHosters.keySet().stream();
+	}
+
+	@Override
+	public boolean remove(Site site) {
+		if (site == null)
+			return false;
+		// we ensure we have a site of same name.
+		try {
+			site = getElementByName(site.getName(), Site.class);
+			if (site == null)
+				return false;
+		} catch (ClassCastException cce) {
+			return false;
+		}
+		sitesToHosters.remove(site);
+		Site rem = site;
+		sitesTags.values().stream().forEach(s -> s.remove(rem));
+		forgetElement(site);
+		return true;
 	}
 
 	@Override
@@ -407,7 +473,7 @@ public class SimpleConfiguration implements Configuration {
 		if (site == null) {
 			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}
-		Set<VMHoster> set = sitesToNodes.get(site);
+		Set<VMHoster> set = sitesToHosters.get(site);
 		if (set != null) {
 			return set.stream();
 		}
@@ -430,12 +496,12 @@ public class SimpleConfiguration implements Configuration {
 		if (!vmMigration.isEmpty()) {
 			sb.append("\nmigrations : ").append(vmMigration);
 		}
-		if (!sitesToNodes.isEmpty()) {
-			sb.append("\nsites : ").append(sitesToNodes);
+		if (!sitesToHosters.isEmpty()) {
+			sb.append("\nsites : ").append(sitesToHosters);
 		}
 		if (!resources.isEmpty()) {
 			sb.append("\nresources : ")
-			    .append(resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t));
+					.append(resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t));
 		}
 		if (!nodesTags.isEmpty()) {
 			sb.append("\nnodesTags : ").append(nodesTags);
@@ -476,11 +542,11 @@ public class SimpleConfiguration implements Configuration {
 		if (!vmMigration.equals(o.vmMigration)) {
 			return false;
 		}
-		if (!sitesToNodes.equals(o.sitesToNodes)) {
+		if (!sitesToHosters.equals(o.sitesToHosters)) {
 			return false;
 		}
 		if (!nodesTags.equals(o.nodesTags) || !vmsTags.equals(o.vmsTags) || !externsTags.equals(o.externsTags)
-		    || !sitesTags.equals(o.sitesTags)) {
+				|| !sitesTags.equals(o.sitesTags)) {
 			return false;
 		}
 		return true;
@@ -489,37 +555,51 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public int hashCode() {
 		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
-		    + vmMigration.hashCode() + sitesToNodes.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
-		    + externsTags.hashCode() + sitesTags.hashCode();
+				+ vmMigration.hashCode() + sitesToHosters.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
+				+ externsTags.hashCode() + sitesTags.hashCode();
 	}
 
 	@Override
 	public ManagedElement getElementByName(String name) {
-		return nameToElement.get(name);
+		if (name == null)
+			return null;
+		return nameToElement.get(name.toLowerCase());
+	}
+
+	/**
+	 * forget the name to element reference, as well as the name to resources.
+	 * 
+	 * @param me
+	 *          an element.
+	 */
+	public void forgetElement(ManagedElement me) {
+		nameToElement.remove(me.getName().toLowerCase());
+		for (ResourceSpecification rs : resources.values())
+			rs.remove(me);
 	}
 
 	@Override
 	public Extern addExtern(String name, int... resources) {
-		ManagedElement contained = getElementByName(name);
-		if (contained != null) {
-			if (contained instanceof Extern) {
-				return (Extern) contained;
-			} else {
-				return null;
+		if (name == null)
+			return null;
+		Extern ret;
+		try {
+			ret = getElementByName(name, Extern.class);
+			if (ret == null) {
+				ret = new Extern(name);
+				externVM.put(ret, new LinkedHashSet<>());
+				nameToElement.put(name.toLowerCase(), ret);
 			}
-		} else {
-			Extern ret = new Extern(name);
-			externVM.put(ret, new LinkedHashSet<>());
-			nameToElement.put(name, ret);
-			if (resources != null && resources.length > 0) {
-				ResourceSpecification[] specs = this.resources.values()
-				    .toArray(new ResourceSpecification[this.resources.size()]);
-				for (int i = 0; i < specs.length && i < resources.length; i++) {
-					specs[i].capacity(ret, resources[i]);
-				}
-			}
-			return ret;
+		} catch (ClassCastException e) {
+			return null;
 		}
+		if (resources != null && resources.length > 0) {
+			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
+			for (int i = 0; i < specs.length && i < resources.length; i++) {
+				specs[i].capacity(ret, resources[i]);
+			}
+		}
+		return ret;
 	}
 
 	@Override
@@ -530,6 +610,29 @@ public class SimpleConfiguration implements Configuration {
 	@Override
 	public Stream<Extern> getExterns() {
 		return externVM.keySet().stream();
+	}
+
+	@Override
+	public boolean remove(Extern e) {
+		if (e == null)
+			return false;
+		// we ensure we have an extern of same name.
+		try {
+			e = getElementByName(e.getName(), Extern.class);
+			if (e == null)
+				return false;
+		} catch (ClassCastException cce) {
+			return false;
+		}
+		externVM.remove(e).forEach(v -> {
+			vmHoster.remove(v);
+			waitings.add(v);
+			vmMigration.remove(v);
+		});
+		Extern rem = e;
+		externsTags.values().stream().forEach(s -> s.remove(rem));
+		forgetElement(e);
+		return true;
 	}
 
 	@Override
@@ -661,9 +764,7 @@ public class SimpleConfiguration implements Configuration {
 		if (e == null || tag == null) {
 			return false;
 		}
-		for (Map<String, Set<? extends ManagedElement>> m : new Map[] {
-		    vmsTags, nodesTags, externsTags, sitesTags
-		}) {
+		for (Map<String, Set<? extends ManagedElement>> m : new Map[] { vmsTags, nodesTags, externsTags, sitesTags }) {
 			Set<? extends ManagedElement> set = m.get(tag);
 			if (set != null && set.contains(e)) {
 				return true;
@@ -714,7 +815,7 @@ public class SimpleConfiguration implements Configuration {
 			return sitesTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
 		}
 		throw new UnsupportedOperationException(
-		    "can not stream the tags of the managedelement " + me + " with unsupported class " + me.getClass());
+				"can not stream the tags of the managedelement " + me + " with unsupported class " + me.getClass());
 	}
 
 	@Override

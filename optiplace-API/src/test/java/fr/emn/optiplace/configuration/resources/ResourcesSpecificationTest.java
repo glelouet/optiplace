@@ -4,7 +4,13 @@
 
 package fr.emn.optiplace.configuration.resources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -12,6 +18,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
@@ -69,6 +76,10 @@ public class ResourcesSpecificationTest {
 			@Override
 			public void capacity(VMHoster h, int capacity) {
 				capacities.put(h, capacity);
+			}
+
+			@Override
+			public void remove(ManagedElement e) {
 			}
 		};
 		ArrayList<Node> list = new ArrayList<>(Arrays.asList(nodes));
@@ -129,6 +140,10 @@ public class ResourcesSpecificationTest {
 			@Override
 			public void capacity(VMHoster h, int capacity) {
 				throw new UnsupportedOperationException("implement this !");
+			}
+
+			@Override
+			public void remove(ManagedElement e) {
 			}
 		};
 		ArrayList<VM> list = new ArrayList<>(Arrays.asList(vms));

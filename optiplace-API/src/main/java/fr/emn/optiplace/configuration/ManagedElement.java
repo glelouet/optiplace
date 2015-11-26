@@ -5,6 +5,9 @@ import java.util.Comparator;
 
 
 /**
+ * 
+ * Managed elements are NOT case sensitive. so VM("V") is the same as VM("v")
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014
  *
  */
@@ -44,7 +47,7 @@ public class ManagedElement {
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		return name.toLowerCase().hashCode();
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class ManagedElement {
 		if (!this.getClass().equals(obj.getClass())) {
 			return false;
 		}
-		if (!((ManagedElement) obj).name.equals(name)) {
+		if (!((ManagedElement) obj).name.toLowerCase().equals(name.toLowerCase())) {
 			return false;
 		}
 		return true;
