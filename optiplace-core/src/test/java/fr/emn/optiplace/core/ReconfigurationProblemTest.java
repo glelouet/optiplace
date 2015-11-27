@@ -82,13 +82,6 @@ public class ReconfigurationProblemTest {
 	}
 
 	@Test
-	public void testGoalNbMigrations() {
-		Configuration src = new SimpleConfiguration();
-		ReconfigurationProblem rp = new ReconfigurationProblem(src);
-		// TODO
-	}
-
-	@Test
 	public void testNbVMs() throws ContradictionException {
 		Configuration src = new SimpleConfiguration("mem");
 		Node n = src.addOnline("n", 2);
