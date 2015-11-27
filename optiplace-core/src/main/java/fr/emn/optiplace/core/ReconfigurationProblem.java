@@ -31,10 +31,10 @@ import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -366,7 +366,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				nodesVMs[i] = s;
 			}
 			SetVar[] usedLocations = new SetVar[nodesVMs.length + 1];
-			usedLocations[0] = VF.set("nonHostedVMs", 0, c.nbVMs() - 1, this);
+			usedLocations[0] = VF.set("nonNodeVMs", 0, c.nbVMs() - 1, this);
 			for (int i = 1; i < usedLocations.length; i++)
 				usedLocations[i] = nodesVMs[i - 1];
 			// for each VM i, it belongs to his hoster's set, meaning
@@ -388,10 +388,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				SetVar s = VF.set(externName(i) + ".hosted", 0, c.nbVMs() - 1, getSolver());
 				externsVMs[i] = s;
 			}
+			SetVar[] usedLocations = new SetVar[externsVMs.length + 1];
+			usedLocations[0] = VF.set("nonExternedVMs", 0, c.nbVMs() - 1, this);
+			for (int i = 1; i < usedLocations.length; i++)
+				usedLocations[i] = externsVMs[i - 1];
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(externsVMs, getExterns(), 0, 0);
+			Constraint c = SetConstraintsFactory.int_channel(usedLocations, getExterns(), -1, 0);
 			post(c);
 		}
 	}

@@ -26,10 +26,10 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
@@ -121,7 +121,6 @@ public class Optiplace extends IOptiplace {
 			if (strat.isLogStats()) {
 				Chatterbox.showStatistics(problem.getSolver());
 			}
-			// FIXME not working on choco 3.3.0
 			if (strat.isLogSolutions()) {
 				Chatterbox.showSolutions(problem.getSolver());
 			}
