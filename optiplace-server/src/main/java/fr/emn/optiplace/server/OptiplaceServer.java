@@ -10,7 +10,7 @@ import java.util.Properties;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.OptiplaceSolver;
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
 import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
 import fr.emn.optiplace.server.viewDataProviders.PlexerProvider;
@@ -78,7 +78,7 @@ public class OptiplaceServer implements OptiplaceSolver {
 	}
 
 	@Override
-	public DeducedTarget solve(Configuration source, ProvidedData... configurations) {
+	public DeducedTarget solve(IConfiguration source, ProvidedData... configurations) {
 		filesConfs.load();
 		mapConfs.clear();
 		if (configurations != null) {

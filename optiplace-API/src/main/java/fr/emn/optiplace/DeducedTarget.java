@@ -5,7 +5,7 @@
 package fr.emn.optiplace;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 
@@ -22,7 +22,7 @@ public class DeducedTarget {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DeducedTarget.class);
 
-	private Configuration destination;
+	private IConfiguration destination;
 
 	private final ActionGraph actions = new ActionGraph();
 
@@ -51,7 +51,7 @@ public class DeducedTarget {
 	/**
 	 * @return the destination
 	 */
-	public Configuration getDestination() {
+	public IConfiguration getDestination() {
 		return destination;
 	}
 
@@ -66,7 +66,7 @@ public class DeducedTarget {
 	 * @param destination
 	 *          the destination to set
 	 */
-	public void setDestination(Configuration destination) {
+	public void setDestination(IConfiguration destination) {
 		this.destination = destination;
 	}
 

@@ -31,10 +31,10 @@ import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -88,10 +88,10 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	/** The source configuration. */
-	public final Configuration c;
+	public final IConfiguration c;
 
 	@Override
-	public Configuration c() {
+	public IConfiguration c() {
 		return c;
 	}
 
@@ -278,7 +278,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 * @param src
 	 *          The source configuration. It must be viable.
 	 */
-	public ReconfigurationProblem(Configuration src) {
+	public ReconfigurationProblem(IConfiguration src) {
 		c = src;
 		b = new Bridge(src);
 		v = new VariablesManager(this);
@@ -293,7 +293,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public Configuration getSourceConfiguration() {
+	public IConfiguration getSourceConfiguration() {
 		return c;
 	}
 
@@ -632,7 +632,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (vmsIsMigrated == null) {
 			vmsIsMigrated = new BoolVar[c.nbVMs()];
 		}
-		Configuration cfg = getSourceConfiguration();
+		IConfiguration cfg = getSourceConfiguration();
 		for (int i = 0; i < vmsIsMigrated.length; i++) {
 			VM vm = b.vm(i);
 			vmsIsMigrated[i] = v.createBoolVar(vm.getName() + ".ismigrated");
@@ -691,8 +691,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public Configuration extractConfiguration() {
-		Configuration ret = new SimpleConfiguration();
+	public IConfiguration extractConfiguration() {
+		IConfiguration ret = new Configuration();
 		for (Node n : b.nodes()) {
 			if (c.isOnline(n)) {
 				ret.setOnline(n);

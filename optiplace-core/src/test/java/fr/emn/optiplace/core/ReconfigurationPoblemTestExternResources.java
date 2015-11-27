@@ -10,7 +10,7 @@ public class ReconfigurationPoblemTestExternResources {
 
 	@Test
 	public void test() {
-		SimpleConfiguration cfg = new SimpleConfiguration("mem");
+		Configuration cfg = new Configuration("mem");
 		Node n = cfg.addOnline("n", 10);
 		Extern e = cfg.addExtern("e", 10);
 		VM running = cfg.addVM("vm1", n, 5);
@@ -19,7 +19,7 @@ public class ReconfigurationPoblemTestExternResources {
 		Optiplace sp = new Optiplace();
 		sp.source(cfg);
 		sp.solve();
-		Configuration out = sp.getTarget().getDestination();
+		IConfiguration out = sp.getTarget().getDestination();
 		Assert.assertEquals(out.getFutureLocation(running), n);
 		Assert.assertEquals(out.getFutureLocation(waiting), e);
 

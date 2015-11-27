@@ -7,9 +7,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
@@ -25,7 +25,7 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 	    .getLogger(ReconfigurationProblemWaitingNoExternTest.class);
 
-	Configuration src;
+	IConfiguration src;
 	Node n0, n1;
 	Node[] nodes;
 	VM vm0, vm1, vm2;
@@ -34,7 +34,7 @@ public class ReconfigurationProblemWaitingNoExternTest {
 
 	@BeforeMethod
 	public void prepare() {
-		src = new SimpleConfiguration();
+		src = new Configuration();
 		n0 = src.addOnline("n0");
 		n1 = src.addOnline("n1");
 		vm0 = src.addVM("vm0", null);

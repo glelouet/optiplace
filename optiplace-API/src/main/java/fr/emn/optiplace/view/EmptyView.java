@@ -11,7 +11,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.VariablesManager;
@@ -54,7 +54,7 @@ public class EmptyView implements View {
 
 	public Bridge b;
 
-	public Configuration c;
+	public IConfiguration c;
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {

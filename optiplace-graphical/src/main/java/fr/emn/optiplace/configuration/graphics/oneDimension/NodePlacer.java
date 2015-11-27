@@ -5,7 +5,7 @@ package fr.emn.optiplace.configuration.graphics.oneDimension;
 
 import java.util.List;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.graphics.Tile;
 
@@ -15,5 +15,5 @@ import fr.emn.optiplace.configuration.graphics.Tile;
  */
 public interface NodePlacer {
 
-	public List<Tile<Node>> place(Configuration cfg);
+	public List<Tile<Node>> place(IConfiguration cfg);
 }

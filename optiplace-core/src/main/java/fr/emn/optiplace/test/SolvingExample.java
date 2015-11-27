@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.EmptyView;
@@ -18,7 +18,7 @@ public class SolvingExample {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SolvingExample.class);
 
-	protected Configuration src = null;
+	protected IConfiguration src = null;
 	protected VM[] waitings = null;
 	protected Node[] nodes = null;
 	/** placed[i]{1..n} are the n VM placed on node i*/
@@ -40,7 +40,7 @@ public class SolvingExample {
 	 * {@link #nbWaitings} waiting VMs
 	 */
 	protected void prepare() {
-		src = new SimpleConfiguration(resources);
+		src = new Configuration(resources);
 		nodes = makeNodes();
 		placed = makeOnlines(nodes);
 		waitings = makeWaitings();
@@ -74,7 +74,7 @@ public class SolvingExample {
 		return ret;
 	}
 
-	public DeducedTarget solve(Configuration src, Rule... rules) {
+	public DeducedTarget solve(IConfiguration src, Rule... rules) {
 		Optiplace p = new Optiplace();
 		p.source(src);
 		EmptyView v = new EmptyView();
@@ -83,7 +83,7 @@ public class SolvingExample {
 		p.strat(strat);
 		p.views().addAll(Arrays.asList(views));
 		p.solve();
-		Configuration c = p.getTarget().getDestination();
+		IConfiguration c = p.getTarget().getDestination();
 		if (c == null) {
 			strat.setLogChoices(true);
 			strat.setLogSolutions(true);

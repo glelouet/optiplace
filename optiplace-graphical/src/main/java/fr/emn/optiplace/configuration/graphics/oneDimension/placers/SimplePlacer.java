@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.graphics.Tile;
 import fr.emn.optiplace.configuration.graphics.oneDimension.NodePlacer;
@@ -28,7 +28,7 @@ public class SimplePlacer implements NodePlacer {
 			.getLogger(SimplePlacer.class);
 
 	@Override
-	public List<Tile<Node>> place(Configuration cfg) {
+	public List<Tile<Node>> place(IConfiguration cfg) {
 		ResourceSpecification mem = cfg.resources().get("MEM");
 		List<Tile<Node>> tiles = cfg.getNodes().map(n -> {
 			Tile<Node> t = new Tile<>(n);

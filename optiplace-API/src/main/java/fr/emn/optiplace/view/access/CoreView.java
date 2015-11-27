@@ -9,7 +9,7 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
@@ -45,7 +45,7 @@ public interface CoreView {
 	 * 
 	 * @return the source configuration of the problem.
 	 */
-	public Configuration c();
+	public IConfiguration c();
 
 	///////////////////////////////////////////////////
 	// state of the VM, and corresponding location
@@ -267,6 +267,6 @@ public interface CoreView {
 	 */
 	ResourceLoad[] getUses();
 
-	Configuration extractConfiguration();
+	IConfiguration extractConfiguration();
 
 }

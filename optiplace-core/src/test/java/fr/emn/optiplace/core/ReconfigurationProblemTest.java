@@ -11,9 +11,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.access.CoreView;
 
@@ -27,7 +27,7 @@ public class ReconfigurationProblemTest {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReconfigurationProblemTest.class);
 
-	Configuration src;
+	IConfiguration src;
 	Node n0, n1;
 	Node[] nodes;
 	VM vm0_0, vm0_1, vm1_0, vm1_1;
@@ -36,7 +36,7 @@ public class ReconfigurationProblemTest {
 
 	@BeforeMethod
 	public void prepare() {
-		src = new SimpleConfiguration();
+		src = new Configuration();
 		n0 = src.addOnline("n0");
 		n1 = src.addOnline("n1");
 		vm0_0 = src.addVM("vm0_0", n0);
@@ -83,7 +83,7 @@ public class ReconfigurationProblemTest {
 
 	@Test
 	public void testNbVMs() throws ContradictionException {
-		Configuration src = new SimpleConfiguration("mem");
+		IConfiguration src = new Configuration("mem");
 		Node n = src.addOnline("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
@@ -94,7 +94,7 @@ public class ReconfigurationProblemTest {
 
 	@Test(dependsOnMethods = "testNbVMs")
 	public void testIsHoster() throws ContradictionException {
-		Configuration src = new SimpleConfiguration("mem");
+		IConfiguration src = new Configuration("mem");
 		Node n = src.addOnline("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
@@ -105,7 +105,7 @@ public class ReconfigurationProblemTest {
 
 	@Test
 	public void testBugZeroResource() {
-		SimpleConfiguration c = new SimpleConfiguration("mem");
+		Configuration c = new Configuration("mem");
 		Node n = c.addOnline("n", 4);
 		VM v = c.addVM("v", n, 2);
 
@@ -115,7 +115,7 @@ public class ReconfigurationProblemTest {
 		test.getStrat().setMoveMigratingVMs(true);
 		test.source(c);
 		test.solve();
-		Configuration t = test.getTarget().getDestination();
+		IConfiguration t = test.getTarget().getDestination();
 		Assert.assertNull(t);
 	}
 }

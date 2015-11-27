@@ -17,7 +17,7 @@ public class SimpleConfigurationTagsTests {
 
 	@Test
 	public void testTagVM() {
-		SimpleConfiguration cfg = new SimpleConfiguration();
+		Configuration cfg = new Configuration();
 		VM v1 = cfg.addVM("v1", null);
 		VM v2 = cfg.addVM("v2", null);
 		VM v3 = cfg.addVM("v3", null);

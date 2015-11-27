@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.test.SolvingExample;
@@ -29,7 +29,7 @@ public class TestExternPlacement extends SolvingExample {
 	 */
 	@Test
 	public void testIntantiateOneExtern() throws ContradictionException {
-		SimpleConfiguration cfg = new SimpleConfiguration();
+		Configuration cfg = new Configuration();
 		VM vm1 = cfg.addVM("vm1", null);
 		VM vm2 = cfg.addVM("vm2", null);
 		Extern e = cfg.addExtern("extern");

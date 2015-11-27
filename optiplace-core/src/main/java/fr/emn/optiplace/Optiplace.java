@@ -26,10 +26,10 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
@@ -56,10 +56,10 @@ public class Optiplace extends PlacementSolveProcess {
 	protected ReconfigurationProblem problem;
 
 	public Optiplace() {
-		this(new SimpleConfiguration());
+		this(new Configuration());
 	}
 
-	public Optiplace(Configuration src) {
+	public Optiplace(IConfiguration src) {
 		source(src);
 	}
 
@@ -265,7 +265,7 @@ public class Optiplace extends PlacementSolveProcess {
 		if (m.getSolutionCount() < 1) {
 			return;
 		}
-		Configuration dest = problem.extractConfiguration();
+		IConfiguration dest = problem.extractConfiguration();
 		for (ViewAsModule v : views) {
 			v.postProcessConfig(dest);
 		}

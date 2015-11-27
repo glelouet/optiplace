@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Configuration.VMSTATES;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.Node;
 
 
@@ -32,7 +32,7 @@ public class SolvingExampleTest extends SolvingExample {
 
 		prepare();
 		// strat.setMoveMigratingVMs(true);
-		Configuration d = solve(src).getDestination();
+		IConfiguration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
 		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbNodes * nbVMPerNode, "dest is : " + d);
 		Assert.assertEquals(d.nbVMs(VMSTATES.RUNNING), nbWaitings + nbNodes * nbVMPerNode, "dest is : " + d);

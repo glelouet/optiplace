@@ -13,7 +13,7 @@ package fr.emn.optiplace.view;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.ReconfigurationResult;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -73,7 +73,7 @@ public interface Rule {
    *            the configuration to check
    * @return true if the constraint is satisfied
    */
-  boolean isSatisfied(Configuration cfg);
+  boolean isSatisfied(IConfiguration cfg);
 
   public void inject(IReconfigurationProblem core);
 

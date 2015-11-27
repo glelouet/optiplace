@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.View;
 
@@ -64,7 +64,7 @@ public abstract class PlacementSolveProcess {
 	/** extract the interesting data from the solver result */
 	protected abstract void extractData();
 
-	protected Configuration source = null;
+	protected IConfiguration source = null;
 
 	protected List<View> views = new ArrayList<>();
 
@@ -72,11 +72,11 @@ public abstract class PlacementSolveProcess {
 
 	protected DeducedTarget target = new DeducedTarget();
 
-	public Configuration source() {
+	public IConfiguration source() {
 		return source;
 	}
 
-	public void source(Configuration source) {
+	public void source(IConfiguration source) {
 		this.source = source;
 	}
 

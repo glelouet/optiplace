@@ -23,7 +23,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -66,7 +66,7 @@ public interface IReconfigurationProblem extends CoreView {
 	 *
 	 * @return a configuration
 	 */
-	Configuration getSourceConfiguration();
+	IConfiguration getSourceConfiguration();
 
 	/******************** variables linked to resources ***********************/
 

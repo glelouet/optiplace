@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
@@ -137,17 +137,17 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the node
 	 * @return the use of the node
 	 */
-	default int getUse(Configuration cfg, Node n) {
+	default int getUse(IConfiguration cfg, Node n) {
 		return cfg.getHosted(n).collect(Collectors.summingInt(this::getUse));
 	}
 
 	/** get the total use of the VMs running in the center */
-	default int getUse(Configuration cfg) {
+	default int getUse(IConfiguration cfg) {
 		return cfg.getVMs().mapToInt(this::getUse).sum();
 	}
 
 	/** get the total capacity of the nodes which are online */
-	default int getCapacity(Configuration cfg) {
+	default int getCapacity(IConfiguration cfg) {
 		return cfg.getOnlines().mapToInt(this::getCapacity).sum();
 	}
 
@@ -160,7 +160,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the vm
 	 * @return true if there is enough resource on n to host vm.
 	 */
-	default boolean canHost(Configuration cfg, VMHoster n, VM vm) {
+	default boolean canHost(IConfiguration cfg, VMHoster n, VM vm) {
 		if (n instanceof Node) {
 			return getUse(cfg, (Node) n) + getUse(vm) <= getCapacity(n);
 		} else if (n instanceof Extern) {
@@ -259,7 +259,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the predicate on the hosters capacities
 	 * @return a new stream of the Hosters
 	 */
-	public default Stream<VMHoster> findHosters(Configuration c, Predicate<Integer> filter) {
+	public default Stream<VMHoster> findHosters(IConfiguration c, Predicate<Integer> filter) {
 		return c.getHosters(null).filter(h -> filter.test(getCapacity(h)));
 	}
 

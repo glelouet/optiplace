@@ -40,9 +40,9 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  *
  * @author Guillaume Le Louët
  */
-public class SimpleConfiguration implements Configuration {
+public class Configuration implements IConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(SimpleConfiguration.class);
+	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
 	private final Set<Node> offlines = new LinkedHashSet<>();
 
@@ -64,7 +64,7 @@ public class SimpleConfiguration implements Configuration {
 	/** VM to the target is is migrating to. */
 	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
 
-	public SimpleConfiguration(String... resources) {
+	public Configuration(String... resources) {
 		if (resources == null || resources.length == 0) {
 		} else {
 			for (String r : resources) {
@@ -523,10 +523,10 @@ public class SimpleConfiguration implements Configuration {
 		if (super.equals(obj)) {
 			return true;
 		}
-		if (obj == null || obj.getClass() != SimpleConfiguration.class) {
+		if (obj == null || obj.getClass() != Configuration.class) {
 			return false;
 		}
-		SimpleConfiguration o = (SimpleConfiguration) obj;
+		Configuration o = (Configuration) obj;
 		if (!vmHoster.equals(o.vmHoster)) {
 			return false;
 		}

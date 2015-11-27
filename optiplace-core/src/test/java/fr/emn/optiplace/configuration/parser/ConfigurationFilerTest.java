@@ -7,10 +7,10 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 
@@ -25,7 +25,7 @@ public class ConfigurationFilerTest {
 
 	@Test
 	public void testParseEmptyConfig() {
-		SimpleConfiguration test = new SimpleConfiguration();
+		Configuration test = new Configuration();
 		String[] lines = test.toString().split("\\n");
 		ConfigurationFiler f = new ConfigurationFiler(null);
 		for (String l : lines) {
@@ -52,7 +52,7 @@ public class ConfigurationFilerTest {
 
 	@Test
 	public void testParsUnParse() {
-		SimpleConfiguration test = new SimpleConfiguration("CPU", "MEM");
+		Configuration test = new Configuration("CPU", "MEM");
 		Node n0 = test.addOnline("n0", 10, 10);
 		test.addOffline("n1", 50, 20);
 		test.addVM("vm0", n0, 1, 1);
@@ -67,14 +67,14 @@ public class ConfigurationFilerTest {
 
 	@Test
 	public void testParsingExterns() throws IOException {
-		SimpleConfiguration c1 = new SimpleConfiguration("MEM");
+		Configuration c1 = new Configuration("MEM");
 		Extern e = c1.addExtern("e1", 20);
 		c1.addVM("vm1", e, 5);
 
 		ConfigurationFiler test = new ConfigurationFiler(File.createTempFile("nope", null));
 		test.withConfiguration(c1).write();
-		test.withConfiguration(new SimpleConfiguration()).read();
-		Configuration c2 = test.getCfg();
+		test.withConfiguration(new Configuration()).read();
+		IConfiguration c2 = test.getCfg();
 
 		Assert.assertEquals(c2, c1);
 	}

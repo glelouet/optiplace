@@ -4,8 +4,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration.VMSTATES;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
+import fr.emn.optiplace.configuration.Configuration;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
@@ -21,7 +21,7 @@ public class SolverTest {
 	 */
 	@Test
 	public void testSolver() {
-		SimpleConfiguration c = new SimpleConfiguration();
+		Configuration c = new Configuration();
 		c.addExtern("exter");
 		c.addOnline("node");
 		c.addVM("vm", null);

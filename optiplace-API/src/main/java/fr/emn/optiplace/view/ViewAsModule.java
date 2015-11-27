@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.annotations.Depends;
 import fr.emn.optiplace.view.annotations.Goal;
@@ -40,7 +40,7 @@ public interface ViewAsModule {
 	 * @param config
 	 *          the source configuration to modify.
 	 */
-	default void preProcessConfig(Configuration config) {
+	default void preProcessConfig(IConfiguration config) {
 	}
 
 	/**
@@ -49,7 +49,7 @@ public interface ViewAsModule {
 	 * @param config
 	 *          the destination configuration to modify
 	 */
-	default void postProcessConfig(Configuration config) {
+	default void postProcessConfig(IConfiguration config) {
 	}
 
 	/**
@@ -81,7 +81,7 @@ public interface ViewAsModule {
 	 * @param dest
 	 *          the destination configuration
 	 */
-	public default void extractActions(ActionGraph actionGraph, Configuration dest) {
+	public default void extractActions(ActionGraph actionGraph, IConfiguration dest) {
 	}
 
 	/**

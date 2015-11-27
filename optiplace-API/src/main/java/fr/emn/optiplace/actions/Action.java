@@ -4,7 +4,7 @@
 
 package fr.emn.optiplace.actions;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 
 
@@ -21,18 +21,18 @@ public interface Action {
 	 *          the configuration to apply the action
 	 * @return true if the action can be applied
 	 */
-	public boolean canApply(Configuration cfg);
+	public boolean canApply(IConfiguration cfg);
 
 	/**
 	 * apply the action in the configuration. Implementstations should first call
-	 * {@link #canApply(Configuration)} and return false if this method returns
+	 * {@link #canApply(IConfiguration)} and return false if this method returns
 	 * false.
 	 *
 	 * @param cfg
 	 *          the configuration to apply the action
 	 * @return true if the action was applied.
 	 */
-	public boolean apply(Configuration cfg);
+	public boolean apply(IConfiguration cfg);
 
 	/**
 	 * @param me

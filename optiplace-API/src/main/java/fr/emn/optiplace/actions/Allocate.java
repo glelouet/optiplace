@@ -4,7 +4,7 @@
 
 package fr.emn.optiplace.actions;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
@@ -22,7 +22,7 @@ public class Allocate implements Action {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Allocate.class);
 
-	public static void extractAllocates(Configuration from, Configuration to, ActionGraph actions) {
+	public static void extractAllocates(IConfiguration from, IConfiguration to, ActionGraph actions) {
 		from.getWaitings().filter(to::isRunning).forEach(vm -> actions.add(new Allocate(vm, to.getNodeHost(vm))));
 	}
 
@@ -46,7 +46,7 @@ public class Allocate implements Action {
 	}
 
 	@Override
-	public boolean canApply(Configuration cfg) {
+	public boolean canApply(IConfiguration cfg) {
 		if (!cfg.isWaiting(vm)) {
 			return false;
 		}
@@ -60,7 +60,7 @@ public class Allocate implements Action {
 	}
 
 	@Override
-	public boolean apply(Configuration cfg) {
+	public boolean apply(IConfiguration cfg) {
 		if (!canApply(cfg)) {
 			return false;
 		}

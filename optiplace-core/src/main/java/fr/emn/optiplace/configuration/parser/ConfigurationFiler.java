@@ -21,7 +21,7 @@ public class ConfigurationFiler {
 
 	File file;
 
-	Configuration cfg = new SimpleConfiguration();
+	IConfiguration cfg = new Configuration();
 
 	/**
 	 *
@@ -30,12 +30,12 @@ public class ConfigurationFiler {
 		this.file = file;
 	}
 
-	public ConfigurationFiler withConfiguration(Configuration cfg) {
+	public ConfigurationFiler withConfiguration(IConfiguration cfg) {
 		this.cfg = cfg;
 		return this;
 	}
 
-	public Configuration getCfg() {
+	public IConfiguration getCfg() {
 		return cfg;
 	}
 

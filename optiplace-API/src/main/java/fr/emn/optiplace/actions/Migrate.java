@@ -4,7 +4,7 @@
 
 package fr.emn.optiplace.actions;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
@@ -20,7 +20,7 @@ public class Migrate implements Action {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Migrate.class);
 
-	public static void extractMigrations(Configuration from, Configuration to, ActionGraph actions) {
+	public static void extractMigrations(IConfiguration from, IConfiguration to, ActionGraph actions) {
 		from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
 		    .forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
 	}
@@ -54,7 +54,7 @@ public class Migrate implements Action {
 	}
 
 	@Override
-	public boolean canApply(Configuration cfg) {
+	public boolean canApply(IConfiguration cfg) {
 		if (!cfg.getLocation(vm).equals(from)) {
 			return false;
 		}
@@ -67,7 +67,7 @@ public class Migrate implements Action {
 	}
 
 	@Override
-	public boolean apply(Configuration cfg) {
+	public boolean apply(IConfiguration cfg) {
 		if (!canApply(cfg)) {
 			return false;
 		}

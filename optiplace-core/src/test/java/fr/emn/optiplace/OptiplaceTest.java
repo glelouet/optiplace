@@ -8,7 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 
 
 /**
@@ -26,7 +26,7 @@ public class OptiplaceTest {
 	 */
 	@Test
 	public void testExecutionNoObjective() {
-		SimpleConfiguration c = new SimpleConfiguration("R");
+		Configuration c = new Configuration("R");
 		Node n1 = c.addOnline("n1", 10);
 		Node n2 = c.addOnline("n2", 10);
 		c.addVM("v1", n1, 1);

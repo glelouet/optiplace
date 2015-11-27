@@ -7,9 +7,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 
 /**
@@ -42,14 +42,14 @@ public class OptiplaceDefaultServerTest {
 	public void testSimpleSolve() {
 		OptiplaceServer test = new OptiplaceServer();
 
-		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM");
+		Configuration cfg = new Configuration("CPU", "MEM");
 		Node n1 = cfg.addOnline("n1", 1, 20);
 		Node n2 = cfg.addOnline("n2", 20, 1);
 		VM vm1 = cfg.addVM("vm1", n1, 1, 10);
 		VM vm2 = cfg.addVM("vm2", n1, 10, 1);
 
 		DeducedTarget res = test.solve(cfg);
-		Configuration dest = res.getDestination();
+		IConfiguration dest = res.getDestination();
 
 		Assert.assertEquals(res.getSearchSolutions(), 1);
 		Assert.assertEquals(dest.nbHosted(n1), 2);
@@ -77,7 +77,7 @@ public class OptiplaceDefaultServerTest {
 		int nbWaitingVms = 10;
 		OptiplaceServer test = new OptiplaceServer();
 		test.getStrat().setMoveMigratingVMs(true);
-		SimpleConfiguration cfg = new SimpleConfiguration("CPU", "MEM", "DISK");
+		Configuration cfg = new Configuration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];
 		for (int i = 0; i < nbNodes; i++) {
@@ -94,7 +94,7 @@ public class OptiplaceDefaultServerTest {
 			waitings[i] = cfg.addVM("vm_" + i, null, 500, 10 * 1024, 1 * 100);
 		}
 		DeducedTarget res = test.solve(cfg);
-		Configuration dest = res.getDestination();
+		IConfiguration dest = res.getDestination();
 		for (Node n : nodes) {
 			Assert.assertEquals(dest.nbHosted(n), 6);
 		}

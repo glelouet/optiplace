@@ -40,7 +40,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  * @author Fabien Hermenier
  * @author guillaume Le Louët
  */
-public interface Configuration {
+public interface IConfiguration {
 
 	static enum VMSTATES {
 		RUNNING, WAITING, EXTERN
@@ -58,7 +58,7 @@ public interface Configuration {
 	 * @param second
 	 * @return
 	 */
-	public static boolean sameElements(Configuration first, Configuration second) {
+	public static boolean sameElements(IConfiguration first, IConfiguration second) {
 		return !first.getNodes().parallel().filter(n -> !second.hasNode(n)).findAny().isPresent()
 				&& !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 				&& !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
@@ -548,7 +548,7 @@ public interface Configuration {
 		OFFLINE_OR_ONLINE {
 
 			@Override
-			public boolean check(Configuration c) {
+			public boolean check(IConfiguration c) {
 				return !c.getOfflines().filter(c::isOnline).findFirst().isPresent();
 			}
 
@@ -556,7 +556,7 @@ public interface Configuration {
 		RUNNING_OR_EXTERN_OR_WAITING {
 
 			@Override
-			public boolean check(Configuration c) {
+			public boolean check(IConfiguration c) {
 				return !c.getWaitings().filter(c::isRunning).findFirst().isPresent();
 			}
 
@@ -564,14 +564,14 @@ public interface Configuration {
 		HOSTER_HOSTS {
 
 			@Override
-			public boolean check(Configuration c) {
+			public boolean check(IConfiguration c) {
 				return !c.getRunnings().filter(v -> !c.getHosted(c.getLocation(v)).filter(v::equals).findFirst().isPresent())
 						.findFirst().isPresent();
 			}
 
 		};
 
-		public abstract boolean check(Configuration c);
+		public abstract boolean check(IConfiguration c);
 	}
 
 	default boolean checkBasics() {

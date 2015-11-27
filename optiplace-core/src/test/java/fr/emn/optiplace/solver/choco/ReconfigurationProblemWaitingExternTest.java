@@ -3,10 +3,10 @@ package fr.emn.optiplace.solver.choco;
 
 import org.testng.annotations.BeforeMethod;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 
@@ -21,7 +21,7 @@ public class ReconfigurationProblemWaitingExternTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 	    .getLogger(ReconfigurationProblemWaitingExternTest.class);
 
-	Configuration src;
+	IConfiguration src;
 	Node n0, n1;
 	Node[] nodes;
 	VM vm0, vm1, vm2, vm3, vm4, vm5;
@@ -32,7 +32,7 @@ public class ReconfigurationProblemWaitingExternTest {
 
 	@BeforeMethod
 	public void prepare() {
-		src = new SimpleConfiguration();
+		src = new Configuration();
 		n0 = src.addOnline("n0");
 		n1 = src.addOnline("n1");
 		nodes = new Node[] {

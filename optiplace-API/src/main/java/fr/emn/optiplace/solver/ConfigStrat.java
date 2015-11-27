@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.chocosolver.solver.search.loop.monitors.ISearchMonitor;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 
 
@@ -262,7 +262,7 @@ public class ConfigStrat {
 	/**
 	 * should we make the VMs that migrate move from their host to another ? if
 	 * false (default value), the
-	 * {@link Configuration#getMigTarget(fr.emn.optiplace.configuration.VM)} is
+	 * {@link IConfiguration#getMigTarget(fr.emn.optiplace.configuration.VM)} is
 	 * set as the migration destination and the VM is not moved from its host.
 	 *
 	 * @return

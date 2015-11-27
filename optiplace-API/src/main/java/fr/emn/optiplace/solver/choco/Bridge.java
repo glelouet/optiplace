@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
@@ -17,7 +17,7 @@ public class Bridge {
 
 	public static final Logger logger = LoggerFactory.getLogger(Bridge.class);
 
-	private Configuration source;
+	private IConfiguration source;
 
 	private VM[] vms;
 	private TObjectIntHashMap<VM> revVMs;
@@ -37,7 +37,7 @@ public class Bridge {
 	/**
 	 * Bridge between the base configuration and the reconfiguration problem.
 	 */
-	public Bridge(Configuration source) {
+	public Bridge(IConfiguration source) {
 
 		this.source = source;
 
@@ -77,7 +77,7 @@ public class Bridge {
 		}
 	}
 
-	public Configuration source() {
+	public IConfiguration source() {
 		return source;
 	}
 

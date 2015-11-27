@@ -11,7 +11,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 
 /**
@@ -57,7 +57,7 @@ public class Main {
 	}
 	ConfigurationFiler cf = new ConfigurationFiler(f);
 	cf.read();
-	Configuration cfg = cf.getCfg();
+	IConfiguration cfg = cf.getCfg();
 	OptiplaceServer server = new OptiplaceServer();
 	if (line.hasOption('s')) {
 	    server.parse_FS(line.getOptionValue('s'));

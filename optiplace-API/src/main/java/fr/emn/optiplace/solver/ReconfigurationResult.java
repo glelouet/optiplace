@@ -1,7 +1,7 @@
 package fr.emn.optiplace.solver;
 
 import fr.emn.optiplace.actions.ActionGraph;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 
 /**
  * 
@@ -10,14 +10,14 @@ import fr.emn.optiplace.configuration.Configuration;
  */
 public class ReconfigurationResult {
 
-	protected Configuration destination, source;
+	protected IConfiguration destination, source;
 	protected ActionGraph actions;
 
 	/**
 	 * 
 	 * @return the end configuration
 	 */
-	public Configuration getDestination() {
+	public IConfiguration getDestination() {
 		return destination;
 	}
 
@@ -25,7 +25,7 @@ public class ReconfigurationResult {
 	 * 
 	 * @return the source configuration
 	 */
-	public Configuration getSource() {
+	public IConfiguration getSource() {
 		return source;
 	}
 
@@ -34,7 +34,7 @@ public class ReconfigurationResult {
 		return actions;
 	}
 
-	public void setData(Configuration src, Configuration dst, ActionGraph graph) {
+	public void setData(IConfiguration src, IConfiguration dst, ActionGraph graph) {
 		source = src;
 		destination = dst;
 		actions = graph;

@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace;
 
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.view.ProvidedData;
 
 /**
@@ -26,6 +26,6 @@ public interface OptiplaceSolver {
 	 * already present in the solver, the new data replace the old one.
 	 * @return a resolution of the reconfiguration problem.
 	 */
-	public DeducedTarget solve(Configuration source, ProvidedData... datas);
+	public DeducedTarget solve(IConfiguration source, ProvidedData... datas);
 
 }

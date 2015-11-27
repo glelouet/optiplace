@@ -5,9 +5,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.SimpleConfiguration;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 
 
@@ -32,7 +32,7 @@ public class PreMigrateTest {
 	@Test
 	public void testOneVMShadowing() {
 		Optiplace sp = new Optiplace();
-		SimpleConfiguration sc = new SimpleConfiguration("mem");
+		Configuration sc = new Configuration("mem");
 		sp.source(sc);
 		Node[] nodes = {
 		    sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2)
@@ -42,7 +42,7 @@ public class PreMigrateTest {
 		};
 		sc.setMigTarget(vms[0], nodes[1]);
 		sp.solve();
-		Configuration dest = sp.getTarget().getDestination();
+		IConfiguration dest = sp.getTarget().getDestination();
 		Assert.assertEquals(dest.getLocation(vms[0]), nodes[0]);
 		Assert.assertEquals(dest.getLocation(vms[1]), nodes[1]);
 		Assert.assertEquals(dest.getMigTarget(vms[1]), nodes[2]);
