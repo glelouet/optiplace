@@ -150,7 +150,7 @@ public class SolvingProcess extends OptiplaceProcess {
 			for (ViewAsModule v : views) {
 				logger.warn(" (" + v.getClass().getSimpleName() + ")" + v.extractGoals());
 			}
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("can not find goal with id " + goalId);
 		}
 
 		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {

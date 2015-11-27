@@ -438,7 +438,10 @@ public class VariablesManager {
 		if (name == null) {
 			name = x.getName() + ">0";
 		}
-		return ICF.arithm(x, ">", 0).reif();
+		BoolVar reified = ICF.arithm(x, ">", 0).reif();
+		BoolVar ret = VF.bool(name, x.getSolver());
+		x.getSolver().post(ICF.arithm(reified, "=", ret));
+		return ret;
 	}
 
 }

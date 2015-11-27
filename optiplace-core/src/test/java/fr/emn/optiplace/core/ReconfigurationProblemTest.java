@@ -85,6 +85,29 @@ public class ReconfigurationProblemTest {
 	public void testGoalNbMigrations() {
 		Configuration src = new SimpleConfiguration();
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
+		// TODO
+	}
+
+	@Test
+	public void testNbVMs() throws ContradictionException {
+		Configuration src = new SimpleConfiguration("mem");
+		Node n = src.addOnline("n", 2);
+		src.addVM("vm", n, 3);
+		src.addExtern("e", 3);
+		ReconfigurationProblem rp = new ReconfigurationProblem(src);
+		rp.hosted(n).instantiateTo(new int[] {}, Cause.Null);
+		Assert.assertTrue(rp.findSolution());
+	}
+
+	@Test(dependsOnMethods = "testNbVMs")
+	public void testIsHoster() throws ContradictionException {
+		Configuration src = new SimpleConfiguration("mem");
+		Node n = src.addOnline("n", 2);
+		src.addVM("vm", n, 3);
+		src.addExtern("e", 3);
+		ReconfigurationProblem rp = new ReconfigurationProblem(src);
+		rp.isHoster(n).setToFalse(Cause.Null);
+		Assert.assertTrue(rp.findSolution());
 	}
 
 	@Test

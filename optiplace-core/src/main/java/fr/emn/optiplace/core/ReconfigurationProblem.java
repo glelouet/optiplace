@@ -365,10 +365,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				SetVar s = VF.set(nodeName(i) + ".hosted", 0, c.nbVMs() - 1, getSolver());
 				nodesVMs[i] = s;
 			}
+			SetVar[] usedLocations = new SetVar[nodesVMs.length + 1];
+			usedLocations[0] = VF.set("nonHostedVMs", 0, c.nbVMs() - 1, this);
+			for (int i = 1; i < usedLocations.length; i++)
+				usedLocations[i] = nodesVMs[i - 1];
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(nodesVMs, getNodes(), 0, 0);
+			Constraint c = SetConstraintsFactory.int_channel(usedLocations, getNodes(), -1, 0);
 			post(c);
 		}
 	}
@@ -631,19 +635,22 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		Configuration cfg = getSourceConfiguration();
 		for (int i = 0; i < vmsIsMigrated.length; i++) {
 			VM vm = b.vm(i);
+			vmsIsMigrated[i] = v.createBoolVar(vm.getName() + ".ismigrated");
+			BoolVar val;
 			switch (cfg.getState(vm)) {
 				case WAITING:
-					vmsIsMigrated[i] = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING));
+				val = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING));
 				break;
 				case RUNNING:
-					vmsIsMigrated[i] = v.isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)));
+				val = v.isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)));
 				break;
 				case EXTERN:
-					vmsIsMigrated[i] = v.isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)));
+				val = v.isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)));
 				break;
 				default:
 					throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
 			}
+			post(ICF.arithm(val, "=", vmsIsMigrated[i]));
 		}
 	}
 
