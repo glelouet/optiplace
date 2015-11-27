@@ -48,7 +48,7 @@ import fr.emn.optiplace.view.ViewAsModule;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class Optiplace extends PlacementSolveProcess {
+public class Optiplace extends IOptiplace {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Optiplace.class);
 
