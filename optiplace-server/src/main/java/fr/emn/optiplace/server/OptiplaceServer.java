@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.OptiplaceSolver;
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
 import fr.emn.optiplace.server.viewDataProviders.MapConfigurationProvider;
@@ -87,7 +87,7 @@ public class OptiplaceServer implements OptiplaceSolver {
 			}
 		}
 		List<View> views = vm.getViews(getViewDataProvider());
-		SolvingProcess sp = new SolvingProcess();
+		Optiplace sp = new Optiplace();
 		sp.source(source);
 		sp.views(views);
 		if (strat != null) {

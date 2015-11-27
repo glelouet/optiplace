@@ -3,7 +3,7 @@ package fr.emn.optiplace.core;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.*;
 
 public class ReconfigurationPoblemTestExternResources {
@@ -16,7 +16,7 @@ public class ReconfigurationPoblemTestExternResources {
 		VM running = cfg.addVM("vm1", n, 5);
 		VM waiting = cfg.addVM("w", null, 7);
 
-		SolvingProcess sp = new SolvingProcess();
+		Optiplace sp = new Optiplace();
 		sp.source(cfg);
 		sp.solve();
 		Configuration out = sp.getTarget().getDestination();
@@ -25,7 +25,7 @@ public class ReconfigurationPoblemTestExternResources {
 
 		cfg.resource("mem").capacity(e, 5);
 		cfg.setHost(waiting, e);
-		sp = new SolvingProcess();
+		sp = new Optiplace();
 		sp.source(cfg);
 		sp.solve();
 		out = sp.getTarget().getDestination();

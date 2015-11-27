@@ -4,7 +4,7 @@ package fr.emn.optiplace.solver.choco;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -31,7 +31,7 @@ public class PreMigrateTest {
 	 */
 	@Test
 	public void testOneVMShadowing() {
-		SolvingProcess sp = new SolvingProcess();
+		Optiplace sp = new Optiplace();
 		SimpleConfiguration sc = new SimpleConfiguration("mem");
 		sp.source(sc);
 		Node[] nodes = {

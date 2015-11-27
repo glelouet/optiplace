@@ -32,9 +32,9 @@ import fr.emn.optiplace.view.View;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public abstract class OptiplaceProcess {
+public abstract class PlacementSolveProcess {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceProcess.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PlacementSolveProcess.class);
 
 	public void solve() {
 		try {
@@ -64,7 +64,7 @@ public abstract class OptiplaceProcess {
 	/** extract the interesting data from the solver result */
 	protected abstract void extractData();
 
-	protected Configuration sourceConfig = null;
+	protected Configuration source = null;
 
 	protected List<View> views = new ArrayList<>();
 
@@ -73,11 +73,11 @@ public abstract class OptiplaceProcess {
 	protected DeducedTarget target = new DeducedTarget();
 
 	public Configuration source() {
-		return sourceConfig;
+		return source;
 	}
 
 	public void source(Configuration source) {
-		sourceConfig = source;
+		this.source = source;
 	}
 
 	public List<View> views() {
@@ -88,6 +88,24 @@ public abstract class OptiplaceProcess {
 		this.views.clear();
 		if (views != null)
 			this.views.addAll(views);
+	}
+
+	/**
+	 * add a view to the list of views if no view with same name already present.
+	 * 
+	 * @param v
+	 *          a view
+	 * @return true if the view was inserted. false if null, view already present.
+	 */
+	public boolean addView(View v) {
+		if (v == null)
+			return false;
+		for (View vo : views) {
+			if (vo.getName().equals(v.getName()))
+				return false;
+		}
+		views.add(v);
+		return true;
 	}
 
 	/** set the views in the problem */

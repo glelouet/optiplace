@@ -3,7 +3,7 @@ package fr.emn.optiplace.test;
 import java.util.Arrays;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -75,7 +75,7 @@ public class SolvingExample {
 	}
 
 	public DeducedTarget solve(Configuration src, Rule... rules) {
-		SolvingProcess p = new SolvingProcess();
+		Optiplace p = new Optiplace();
 		p.source(src);
 		EmptyView v = new EmptyView();
 		v.getInternalRules().addAll(Arrays.asList(rules));

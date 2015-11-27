@@ -29,6 +29,7 @@ import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Configuration.VMSTATES;
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.SimpleConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
@@ -47,12 +48,20 @@ import fr.emn.optiplace.view.ViewAsModule;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class SolvingProcess extends OptiplaceProcess {
+public class Optiplace extends PlacementSolveProcess {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SolvingProcess.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Optiplace.class);
 
 	/** the core problem, modified by the views */
 	protected ReconfigurationProblem problem;
+
+	public Optiplace() {
+		this(new SimpleConfiguration());
+	}
+
+	public Optiplace(Configuration src) {
+		source(src);
+	}
 
 	@Override
 	public void makeProblem() {
@@ -61,21 +70,21 @@ public class SolvingProcess extends OptiplaceProcess {
 		// each view can pre-process the configuration, creating or removing VM,
 		// nodes, etc.
 		for (ViewAsModule v : views) {
-			v.preProcessConfig(sourceConfig);
+			v.preProcessConfig(source);
 		}
 
-		problem = new ReconfigurationProblem(sourceConfig);
+		problem = new ReconfigurationProblem(source);
 		if (strat.getPacker() == null) {
 			strat.setPacker(new DefaultPacker());
 		}
 
-		for (ResourceSpecification r : sourceConfig.resources().values()) {
+		for (ResourceSpecification r : source.resources().values()) {
 			problem.addResource(r);
 		}
 
 		// each vm migrating on the source configuration must keep migrating, and
 		// also be set to shadowing
-		sourceConfig.getRunnings().forEach(vm -> {
+		source.getRunnings().forEach(vm -> {
 			Node node = (Node) problem.getSourceConfiguration().getMigTarget(vm);
 			if (node != null) {
 				problem.setShadow(vm, node);
@@ -93,7 +102,7 @@ public class SolvingProcess extends OptiplaceProcess {
 		for (ViewAsModule view : views) {
 			view.getRequestedRules().forEach(cc -> cc.inject(problem));
 		}
-		if (sourceConfig.nbNodes(null) > 0) {
+		if (source.nbNodes(null) > 0) {
 			ChocoResourcePacker packer = strat.getPacker();
 			// all the resources should be added now, we pack them using the packing
 			// constraint.
@@ -264,8 +273,8 @@ public class SolvingProcess extends OptiplaceProcess {
 		if (problem.getObjective() != null) {
 			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
 		}
-		Migrate.extractMigrations(sourceConfig, dest, target.getActions());
-		Allocate.extractAllocates(sourceConfig, dest, target.getActions());
+		Migrate.extractMigrations(source, dest, target.getActions());
+		Allocate.extractAllocates(source, dest, target.getActions());
 		for (ViewAsModule v : views) {
 			v.extractActions(target.getActions(), dest);
 		}

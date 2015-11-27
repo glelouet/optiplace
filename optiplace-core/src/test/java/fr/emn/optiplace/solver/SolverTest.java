@@ -3,7 +3,7 @@ package fr.emn.optiplace.solver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration.VMSTATES;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
 
@@ -25,7 +25,7 @@ public class SolverTest {
 		c.addExtern("exter");
 		c.addOnline("node");
 		c.addVM("vm", null);
-		SolvingProcess test = new SolvingProcess();
+		Optiplace test = new Optiplace();
 		test.source(c);
 		test.solve();
 		Assert.assertEquals(test.getTarget().getDestination().nbVMs(VMSTATES.WAITING), 0);

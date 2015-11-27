@@ -10,7 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.SimpleConfiguration;
@@ -111,7 +111,7 @@ public class ReconfigurationProblemTest {
 
 		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
 
-		SolvingProcess test = new SolvingProcess();
+		Optiplace test = new Optiplace();
 		test.getStrat().setMoveMigratingVMs(true);
 		test.source(c);
 		test.solve();

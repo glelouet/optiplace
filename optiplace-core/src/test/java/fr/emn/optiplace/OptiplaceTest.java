@@ -15,10 +15,10 @@ import fr.emn.optiplace.configuration.SimpleConfiguration;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
-public class SolvingProcessTest {
+public class OptiplaceTest {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SolvingProcessTest.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceTest.class);
 
 	/**
 	 * in this test, we have a correct source configuration : the solver should
@@ -31,7 +31,7 @@ public class SolvingProcessTest {
 		Node n2 = c.addOnline("n2", 10);
 		c.addVM("v1", n1, 1);
 		c.addVM("v2", n2, 1);
-		SolvingProcess sp = new SolvingProcess();
+		Optiplace sp = new Optiplace();
 		sp.getStrat().setMoveMigratingVMs(true);
 		sp.source(c);
 		// sp.getStrat().setLogChoices(true);

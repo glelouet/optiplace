@@ -3,7 +3,7 @@ package fr.emn.optiplace.solver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.SolvingProcess;
+import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
@@ -23,7 +23,7 @@ public class BugNoExternResourceTest {
 		VM v = sc.addVM("v", null, 50);
 		Extern e = sc.addExtern("e");
 
-		SolvingProcess sp = new SolvingProcess();
+		Optiplace sp = new Optiplace();
 		sp.source(sc);
 		sp.solve();
 
