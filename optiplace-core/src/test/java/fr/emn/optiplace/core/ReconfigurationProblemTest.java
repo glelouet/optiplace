@@ -11,9 +11,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.access.CoreView;
 
@@ -112,7 +112,6 @@ public class ReconfigurationProblemTest {
 		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
 
 		Optiplace test = new Optiplace();
-		test.getStrat().setMoveMigratingVMs(true);
 		test.source(c);
 		test.solve();
 		IConfiguration t = test.getTarget().getDestination();

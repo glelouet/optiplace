@@ -9,8 +9,8 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -135,26 +135,6 @@ public interface CoreView {
 	}
 
 	public IntVar getHoster(int vmidx);
-
-	/**
-	 * set a VM as shadowing a node, eg when a VM is migrating.
-	 *
-	 * @param vm
-	 *            a VM of the source
-	 * @param n
-	 *            the node this VM shadows (so the one it migrates to)
-	 * @return true if the VM was not shadowing a node before
-	 */
-	public boolean setShadow(VM vm, Node n);
-
-	/**
-	 * get the node a VM shadows
-	 *
-	 * @param vm
-	 *            a VM of the center
-	 * @return a Node shadowed, if any, or null if none.
-	 */
-	public Node getShadow(VM vm);
 
 	/**
 	 * @param vm

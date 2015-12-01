@@ -7,8 +7,8 @@ package fr.emn.optiplace;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Node;
 
 
 /**
@@ -32,7 +32,6 @@ public class OptiplaceTest {
 		c.addVM("v1", n1, 1);
 		c.addVM("v2", n2, 1);
 		Optiplace sp = new Optiplace();
-		sp.getStrat().setMoveMigratingVMs(true);
 		sp.source(c);
 		// sp.getStrat().setLogChoices(true);
 		sp.solve();

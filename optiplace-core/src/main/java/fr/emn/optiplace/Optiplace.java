@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
@@ -29,7 +28,6 @@ import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
@@ -81,20 +79,6 @@ public class Optiplace extends IOptiplace {
 		for (ResourceSpecification r : source.resources().values()) {
 			problem.addResource(r);
 		}
-
-		// each vm migrating on the source configuration must keep migrating, and
-		// also be set to shadowing
-		source.getRunnings().forEach(vm -> {
-			Node node = (Node) problem.getSourceConfiguration().getMigTarget(vm);
-			if (node != null) {
-				problem.setShadow(vm, node);
-				try {
-					problem.isMigrated(vm).instantiateTo(0, Cause.Null);
-				} catch (Exception e) {
-					throw new UnsupportedOperationException("catch this", e);
-				}
-			}
-		});
 
 		for (ViewAsModule view : views) {
 			view.associate(problem);
@@ -242,7 +226,6 @@ public class Optiplace extends IOptiplace {
 
 	@Override
 	public void makeSearch() {
-		problem.setMoveMigrateVMs(strat.isMoveMigrateVMs());
 		long st = System.currentTimeMillis();
 		if (problem.getObjective() != null) {
 			problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());

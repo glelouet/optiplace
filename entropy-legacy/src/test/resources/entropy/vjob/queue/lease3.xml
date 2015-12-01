@@ -1,8 +1,0 @@
-<vjob id="lease3">
-	<vms>
-		<vm id="TOTO" tpl="tiny">
-			<options />
-		</vm>
-	</vms>
-	<constraints />
-</vjob>

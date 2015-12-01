@@ -7,9 +7,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.DeducedTarget;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 
 /**
@@ -76,7 +76,6 @@ public class OptiplaceDefaultServerTest {
 		int nbVmsPerNode = 5;
 		int nbWaitingVms = 10;
 		OptiplaceServer test = new OptiplaceServer();
-		test.getStrat().setMoveMigratingVMs(true);
 		Configuration cfg = new Configuration("CPU", "MEM", "DISK");
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];

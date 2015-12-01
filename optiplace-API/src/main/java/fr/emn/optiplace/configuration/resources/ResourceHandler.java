@@ -7,7 +7,6 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
-
 /**
  * <p>
  * The link between a {@link ResourceSpecification}, which maps VM and Nodes to
@@ -69,31 +68,21 @@ public class ResourceHandler {
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
 		associatedPb = pb;
-		Node[] nodes = pb.b().nodes();
-		VM[] vms = pb.b().vms();
-		nodesLoadsByIndex = new IntVar[nodes.length];
-		vmsLoads = new int[vms.length];
-		for (int i = 0; i < vms.length; i++) {
-			int use = specs.getUse(vms[i]);
+		nodesLoadsByIndex = new IntVar[pb.c().nbNodes()];
+		vmsLoads = new int[pb.c().nbVMs()];
+		for (int i = 0; i < pb.c().nbVMs(); i++) {
+			int use = specs.getUse(pb.b().vm(i));
 			vmsLoads[i] = use;
-			if (maxVMUse < use) {
-				maxVMUse = use;
-			}
-			if (minVMUse > use) {
-				minVMUse = use;
-			}
+			maxVMUse = Math.max(maxVMUse, use);
+			minVMUse = Math.min(minVMUse, use);
 		}
-		nodesCapacities = new int[nodes.length];
-		for (int i = 0; i < nodes.length; i++) {
-			Node n = nodes[i];
+		nodesCapacities = new int[pb.c().nbNodes()];
+		for (int i = 0; i < pb.c().nbNodes(); i++) {
+			Node n = pb.b().node(i);
 			int capa = specs.getCapacity(n);
 			nodesCapacities[i] = capa;
-			if (maxNodeCapa < capa) {
-				maxNodeCapa = capa;
-			}
-			if (minNodeCapa > capa) {
-				minNodeCapa = capa;
-			}
+			maxNodeCapa = Math.max(maxNodeCapa, capa);
+			minNodeCapa = Math.min(minNodeCapa, capa);
 			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
 		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex);
