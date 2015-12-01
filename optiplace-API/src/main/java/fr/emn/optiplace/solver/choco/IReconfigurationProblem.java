@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
@@ -91,17 +90,12 @@ public interface IReconfigurationProblem extends CoreView {
 	public IntVar getHostCapa(String resource, int vmIndex);
 
 	/**
-	 * add an {@link ResourceHandler} to manage the consumption variables of a
-	 * resource
+	 * add a new resource specification
 	 *
-	 * @param handler
-	 *          the handler, already containing
+	 * @param rs
+	 *          the resource specification.
 	 */
-	void addResourceHandler(ResourceHandler handler);
-
-	default void addResource(ResourceSpecification rs) {
-		addResourceHandler(new ResourceHandler(rs));
-	}
+	void addResource(ResourceSpecification rs);
 
 	/********************* Operations on variables *****************/
 

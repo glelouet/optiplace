@@ -188,18 +188,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				if (migTarget instanceof Extern) {
 					vmsState[i] = v.createIntegerConstant(VM_EXTERNED);
 					vmsNode[i] = v.createIntegerConstant(-1);
-					vmsExtern[i] = v.createIntegerConstant(b.extern((Extern) migTarget));
+					if (vmsExtern != null)
+						vmsExtern[i] = v.createIntegerConstant(b.extern((Extern) migTarget));
 				} else {
 					vmsState[i] = v.createIntegerConstant(VM_RUNNING);
-					vmsExtern[i] = v.createIntegerConstant(-1);
+					if (vmsExtern != null)
+						vmsExtern[i] = v.createIntegerConstant(-1);
 					vmsNode[i] = v.createIntegerConstant(b.node((Node) migTarget));
-				}
-				VMHoster loc = c.getLocation(vm);
-				if (loc instanceof Node) {
-					int n_i = b.node((Node) loc);
-					for (ResourceHandler rh : resources.values()) {
-						rh.getResourceLoad().addUse(n_i, i);
-					}
 				}
 			}
 			// constrain the state of the VM and the node it is hosted on :
@@ -227,6 +222,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			}
 		}
 		vmHosters = new IntVar[c.nbVMs()];
+		for (ResourceSpecification rs : c.resources().values()) {
+			addResource(rs);
+		}
 	}
 
 	/**
@@ -708,7 +706,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	private final LinkedHashMap<String, ResourceHandler> resources = new LinkedHashMap<String, ResourceHandler>();
 
 	@Override
-	public void addResourceHandler(ResourceHandler handler) {
+	public void addResource(ResourceSpecification rs) {
+		ResourceHandler handler = new ResourceHandler(rs);
 		handler.associate(this);
 		resources.put(handler.getSpecs().getType(), handler);
 	}

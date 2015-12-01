@@ -5,11 +5,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
-
 
 /**
  * test when a VM is migrating in the source configuration
@@ -31,21 +30,15 @@ public class PreMigrateTest {
 	 */
 	@Test
 	public void testOneVMShadowing() {
-		Optiplace sp = new Optiplace();
 		Configuration sc = new Configuration("mem");
-		sp.source(sc);
-		Node[] nodes = {
-		    sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2)
-		};
-		VM[] vms = {
-		    sc.addVM("vm0", nodes[0], 2), sc.addVM("vm1", nodes[1], 1), sc.addVM("vm2", nodes[2], 1)
-		};
+		Optiplace sp = new Optiplace(sc);
+		Node[] nodes = { sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2) };
+		VM[] vms = { sc.addVM("vm0", nodes[0], 2), sc.addVM("vm1", nodes[1], 1), sc.addVM("vm2", nodes[2], 1) };
 		sc.setMigTarget(vms[0], nodes[1]);
 		sp.solve();
 		IConfiguration dest = sp.getTarget().getDestination();
 		Assert.assertEquals(dest.getLocation(vms[0]), nodes[0]);
-		Assert.assertEquals(dest.getLocation(vms[1]), nodes[1]);
-		Assert.assertEquals(dest.getMigTarget(vms[1]), nodes[2]);
+		Assert.assertEquals(dest.getLocation(vms[1]), nodes[2], " from " + sc + " to " + dest);
 		Assert.assertEquals(dest.getLocation(vms[2]), nodes[2]);
 	}
 }

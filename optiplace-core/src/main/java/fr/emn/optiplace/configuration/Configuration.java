@@ -229,6 +229,11 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
+	public Set<VM> getMIgratingVMs() {
+		return vmMigration.keySet();
+	}
+
+	@Override
 	public void setMigTarget(VM vm, VMHoster h) {
 		if (vm == null || !vmHoster.containsKey(vm)) {
 			return;

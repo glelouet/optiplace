@@ -344,6 +344,8 @@ public interface IConfiguration {
 	 */
 	VMHoster getMigTarget(VM vm);
 
+	Set<VM> getMIgratingVMs();
+
 	default Node getNodeMig(VM vm) {
 		VMHoster h = getMigTarget(vm);
 		if (h instanceof Node) {

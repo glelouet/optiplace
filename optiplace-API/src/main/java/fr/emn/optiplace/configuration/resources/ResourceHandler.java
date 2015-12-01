@@ -5,6 +5,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -21,6 +22,9 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * {@link ReconfigurationProblem.#getUse(String)},
  * {@link ReconfigurationProblem.#getUses()} and
  * {@link ReconfigurationProblem.#getHandlers()}
+ * </p>
+ * <p>
+ * The actual IntVar are stored in the #resourceLoad
  * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2013
@@ -86,6 +90,11 @@ public class ResourceHandler {
 			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
 		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex);
+		for(VM v : pb.c().getMIgratingVMs()) {
+			VMHoster host = pb.c().getLocation(v);
+			if (host instanceof Node)
+				resourceLoad.addUse(pb.b().node((Node) host), pb.b().vm(v));
+		}
 	}
 
 	public ResourceLoad getResourceLoad() {

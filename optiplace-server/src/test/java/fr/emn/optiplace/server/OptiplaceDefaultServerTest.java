@@ -52,12 +52,12 @@ public class OptiplaceDefaultServerTest {
 		IConfiguration dest = res.getDestination();
 
 		Assert.assertEquals(res.getSearchSolutions(), 1);
-		Assert.assertEquals(dest.nbHosted(n1), 2);
-		Assert.assertEquals(dest.nbHosted(n2), 0, "dest is " + dest);
+		Assert.assertEquals(dest.nbHosted(n1), 1);
+		Assert.assertEquals(dest.nbHosted(n2), 1, "dest is " + dest);
 		Assert.assertEquals(dest.getLocation(vm1), n1);
-		Assert.assertEquals(dest.getLocation(vm2), n1);
+		Assert.assertEquals(dest.getLocation(vm2), n2);
 		Assert.assertEquals(dest.getMigTarget(vm1), null);
-		Assert.assertEquals(dest.getMigTarget(vm2), n2);
+		Assert.assertEquals(dest.getMigTarget(vm2), null);
 	}
 
 	/**

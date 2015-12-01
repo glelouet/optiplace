@@ -29,7 +29,6 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
@@ -74,10 +73,6 @@ public class Optiplace extends IOptiplace {
 		problem = new ReconfigurationProblem(source);
 		if (strat.getPacker() == null) {
 			strat.setPacker(new DefaultPacker());
-		}
-
-		for (ResourceSpecification r : source.resources().values()) {
-			problem.addResource(r);
 		}
 
 		for (ViewAsModule view : views) {
