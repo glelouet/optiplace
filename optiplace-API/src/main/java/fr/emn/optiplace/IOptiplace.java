@@ -36,7 +36,7 @@ public abstract class IOptiplace {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IOptiplace.class);
 
-	public void solve() {
+	public DeducedTarget solve() {
 		try {
 			makeProblem();
 			configLogging();
@@ -45,8 +45,9 @@ public abstract class IOptiplace {
 			extractData();
 		}
 		catch (Exception e) {
-			logger.warn("", e);
+			logger.warn("exception while solving " + this, e);
 		}
+		return getTarget();
 	}
 
 	/** generate the elements of the problem in the solver */
@@ -113,6 +114,11 @@ public abstract class IOptiplace {
 		views(views != null ? Arrays.asList(views) : Collections.emptyList());
 	}
 
+	public IOptiplace with(View v) {
+		addView(v);
+		return this;
+	}
+
 	/**
 	 * @return the strat
 	 */
@@ -122,6 +128,19 @@ public abstract class IOptiplace {
 
 	public void strat(ConfigStrat strat) {
 		this.strat = strat;
+	}
+
+	/**
+	 * set the cost Id to reduce
+	 * 
+	 * @param goalId
+	 *          the id of the goal, to be converted to an IntVar to reduce by at
+	 *          least one view
+	 * @return this
+	 */
+	public IOptiplace withGoal(String goalId) {
+		getStrat().setGoalId(goalId);
+		return this;
 	}
 
 	/**
