@@ -1,0 +1,13 @@
+//priority ordered example. An element with several matches gets the match with highest priority
+
+// a hoster name
+host("myhost", "myhost2")=10
+
+// a host pattern
+hostLike("*expensive")=20
+
+// a site
+site("s1, s2")=30
+
+// a site pattern
+siteLike("*siteExpeensive")=40

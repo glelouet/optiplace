@@ -1,0 +1,115 @@
+en modifiant le makeIsHosting : optimalConsumption et potentialConstraint sont à true.
+
+    IntDomainVar hosted = getNbHosted(node);
+    post(eq(ret, min(createIntegerConstant("1", 1), hosted)));
+
+- #cluster 1, *objMult 0.6599999999999999 : 677ms 850.0W
+- #cluster 1, *objMult 0.73 : 563ms 850.0W
+- #cluster 1, *objMult 0.74 : 408ms 850.0W
+- #cluster 1, *objMult 0.75 : 767ms 850.0W
+- #cluster 1, *objMult 0.76 : 1434ms 850.0W
+- #cluster 1, *objMult 0.765 : 2895ms 850.0W
+- #cluster 1, *objMult 0.77 : 2859ms 850.0W
+- #cluster 1, *objMult 0.775 : 2833ms 850.0W
+- #cluster 1, *objMult 0.78 : 5805ms 850.0W
+- #cluster 3, *objMult 0.6 : 1211ms 2030.0W
+- #cluster 3, *objMult 0.605 : 2529ms 2030.0W
+- #cluster 3, *objMult 0.61 : 2548ms 2030.0W
+- #cluster 3, *objMult 0.615 : 5270ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 17765ms 2690.0W
+- #cluster 10, *objMult 0.6400000000000002 : 1509ms 5380.0W
+- #cluster 10, *objMult 0.6450000000000002 : 2173ms 5380.0W
+- #cluster 10, *objMult 0.6500000000000002 : 12157ms 5380.0W
+
+
+
+    IntDomainVar hosted = getNbHosted(node);
+    SConstraint<?> pos = new GreaterOrEqualXC(hosted, 1);
+    SConstraint<?> neg = new LessOrEqualXC(hosted, 0);
+    post(ReifiedFactory.builder(ret, pos, neg, this));
+
+- #cluster 1, *objMult 0.6599999999999999 : 647ms 850.0W
+- #cluster 1, *objMult 0.73 : 536ms 850.0W
+- #cluster 1, *objMult 0.74 : 417ms 850.0W
+- #cluster 1, *objMult 0.75 : 731ms 850.0W
+- #cluster 1, *objMult 0.76 : 1468ms 850.0W
+- #cluster 1, *objMult 0.765 : 2847ms 850.0W
+- #cluster 1, *objMult 0.77 : 2781ms 850.0W
+- #cluster 1, *objMult 0.775 : 2891ms 850.0W
+- #cluster 1, *objMult 0.78 : 5627ms 850.0W
+- #cluster 3, *objMult 0.6 : 792ms 2030.0W
+- #cluster 3, *objMult 0.61 : 1567ms 2030.0W
+- #cluster 3, *objMult 0.615 : 3260ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 9227ms 2690.0W
+- #cluster 10, *objMult 0.6400000000000002 : 754ms 5380.0W
+- #cluster 10, *objMult 0.6500000000000002 : 5646ms 5380.0W
+
+
+
+    IntDomainVar cpu = getUsedCPU(node);
+    post(eq(ret, min(createIntegerConstant("1", 1), cpu)));
+    
+- #cluster 1, *objMult 0.8200000000000001 : 780ms 850.0W
+- #cluster 1, *objMult 0.8300000000000001 : 1930ms 850.0W
+- #cluster 1, *objMult 0.8350000000000001 : 1949ms 850.0W
+- #cluster 1, *objMult 0.8400000000000001 : 5121ms 850.0W
+- #cluster 3, *objMult 0.6 : 1004ms 2030.0W
+- #cluster 3, *objMult 0.605 : 2095ms 2030.0W
+- #cluster 3, *objMult 0.61 : 2100ms 2030.0W
+- #cluster 3, *objMult 0.615 : 4275ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 14741ms 2690.0W
+- #cluster 10, *objMult 0.6400000000000002 : 1225ms 5380.0W
+- #cluster 10, *objMult 0.6450000000000002 : 1730ms 5380.0W
+- #cluster 10, *objMult 0.6500000000000002 : 9792ms 5380.0W
+
+
+
+    IntDomainVar cpu = getUsedCPU(node);
+    SConstraint<?> pos = new GreaterOrEqualXC(cpu, 1);
+    SConstraint<?> neg = new LessOrEqualXC(cpu, 0);
+    post(ReifiedFactory.builder(ret, pos, neg, this));
+
+- #cluster 1, *objMult 0.8200000000000001 : 757ms 850.0W
+- #cluster 1, *objMult 0.8300000000000001 : 1919ms 850.0W
+- #cluster 1, *objMult 0.8350000000000001 : 1881ms 850.0W
+- #cluster 1, *objMult 0.8400000000000001 : 5047ms 850.0W
+- #cluster 3, *objMult 0.6 : 519ms 2030.0W
+- #cluster 3, *objMult 0.61 : 1010ms 2030.0W
+- #cluster 3, *objMult 0.615 : 2048ms 2030.0W
+- #cluster 3, *objMult 0.62 : 4105ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 5207ms 2690.0W
+- #cluster 10, *objMult 0.6400000000000002 : 442ms 5380.0W
+- #cluster 10, *objMult 0.6500000000000002 : 2792ms 5380.0W
+- #cluster 10, *objMult 0.6550000000000002 : 25485ms 5380.0W
+
+
+
+    produit scalaire pour les bases et le linéaire.
+    
+- #cluster 1, *objMult 0.8200000000000001 : 580ms 850.0W
+- #cluster 1, *objMult 0.8300000000000001 : 1610ms 850.0W
+- #cluster 1, *objMult 0.8350000000000001 : 1612ms 850.0W
+- #cluster 1, *objMult 0.8400000000000001 : 4105ms 850.0W
+- #cluster 3, *objMult 0.6 : 423ms 2030.0W
+- #cluster 3, *objMult 0.61 : 801ms 2030.0W
+- #cluster 3, *objMult 0.62 : 3336ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 4252ms 2690.0W
+- #cluster 10, *objMult 0.6500000000000002 : 2699ms 5380.0W
+- #cluster 10, *objMult 0.6550000000000002 : 24461ms 5380.0W
+
+
+
+    pareil mais granularité de 10
+    
+- #cluster 1, *objMult 0.8200000000000001 : 568ms 850.0W
+- #cluster 1, *objMult 0.8300000000000001 : 1582ms 850.0W
+- #cluster 1, *objMult 0.8350000000000001 : 1585ms 850.0W
+- #cluster 1, *objMult 0.8400000000000001 : 4025ms 850.0W
+- #cluster 3, *objMult 0.6 : 414ms 2030.0W
+- #cluster 3, *objMult 0.61 : 783ms 2030.0W
+- #cluster 3, *objMult 0.62 : 3235ms 2030.0W
+- #cluster 5, *objMult 0.7000000000000001 : 4250ms 2690.0W
+- #cluster 10, *objMult 0.6500000000000002 : 2578ms 5380.0W
+- #cluster 10, *objMult 0.6550000000000002 : 23521ms 5380.0W
+
+    
