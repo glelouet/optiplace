@@ -65,7 +65,7 @@
 	<parent>
 		<artifactId>optiplace</artifactId>
 		<groupId>fr.emn</groupId>
-		<version>3.5.2-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 	<name>optiplace-graphical</name>
 	<description>graphical presentation of a configuration.</description>

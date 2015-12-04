@@ -17,14 +17,8 @@
 	<parent>
 		<artifactId>optiplace</artifactId>
 		<groupId>fr.emn</groupId>
-		<version>3.5.2-SNAPSHOT</version>
-		<relativePath>..</relativePath>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
-    <scm>
-        <developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace-modules.git</developerConnection>
-        <url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace-modules.git</url>
-        <connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace-modules.git</connection>
-    </scm>
     
     
     <dependencies>

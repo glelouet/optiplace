@@ -14,7 +14,7 @@
 	<groupId>fr.emn</groupId>
 	<artifactId>optiplace</artifactId>
 	<packaging>pom</packaging>
-	<version>3.5.2-SNAPSHOT</version>
+	<version>4.0.1-SNAPSHOT</version>
 	<name>optiplace</name>
 	<licenses>
 		<license>
@@ -27,7 +27,8 @@
 		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
 		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
 		<connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</connection>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 	<distributionManagement>
 		<repository>
 			<id>kimsufi-repository</id>

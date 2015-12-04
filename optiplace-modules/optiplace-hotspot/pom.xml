@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>fr.emn.optiplace</groupId>
 		<artifactId>modules</artifactId>
-		<version>3.5.2-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>optiplace-hotspot</artifactId>
 	<repositories>
