@@ -41,6 +41,10 @@ public class VariablesManager {
 		return VariableFactory.bool(name, getSolver());
 	}
 
+	public BoolVar createBoolVar(String name, boolean value) {
+		return value ? getSolver().ONE : getSolver().ZERO;
+	}
+
 	public IntVar createEnumIntVar(String name, int... sortedValues) {
 		return VariableFactory.enumerated(name, sortedValues, getSolver());
 	}
@@ -117,14 +121,18 @@ public class VariablesManager {
 	 * @param vars
 	 * @return a new variable constrained to the sum of the elements of vars
 	 */
-	public IntVar sum(IntVar... vars) {
+	public IntVar sum(String name, IntVar... vars) {
 		if (vars == null || vars.length == 0) {
 			return createIntegerConstant(0);
 		}
 		if (vars.length == 1) {
 			return vars[0];
 		}
-		IntVar ret = createBoundIntVar("sum(" + Arrays.asList(vars) + ")");
+		if (name == null) {
+			name = "sum(" + Arrays.asList(vars) + ")";
+		}
+		int[] minmax = getMinMax(vars);
+		IntVar ret = createBoundIntVar(name, minmax[0], minmax[1]);
 		getSolver().post(ICF.sum(vars, ret));
 		return ret;
 	}
@@ -157,29 +165,35 @@ public class VariablesManager {
 	 *         constraints to propagate)
 	 */
 	public IntVar bswitch(BoolVar x, int valFalse, int valTrue) {
+		if (valFalse == valTrue) {
+			return createIntegerConstant(valTrue);
+		}
+		if (x.isInstantiated()) {
+			return createIntegerConstant(x.contains(1)?valTrue:valFalse);
+		}
 		return linear(x, valTrue - valFalse, valFalse);
 	}
 
 	/**
 	 * @param x
 	 *          a variable
-	 * @param a
+	 * @param mult
 	 *          the product
-	 * @param b
-	 *          the offset
-	 * @return A variable set to value =a⋅x+b
+	 * @param val0
+	 *          the offset (value at x=0)
+	 * @return A variable set to value =mult⋅x+val0
 	 */
-	public IntVar linear(IntVar x, int a, int b) {
-		if (a == 0) {
-			return createIntegerConstant(b);
+	public IntVar linear(IntVar x, int mult, int val0) {
+		if (mult == 0) {
+			return createIntegerConstant(val0);
 		}
-		if (a == 1) {
-			return plus(x, b);
+		if (mult == 1) {
+			return plus(x, val0);
 		}
-		if (a == -1) {
-			return plus(VF.minus(x), b);
+		if (mult == -1) {
+			return plus(VF.minus(x), val0);
 		}
-		return plus(VF.scale(x, a), b);
+		return plus(VF.scale(x, mult), val0);
 	}
 
 	/**
@@ -277,6 +291,17 @@ public class VariablesManager {
 		if (name == null) {
 			name = "(" + x.getName() + "?=" + y.getName() + ")";
 		}
+		// precheck equality
+		if (x.isInstantiated() && !y.contains(x.getValue())) {
+				return createBoolVar(name, false);
+		}
+		if (y.isInstantiated() && !x.contains(y.getValue())) {
+				return createBoolVar(name, false);
+		}
+		if (x.isInstantiated() && y.isInstantiated()) {
+			return createBoolVar(name, true);
+		}
+		// precheck
 		BoolVar ret = createBoolVar(name);
 		ICF.arithm(x, "=", y).reifyWith(ret);
 		return ret;
@@ -297,6 +322,14 @@ public class VariablesManager {
 		if (name == null) {
 			name = "(" + x.getName() + "?=" + y + ")";
 		}
+		// precheck equality
+		if(x.isInstantiated()){
+			return createBoolVar(name, x.isInstantiatedTo(y));
+		}
+		if (!x.contains(y)) {
+			return createBoolVar(name, false);
+		}
+		// precheck
 		BoolVar ret = createBoolVar(name);
 		ICF.arithm(x, "=", y).reifyWith(ret);
 		return ret;
@@ -314,6 +347,17 @@ public class VariablesManager {
 		if (name == null) {
 			name = "(" + x.getName() + "?!=" + y.getName() + ")";
 		}
+		// precheck equality
+		if (x.isInstantiated() && !y.contains(x.getValue())) {
+			return createBoolVar(name, true);
+		}
+		if (y.isInstantiated() && !x.contains(y.getValue())) {
+			return createBoolVar(name, true);
+		}
+		if (x.isInstantiated() && y.isInstantiated()) {
+			return createBoolVar(name, false);
+		}
+		// precheck
 		BoolVar ret = createBoolVar(name);
 		ICF.arithm(x, "!=", y).reifyWith(ret);
 		return ret;
@@ -326,6 +370,14 @@ public class VariablesManager {
 		if (name == null) {
 			name = "(" + x.getName() + "?=!" + y + ")";
 		}
+		// precheck equality
+		if (x.isInstantiated()) {
+			return createBoolVar(name, !x.isInstantiatedTo(y));
+		}
+		if (!x.contains(y)) {
+			return createBoolVar(name, true);
+		}
+		// precheck
 		BoolVar ret = createBoolVar(name);
 		ICF.arithm(x, "!=", y).reifyWith(ret);
 		return ret;

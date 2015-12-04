@@ -647,7 +647,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar nbMigrations() {
 		if (nbLiveMigrations == null) {
-			nbLiveMigrations = v.sum(isMigrateds());
+			nbLiveMigrations = v.sum("nbMigrations", isMigrateds());
 		}
 		return nbLiveMigrations;
 	}
