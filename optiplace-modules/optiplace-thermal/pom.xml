@@ -3,7 +3,7 @@
   <parent>
     <artifactId>modules</artifactId>
     <groupId>fr.emn.optiplace</groupId>
-    <version>2.2.13-SNAPSHOT</version>
+    <version>3.5.2-SNAPSHOT</version>
   </parent>
   <artifactId>optiplace-thermal</artifactId>
   <dependencies>
