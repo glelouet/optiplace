@@ -11,10 +11,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.view.access.CoreView;
 
 
@@ -116,5 +113,39 @@ public class ReconfigurationProblemTest {
 		test.solve();
 		IConfiguration t = test.getTarget().getDestination();
 		Assert.assertNull(t);
+	}
+
+	@Test
+	public void testVMStateVariables() throws ContradictionException {
+		Configuration c = new Configuration();
+		Node n = c.addOnline("n");
+		Extern e = c.addExtern("e");
+		VM vn0 = c.addVM("vn0", n);
+		VM vn1 = c.addVM("vn1", n);
+		VM ve0 = c.addVM("ve0", e);
+		VM ve1 = c.addVM("ve1", e);
+		VM vw0 = c.addVM("vw0", null);
+		VM vw1 = c.addVM("vw1", null);
+		VM vw2 = c.addVM("vw2", null);
+
+		ReconfigurationProblem rp = new ReconfigurationProblem(c);
+		rp.isRunning(vn0).setToTrue(Cause.Null);
+		rp.isExterned(vn1).setToTrue(Cause.Null);
+		rp.isExterned(ve0).setToTrue(Cause.Null);
+		rp.isRunning(ve1).setToTrue(Cause.Null);
+		rp.isWaiting(vw0).setToTrue(Cause.Null);
+		rp.isRunning(vw1).setToTrue(Cause.Null);
+		rp.isExterned(vw2).setToTrue(Cause.Null);
+
+		rp.getSolver().findSolution();
+		IConfiguration dest = rp.extractConfiguration();
+
+		Assert.assertEquals(dest.getLocation(vn0), n);
+		Assert.assertEquals(dest.getLocation(vn1), e);
+		Assert.assertEquals(dest.getLocation(ve0), e);
+		Assert.assertEquals(dest.getLocation(ve1), n);
+		Assert.assertEquals(dest.getLocation(vw0), null);
+		Assert.assertEquals(dest.getLocation(vw1), n);
+		Assert.assertEquals(dest.getLocation(vw2), e);
 	}
 }

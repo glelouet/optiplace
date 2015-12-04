@@ -30,19 +30,19 @@ import fr.emn.optiplace.solver.choco.VariablesManager;
 public interface CoreView {
 
 	/**
-	 * 
+	 *
 	 * @return the bridge between the configuration and the internal indexes
 	 */
 	public Bridge b();
 
 	/**
-	 * 
+	 *
 	 * @return the manager of variables. Create simple or constrained variables
 	 */
 	public VariablesManager v();
 
 	/**
-	 * 
+	 *
 	 * @return the source configuration of the problem.
 	 */
 	public IConfiguration c();
@@ -123,7 +123,7 @@ public interface CoreView {
 	public IntVar getSite(int vmidx);
 
 	/**
-	 * 
+	 *
 	 * @param vm
 	 *          a vm of the problem
 	 * @return a variable constrained to be -1 if the VM is waiting, node(n) if
@@ -156,6 +156,72 @@ public interface CoreView {
 	 * @return the number of migrations performed to pass from source to target
 	 */
 	public IntVar nbMigrations();
+
+	/**
+	 * is the VM running in dest config ?
+	 *
+	 * @param vmindex
+	 *          the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         running
+	 */
+	public BoolVar isRunning(int vmindex);
+
+	/**
+	 * is the VM running in dest config ?
+	 *
+	 * @param vm
+	 *          the vm the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         running
+	 */
+	public default BoolVar isRunning(VM vm) {
+		return isRunning(b().vm(vm));
+	}
+
+	/**
+	 * is the VM externed in dest config ?
+	 *
+	 * @param vmindex
+	 *          the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         externed
+	 */
+	public BoolVar isExterned(int vmindex);
+
+	/**
+	 * is the VM externed in dest config ?
+	 *
+	 * @param vm
+	 *          the vm the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         externed
+	 */
+	public default BoolVar isExterned(VM vm) {
+		return isExterned(b().vm(vm));
+	}
+
+	/**
+	 * is the VM waitin in dest config ?
+	 *
+	 * @param vmindex
+	 *          the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         waiting
+	 */
+	public BoolVar isWaiting(int vmindex);
+
+	/**
+	 * is the VM waiting in dest config ?
+	 *
+	 * @param vm
+	 *          the vm the index of the VM
+	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
+	 *         waiting
+	 */
+	public default BoolVar isWaiting(VM vm) {
+		return isWaiting(b().vm(vm));
+	}
 
 	////////////////////////////////////////
 	// Node hosting of VM

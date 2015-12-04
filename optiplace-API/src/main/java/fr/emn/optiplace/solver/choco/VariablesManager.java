@@ -6,11 +6,7 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +30,7 @@ public class VariablesManager {
 	}
 
 	public VariablesManager(Solver s) {
-		this.solver = s;
+		solver = s;
 	}
 
 	public IntVar createIntegerConstant(int val) {
@@ -63,7 +59,7 @@ public class VariablesManager {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 *          the name of the variable
 	 * @param min
@@ -277,8 +273,33 @@ public class VariablesManager {
 	 * @return a new variable constrained to ret=1 if x and y are instancied to
 	 *         the same value
 	 */
-	public BoolVar isSame(IntVar x, IntVar y) {
-		return ICF.arithm(x, "=", y).reif();
+	public BoolVar isSame(IntVar x, IntVar y, String name) {
+		if (name == null) {
+			name = "(" + x.getName() + "?=" + y.getName() + ")";
+		}
+		BoolVar ret = createBoolVar(name);
+		ICF.arithm(x, "=", y).reifyWith(ret);
+		return ret;
+	}
+
+	/**
+	 * create a new BoolVar BV constrained to BV==true <==> x==y
+	 *
+	 * @param x
+	 *          the variable to test
+	 * @param y
+	 *          the value of the variable to compare
+	 * @param name
+	 *          the name of the returned variable, or null to have generic name
+	 * @return a new Boolvar with given name and already constrained.
+	 */
+	public BoolVar isSame(IntVar x, int y, String name) {
+		if (name == null) {
+			name = "(" + x.getName() + "?=" + y + ")";
+		}
+		BoolVar ret = createBoolVar(name);
+		ICF.arithm(x, "=", y).reifyWith(ret);
+		return ret;
 	}
 
 	/**
@@ -289,15 +310,25 @@ public class VariablesManager {
 	 * @return a new variable constrained to ret=1 if x and y are instancied to
 	 *         different value
 	 */
-	public BoolVar isDifferent(IntVar x, IntVar y) {
-		return ICF.arithm(x, "!=", y).reif();
+	public BoolVar isDifferent(IntVar x, IntVar y, String name) {
+		if (name == null) {
+			name = "(" + x.getName() + "?!=" + y.getName() + ")";
+		}
+		BoolVar ret = createBoolVar(name);
+		ICF.arithm(x, "!=", y).reifyWith(ret);
+		return ret;
 	}
 
 	/**
 	 * @return a new variables constrained to ret == x?!=y
 	 */
-	public BoolVar isDifferent(IntVar x, int y) {
-		return ICF.arithm(x, "!=", y).reif();
+	public BoolVar isDifferent(IntVar x, int y, String name) {
+		if (name == null) {
+			name = "(" + x.getName() + "?=!" + y + ")";
+		}
+		BoolVar ret = createBoolVar(name);
+		ICF.arithm(x, "!=", y).reifyWith(ret);
+		return ret;
 	}
 
 	/** print an array of IntVar as {var0, var1, var2, var3} */
@@ -438,9 +469,8 @@ public class VariablesManager {
 		if (name == null) {
 			name = x.getName() + ">0";
 		}
-		BoolVar reified = ICF.arithm(x, ">", 0).reif();
 		BoolVar ret = VF.bool(name, x.getSolver());
-		x.getSolver().post(ICF.arithm(reified, "=", ret));
+		ICF.arithm(x, ">", 0).reifyWith(ret);
 		return ret;
 	}
 

@@ -23,20 +23,11 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -162,7 +153,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		for (int i = 0; i < c.nbVMs(); i++) {
 			VM vm = b.vm(i);
 			VMHoster migTarget = c.getMigTarget(vm);
-			if (migTarget == null)
+			if (migTarget == null) {
 				if (vmsExtern == null) {
 					// vm must be waiting or running
 					if (c.isWaiting(vm)) {
@@ -184,16 +175,18 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 					LCF.ifThenElse(ICF.arithm(vmsExtern[i], ">", -1), ICF.arithm(vmsState[i], "=", VM_EXTERNED),
 							ICF.arithm(vmsState[i], "!=", VM_EXTERNED));
 				}
-			else {// if vmh !=null : the VM is being migrated
+			} else {// if vmh !=null : the VM is being migrated
 				if (migTarget instanceof Extern) {
 					vmsState[i] = v.createIntegerConstant(VM_EXTERNED);
 					vmsNode[i] = v.createIntegerConstant(-1);
-					if (vmsExtern != null)
+					if (vmsExtern != null) {
 						vmsExtern[i] = v.createIntegerConstant(b.extern((Extern) migTarget));
+					}
 				} else {
 					vmsState[i] = v.createIntegerConstant(VM_RUNNING);
-					if (vmsExtern != null)
+					if (vmsExtern != null) {
 						vmsExtern[i] = v.createIntegerConstant(-1);
+					}
 					vmsNode[i] = v.createIntegerConstant(b.node((Node) migTarget));
 				}
 			}
@@ -337,8 +330,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			}
 			SetVar[] usedLocations = new SetVar[nodesVMs.length + 1];
 			usedLocations[0] = VF.set("nonNodeVMs", 0, c.nbVMs() - 1, this);
-			for (int i = 1; i < usedLocations.length; i++)
+			for (int i = 1; i < usedLocations.length; i++) {
 				usedLocations[i] = nodesVMs[i - 1];
+			}
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
@@ -360,8 +354,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			}
 			SetVar[] usedLocations = new SetVar[externsVMs.length + 1];
 			usedLocations[0] = VF.set("nonExternedVMs", 0, c.nbVMs() - 1, this);
-			for (int i = 1; i < usedLocations.length; i++)
+			for (int i = 1; i < usedLocations.length; i++) {
 				usedLocations[i] = externsVMs[i - 1];
+			}
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
@@ -416,10 +411,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (hosterSite == null) {
 			hosterSite = new int[c.nbExterns() + c.nbNodes() + 1];
 			hosterSite[0] = -1;
-			for (int i = 0; i < c.nbNodes(); i++)
+			for (int i = 0; i < c.nbNodes(); i++) {
 				hosterSite[i + 1] = b.site(c.getSite(b.node(i)));
-			for (int i = 0; i < c.nbExterns(); i++)
+			}
+			for (int i = 0; i < c.nbExterns(); i++) {
 				hosterSite[i + 1 + c.nbNodes()] = b.site(c.getSite(b.extern(i)));
+			}
 		}
 		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
@@ -615,13 +612,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			BoolVar val;
 			switch (cfg.getState(vm)) {
 			case WAITING:
-				val = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING));
+					val = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING),
+					    "" + vm.getName() + ".isMigrated");
 				break;
 			case RUNNING:
-				val = v.isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)));
+					val = v.isDifferent(getNode(i), b.node(cfg.getNodeHost(vm)), "" + vm.getName() + ".isMigrated");
 				break;
 			case EXTERN:
-				val = v.isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)));
+					val = v.isDifferent(getExtern(i), b.extern(cfg.getExternHost(vm)), "" + vm.getName() + ".isMigrated");
 				break;
 			default:
 				throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
@@ -652,6 +650,60 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			nbLiveMigrations = v.sum(isMigrateds());
 		}
 		return nbLiveMigrations;
+	}
+
+	BoolVar[] isrunnings = null;
+
+	@Override
+	public BoolVar isRunning(int vmindex) {
+		if (vmindex < 0 || vmindex >= c.nbVMs()) {
+			return null;
+		}
+		if (isrunnings == null) {
+			isrunnings = new BoolVar[c.nbVMs()];
+		}
+		BoolVar ret = isrunnings[vmindex];
+		if (ret == null) {
+			ret = v.isSame(getState(vmindex), CoreView.VM_RUNNING, "" + vmName(vmindex) + ".isrunning");
+			isrunnings[vmindex] = ret;
+		}
+		return ret;
+	}
+
+	BoolVar[] isexterneds = null;
+
+	@Override
+	public BoolVar isExterned(int vmindex) {
+		if (vmindex < 0 || vmindex >= c.nbVMs()) {
+			return null;
+		}
+		if (isexterneds == null) {
+			isexterneds = new BoolVar[c.nbVMs()];
+		}
+		BoolVar ret = isexterneds[vmindex];
+		if (ret == null) {
+			ret = v.isSame(getState(vmindex), CoreView.VM_EXTERNED, "" + vmName(vmindex) + ".isexterned");
+			isexterneds[vmindex] = ret;
+		}
+		return ret;
+	}
+
+	BoolVar[] iswaitings = null;
+
+	@Override
+	public BoolVar isWaiting(int vmindex) {
+		if (vmindex < 0 || vmindex >= c.nbVMs()) {
+			return null;
+		}
+		if (iswaitings == null) {
+			iswaitings = new BoolVar[c.nbVMs()];
+		}
+		BoolVar ret = iswaitings[vmindex];
+		if (ret == null) {
+			ret = v.isSame(getState(vmindex), CoreView.VM_WAITING, "" + vmName(vmindex) + ".iswaiting");
+			iswaitings[vmindex] = ret;
+		}
+		return ret;
 	}
 
 	@Override
@@ -686,10 +738,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				destHost = b.extern(getExtern(vm).getValue());
 			}
 			// else VM is still waiting.
-			if (sourceHost == null)
+			if (sourceHost == null) {
 				ret.setHost(vm, destHost);
-			else
+			} else {
 				ret.setHost(vm, destHost);
+			}
 		});
 		c.resources().forEach(ret.resources()::put);
 		return ret;
