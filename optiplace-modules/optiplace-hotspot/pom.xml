@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.emn.optiplace</groupId>
+		<artifactId>modules</artifactId>
+		<version>3.5.2-SNAPSHOT</version>
+	</parent>
+	<artifactId>optiplace-hotspot</artifactId>
+	<repositories>
+		<repository>
+			<id>btrcloud-private-snapshots</id>
+			<url>http://btrcloud.org/maven-snapshots-private/</url>
+		</repository>
+		<repository>
+			<id>btrcloud-private</id>
+			<url>http://btrcloud.org/maven-private/</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>fr.emn.optiplace.modules</groupId>
+			<artifactId>optiplace-power</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+	</dependencies>
+	<name>optiplace-hotspot</name>
+	<groupId>fr.emn.optiplace.modules</groupId>
+</project>

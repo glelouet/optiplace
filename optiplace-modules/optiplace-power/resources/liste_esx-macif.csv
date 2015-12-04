@@ -1,0 +1,60 @@
+Name	State		% CPU	% Memory	Memory Size	CPU Count	Last Time Exited Standby	Alarm Actions	Cluster	Notes :	Projet	SILO	VEEAM	VEEAM-JOB-SUPPROD	com.hp.proliant	Core	Model	Freq	DC	Cluster
+h07053636.macif.fr	Connecté	DL360 G5	3%	33%	14334,00 MB	2	Never	Enabled				GL			true	2	Xeon 5150	2,66	BLACKBERRY	1
+h07054207.macif.fr	Connecté	DL585 G2	33%	50%	65532,00 MB	4	Never	Enabled				DP			true	6	AMD 8431	2,411	CDS	DP
+h07054208.macif.fr	Connecté	DL585 G2	26%	58%	65532,00 MB	4	Never	Enabled				DP			true	2	AMD 8220	2,812	CDS	DP
+h07043548.macif.fr	Connecté	DL585 G5	16%	40%	65532,00 MB	4	Never	Enabled				GL			true	4	AMD 8386SE	2,812	CDS	GL
+h07043547.macif.fr	Connecté	DL585 G5	11%	53%	65532,00 MB	4	Never	Enabled				GL			true	4	AMD 8386SE	2,812	CDS	GL
+h07041707.macif.fr	Connecté	BL680C G5	20%	29%	65532,00 MB	4	Never	Enabled	NCLP0001						true	4	Xeon E7340	2,4	Centralisation	DP
+h07041496.macif.fr	Connecté	BL680C G5	16%	31%	65532,00 MB	4	Never	Enabled	NCLP0001						true	4	Xeon E7340	2,4	Centralisation	DP
+h07041497.macif.fr	Connecté	BL680C G5	22%	28%	65532,00 MB	4	Never	Enabled	NCLP0001						true	4	Xeon E7340	2,4	Centralisation	DP
+h07054785.macif.fr	Connecté	BL680C G5	12%	31%	65532,00 MB	4	Never	Enabled	NCLP0001						true	4	Xeon E7340	2,4	Centralisation	DP
+h07054786.macif.fr	Connecté	BL680C G5	0%	2%	65532,00 MB	4	Never	Enabled	NCLP0001						true	4	Xeon E7340	2,4	Centralisation	DP
+h07041709.macif.fr	Connecté	BL680C G5	28%	54%	65532,00 MB	4	Never	Enabled	NCLP0006						true	4	Xeon E7340	2,4	Centralisation	GL
+h07041708.macif.fr	Connecté	BL680C G5	24%	49%	65532,00 MB	4	Never	Enabled	NCLP0006						true	4	Xeon E7340	2,4	Centralisation	GL
+h07054666.macif.fr	Connecté	BL680C G5	21%	40%	65532,00 MB	4	Never	Enabled	NCLP0006						true	4	Xeon E7340	2,4	Centralisation	GL
+h07063408.macif.fr	Connecté	BL680C G5	1%	5%	65532,00 MB	4	Never	Enabled	NCLP0006			GL			true	4	Xeon E7340	2,4	Centralisation	GL
+h07063407.macif.fr	Connecté	BL680C G5	25%	48%	65532,00 MB	4	Never	Enabled	NCLP0006						true	2	AMD 8220	2,812	Centralisation	GL
+h07053776.eca.macif.fr	Connecté	DL585 G2	0%	5%	32764,00 MB	4	Never	Enabled	RCLP0001			GL			true	2	AMD 8220	2,812	ECA	ECA
+h07053775.eca.macif.fr	Connecté	DL585 G2	40%	61%	32764,00 MB	4	Never	Enabled	RCLP0001			DP			true	2	AMD 8220	2,812	ECA	ECA
+h07054524.macif.fr	Connecté	DL585 G2	1%	3%	49148,00 MB	4	Never	Enabled	nclp0009			GL			true	2	AMD 8220	2,812	ICOD	ICOD-Prod
+h07054211.macif.fr	Connecté	DL585 G2	43%	46%	49148,00 MB	4	Never	Enabled	nclp0009			DP			true	2	AMD 8220	2,812	ICOD	ICOD-Prod
+h07081964.macif.fr	Connecté	DL585 G6	7%	57%	65532,00 MB	4	Never	Enabled	NCLP0007			GL			true	6	AMD 8431	2,411	ID-MACIF	ID-MACIF
+h07081963.macif.fr	Connecté	DL585 G6	9%	54%	65532,00 MB	4	Never	Enabled	NCLP0007			GL			true	6	AMD 8431	2,411	ID-MACIF	ID-MACIF
+hpmp1093.macif.fr	Connecté	DL585 G6	0%	3%	65532,00 MB	4	Never	Enabled				DP			true	6	AMD 8431	2,411	ID-MACIF	ID-MACIF
+hpmp1094.macif.fr	Connecté	DL585 G6	0%	3%	65532,00 MB	4	Never	Enabled				DP			true	6	AMD 8431	2,411	ID-MACIF	ID-MACIF
+h07041465.macif.fr	Connecté	DL360 G5	6%	48%	16382,00 MB	2	Never	Enabled	NCLP0002			GL			true	4	Xeon E5420	2,5	MACIF-Banque	Banque
+h07041466.macif.fr	Connecté	DL360 G5	4%	42%	16382,00 MB	2	Never	Enabled	NCLP0002			DP			true	4	Xeon E5420	2,5	MACIF-Banque	Banque
+h07054277.macif.fr	Connecté	DL585 G2	56%	74%	65532,00 MB	4	Never	Enabled	NCLP0003			DP			true	2	AMD 8220	2,812	MACIF-DMZ	MACIF-DMZ
+h07054221.macif.fr	Connecté	DL585 G2	3%	19%	65532,00 MB	4	Never	Enabled	NCLP0003			GL			true	2	AMD 8220	2,812	MACIF-DMZ	MACIF-DMZ
+h07054488.macif.fr	Connecté	DL585 G2	0%	2%	65532,00 MB	4	Never	Enabled	NCLP0003			GL			true	2	AMD 8220	2,812	MACIF-DMZ	MACIF-DMZ
+npmp0192.dtni.macif.fr	Connecté	BL680C G5	5%	17%	65532,00 MB	4	Never	Enabled				DIT			true	4	Xeon E7340	2,4	NDPT	NDPT_PROD_DIT
+npmd0010.dtni.macif.fr	Connecté	BL680C G5	13%	60%	65532,00 MB	4	Never	Enabled				GL			true	4	Xeon E7340	2,4	NDPT	NDPT-DEV_Homol
+npmh0029.dtni.macif.fr	Connecté	BL680C G5	0%	2%	65532,00 MB	4	Never	Enabled				GL			true	4	Xeon E7340	2,4	NDPT	NDPT-DEV_Homol
+npmp0193.dtni.macif.fr	Connecté	BL680C G5	0%	2%	65532,00 MB	4	Never	Enabled				GL			true	4	Xeon E7340	2,4	NDPT	NPDT_PROD_GL
+h07054667.macif.fr	Connecté	BL680C G5	11%	29%	65532,00 MB	4	Never	Enabled				GL			true	4	Xeon E7340	2,4	NDPT	NPDT_PROD_GL
+h07077609.macif.fr	Connecté	DL585 G5	16%	80%	65532,00 MB	4	Never	Enabled	NCLP0005			DP			true	4	AMD 8386SE	2,812	PROD-DEV	PROD-G5
+h07077610.macif.fr	Connecté	DL585 G5	27%	77%	65532,00 MB	4	Never	Enabled	NCLP0005			GL			true	4	AMD 8386SE	2,812	PROD-DEV	PROD-G5
+h07082450.macif.fr	Connecté	DL585 G6	13%	63%	65532,00 MB	4	Never	Enabled	NCLP0005			GL			true	6	AMD 8431	2,411	PROD-DEV	PROD-G5
+h07082449.macif.fr	Connecté	DL585 G6	15%	65%	65532,00 MB	4	Never	Enabled	NCLP0005			GL			true	6	AMD 8431	2,411	PROD-DEV	PROD-G5
+h07082451.macif.fr	Connecté	DL585 G6	18%	86%	65532,00 MB	4	Never	Enabled	NCLP0005			DP			true	6	AMD 8431	2,411	PROD-DEV	PROD-G5
+h07082452.macif.fr	Connecté	DL585 G6	2%	20%	65532,00 MB	4	Never	Enabled	NCLP0005			DP			true	6	AMD 8431	2,411	PROD-DEV	PROD-G5
+h07062159.macif.fr	Connecté	DL585 G2	68%	58%	65532,00 MB	4	Never	Enabled	NCLP0004			GL			true	6	AMD 8431	2,411	PROD-DEV	PROD
+h07054489.macif.fr	Connecté	DL585 G2	56%	70%	57340,00 MB	4	Never	Enabled	NCLP0004			DP			true	6	AMD 8431	2,411	PROD-DEV	PROD
+h07053651.macif.fr	Connecté	DL585 G2	71%	50%	49148,00 MB	4	Never	Enabled	NCLP0004			DP			true	6	AMD 8431	2,411	PROD-DEV	PROD
+h07053652.macif.fr	Connecté	DL585 G2	62%	71%	49148,00 MB	4	Never	Enabled	NCLP0004			DP			true	6	AMD 8431	2,411	PROD-DEV	PROD
+h07053722.macif.fr	Connecté	DL585 G2	66%	74%	49148,00 MB	4	Never	Enabled	NCLP0004			GL			true	6	AMD 8431	2,411	PROD-DEV	PROD
+h07053744.macif.fr	Connecté	DL585 G2	77%	53%	49148,00 MB	4	Never	Enabled	NCLP0004			GL			true	6	AMD 8431	2,411	PROD-DEV	PROD
+npmp1189.macif.fr	Pas de réponse	DL385 G7	0%	0%	131036 MB	2	Never	Enabled				GL			true	12	AMD 6172	2,1	PROD-DEV	PROD-G7
+npmp1188.macif.fr	Maintenance Mode	DL385 G7	0%	1%	131036 MB	2	Never	Enabled							true	12	AMD 6172	2,1	PROD-DEV	PROD-G7
+h07062311.macif.fr	Connecté	DL585 G5	35%	88%	65532,00 MB	4	Never	Enabled				GL			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07062316.macif.fr	Connecté	DL585 G5	30%	72%	65532,00 MB	4	Never	Enabled				GL			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07062306.macif.fr	Connecté	DL585 G5	35%	82%	65532,00 MB	4	Never	Enabled				GL			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07062253.macif.fr	Connecté	DL585 G5	23%	51%	65532,00 MB	4	Never	Enabled				DP			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07062331.macif.fr	Connecté	DL585 G5	32%	78%	65532,00 MB	4	Never	Enabled				DP			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07062301.macif.fr	Connecté	DL585 G5	14%	43%	65532,00 MB	4	Never	Enabled				DP			true	4	AMD 8386SE	2,812	PROD-DEV	ENV
+h07054704.macif.fr	Connecté	BL680C G5	0%	2%	65532,00 MB	4	Never	Enabled							true	4	Xeon E7340	2,4	SUPPROD	SUPPROD
+h07043180.macif.fr	Connecté	DL585 G5	0%	3%	65532,00 MB	4	Never	Enabled							true	4	AMD 8386SE	2,812	SUPPROD	SUPPROD
+h07062321.macif.fr	Connecté	DL585 G5	0%	3%	65532,00 MB	4	Never	Enabled							true	4	AMD 8386SE	2,812	SUPPROD	SUPPROD
+h07063392-sc.mmg.macif.fr	Connecté	BL460C G1	0%	7%	16382,00 MB	2	Never	Enabled							true	4	Xeon E5420	2,5	SUPPROD	SUPPROD
+	Non encore installé	DL385 G7																	PROD-DEV	PROD-G7
+	Non encore installé	DL385 G7																	PROD-DEV	PROD-G7

@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.emn.optiplace</groupId>
+		<artifactId>modules</artifactId>
+		<version>2.2.13-SNAPSHOT</version>
+	</parent>
+	<artifactId>optiplace-homogeneous</artifactId>
+	<dependencies>
+		<dependency>
+			<groupId>fr.emn.optiplace</groupId>
+			<artifactId>optiplace-server</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.emn.optiplace.modules</groupId>
+			<artifactId>optiplace-HA</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<groupId>fr.emn.optiplace.modules</groupId>
+	<name>optiplace-homogeneous</name>
+</project>

@@ -1,0 +1,33 @@
+cpuCap	cpuCor	ramCap	model	powerMin	powerMax	%
+	
+2992	4	16378	PowerEdge 1950	151	252		1,90%
+							
+1994	4	16378	PowerEdge 2900	151	252		3,80%
+							
+2992	8	16378	PowerEdge 1950	151	252		3,80%
+							
+2659	8	24570	PowerEdge 1950	159	260		1,90%
+							
+1995	8	32762	PowerEdge 2950	171	292		3,80%
+							
+2526	8	49141	PowerEdge R610	99	272		3,80%
+							
+2400	8	53236	BladeCenter HS22 -[7870B3G]-	80	245		3,80%
+							
+2925	8	73714	PowerEdge R710	150	311		19,00%
+							
+2659	12	32754	PowerEdge R710	85	256		5,70%
+							
+2925	12	49141	PowerEdge R710	111	282		1,90%
+							
+2393	12	65523	PowerEdge R610	126	306		7,60%
+							
+2792	12	98291	PowerEdge R710	161	332		20,90%
+							
+2666	12	104436	BladeCenter HS22V -[7871H2G]-	87	292		3,80%
+							
+2393	20	196594	PowerEdge R810	443	610		15,20%
+							
+2393	20	262130	PowerEdge R810	509	676		3,90%
+
+
