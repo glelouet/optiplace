@@ -111,4 +111,30 @@ public class ConfigurationTest {
 		Assert.assertEquals(c.getHosters(null).collect(Collectors.toSet()).size(), 6);
 	}
 
+	@Test
+	public void testFindElementByNAme() {
+		Configuration c = new Configuration();
+		Extern extern = c.addExtern("extern");
+		c.addOffline("offline");
+		Node online = c.addOnline("online");
+		c.addSite("site");
+		c.addVM("vmexterned", extern);
+		c.addVM("vmonline", online);
+		c.addVM("vmwaiting", null);
+		
+		for (String s : new String[] { "extern", "eXtern", "offline", "offlinE", "online", "onLINE", "site", "SitE",
+				"vmexterned", "vmExterned", "vmOnlinE", "vmonline", "vmwaiting", "vmWaiting", }) {
+			Assert.assertNotNull(c.getElementByName(s), "can't find element " + s);
+		}
+	}
+
+	@Test
+	public void testRemoveVM() {
+		Configuration c = new Configuration();
+		VM v = c.addVM("vm", null);
+		Assert.assertEquals(c.nbVMs(), 1);
+		Assert.assertTrue(c.remove(v));
+		Assert.assertEquals(c.nbVMs(), 0);
+	}
+
 }

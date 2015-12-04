@@ -252,8 +252,10 @@ public class Configuration implements IConfiguration {
 		VM ret;
 		try {
 			ret = getElementByName(vmName, VM.class);
-			if (ret == null)
+			if (ret == null) {
 				ret = new VM(vmName);
+				nameToElement.put(vmName.toLowerCase(), ret);
+			}
 		} catch (ClassCastException e) {
 			return null;
 		}
@@ -277,18 +279,21 @@ public class Configuration implements IConfiguration {
 		if (vm == null)
 			return false;
 		// we ensure we have a VM of same name.
+		VM vm2 = null;
 		try {
-			vm = getElementByName(vm.getName(), VM.class);
-			if (vm == null)
-				return false;
+			vm2 = getElementByName(vm.getName(), VM.class);
+			System.err.println("vm found for name " + vm.getName() + " is " + vm2);
 		} catch (ClassCastException cce) {
+			System.err.println("found element " + vm2 + " throwing " + cce);
 			return false;
 		}
-		setWaiting(vm);
-		waitings.remove(vm);
-		VM rem = vm;
+		if (vm2 == null)
+			return false;
+		setWaiting(vm2);
+		waitings.remove(vm2);
+		VM rem = vm2;
 		vmsTags.values().stream().forEach(s -> s.remove(rem));
-		forgetElement(vm);
+		forgetElement(vm2);
 		return true;
 	}
 
@@ -313,7 +318,6 @@ public class Configuration implements IConfiguration {
 				ret = new Node(name);
 				nameToElement.put(name.toLowerCase(), ret);
 				setOnline(ret);
-
 			}
 		} catch (ClassCastException cce) {
 			return null;

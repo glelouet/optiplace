@@ -93,7 +93,9 @@ public interface IConfiguration {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends ManagedElement> T getElementByName(String name, Class<T> clazz) throws ClassCastException {
-		ManagedElement ret = getElementByName(name);
+		if (name == null)
+			return null;
+		ManagedElement ret = getElementByName(name.toLowerCase());
 		if (ret == null)
 			return null;
 		if (clazz.isAssignableFrom(clazz))
