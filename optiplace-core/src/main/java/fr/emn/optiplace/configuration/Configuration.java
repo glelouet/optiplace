@@ -10,17 +10,8 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -247,8 +238,9 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public VM addVM(String vmName, VMHoster host, int... resources) {
-		if (vmName == null)
+		if (vmName == null) {
 			return null;
+		}
 		VM ret;
 		try {
 			ret = getElementByName(vmName, VM.class);
@@ -276,19 +268,20 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public boolean remove(VM vm) {
-		if (vm == null)
+		if (vm == null) {
 			return false;
+		}
 		// we ensure we have a VM of same name.
 		VM vm2 = null;
 		try {
 			vm2 = getElementByName(vm.getName(), VM.class);
-			System.err.println("vm found for name " + vm.getName() + " is " + vm2);
 		} catch (ClassCastException cce) {
-			System.err.println("found element " + vm2 + " throwing " + cce);
+			logger.trace("while removing VM " + vm.getName(), cce);
 			return false;
 		}
-		if (vm2 == null)
+		if (vm2 == null) {
 			return false;
+		}
 		setWaiting(vm2);
 		waitings.remove(vm2);
 		VM rem = vm2;
@@ -309,8 +302,9 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public Node addOnline(String name, int... resources) {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		Node ret;
 		try {
 			ret = getElementByName(name, Node.class);
@@ -333,8 +327,9 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public Node addOffline(String name, int... resources) {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		Node ret = addOnline(name, resources);
 		if (ret == null) {
 			return null;
@@ -362,13 +357,15 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public boolean remove(Node n) {
-		if (n == null)
+		if (n == null) {
 			return false;
+		}
 		// we ensure we have a Node of same name.
 		try {
 			n = getElementByName(n.getName(), Node.class);
-			if (n == null)
+			if (n == null) {
 				return false;
+			}
 		} catch (ClassCastException cce) {
 			return false;
 		}
@@ -460,13 +457,15 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public boolean remove(Site site) {
-		if (site == null)
+		if (site == null) {
 			return false;
+		}
 		// we ensure we have a site of same name.
 		try {
 			site = getElementByName(site.getName(), Site.class);
-			if (site == null)
+			if (site == null) {
 				return false;
+			}
 		} catch (ClassCastException cce) {
 			return false;
 		}
@@ -570,27 +569,30 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public ManagedElement getElementByName(String name) {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		return nameToElement.get(name.toLowerCase());
 	}
 
 	/**
 	 * forget the name to element reference, as well as the name to resources.
-	 * 
+	 *
 	 * @param me
 	 *          an element.
 	 */
 	public void forgetElement(ManagedElement me) {
 		nameToElement.remove(me.getName().toLowerCase());
-		for (ResourceSpecification rs : resources.values())
+		for (ResourceSpecification rs : resources.values()) {
 			rs.remove(me);
+		}
 	}
 
 	@Override
 	public Extern addExtern(String name, int... resources) {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		Extern ret;
 		try {
 			ret = getElementByName(name, Extern.class);
@@ -623,13 +625,15 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public boolean remove(Extern e) {
-		if (e == null)
+		if (e == null) {
 			return false;
+		}
 		// we ensure we have an extern of same name.
 		try {
 			e = getElementByName(e.getName(), Extern.class);
-			if (e == null)
+			if (e == null) {
 				return false;
+			}
 		} catch (ClassCastException cce) {
 			return false;
 		}
