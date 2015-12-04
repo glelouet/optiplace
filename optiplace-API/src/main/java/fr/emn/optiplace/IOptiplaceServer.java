@@ -16,7 +16,7 @@ import fr.emn.optiplace.view.ProvidedData;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
-public interface OptiplaceSolver {
+public interface IOptiplaceServer {
 
 	/**
 	 * @param source

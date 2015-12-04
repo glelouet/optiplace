@@ -17,10 +17,10 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
-public class SimpleConfigurationTest {
+public class ConfigurationTest {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleConfigurationTest.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationTest.class);
 
 	@Test
 	public void testAddVM() {

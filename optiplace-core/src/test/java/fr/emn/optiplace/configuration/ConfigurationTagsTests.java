@@ -10,10 +10,10 @@ import org.testng.annotations.Test;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
-public class SimpleConfigurationTagsTests {
+public class ConfigurationTagsTests {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleConfigurationTagsTests.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationTagsTests.class);
 
 	@Test
 	public void testTagVM() {

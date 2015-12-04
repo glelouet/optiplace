@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Properties;
 
 import fr.emn.optiplace.DeducedTarget;
-import fr.emn.optiplace.OptiplaceSolver;
+import fr.emn.optiplace.IOptiplaceServer;
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.server.viewDataProviders.FileDataProvider;
@@ -39,7 +39,7 @@ import fr.emn.optiplace.view.ViewDataProvider;
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  */
-public class OptiplaceServer implements OptiplaceSolver {
+public class OptiplaceServer implements IOptiplaceServer {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceServer.class);
 

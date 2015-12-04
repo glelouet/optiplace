@@ -60,9 +60,22 @@ public interface View extends ViewAsModule {
 	/**
 	 * shortcut for {@link #getRequestedRules()}.add(cst)
 	 *
-	 * @param cst
+	 * @param r
+	 *          the rule to request
 	 */
-	public void addRule(Rule cst);
+	public void addRule(Rule r);
+
+	/**
+	 * add a rule to this.
+	 * 
+	 * @param r
+	 *          the rule to add
+	 * @return this
+	 */
+	public default View withRule(Rule r) {
+		addRule(r);
+		return this;
+	}
 
 	/**
 	 * add a constraint to the problem, if not already added, and store it in the
