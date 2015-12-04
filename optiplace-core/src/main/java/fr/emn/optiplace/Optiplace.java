@@ -29,6 +29,7 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
@@ -197,8 +198,11 @@ public class Optiplace extends IOptiplace {
 			strats.addAll(goalMaker.getHeuristics(problem));
 		}
 		// then add default heuristics.
-		if (problem.getResourcesHandlers().get("MEM") != null) {
-			strats.addAll(new StickVMsHeuristic(problem.getResourcesHandlers().get("MEM").getSpecs()).getHeuristics(problem));
+		ResourceSpecification memSpec = problem.specs("mem");
+		if (memSpec == null && !problem.knownResources().isEmpty())
+			memSpec = problem.specs(problem.knownResources().iterator().next());
+		if (memSpec != null) {
+			strats.addAll(new StickVMsHeuristic(memSpec).getHeuristics(problem));
 		}
 		strats.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
 

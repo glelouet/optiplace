@@ -47,8 +47,11 @@ public class DefaultPacker implements ChocoResourcePacker {
 				// standard bin packing for nodes with non-null additional use.
 				IntVar[] sumElems = new IntVar[nodesUses.length];
 				for (int i = 0; i < nodesUses.length; i++) {
+					if (hasNonRunning && i == 0) {
+						sumElems[i] = nodesUses[i];
+					} else
 					sumElems[i] = 
-							ru.getAdditionalUse()[i] == 0 ? 
+							ru.getAdditionalUse()[hasNonRunning?i-1:i] == 0 ? 
 									nodesUses[i] : 
 										nodesUses[i].duplicate();
 				}

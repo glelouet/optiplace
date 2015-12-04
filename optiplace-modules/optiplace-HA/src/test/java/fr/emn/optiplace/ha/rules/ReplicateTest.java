@@ -24,7 +24,7 @@ public class ReplicateTest extends SolvingExample {
 		nodeCapas = new int[] { 2 };
 		vmUse = new int[] { 1 };
 		nbVMPerNode = 1;
-		nbWaitings = 1;
+		nbWaitings = 0;
 		nbNodes = 2;
 		ha = new HAView();
 		views = new View[] { ha };
