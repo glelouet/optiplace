@@ -1,7 +1,0 @@
-.project
-.settings/
-.classpath
-**/.classpath
-target/
-bin/
-test-output/
