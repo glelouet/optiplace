@@ -1,11 +1,7 @@
+
 package fr.emn.optiplace.power;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,6 +13,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel.Parser;
 import fr.emn.optiplace.power.powermodels.LinearCPUCons;
 import fr.emn.optiplace.view.ProvidedDataReader;
+
 
 /**
  * associates servers names to their consumption model. handles storing and
@@ -30,7 +27,7 @@ import fr.emn.optiplace.view.ProvidedDataReader;
  *
  * @author guillaume
  */
-public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataReader {
+public class PowerData extends HashMap<Node, PowerModel> implements ProvidedDataReader {
 
 	private static final long serialVersionUID = 1L;
 
@@ -63,11 +60,13 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 		put(host, new LinearCPUCons(min, max));
 	}
 
-	Parser[] parsers = { LinearCPUCons.PARSER };
+	Parser[] parsers = {
+	    LinearCPUCons.PARSER
+	};
 
 	/**
 	 * parse a description to a model
-	 * 
+	 *
 	 * @param s
 	 *          the description
 	 * @return the model parsed or null if it does not match any known model
@@ -75,15 +74,16 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 	public PowerModel parse(String s) {
 		for (Parser p : parsers) {
 			PowerModel ret = p.parse(s);
-			if (ret != null)
+			if (ret != null) {
 				return ret;
+			}
 		}
 		return null;
-	 }
+	}
 
 	/**
 	 * parse a model and affect it to a Node
-	 * 
+	 *
 	 * @param n
 	 *          the node
 	 * @param model
@@ -139,7 +139,8 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 				String models = line.substring(idx + 1);
 				put(new Node(sname), parse(models));
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.warn("could not decode line " + line, e);
 		}
 
@@ -155,18 +156,17 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 	 *          the node to get the consumption
 	 * @return the integer value of the consumption of the node
 	 */
-	public double getConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs, Node n) {
+	public double getConsumption(IConfiguration cfg, Node n) {
 		if (cfg.isOffline(n)) {
 			return 0;
 		}
-		return get(n).getConsumption(cfg, specs, n);
+		return get(n).getConsumption(cfg, n);
 	}
 
-	public HashMap<Node, Double> getConsumptions(IConfiguration cfg, Map<String, ResourceSpecification> specs,
-			boolean unusedOff) {
+	public HashMap<Node, Double> getConsumptions(IConfiguration cfg, boolean unusedOff) {
 		HashMap<Node, Double> ret = new HashMap<>();
 		cfg.getNodes().forEach(n -> {
-			double val = unusedOff ? getUnusedOffConsumption(cfg, specs, n) : getConsumption(cfg, specs, n);
+			double val = unusedOff ? getUnusedOffConsumption(cfg, n) : getConsumption(cfg, n);
 			ret.put(n, val);
 		});
 		return ret;
@@ -176,18 +176,18 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 	 * gives the consumption of a node in a given {@link IConfiguration}, using
 	 * the linear interpolation, if it can be switched off. The consumption of a
 	 * node is 0 if this node is not used by VMs.
-	 * 
+	 *
 	 * @param cfg
 	 *          the configuration of the VMs on the nodes
 	 * @param n
 	 *          the node to get the consumption
 	 * @return the integer value of the optimal consumption of the node
 	 */
-	public double getUnusedOffConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs, Node n) {
+	public double getUnusedOffConsumption(IConfiguration cfg, Node n) {
 		if (cfg.nbHosted(n) == 0) {
 			return 0;
 		}
-		return getConsumption(cfg, specs, n);
+		return getConsumption(cfg, n);
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 	 * @return the sumn of the online nodes' consumption.
 	 */
 	public double getTotalConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs) {
-		return cfg.getOnlines().mapToDouble(n -> getConsumption(cfg, specs, n)).sum();
+		return cfg.getOnlines().mapToDouble(n -> getConsumption(cfg, n)).sum();
 	}
 
 	/**
@@ -212,8 +212,8 @@ public class PowerData extends HashMap<Node, PowerModel>implements ProvidedDataR
 	 * @see #getUnusedOffConsumption(IConfiguration, Node) for the optimal
 	 *      consumption
 	 */
-	public double getTotalUnusedOffConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs) {
-		return cfg.getOnlines().mapToDouble(n -> getUnusedOffConsumption(cfg, specs, n)).sum();
+	public double getTotalUnusedOffConsumption(IConfiguration cfg) {
+		return cfg.getOnlines().mapToDouble(n -> getUnusedOffConsumption(cfg, n)).sum();
 	}
 
 	final LinkedHashMap<Pattern, PowerModel> matchings = new LinkedHashMap<>();

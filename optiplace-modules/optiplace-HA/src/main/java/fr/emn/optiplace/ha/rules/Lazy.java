@@ -1,10 +1,6 @@
 package fr.emn.optiplace.ha.rules;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,7 +10,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
@@ -106,14 +102,15 @@ public class Lazy implements Rule {
 		if (nodes.size() == 0) {
 			return;
 		}
-		ResourceHandler handler = core.getResourcesHandlers().get(resName);
-		if (handler == null) {
+		ResourceSpecification spec = core.specs(resName);
+		if (spec == null) {
 			logger.warn("no resource handler for " + resName + " on " + this);
 			return;
 		}
+		ResourceLoad uses = core.getUse(spec.getType());
 		for (Node n : nodes) {
-			int capa = handler.getSpecs().getCapacity(n) * maxPCLoad / 100;
-			IntVar use = handler.getNodeLoads()[core.b().node(n)];
+			int capa = spec.getCapacity(n) * maxPCLoad / 100;
+			IntVar use = uses.getNodesLoad()[core.b().node(n)];
 			core.getSolver().post(ICF.arithm(use, "<=", capa));
 		}
 	}

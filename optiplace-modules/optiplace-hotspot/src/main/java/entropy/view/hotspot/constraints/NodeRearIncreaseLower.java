@@ -71,7 +71,7 @@ public class NodeRearIncreaseLower implements Rule {
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
 		PowerView consv = hotspotView.getConsumption();
-		HashMap<Node, Double> cons = consv.getPowerData().getConsumptions(cfg, consv.getSpecs(), true);
+		HashMap<Node, Double> cons = consv.getPowerData().getConsumptions(cfg, true);
 		HashMap<String, Double> rears = hotspotView.getImpacts().impact(cons);
 		for (Node n : nodes) {
 			Double rear = rears.get(n.getName());

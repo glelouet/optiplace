@@ -4,6 +4,7 @@
 package fr.emn.optiplace.view.access;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -15,6 +16,7 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.solver.choco.VariablesManager;
 
@@ -294,9 +296,19 @@ public interface CoreView {
 	// resource management.
 
 	/**
+	 *
+	 * @return an unmodifiable set of the resources that are specified
+	 */
+	public Set<String> knownResources();
+
+	/**
+	 * @deprecated
 	 * @return the map of types to the associated resource handlers
 	 */
+	@Deprecated
 	public HashMap<String, ResourceHandler> getResourcesHandlers();
+
+	public ResourceSpecification specs(String resName);
 
 	/**
 	 * @param res

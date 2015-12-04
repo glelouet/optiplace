@@ -28,11 +28,10 @@ public interface PowerModel {
    *            the node to evaluate the consumption using this model.
    * @return the consumption of the Node
    */
-  default double getConsumption(IConfiguration cfg,
-      Map<String, ResourceSpecification> specs, Node n) {
+	default double getConsumption(IConfiguration cfg, Node n) {
     VM[] vms = cfg.getHosted(n).collect(Collectors.toList())
         .toArray(new VM[] {});
-    return getConsumption(specs, n, vms);
+		return getConsumption(cfg.resources(), n, vms);
   }
 
   /**
@@ -117,7 +116,7 @@ public interface PowerModel {
 
 		/**
 		 * parse a String to a power model
-		 * 
+		 *
 		 * @param s
 		 *          a string describing the model
 		 * @return a power model if the parser was able to parse it, null otherwise

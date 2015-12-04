@@ -32,6 +32,8 @@ public class ResourceLoad {
 	/** effective resource load of a bin (Node). */
 	IntVar[] binsLoad = null;
 
+	int[] binsCapa = null;
+
 	/** increased constant resource use on a bin */
 	protected int[] nodesAdditionalByIndex = null;
 
@@ -40,9 +42,10 @@ public class ResourceLoad {
 	public ResourceLoad() {
 	}
 
-	public ResourceLoad(int[] vmsLoad, IntVar[] binsLoad) {
+	public ResourceLoad(int[] vmsLoad, IntVar[] binsLoad, int[] binscapa) {
 		itemsConsumptions = vmsLoad;
 		this.binsLoad = binsLoad;
+		binsCapa = binscapa;
 		nodesAdditionalByIndex = new int[binsLoad.length];
 		Arrays.fill(nodesAdditionalByIndex, 0);
 	}
@@ -55,6 +58,10 @@ public class ResourceLoad {
 	/** @return the uses of the nodes */
 	public IntVar[] getNodesLoad() {
 		return binsLoad;
+	}
+
+	public int[] getNodesCapa() {
+		return binsCapa;
 	}
 
 	/**
@@ -89,8 +96,9 @@ public class ResourceLoad {
 
 	public int getTotalVMLoads() {
 		int ret = 0;
-		for (int i : itemsConsumptions)
+		for (int i : itemsConsumptions) {
 			ret += i;
+		}
 		return ret;
 	}
 

@@ -24,6 +24,7 @@ import fr.emn.optiplace.view.annotations.Goal;
 import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.annotations.ViewDesc;
 
+
 /**
  * <p>
  * The HA view add some rules to the placement of VMs.
@@ -70,7 +71,7 @@ public class HAView extends EmptyView {
 	public void updateRules() {
 		if (!requestedRules.isEmpty()) {
 			logger.warn("discarding rules " + requestedRules + " from " + getClass().getSimpleName()
-					+ " to load those provided by its data. Consider empty it to remove this message or adding the rules to the data provider instead of the view");
+			    + " to load those provided by its data. Consider empty it to remove this message or adding the rules to the data provider instead of the view");
 		}
 		requestedRules = new ArrayList<>(data.getRules());
 	}
@@ -79,8 +80,8 @@ public class HAView extends EmptyView {
 	public void preProcessConfig(IConfiguration config) {
 		tempReplicateRules.clear();
 		tempReplicateVMs.clear();
-		List<VM> replicateVM = getRequestedRules().filter(r -> r instanceof Replication).map(r -> ((Replication) r).getVMs())
-				.flatMap(e -> e).distinct().collect(Collectors.toList());
+		List<VM> replicateVM = getRequestedRules().filter(r -> r instanceof Replication)
+		    .map(r -> ((Replication) r).getVMs()).flatMap(e -> e).distinct().collect(Collectors.toList());
 		if (!replicateVM.isEmpty()) {
 			String prefix = "HA";
 			// find a prefix which no VM starts with. just add '_' after the prefix
@@ -88,13 +89,10 @@ public class HAView extends EmptyView {
 			do {
 				prefix = prefix + '_';
 				String finalPrefix = prefix;
-				VMWithPrefixFound = config.getVMs()
-						.parallel()
-						.map(VM::getName)
-						.filter(s -> s.startsWith(finalPrefix))
-						.findAny()
-						.isPresent();
-			} while (VMWithPrefixFound);
+				VMWithPrefixFound = config.getVMs().parallel().map(VM::getName).filter(s -> s.startsWith(finalPrefix)).findAny()
+				    .isPresent();
+			}
+			while (VMWithPrefixFound);
 			logger.trace("HAVM clones prefix is " + prefix);
 			for (VM vm : replicateVM) {
 				// we only make move the VMs that are hosted on a node and not
@@ -142,25 +140,27 @@ public class HAView extends EmptyView {
 
 	@Goal
 	public MigrationReducerGoal migrationCost() {
-		if (pb.getResourcesHandlers().size() == 0) {
+		if (pb.knownResources().isEmpty()) {
 			return null;
 		}
-		ResourceSpecification r = null;
-		for (String s : new String[] { "mem", "ram", "cpu" }) {
-			for (String key : pb.getResourcesHandlers().keySet()) {
+		String resName = null;
+		for (String s : new String[] {
+		    "mem", "ram", "cpu"
+		}) {
+			for (String key : pb.knownResources()) {
 				if (s.equals(key.toLowerCase())) {
-					r = pb.getResourcesHandlers().get(s).getSpecs();
+					resName = key;
 				}
 				break;
 			}
-			if (r != null) {
+			if (resName != null) {
 				break;
 			}
 		}
-		if (r == null) {
-			r = pb.getResourcesHandlers().values().iterator().next().getSpecs();
+		if (resName == null) {
+			resName = pb.knownResources().iterator().next();
 		}
-		return new MigrationReducerGoal(r.getType());
+		return new MigrationReducerGoal(resName);
 	}
 
 }

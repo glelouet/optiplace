@@ -89,11 +89,12 @@ public class ResourceHandler {
 			minNodeCapa = Math.min(minNodeCapa, capa);
 			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
-		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex);
+		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex, nodesCapacities);
 		for(VM v : pb.c().getMIgratingVMs()) {
 			VMHoster host = pb.c().getLocation(v);
-			if (host instanceof Node)
+			if (host instanceof Node) {
 				resourceLoad.addUse(pb.b().node((Node) host), pb.b().vm(v));
+			}
 		}
 	}
 

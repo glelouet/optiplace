@@ -4,14 +4,13 @@
 
 package fr.emn.optiplace.power.powermodels;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel;
 import fr.emn.optiplace.power.PowerView;
@@ -129,14 +128,13 @@ public class MultilinearCons implements PowerModel {
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
 		int nodeidx = parent.b.node(n);
-		HashMap<String, ResourceHandler> handlers = parent.getProblem().getResourcesHandlers();
 		for (int i = 0; i < resources.length; i++) {
-			ResourceHandler handler = handlers.get(resources[i]);
+			ResourceLoad handler = pb.getUse(resources[i]);
 			if (handler == null) {
 				throw new UnsupportedOperationException("resource not specified " + resources[i]);
 			}
-			uses[i] = handler.getNodeLoads()[nodeidx];
-			mults[i] = weights[i] / handler.getCapacities()[nodeidx];
+			uses[i] = handler.getNodesLoad()[nodeidx];
+			mults[i] = weights[i] / handler.getNodesCapa()[nodeidx];
 		}
 		uses[resources.length] = parent.v.createIntegerConstant((int) min);
 		mults[resources.length] = 1.0;
@@ -146,15 +144,14 @@ public class MultilinearCons implements PowerModel {
 	public IntVar makeSumConsumption(Node n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		int nodeidx = parent.b.node(n);
-		HashMap<String, ResourceHandler> handlers = parent.getProblem().getResourcesHandlers();
 		IntVar[] resourceAdd = new IntVar[resources.length + 1];
 		for (int i = 0; i < resources.length; i++) {
-			ResourceHandler handler = handlers.get(resources[i]);
+			ResourceLoad handler = pb.getUse(resources[i]);
 			if (handler == null) {
 				throw new UnsupportedOperationException("resource not specified " + resources[i]);
 			}
-			resourceAdd[i] = pb.v().div(pb.v().mult(handler.getNodeLoads()[nodeidx], (int) weights[i]),
-			    handler.getCapacities()[nodeidx]);
+			resourceAdd[i] = pb.v().div(pb.v().mult(handler.getNodesLoad()[nodeidx], (int) weights[i]),
+			    handler.getNodesCapa()[nodeidx]);
 		}
 		resourceAdd[resources.length] = pb.v().createIntegerConstant((int) min);
 		return pb.v().sum(n.getName() + ".cons", resourceAdd);

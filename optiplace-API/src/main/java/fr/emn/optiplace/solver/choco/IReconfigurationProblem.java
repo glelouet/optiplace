@@ -70,11 +70,11 @@ public interface IReconfigurationProblem extends CoreView {
 	/******************** variables linked to resources ***********************/
 
 	default IntVar getNodeUse(String resource, Node n) {
-		return getResourcesHandlers().get(resource).getNodeLoads()[b().node(n)];
+		return getUse(resource).getNodesLoad()[b().node(n)];
 	}
 
 	default int getNodeCap(String resource, Node n) {
-		return getResourcesHandlers().get(resource).getCapacities()[b().node(n)];
+		return specs(resource).getCapacities()[b().node(n)];
 	}
 
 	default IntVar getUsedCPU(Node n) {

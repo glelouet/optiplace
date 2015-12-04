@@ -92,7 +92,6 @@ public class HostCostView extends EmptyView {
 			int waitingVMCost = data.getWaitingVMCost();
 			for (int vmi = 0; vmi < c.nbVMs(); vmi++) {
 				IntVar vmCost = v.bswitch(pb.isWaiting(vmi), 0, waitingVMCost);
-				System.err.println("adding vm cost : " + vmCost);
 				costsl.add(vmCost);
 			}
 			costsl.removeIf(iv -> iv.isInstantiatedTo(0));

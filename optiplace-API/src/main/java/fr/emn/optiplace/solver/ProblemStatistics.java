@@ -53,8 +53,8 @@ public class ProblemStatistics {
 	 */
 	public ResourceSpecification[] getResources() {
 		if (resources == null) {
-			resources = target.getResourcesHandlers().values().stream().map(r -> r.getSpecs()).collect(Collectors.toList())
-					.toArray(new ResourceSpecification[0]);
+			resources = target.knownResources().stream().map(target::specs).collect(Collectors.toList())
+			    .toArray(new ResourceSpecification[0]);
 			Arrays.sort(resources, new Comparator<ResourceSpecification>() {
 
 				@Override
@@ -153,7 +153,6 @@ public class ProblemStatistics {
 	private double[] resMinLoad = null;
 	private double[] resMaxLoad = null;
 
-
 	/**
 	 */
 	protected void analyseLoads() {
@@ -223,7 +222,9 @@ public class ProblemStatistics {
 	public int resource(ResourceSpecification r) {
 		ResourceSpecification[] resources = getResources();
 		for (int i = 0; i < resources.length; i++) {
-			if (r.getType().equals(resources[i].getType())) { return i; }
+			if (r.getType().equals(resources[i].getType())) {
+				return i;
+			}
 		}
 		return -1;
 	}

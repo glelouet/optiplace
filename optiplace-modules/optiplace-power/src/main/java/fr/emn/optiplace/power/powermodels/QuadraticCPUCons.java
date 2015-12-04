@@ -7,7 +7,6 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel;
 import fr.emn.optiplace.power.PowerView;
@@ -45,13 +44,13 @@ public class QuadraticCPUCons implements PowerModel {
 	@Override
 	public IntVar makePower(Node n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
-		ResourceHandler cpu = pb.getResourcesHandlers().get("CPU");
-		int capa = cpu.getSpecs().getCapacity(n);
+		ResourceSpecification spec = pb.specs("cpu");
+		int capa = spec.getCapacity(n);
 		double alpha = (max - min) * (1 - lcoef) / capa / capa;
 		double beta = (max - min) * lcoef / capa;
 		double gamma = min;
 
-		IntVar use = cpu.getNodeLoads()[parent.b.node(n)];
+		IntVar use = pb.getUse("cpu").getNodesLoad()[parent.b.node(n)];
 		IntVar sqr = pb.v().mult(use, use);
 		IntVar sum = pb.v().scalar(new IntVar[] { sqr, use, parent.v.createIntegerConstant(1) },
 				new double[] { alpha, beta, gamma });

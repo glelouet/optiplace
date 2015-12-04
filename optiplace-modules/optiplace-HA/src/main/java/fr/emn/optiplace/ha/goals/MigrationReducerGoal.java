@@ -10,7 +10,6 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
@@ -23,9 +22,10 @@ import fr.emn.optiplace.view.SearchGoal;
  */
 public class MigrationReducerGoal implements SearchGoal {
 
+	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MigrationReducerGoal.class);
 
-	private final String resourceName;
+	private final String resName;
 
 	/**
 	 * @param resourceCost
@@ -33,26 +33,21 @@ public class MigrationReducerGoal implements SearchGoal {
 	 * @throws NullPointerException
 	 *           if the resource specified is null
 	 */
-	public MigrationReducerGoal(String name) {
-		resourceName = name;
-		if (name == null) {
+	public MigrationReducerGoal(String resName) {
+		this.resName = resName;
+		if (resName == null) {
 			throw new UnsupportedOperationException();
 		}
 	}
 
 	@Override
 	public IntVar getObjective(IReconfigurationProblem rp) {
-		ResourceHandler rh = rp.getResourcesHandlers().get(resourceName);
-		if (rh == null) {
-			logger.warn("can not get the resource specification for " + resourceName);
-			return null;
-		}
-		return rp.v().scalar(rp.isMigrateds(), rh.getVmsLoads());
+		return rp.v().scalar(rp.isMigrateds(), rp.getUse(resName).getVMsLoads());
 	}
 
 	@Override
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
-		return new StickVMsHeuristic(rp.getResourcesHandlers().get(resourceName).getSpecs().makeVMComparator(false))
+		return new StickVMsHeuristic(rp.specs(resName).makeVMComparator(false))
 		    .getHeuristics(rp);
 	}
 

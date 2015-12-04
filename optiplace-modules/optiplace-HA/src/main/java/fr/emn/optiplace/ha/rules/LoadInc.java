@@ -14,7 +14,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
@@ -101,7 +101,7 @@ public class LoadInc implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		ResourceHandler handler = core.getResourcesHandlers().get(resName);
+		ResourceLoad handler = core.getUse(resName);
 		if (handler == null) {
 			return;
 		}
@@ -109,8 +109,8 @@ public class LoadInc implements Rule {
 			return;
 		}
 		List<IntVar> lnodes = nodes.stream()
-				.filter(core.getSourceConfiguration()::hasNode)
-				.map(handler::getNodeLoad).collect(Collectors.toList());
+.filter(core.getSourceConfiguration()::hasNode).map(core.b()::node)
+		    .map(i -> handler.getNodesLoad()[i]).collect(Collectors.toList());
 		for (int i = 0; i < lnodes.size() - 1; i++) {
 			core.getSolver().post(ICF.arithm(lnodes.get(i), "<=", lnodes.get(i + 1)));
 		}

@@ -1,7 +1,6 @@
 package fr.emn.optiplace.view.linearpower;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +10,7 @@ import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
+import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -133,16 +132,14 @@ public class LinearPowerModel {
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
 		int nodeidx = parent.b.node(n);
-		HashMap<String, ResourceHandler> handlers = parent.getProblem()
-				.getResourcesHandlers();
 		for (int i = 0; i < resources.length; i++) {
-			ResourceHandler handler = handlers.get(resources[i]);
-			if (handler == null) {
+			ResourceLoad load = pb.getUse(resources[i]);
+			if (load == null) {
 				throw new UnsupportedOperationException(
 						"resource not specified " + resources[i]);
 			}
-			uses[i] = handler.getNodeLoads()[nodeidx];
-			mults[i] = weights[i] / handler.getCapacities()[nodeidx];
+			uses[i] = load.getNodesLoad()[nodeidx];
+			mults[i] = weights[i] / load.getNodesCapa()[nodeidx];
 		}
 		uses[resources.length] = parent.v.createIntegerConstant((int) base);
 		mults[resources.length] = 1.0;

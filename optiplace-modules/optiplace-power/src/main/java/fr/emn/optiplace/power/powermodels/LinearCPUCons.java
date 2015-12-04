@@ -20,7 +20,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * linear consumption of a server. simply a min(base) value and a max value
  * corresponding to the 100% load of this node's CPU, meaning the node's
  * cons=min+(max-min)*cpuusage/capacpu.
- * 
+ *
  * @author guillaume
  */
 public class LinearCPUCons implements PowerModel {
@@ -70,15 +70,12 @@ public class LinearCPUCons implements PowerModel {
 
 	@Override
 	public IntVar makePower(Node n, PowerView parent) {
-		// we post
 		IReconfigurationProblem pb = parent.getProblem();
 		double delta = max - min;
-		int capa = parent.getSpecs().get("CPU").getCapacity(n);
+		int capa = parent.getProblem().specs("cpu").getCapacity(n);
 		IntVar use = pb.getUsedCPU(n);
-		IntVar ret = pb.v().createBoundIntVar(n.getName() + ".consumption", (int) min, (int) max);
+		IntVar ret = pb.v().createBoundIntVar(n.getName() + ".power", (int) min, (int) max);
 		parent.onNewVar(ret);
-		// ret = min+delta*use/capa
-		// ret*capa = delta*use + min*capa
 		Constraint eq = ICF.arithm(pb.v().mult(ret, capa), "=", pb.v().mult(use, (int) delta), "+", (int) (min * capa));
 		parent.post(eq);
 		return ret;
@@ -113,8 +110,9 @@ public class LinearCPUCons implements PowerModel {
 		@Override
 		public LinearCPUCons parse(String s) {
 			Matcher m = matcher.matcher(s);
-			if (!m.matches())
+			if (!m.matches()) {
 				return null;
+			}
 			return new LinearCPUCons(Double.parseDouble(m.group(1)), Double.parseDouble(m.group(2)));
 		}
 	};

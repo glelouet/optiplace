@@ -1,14 +1,9 @@
 package fr.emn.optiplace.view.linearpower;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.View;
 
@@ -96,9 +91,6 @@ public class LinearPowerView extends EmptyView {
     this.onmMissingModel = onmMissingModel;
   }
 
-  /** resource specifications, extracted from the problem */
-  private HashMap<String, ResourceSpecification> cachedSpecs = null;
-
   /** power cost of executing the node i alone */
   protected int[] cachedNodeBaseCons;
 
@@ -121,23 +113,10 @@ public class LinearPowerView extends EmptyView {
   public void clear() {
     super.clear();
     cachedPowers = null;
-    cachedSpecs = null;
     cachedHostingCosts = null;
     cachedNodeBaseCons = null;
     cachedNodeLonePowers = null;
     cachedVMCons = null;
-  }
-
-  public HashMap<String, ResourceSpecification> getSpecs() {
-    if (cachedSpecs == null) {
-      HashMap<String, ResourceSpecification> specs = new HashMap<String, ResourceSpecification>();
-      for (Entry<String, ResourceHandler> e : pb.getResourcesHandlers()
-          .entrySet()) {
-        specs.put(e.getKey(), e.getValue().getSpecs());
-      }
-      cachedSpecs = specs;
-    }
-    return cachedSpecs;
   }
 
   /** get the constrained {@link IntVar variable} corresponding to a node
@@ -207,7 +186,7 @@ pb.isOnline(pb.b().node(i)), 0, cachedNodeBase[i]);
   public int[][] getHostingCosts() {
     if (cachedHostingCosts == null) {
       cachedHostingCosts = data.makeHostingCost(
-          pb.getSourceConfiguration(), null, null, getSpecs());
+pb.getSourceConfiguration(), null, null);
     }
     return cachedHostingCosts;
   }

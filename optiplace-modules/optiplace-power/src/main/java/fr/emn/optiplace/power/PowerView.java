@@ -2,17 +2,17 @@ package fr.emn.optiplace.power;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.goals.TotalPowerEvaluator;
 import fr.emn.optiplace.power.powermodels.LinearCPUCons;
+import fr.emn.optiplace.power.rules.LimitPower;
+import fr.emn.optiplace.power.rules.LimitSumPower;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.ProvidedData;
@@ -78,19 +78,33 @@ public class PowerView extends EmptyView {
 		this.powerData = powerData;
 	}
 
-	private HashMap<String, ResourceSpecification> specs = new HashMap<String, ResourceSpecification>();
+	/**
+	 * limit the power of a set of Nodes .each power is limited independently
+	 *
+	 * @param value
+	 *          the maximum power of each node
+	 * @param nodes
+	 *          the nodes to limit the power of, or null to select all
+	 */
+	public void limitPower(int value, Node... nodes) {
+		addRule(new LimitPower(this, value, nodes));
+	}
 
-	public HashMap<String, ResourceSpecification> getSpecs() {
-		return specs;
+	/**
+	 * limit the total power of a set of Nodes. Powers are summed
+	 *
+	 * @param value
+	 *          the maximum total power
+	 * @param nodes
+	 *          the nodes to limit the power of, or null to select all
+	 */
+	public void limitSumPower(int value, Node... nodes) {
+		addRule(new LimitSumPower(this, value, nodes));
 	}
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {
 		super.associate(rp);
-		specs = new HashMap<String, ResourceSpecification>();
-		for (Entry<String, ResourceHandler> e : rp.getResourcesHandlers().entrySet()) {
-			specs.put(e.getKey(), e.getValue().getSpecs());
-		}
 	}
 
 	@Override
@@ -99,7 +113,6 @@ public class PowerView extends EmptyView {
 		cachedPowers.clear();
 		cachedTotalPower = null;
 		cachedMaxPowerDiff = null;
-		specs = null;
 	}
 
 	private final HashMap<String, IntVar> cachedPowers = new HashMap<String, IntVar>();
@@ -159,8 +172,9 @@ public class PowerView extends EmptyView {
 		if (powerstate.isInstantiatedTo(0)) {
 			return v.createIntegerConstant(0);
 		}
-		PowerModel cm = powerData.get(n.getName());
+		PowerModel cm = powerData.get(n);
 		if (cm == null) {
+			System.err.println("no data for node " + n + ", models are  :" + powerData);
 			switch (onmMissingModel) {
 			case EXCEPTION:
 				throw new UnsupportedOperationException("no consumption model for node " + n);
@@ -225,7 +239,7 @@ public class PowerView extends EmptyView {
 			double min = Double.POSITIVE_INFINITY;
 			for (Node n : b.nodes()) {
 				PowerModel model = powerData.get(n.getName());
-				double mincons = model.getMinPowerIncrease(n, specs, vm);
+				double mincons = model.getMinPowerIncrease(n, pb.c().resources(), vm);
 				if (mincons < min) {
 					min = mincons;
 				}

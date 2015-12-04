@@ -24,7 +24,7 @@ public class ReplicateTest extends SolvingExample {
 		nodeCapas = new int[] { 2 };
 		vmUse = new int[] { 1 };
 		nbVMPerNode = 1;
-		nbWaitings = 0;
+		nbWaitings = 1;
 		nbNodes = 2;
 		ha = new HAView();
 		views = new View[] { ha };
@@ -41,6 +41,7 @@ public class ReplicateTest extends SolvingExample {
 	public void testHAVMMigrating() {
 		prepare();
 		src.setMigTarget(placed[0][0], nodes[1]);
+		strat.setLogHeuristicsSelection(true);
 		IConfiguration dest = solve(src).getDestination();
 		Assert.assertEquals(dest, src);
 	}

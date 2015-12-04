@@ -28,7 +28,7 @@ public class HomogeneousView extends EmptyView {
 		homogeneous = pb.getStatistics().getNbNodeModel() == 1;
 	}
 
-	@Goal 
+	@Goal
 	public SearchGoal packingGoal() {
 		if (!homogeneous) {
 			logger.info("can not select homogeneous packing goal as the view is associated to a non-homogeneous problem");
@@ -36,16 +36,14 @@ public class HomogeneousView extends EmptyView {
 		}
 		ResourceSpecification r = null;
 		for (String s : new String[] { "mem", "ram", "cpu" }) {
-			for (String key : pb.getResourcesHandlers().keySet()) {
-				if (s.equals(key.toLowerCase()))
-					r = pb.getResourcesHandlers().get(key).getSpecs();
-				break;
-			}
-			if (r != null)
-				break;
+			r = pb.specs(s);
+			if (r != null) {
+					break;
+				}
 		}
-		if (r == null && pb.getResourcesHandlers().size() > 0)
-			r = pb.getResourcesHandlers().values().iterator().next().getSpecs();
+		if (r == null && !pb.knownResources().isEmpty()) {
+			r = pb.specs(pb.knownResources().iterator().next());
+		}
 		return new PackingGoal(r);
 	}
 }

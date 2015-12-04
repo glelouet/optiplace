@@ -1,13 +1,9 @@
 package fr.emn.optiplace.power;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -42,20 +38,8 @@ public class MonogameMetrics {
 		clear();
 	}
 
-	HashMap<String, ResourceSpecification> specs;
-
-	protected void makeSpecs() {
-		specs = new HashMap<String, ResourceSpecification>();
-		for (Entry<String, ResourceHandler> e : parent.getProblem().getResourcesHandlers().entrySet()) {
-			specs.put(e.getKey(), e.getValue().getSpecs());
-		}
-	}
-
 	public double getMonogamEff(Node n, VM vm) {
-		if (specs == null) {
-			makeSpecs();
-		}
-		return parent.getPowerData().get(n).getBestEfficiency(specs, n, vm);
+		return parent.getPowerData().get(n).getBestEfficiency(rp.c().resources(), n, vm);
 	}
 
 	double[] minVMEff;
@@ -128,7 +112,6 @@ public class MonogameMetrics {
 	}
 
 	void clear() {
-		specs = null;
 		minVMEff = null;
 		maxVMEff = null;
 		minNodeEff = null;

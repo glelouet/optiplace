@@ -3,7 +3,6 @@ package fr.emn.optiplace.view.linearpower;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.view.linearpower.migrationcost.MigrationCostNull;
 
 /** @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2014 */
@@ -141,7 +139,7 @@ public class LinearPowerData {
 	 * slot.
 	 */
 	public int[][] makeHostingCost(IConfiguration cfg, Node[] nodes,
-			VM[] vms, Map<String, ResourceSpecification> resources) {
+ VM[] vms) {
 		if (nodes == null) {
 			nodes = cfg.getNodes().collect(Collectors.toList())
 					.toArray(new Node[] {});
@@ -155,7 +153,7 @@ public class LinearPowerData {
 		// its hoster
 		for (int i = 0; i < ret.length; i++) {
 			VM vm = vms[i];
-			int cost = migrationCost.migrationCost(vm, resources);
+			int cost = migrationCost.migrationCost(vm, cfg.resources());
 			int hosterIdx = Arrays.binarySearch(nodes, cfg.getLocation(vm));
 			for (int j = 0; j < ret[i].length; j++) {
 				if (j != hosterIdx) {
@@ -171,7 +169,7 @@ public class LinearPowerData {
 		for (int j = 0; j < ret[0].length; j++) {
 			LinearPowerModel m = getModel(nodes[j]);
 			for (int i = 0; i < ret.length; i++) {
-				ret[i][j] += m.makePower(vms[i], resources) * timeSlotSeconds;
+				ret[i][j] += m.makePower(vms[i], cfg.resources()) * timeSlotSeconds;
 			}
 		}
 

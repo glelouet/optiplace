@@ -110,8 +110,16 @@ public class CostData implements ProvidedDataReader {
 		byHosterName.put(hostname, val);
 	}
 
+	public void setHostCost(VMHoster hoster, int val) {
+		setHostCost(hoster.getName(), val);
+	}
+
 	public void setSiteCost(String sitename, int val) {
 		bySiteName.put(sitename, val);
+	}
+
+	public void setSiteCost(Site site, int val) {
+		setSiteCost(site.getName(), val);
 	}
 
 	public void addHostFilter(String filter, int value) {

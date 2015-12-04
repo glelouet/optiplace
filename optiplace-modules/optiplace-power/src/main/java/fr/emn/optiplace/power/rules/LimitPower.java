@@ -1,3 +1,4 @@
+
 package fr.emn.optiplace.power.rules;
 
 import java.util.Arrays;
@@ -11,9 +12,9 @@ import org.chocosolver.solver.exception.ContradictionException;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.power.PowerView;
-import fr.emn.optiplace.solver.ReconfigurationResult;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
+
 
 /**
  * constraint specifying that each node of a set should not consume more than a
@@ -29,7 +30,7 @@ public class LimitPower implements Rule {
 
 	protected int maxConsumption;
 
-	protected PowerView consumptionView;
+	protected PowerView parent;
 
 	protected Set<Node> nodes;
 
@@ -43,7 +44,7 @@ public class LimitPower implements Rule {
 
 	public LimitPower(PowerView consumptionView, int maxConsumption, Set<Node> nodes) {
 		this.maxConsumption = maxConsumption;
-		this.consumptionView = consumptionView;
+		parent = consumptionView;
 		this.nodes = nodes;
 	}
 
@@ -61,16 +62,16 @@ public class LimitPower implements Rule {
 	}
 
 	/** @return the consumption view */
-	public PowerView getConsumptions() {
-		return consumptionView;
+	public PowerView getParent() {
+		return parent;
 	}
 
 	/**
-	 * @param consumptions
+	 * @param parentv
 	 *          the consumptions to set
 	 */
-	public void setConsumptions(PowerView consumptions) {
-		consumptionView = consumptions;
+	public void setParent(PowerView parentv) {
+		parent = parentv;
 	}
 
 	public Set<Node> getNodes() {
@@ -78,18 +79,20 @@ public class LimitPower implements Rule {
 	}
 
 	public Stream<Node> getNodes(IConfiguration c) {
-		if (nodes == null || nodes.isEmpty())
+		if (nodes == null || nodes.isEmpty()) {
 			return c.getNodes();
-		else
+		} else {
 			return nodes.stream().filter(c::hasNode);
+		}
 	}
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		getNodes(core.c()).forEach(n -> {
 			try {
-				consumptionView.getPower(n).updateUpperBound(getMaxConsumption(), Cause.Null);
-			} catch (ContradictionException e) {
+				parent.getPower(n).updateUpperBound(getMaxConsumption(), Cause.Null);
+			}
+			catch (ContradictionException e) {
 				throw new UnsupportedOperationException();
 			}
 		});
@@ -97,14 +100,7 @@ public class LimitPower implements Rule {
 
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		return !getNodes(cfg)
-				.filter(
-						n -> (consumptionView.getPowerData().getConsumption(cfg, consumptionView.getSpecs(), n) > maxConsumption))
-				.findAny().isPresent();
-	}
-
-	@Override
-	public boolean isSatisfied(ReconfigurationResult plan) {
-		return isSatisfied(plan.getDestination());
+		return !getNodes(cfg).filter(n -> (parent.getPowerData().getConsumption(cfg, n) > maxConsumption)).findAny()
+		    .isPresent();
 	}
 }
