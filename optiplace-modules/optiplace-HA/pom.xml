@@ -9,12 +9,12 @@
 	<name>optiplace-HA</name>
 	<repositories>
 		<repository>
-			<id>btrcloud-private-snapshots</id>
-			<url>http://btrcloud.org/maven-snapshots-private/</url>
+			<id>lelouet-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
 		</repository>
 		<repository>
-			<id>btrcloud-private</id>
-			<url>http://btrcloud.org/maven-private/</url>
+			<id>lelouet-stable</id>
+			<url>http://91.121.120.36/maven/stable/</url>
 		</repository>
 	</repositories>
 	<dependencies>
