@@ -5,19 +5,20 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
+import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class Bridge {
 
 	public static final Logger logger = LoggerFactory.getLogger(Bridge.class);
 
-	private IConfiguration source;
+	private final IConfiguration source;
 
 	private VM[] vms;
 	private TObjectIntHashMap<VM> revVMs;
@@ -40,27 +41,26 @@ public class Bridge {
 	public Bridge(IConfiguration source) {
 
 		this.source = source;
-
 		vms = source.getVMs().collect(Collectors.toSet()).toArray(new VM[] {});
-		revVMs = new TObjectIntHashMap<>(vms.length);
+		revVMs = new TObjectIntHashMap<>(vms.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
 		}
 
 		nodes = source.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
-		revNodes = new TObjectIntHashMap<>(nodes.length);
+		revNodes = new TObjectIntHashMap<>(nodes.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < nodes.length; i++) {
 			revNodes.put(nodes[i], i);
 		}
 
 		externs = source.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
-		revExterns = new TObjectIntHashMap<>(externs.length);
+		revExterns = new TObjectIntHashMap<>(externs.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < externs.length; i++) {
 			revExterns.put(externs[i], i);
 		}
 
 		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
-		revSites = new TObjectIntHashMap<>(sites.length);
+		revSites = new TObjectIntHashMap<>(sites.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < sites.length; i++) {
 			revSites.put(sites[i], i);
 		}
@@ -94,11 +94,7 @@ public class Bridge {
 	 * @return the index of the node in the problem, or -1
 	 */
 	public int node(Node n) {
-		int v = revNodes.get(n);
-		if (v == 0 && !nodes[0].equals(n)) {
-			return -1;
-		}
-		return v;
+		return revNodes.get(n);
 	}
 
 	/**
@@ -145,11 +141,7 @@ public class Bridge {
 	 * @return the internal index for this vm, or -1 if not known
 	 */
 	public int vm(VM vm) {
-		int v = revVMs.get(vm);
-		if (v == 0 && !vms[0].equals(vm)) {
-			return -1;
-		}
-		return v;
+		return revVMs.get(vm);
 	}
 
 	/**
@@ -179,11 +171,7 @@ public class Bridge {
 	 * @return the index of the extern in {@link #externs()} array or -1
 	 */
 	public int extern(Extern e) {
-		int v = revExterns.get(e);
-		if (v == 0 && !externs[0].equals(e)) {
-			return -1;
-		}
-		return v;
+		return revExterns.get(e);
 	}
 
 	/**
@@ -234,11 +222,7 @@ public class Bridge {
 	}
 
 	public int site(Site site) {
-		int v = revSites.get(site);
-		if (v == 0 && !sites[0].equals(site)) {
-			return -1;
-		}
-		return v;
+		return revSites.get(site);
 	}
 
 	public Site site(int idx) {
