@@ -107,25 +107,31 @@ public class ConfigurationTest {
 		Site site1 = c.addSite("site1", nodes[2], nodes[3]);
 		Assert.assertEquals(c.nbSites(), 1);
 		Assert.assertEquals(c.getHosters(site1).collect(Collectors.toSet()),
-		    new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
+				new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
 		Assert.assertEquals(c.getHosters(null).collect(Collectors.toSet()).size(), 6);
 	}
 
 	@Test
-	public void testFindElementByNAme() {
+	public void testGetElementByName() {
 		Configuration c = new Configuration();
 		Extern extern = c.addExtern("extern");
-		c.addOffline("offline");
+		Node offline = c.addOffline("offline");
 		Node online = c.addOnline("online");
-		c.addSite("site");
+		Site site = c.addSite("site");
 		c.addVM("vmexterned", extern);
 		c.addVM("vmonline", online);
 		c.addVM("vmwaiting", null);
-		
-		for (String s : new String[] { "extern", "eXtern", "offline", "offlinE", "online", "onLINE", "site", "SitE",
-				"vmexterned", "vmExterned", "vmOnlinE", "vmonline", "vmwaiting", "vmWaiting", }) {
+
+		for (String s : new String[] { extern.getName(), "eXtern", offline.getName(), "offlinE", online.getName(), "onLINE",
+				site.getName(), "SitE", "vmexterned", "vmExterned", "vmOnlinE", "vmonline", "vmwaiting", "vmWaiting", }) {
 			Assert.assertNotNull(c.getElementByName(s), "can't find element " + s);
 		}
+
+		extern = c.getElementByName("extErn", Extern.class);
+		online = c.getElementByName("onLINE", Node.class);
+		offline = c.getElementByName("OffLine", Node.class);
+		site = c.getElementByName("sIte", Site.class);
+
 	}
 
 	@Test
@@ -135,6 +141,13 @@ public class ConfigurationTest {
 		Assert.assertEquals(c.nbVMs(), 1);
 		Assert.assertTrue(c.remove(v));
 		Assert.assertEquals(c.nbVMs(), 0);
+	}
+
+	@Test(expectedExceptions = ClassCastException.class)
+	public void testGetElementByNameException() {
+		Configuration c = new Configuration();
+		c.addVM("vm", null);
+		c.getElementByName("vm", Node.class);
 	}
 
 }
