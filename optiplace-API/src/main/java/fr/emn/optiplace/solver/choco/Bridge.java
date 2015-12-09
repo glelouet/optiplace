@@ -217,6 +217,14 @@ public class Bridge {
 		return i < nodes.length ? node(i) : extern(i - nodes.length);
 	}
 
+	/**
+	 * 
+	 * @return the number of hosters (extern + node) in the configuration
+	 */
+	public int nbHosters() {
+		return nodes.length + externs.length;
+	}
+
 	public Site[] sites() {
 		return sites;
 	}

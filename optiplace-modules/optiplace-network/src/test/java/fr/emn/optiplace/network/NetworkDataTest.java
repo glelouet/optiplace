@@ -1,9 +1,15 @@
 package fr.emn.optiplace.network;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.network.NetworkData.Link;
+import fr.emn.optiplace.network.NetworkData.Router;
 import fr.emn.optiplace.network.NetworkData.VMGroup;
 
 
@@ -39,6 +45,39 @@ public class NetworkDataTest {
 		Assert.assertEquals(test.use(v2, v3), 10);
 		Assert.assertEquals(test.use(v3, v0), 0);
 
+	}
+
+	@Test
+	public void testSimpleFindPath() {
+		NetworkData test = new NetworkData();
+		Node n0 = new Node("n0");
+		Extern e0 = new Extern("e0");
+		Link l = test.addLink(n0, e0, 2);
+		Assert.assertEquals(test.findPath(n0, e0), Arrays.asList(l));
+		Assert.assertEquals(test.findPath(e0, n0), Arrays.asList(l));
+		Assert.assertNull(test.findPath(e0, e0));
+		Assert.assertNull(test.findPath(n0, n0));
+		Assert.assertNull(test.findPath(e0, null));
+		Assert.assertNull(test.findPath(n0, null));
+		Assert.assertNull(test.findPath(null, e0));
+		Assert.assertNull(test.findPath(null, n0));
+	}
+
+	@Test(dependsOnMethods = "testSimpleFindPath")
+	public void testSmallFindPath() {
+		NetworkData test = new NetworkData();
+		Node n0 = new Node("n0");
+		Extern e0 = new Extern("e0");
+		Router r0 = new Router("r0");
+		Router r1 = new Router("r1");
+		Router r2 = new Router("r2");
+		Link l0 = test.addLink(n0, r0, 3);
+		Link l1 = test.addLink(r0, r1, 6);
+		Link l2 = test.addLink(r1, e0, 12);
+		Link l3 = test.addLink(r1, r2, 42);
+		Assert.assertEquals(test.findPath(n0, e0), Arrays.asList(l0, l1, l2));
+		Assert.assertEquals(test.findPath(e0, n0), Arrays.asList(l2, l1, l0));
+		Assert.assertEquals(test.findPath(r0, r2), Arrays.asList(l1, l3), "list is : " + test.findPath(r0, r2));
 	}
 
 }
