@@ -8,7 +8,11 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.VariableFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +49,7 @@ public class VariablesManager {
 	}
 
 	public BoolVar createBoolVar(String name, boolean value) {
-		return value ? getSolver().ONE : getSolver().ZERO;
+		return value ? getSolver().ONE() : getSolver().ZERO();
 	}
 
 	public IntVar createEnumIntVar(String name, int... sortedValues) {

@@ -7,15 +7,13 @@ package fr.emn.optiplace.homogeneous.heuristics;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
-
 
 /**
  * When a Node is already hosting VMs, we make it host its VM in the source
@@ -26,14 +24,14 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public class PackOnHoster extends ActivatedHeuristic<IntVar> {
 
-	private static final long             serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger           = org.slf4j.LoggerFactory.getLogger(PackOnHoster.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PackOnHoster.class);
 
-	boolean[]                             activateds;
-	IntVar[]                              nbVMs;
-	IntVar[][]                            vmsToHost;
+	boolean[] activateds;
+	IntVar[] nbVMs;
+	IntVar[][] vmsToHost;
 
 	/**
 	 * @param variables
@@ -64,15 +62,12 @@ public class PackOnHoster extends ActivatedHeuristic<IntVar> {
 	}
 
 	@Override
-	public void init() throws ContradictionException {}
-
-	@Override
 	public Decision<IntVar> getDecision() {
 		for (int i = 0; i < activateds.length; i++) {
 			if (activateds[i]) {
 				for (IntVar v : vmsToHost[i]) {
 					if (v.contains(i) && !v.isInstantiated()) {
-						FastDecision ret = getFastDecision();
+						IntDecision ret = getIntDecision();
 						ret.set(v, i, DecisionOperator.int_eq);
 						return ret;
 					}
