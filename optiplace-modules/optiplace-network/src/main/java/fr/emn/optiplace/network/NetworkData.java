@@ -151,12 +151,12 @@ public class NetworkData {
 
 	public class Link {
 
-		public final VMHoster v0, v1;
+		public final String v0, v1;
 		public final int hashCode;
 
-		public Link(VMHoster v0, VMHoster v1) {
-			if (v0.getName().compareToIgnoreCase(v1.getName()) < 0) {
-				VMHoster t = v0;
+		public Link(String v0, String v1) {
+			if (v0.compareToIgnoreCase(v1) < 0) {
+				String t = v0;
 				v0 = v1;
 				v1 = t;
 			}
@@ -193,7 +193,7 @@ public class NetworkData {
 	}
 
 	/** for each known hoster the list of links it has */
-	protected Map<VMHoster, Set<Link>> hoster2links = new HashMap<>();
+	protected Map<String, Set<Link>> hoster2links = new HashMap<>();
 
 	/** for each existing link, its capacity */
 	protected Map<Link, Integer> link2capa = new HashMap<>();
@@ -209,12 +209,12 @@ public class NetworkData {
 	 *          the capacity to add to the link
 	 * @return null if elements are null,
 	 */
-	public Link addLink(VMHoster h1, VMHoster h2, int capa) {
+	public Link addLink(String h1, String h2, int capa) {
 		if (h1 == null || h2 == null || h1.equals(h2)) {
 			return null;
 		}
-		if (h1.getName().compareToIgnoreCase(h2.getName()) < 0) {
-			VMHoster t = h1;
+		if (h1.compareToIgnoreCase(h2) < 0) {
+			String t = h1;
 			h1 = h2;
 			h2 = t;
 		}
@@ -252,6 +252,12 @@ public class NetworkData {
 		return link;
 	}
 
+	public Link addLink(VMHoster h1, VMHoster h2, int capa) {
+		if (h2 == null | h1 == null)
+			return null;
+		return addLink(h1.getName(), h2.getName(), capa);
+	}
+
 	//////////////////////////////////////////////////
 	// Path-finding
 	//////////////////////////////////////////////////
@@ -266,16 +272,22 @@ public class NetworkData {
 	 * @return null if no solution, an element is null, or both elements are the
 	 *         same.
 	 */
-	public List<Link> findPath(VMHoster from, VMHoster to) {
+	public List<Link> findPath(String from, String to) {
 		if (from == null || to == null || from.equals(to))
 			return null;
 		return findPath(from, to, new HashSet<>(Arrays.asList(from)));
 	}
 
+	public List<Link> findPath(VMHoster fromhost, VMHoster tohost) {
+		if (fromhost == null || tohost == null)
+			return null;
+		return findPath(fromhost.getName(), tohost.getName());
+	}
+
 	/** recurring deep-first exploration */
-	protected List<Link> findPath(VMHoster from, VMHoster to, Set<VMHoster> avoid) {
+	protected List<Link> findPath(String from, String to, Set<String> avoid) {
 		for (Link l : hoster2links.get(from)) {
-			VMHoster target = l.v0.equals(from) ? l.v1 : l.v0;
+			String target = l.v0.equals(from) ? l.v1 : l.v0;
 			if (target.equals(to))
 				return new LinkedList<>(Arrays.asList(l));
 			if (!avoid.contains(target)) {
@@ -339,7 +351,8 @@ public class NetworkData {
 					for (int j = 0; j < i; j++) {
 						VMHoster to = b.vmHoster(j);
 						if (hoster2links.containsKey(to)) {
-							List<Integer> l = findPath(from, to).stream().map(this::link).collect(Collectors.toList());
+							List<Integer> l = findPath(from.getName(), to.getName()).stream().map(this::link)
+									.collect(Collectors.toList());
 							hoster2hoster2links[i][j] = new int[l.size()];
 							for (int k = 0; k < l.size(); k++) {
 								hoster2hoster2links[i][j][k] = l.get(k);
