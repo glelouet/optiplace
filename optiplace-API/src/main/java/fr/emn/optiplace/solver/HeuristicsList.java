@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
@@ -70,7 +69,12 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 	}
 
 	@Override
-	public void init() throws ContradictionException {}
+	public boolean init() {
+		for (ActivatedHeuristic<?> a : leaders)
+			if (!a.init())
+				return false;
+		return true;
+	}
 
 	Solver solver;
 

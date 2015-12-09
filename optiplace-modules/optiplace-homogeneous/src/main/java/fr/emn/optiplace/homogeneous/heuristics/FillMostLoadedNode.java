@@ -3,7 +3,6 @@
  */
 package fr.emn.optiplace.homogeneous.heuristics;
 
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -42,10 +41,6 @@ public class FillMostLoadedNode extends ActivatedHeuristic<IntVar> {
 	protected boolean checkActivated() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void init() throws ContradictionException {
 	}
 
 	@Override

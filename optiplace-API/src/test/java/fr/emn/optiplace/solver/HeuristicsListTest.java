@@ -3,17 +3,15 @@
  */
 package fr.emn.optiplace.solver;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.Variable;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -35,10 +33,6 @@ public class HeuristicsListTest {
 	@Override
 	protected boolean checkActivated() {
 	    return true;
-	}
-
-	@Override
-	public void init() throws ContradictionException {
 	}
 
 	@Override
@@ -75,16 +69,12 @@ public class HeuristicsListTest {
 	}
 
 	@Override
-	public void init() throws ContradictionException {
-	}
-
-	@Override
 	public Decision<IntVar> getDecision() {
 	    if (!isActivated()) {
 		throw new UnsupportedOperationException("calling a passive heuristic .#getDecision() is forbidden");
 	    }
 	    if (!vars[val].isInstantiated()) {
-		FastDecision e = getFastDecision();
+				IntDecision e = getIntDecision();
 		e.set(vars[val], val, DecisionOperator.int_eq);
 		return e;
 	    }

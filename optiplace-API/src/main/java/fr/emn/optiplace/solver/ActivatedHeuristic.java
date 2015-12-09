@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import org.chocosolver.memory.IStateBool;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
+import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IVariableMonitor;
 import org.chocosolver.solver.variables.Variable;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * @param <T>
- *            The type of variables to make decisions on (eg IntVar or SetVar)
+ *          The type of variables to make decisions on (eg IntVar or SetVar)
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
@@ -53,12 +53,12 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 
 	private static final long serialVersionUID = 1L;
 
-	protected static PoolManager<FastDecision> manager = new PoolManager<>();
+	protected static PoolManager<IntDecision> manager = new PoolManager<>();
 
-	protected FastDecision getFastDecision() {
-		FastDecision e = manager.getE();
+	protected IntDecision getIntDecision() {
+		IntDecision e = manager.getE();
 		if (e == null) {
-			e = new FastDecision(manager);
+			e = new IntDecision(manager);
 		}
 		return e;
 	}
@@ -132,9 +132,9 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	/**
 	 *
 	 * @param decisionVars
-	 *            The variables of the problem on which to make decisions
+	 *          The variables of the problem on which to make decisions
 	 * @param observedVars
-	 *            the Variables of the problem which help decide when to branch.
+	 *          the Variables of the problem which help decide when to branch.
 	 */
 	public ActivatedHeuristic(T[] decisionVars, Variable[] observedVars) {
 		super(decisionVars);
@@ -155,7 +155,7 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 	 * vars
 	 * 
 	 * @param vars
-	 *            the variables to branch on and observe
+	 *          the variables to branch on and observe
 	 */
 	@SafeVarargs
 	public ActivatedHeuristic(T... vars) {

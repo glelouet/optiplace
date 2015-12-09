@@ -1,7 +1,6 @@
 package fr.emn.optiplace.solver.heuristics;
 
 import org.chocosolver.memory.IStateBool;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
@@ -45,8 +44,8 @@ public class Static2Activated<T extends Variable> extends ActivatedHeuristic<T> 
 	}
 
 	@Override
-	public void init() throws ContradictionException {
-		strat.init();
+	public boolean init() {
+		return strat.init();
 	}
 
 	@Override
