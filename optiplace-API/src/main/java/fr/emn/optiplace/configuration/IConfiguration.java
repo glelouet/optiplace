@@ -98,7 +98,7 @@ public interface IConfiguration {
 		ManagedElement ret = getElementByName(name.toLowerCase());
 		if (ret == null)
 			return null;
-		if (clazz.isAssignableFrom(clazz))
+		if (clazz.isAssignableFrom(ret.getClass()))
 			return (T) ret;
 		throw new ClassCastException("cannot cast " + ret + " to " + clazz);
 	}
