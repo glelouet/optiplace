@@ -11,8 +11,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.network.data.Link;
 import fr.emn.optiplace.network.data.Router;
 import fr.emn.optiplace.network.data.VMGroup;
@@ -341,6 +343,12 @@ public class NetworkData implements ProvidedDataReader {
 		return new NetworkDataBridge(b);
 	}
 
+	/**
+	 * Bridge between a {@link NetworkData} and a {@link ReconfigurationProblem}.
+	 * 
+	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
+	 *
+	 */
 	public class NetworkDataBridge {
 
 		final int[] NO_LINK = {};
@@ -390,6 +398,8 @@ public class NetworkData implements ProvidedDataReader {
 							couplesl.add(new VMCouple(v1, v2));
 			}
 			couplesl.removeAll(removedCouples);
+			IConfiguration src = b.source();
+			couplesl.removeIf(c -> !(src.hasVM(c.v0) && src.hasVM(c.v1)));
 			// then put them in the arrays
 			couplesByIndex = couplesl.toArray(new VMCouple[] {});
 			revCouples = new TObjectIntHashMap<>();
@@ -400,7 +410,7 @@ public class NetworkData implements ProvidedDataReader {
 				coupleUseByIndex[i] = use(c.v0, c.v1);
 			}
 
-			// matrice of links index to go from hoster i to hoster j
+			// matrix from hoster i to hoster j => indexes of links to use
 			hoster2hoster2links = new int[b.nbHosters()][b.nbHosters()][];
 			// first lower left diag : i<j
 			for (int i = 0; i < b.nbHosters(); i++) {
@@ -444,6 +454,10 @@ public class NetworkData implements ProvidedDataReader {
 			return (idx < 0 || idx >= linksByIndex.length) ? null : linksByIndex[idx];
 		}
 
+		public int nbLinks() {
+			return linksByIndex.length;
+		}
+
 		/**
 		 * get the indexes of the links required to go from one hoster to another
 		 * 
@@ -464,6 +478,18 @@ public class NetworkData implements ProvidedDataReader {
 				return NO_LINK;
 			else
 				return line[idxto];
+		}
+
+		public int vmcouple(VMCouple c) {
+			return revCouples.get(c);
+		}
+
+		public VMCouple vmcCouple(int idx) {
+			return (idx < 0 || idx >= couplesByIndex.length) ? null : couplesByIndex[idx];
+		}
+
+		public int nbCouples() {
+			return couplesByIndex.length;
 		}
 
 	}
