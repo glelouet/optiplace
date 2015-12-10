@@ -8,8 +8,11 @@
 	General Public License for more details. ~ ~ You should have received a copy 
 	of the GNU Lesser General Public License ~ along with Entropy. If not, see 
 	<http://www.gnu.org/licenses />. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <prerequisites><maven>3.3.9</maven></prerequisites>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<prerequisites>
+		<maven>3.3.9</maven>
+	</prerequisites>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.emn</groupId>
@@ -17,7 +20,7 @@
 	<packaging>pom</packaging>
 	<version>4.0.3-SNAPSHOT</version>
 	<name>optiplace</name>
-	
+
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License v3</name>
@@ -25,13 +28,13 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
 		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
 		<connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</connection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 	<distributionManagement>
 		<repository>
 			<id>kimsufi-repository</id>
@@ -53,7 +56,7 @@
 			<url>http://91.121.120.36/maven/snapshot/</url>
 		</repository>
 	</repositories>
-	
+
 	<modules>
 		<!-- <module>entropy-main</module> -->
 		<module>optiplace-API</module>
@@ -123,14 +126,26 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-        <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>2.4.1</version>
-            <configuration>
-                <goals>deploy</goals>
-                <autoVersionSubmodules>true</autoVersionSubmodules>
-            </configuration>
-        </plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<goals>deploy</goals>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-api</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.4</version>
