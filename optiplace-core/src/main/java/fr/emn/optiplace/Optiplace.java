@@ -37,6 +37,7 @@ import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
+import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.heuristics.Static2Activated;
 import fr.emn.optiplace.view.SearchGoal;
@@ -238,7 +239,9 @@ public class Optiplace extends IOptiplace {
 		} else {
 			problem.getSolver().findSolution();
 		}
-		// TODO what to do with an ObjectiveReducer ?
+		if (strat.getReducer() != null && strat.getReducer() != ObjectiveReducer.IDENTITY) {
+			// TODO what to do with an ObjectiveReducer ?
+		}
 		target.setSearchTime(System.currentTimeMillis() - st);
 	}
 

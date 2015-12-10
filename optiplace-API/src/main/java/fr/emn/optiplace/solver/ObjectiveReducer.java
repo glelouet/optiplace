@@ -4,7 +4,7 @@ package fr.emn.optiplace.solver;
  * Reduce the next target value when a solution is found. Is immutable and
  * should remain so.<br />
  * overload {@link #reduce(int)} to set different behaviour.
- * 
+ *
  * @author guillaume
  */
 public class ObjectiveReducer {
@@ -54,7 +54,7 @@ public class ObjectiveReducer {
 	/** reducer that does nothing */
 	public static final ObjectiveReducer IDENTITY = new ObjectiveReducer(1);
 
-	/** reduce that set the return to 0 */
+	/** reducer setting the return to 0 */
 	public static final ObjectiveReducer ZERO = new ObjectiveReducer(0);
 
 }
