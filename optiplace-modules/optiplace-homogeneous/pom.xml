@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>fr.emn.optiplace</groupId>
 		<artifactId>modules</artifactId>
-		<version>4.0.3-SNAPSHOT</version>
+		<version>4.0.2</version>
 	</parent>
 	<artifactId>optiplace-homogeneous</artifactId>
   <groupId>fr.emn.optiplace.modules</groupId>

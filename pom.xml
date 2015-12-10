@@ -8,8 +8,7 @@
 	General Public License for more details. ~ ~ You should have received a copy 
 	of the GNU Lesser General Public License ~ along with Entropy. If not, see 
 	<http://www.gnu.org/licenses />. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<prerequisites>
 		<maven>3.3.9</maven>
 	</prerequisites>
@@ -18,7 +17,7 @@
 	<groupId>fr.emn</groupId>
 	<artifactId>optiplace</artifactId>
 	<packaging>pom</packaging>
-	<version>4.0.3-SNAPSHOT</version>
+	<version>4.0.2</version>
 	<name>optiplace</name>
 
 	<licenses>
@@ -33,7 +32,7 @@
 		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
 		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
 		<connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</connection>
-		<tag>HEAD</tag>
+		<tag>optiplace-4.0.2</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
