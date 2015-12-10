@@ -3,6 +3,7 @@ package fr.emn.optiplace.network;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,58 +11,100 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.network.data.Link;
+import fr.emn.optiplace.network.data.Router;
+import fr.emn.optiplace.network.data.VMGroup;
 import fr.emn.optiplace.solver.choco.Bridge;
+import fr.emn.optiplace.view.ProvidedDataReader;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
+ * store data related to a
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
-public class NetworkData {
+public class NetworkData implements ProvidedDataReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkData.class);
 
 	//////////////////////////////////////////////
 	// VM use part
-	//////////////////////////////////////////////
+	/////////////////////////////////////////////// **
+	/**
+	 * * couple of VM. The vms are not final because modifying them reduces memory
+	 * management overhead in Set based collections.
+	 * 
+	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
+	 *
+	 */
+	public final class VMCouple {
 
-	public static class VMGroup extends ManagedElement {
+		// for easier test we ensure at construction that v0.hascode<v1.hascode
+		// and v0.hashcode==v1.hashcode =>v0.name.compareToIgnoreCase(v1.name) >=0
+		// (so v0<v1)
+		VM v0, v1;
+		int hashcode;
+		String toString = null;
 
-		public final int use;
-		public final int hashcode;
-
-		/**
-		 *
-		 */
-		public VMGroup(String name, int use) {
-			super(name);
-			this.use = use;
-			hashcode = name.toLowerCase().hashCode() + use;
+		public VMCouple(VM v0, VM v1) {
+			update(v0, v1);
 		}
 
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (this == obj) {
-				return true;
-			}
-			if (obj.getClass() == VMGroup.class) {
-				VMGroup g2 = (VMGroup) obj;
-				return g2.name.equalsIgnoreCase(name) && g2.use == use;
-			}
-			return false;
+		/**
+		 * protected copy constructor that does not check the data.
+		 * 
+		 * @param other
+		 */
+		protected VMCouple(VMCouple other) {
+			v0 = other.v0;
+			v1 = other.v1;
+			hashcode = other.hashcode;
+			toString = other.toString;
 		}
 
 		@Override
 		public int hashCode() {
 			return hashcode;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || obj.getClass() != VMCouple.class)
+				return false;
+			VMCouple o = (VMCouple) obj;
+			return o.v0.equals(v0) && o.v1.equals(v1);
+		}
+
+		@Override
+		public String toString() {
+			if (toString == null)
+				toString = "couple{" + v0 + ", " + v1 + ")";
+			return toString;
+		}
+
+		@Override
+		public VMCouple clone() {
+			return new VMCouple(this);
+		}
+
+		/** update the internal VM value */
+		public void update(VM v0, VM v1) {
+			if (v1.hashCode() < v0.hashCode() || v1.hashCode() == v0.hashCode() && v0.name.compareToIgnoreCase(v1.name) > 0) {
+				this.v1 = v0;
+				this.v0 = v1;
+			} else {
+				this.v0 = v0;
+				this.v1 = v1;
+			}
+			hashcode = v0.hashCode() + v1.hashCode();
+			toString = null;
 		}
 	}
 
@@ -69,16 +112,7 @@ public class NetworkData {
 
 	protected HashMap<String, VMGroup> name2group = new HashMap<>();
 
-	public int use(VM vm1, VM vm2) {
-		if (vm1 == null || vm2 == null || vm1.equals(vm2)) {
-			return 0;
-		}
-		VMGroup g = vm2group.get(vm1);
-		if (g.equals(vm2group.get(vm2))) {
-			return g.use;
-		}
-		return 0;
-	}
+	protected HashMap<VMGroup, Set<VM>> group2vms = new HashMap<>();
 
 	/**
 	 * create a group if no group with given name exists
@@ -96,6 +130,7 @@ public class NetworkData {
 		if (ret == null) {
 			ret = new VMGroup(name, use);
 			name2group.put(name, ret);
+			group2vms.put(ret, new HashSet<>());
 			return ret;
 		} else {
 			return ret.use == use ? ret : null;
@@ -119,23 +154,57 @@ public class NetworkData {
 		if (g2 == null) {
 			return false;
 		}
+		Set<VM> groupSet = group2vms.get(g2);
 		for (VM v : vms) {
 			vm2group.put(v, g2);
+			groupSet.add(v);
 		}
 		return true;
+	}
+
+	protected TObjectIntHashMap<VMCouple> couple2use = new TObjectIntHashMap<VMCouple>();
+
+	// instead of using a new VMCouple every time we want to check/remove we
+	// instead modify this couple.
+	private final VMCouple internalCouple = new VMCouple(null, null);
+
+	public void setUse(VM v0, VM v1, int use) {
+		couple2use.put(new VMCouple(v0, v1), use);
+	}
+
+	public void delUse(VM v0, VM v1) {
+		internalCouple.update(v0, v1);
+		couple2use.remove(internalCouple);
+	}
+
+	/**
+	 * get the network use between two VM. If there is a direct use specified,
+	 * this value is returned ; if the two VM belong to a group , the group value
+	 * is returned ; else 0 is returned
+	 * 
+	 * @param vm1
+	 *          a VM
+	 * @param vm2
+	 *          another VM
+	 * @return the known connection use of the couple of VM
+	 */
+	public int use(VM vm1, VM vm2) {
+		if (vm1 == null || vm2 == null || vm1.equals(vm2)) {
+			return 0;
+		}
+		internalCouple.update(vm1, vm2);
+		if (couple2use.contains(internalCouple))
+			return couple2use.get(internalCouple);
+		VMGroup g = vm2group.get(vm1);
+		if (g != null && g.equals(vm2group.get(vm2))) {
+			return g.use;
+		}
+		return 0;
 	}
 
 	//////////////////////////////////////////////////
 	// Links between Node and extern
 	//////////////////////////////////////////////////
-
-	public static class Router extends VMHoster {
-
-		public Router(String name) {
-			super(name);
-		}
-
-	}
 
 	protected HashMap<String, Router> name2router = new HashMap<>();
 
@@ -147,49 +216,6 @@ public class NetworkData {
 		ret = new Router(name);
 		name2router.put(name, ret);
 		return ret;
-	}
-
-	public class Link {
-
-		public final String v0, v1;
-		public final int hashCode;
-
-		public Link(String v0, String v1) {
-			if (v0.compareToIgnoreCase(v1) < 0) {
-				String t = v0;
-				v0 = v1;
-				v1 = t;
-			}
-			this.v0 = v0;
-			this.v1 = v1;
-			hashCode = v0.hashCode() + v1.hashCode();
-		}
-
-		@Override
-		public int hashCode() {
-			return hashCode;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (obj == this) {
-				return true;
-			}
-			if (obj.getClass() == this.getClass()) {
-				Link o = (Link) obj;
-				return o.v0.equals(v0) && o.v1.equals(v1);
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "Link[" + v0 + "-" + v1 + "]";
-		}
-
 	}
 
 	/** for each known hoster the list of links it has */
@@ -311,34 +337,67 @@ public class NetworkData {
 	 * 
 	 * @return a new bridge. This
 	 */
-	public DataBridge bridge(Bridge b) {
-		return new DataBridge(b);
+	public NetworkDataBridge bridge(Bridge b) {
+		return new NetworkDataBridge(b);
 	}
 
-	public class DataBridge {
+	public class NetworkDataBridge {
 
 		final int[] NO_LINK = {};
 
-		protected Link[] linksByIndex = new Link[link2capa.size()];
-		protected TObjectIntHashMap<Link> revLinks = new TObjectIntHashMap<>(link2capa.size(),
-				Constants.DEFAULT_LOAD_FACTOR, -1);
-		protected int[] linkCapa = new int[link2capa.size()];
+		protected Link[] linksByIndex;
+		protected TObjectIntHashMap<Link> revLinks;
+		protected int[] linkCapaByIndex;
+
+		protected VMCouple[] couplesByIndex;
+		protected TObjectIntHashMap<VMCouple> revCouples;
+		protected int[] coupleUseByIndex;
 
 		// matrix of links index to go from hoster i to hoster j
 		protected int[][][] hoster2hoster2links;
 
 		protected final Bridge b;
 
-		public DataBridge(Bridge b) {
+		public NetworkDataBridge(Bridge b) {
 			this.b = b;
 
 			// map link <=> index
+			linksByIndex = new Link[link2capa.size()];
+			revLinks = new TObjectIntHashMap<>(link2capa.size(), Constants.DEFAULT_LOAD_FACTOR, -1);
+			linkCapaByIndex = new int[link2capa.size()];
 			int idx = 0;
 			for (Entry<Link, Integer> e : link2capa.entrySet()) {
 				linksByIndex[idx] = e.getKey();
 				revLinks.put(e.getKey(), idx);
-				linkCapa[idx] = e.getValue();
+				linkCapaByIndex[idx] = e.getValue();
 				idx++;
+			}
+
+			// map VM couples <=> index
+			// first we get all the couples with non-null use
+			LinkedHashSet<VMCouple> couplesl = new LinkedHashSet<>();
+			Set<VMCouple> removedCouples = new HashSet<>();
+			for (VMCouple c : couple2use.keySet()) {
+				if (couple2use.get(c) == 0)
+					removedCouples.add(c);
+				else
+					couplesl.add(c);
+			}
+			for (Set<VM> set : group2vms.values()) {
+				for (VM v1 : set)
+					for (VM v2 : set)
+						if (!v1.equals(v2))
+							couplesl.add(new VMCouple(v1, v2));
+			}
+			couplesl.removeAll(removedCouples);
+			// then put them in the arrays
+			couplesByIndex = couplesl.toArray(new VMCouple[] {});
+			revCouples = new TObjectIntHashMap<>();
+			coupleUseByIndex = new int[couplesByIndex.length];
+			for(int i=0;i<couplesByIndex.length;i++) {
+				VMCouple c = couplesByIndex[i];
+				revCouples.put(c, i);
+				coupleUseByIndex[i] = use(c.v0, c.v1);
 			}
 
 			// matrice of links index to go from hoster i to hoster j
@@ -386,11 +445,15 @@ public class NetworkData {
 		}
 
 		/**
+		 * get the indexes of the links required to go from one hoster to another
 		 * 
 		 * @param h1
-		 *          the hoster
+		 *          the first hoster
 		 * @param h2
-		 * @return
+		 *          the second hoster
+		 * @return an empty array if an hoster is null, or there is no path from an
+		 *         hoster to another ; or an internal array containing the indexes
+		 *         of the links if there is a path linking those two hosters
 		 */
 		public int[] links(VMHoster h1, VMHoster h2) {
 			int idxFrom = b.vmHoster(h1), idxto = b.vmHoster(h2);
@@ -403,6 +466,18 @@ public class NetworkData {
 				return line[idxto];
 		}
 
+	}
+
+	@Override
+	public void readLine(String line) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString();
 	}
 
 }

@@ -8,9 +8,9 @@ import org.testng.annotations.Test;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.network.NetworkData.Link;
-import fr.emn.optiplace.network.NetworkData.Router;
-import fr.emn.optiplace.network.NetworkData.VMGroup;
+import fr.emn.optiplace.network.data.Link;
+import fr.emn.optiplace.network.data.Router;
+import fr.emn.optiplace.network.data.VMGroup;
 
 
 /**

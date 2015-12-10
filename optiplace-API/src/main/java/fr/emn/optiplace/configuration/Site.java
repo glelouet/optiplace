@@ -8,7 +8,7 @@ package fr.emn.optiplace.configuration;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
-public class Site extends ManagedElement {
+public final class Site extends ManagedElement {
 
 	public Site(String name) {
 		super(name);

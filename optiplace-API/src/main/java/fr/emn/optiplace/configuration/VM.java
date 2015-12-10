@@ -15,7 +15,7 @@ package fr.emn.optiplace.configuration;
  * 
  * @author Guillaume Le Louët
  */
-public class VM extends ManagedElement {
+public final class VM extends ManagedElement {
 
 	/**
 	 * @param name

@@ -7,7 +7,7 @@ package fr.emn.optiplace.configuration;
  * @author Guillaume Le Louët
  *
  */
-public class Extern extends VMHoster {
+public final class Extern extends VMHoster {
 
 	public Extern(String name) {
 		super(name);
