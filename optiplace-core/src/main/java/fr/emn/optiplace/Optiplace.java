@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.objective.ObjectiveManager;
 import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
@@ -239,8 +240,18 @@ public class Optiplace extends IOptiplace {
 		} else {
 			problem.getSolver().findSolution();
 		}
-		if (strat.getReducer() != null && strat.getReducer() != ObjectiveReducer.IDENTITY) {
-			// TODO what to do with an ObjectiveReducer ?
+		ObjectiveReducer or = strat.getReducer();
+		if (or != null) {
+			@SuppressWarnings("serial")
+			ObjectiveManager<IntVar, Integer> om = new ObjectiveManager<IntVar, Integer>(problem.getObjective(),
+					ResolutionPolicy.MINIMIZE, true) {
+				@Override
+				public void postDynamicCut() throws ContradictionException {
+					objective.updateBounds(bestProvedLB.intValue(),
+							Math.min(or.reduce(bestProvedUB.intValue()), bestProvedUB.intValue()) - 1, this);
+				}
+			};
+			problem.set(om);
 		}
 		target.setSearchTime(System.currentTimeMillis() - st);
 	}
@@ -249,8 +260,7 @@ public class Optiplace extends IOptiplace {
 	public void extractData() {
 		try {
 			problem.restoreLastSolution();
-		}
-		catch (ContradictionException e) {
+		} catch (ContradictionException e) {
 			throw new UnsupportedOperationException(e);
 		}
 		IMeasures m = problem.getSolver().getMeasures();
