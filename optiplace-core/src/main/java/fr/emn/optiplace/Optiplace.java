@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
@@ -199,8 +200,9 @@ public class Optiplace extends IOptiplace {
 		}
 		// then add default heuristics.
 		ResourceSpecification memSpec = problem.specs("mem");
-		if (memSpec == null && !problem.knownResources().isEmpty())
+		if (memSpec == null && !problem.knownResources().isEmpty()) {
 			memSpec = problem.specs(problem.knownResources().iterator().next());
+		}
 		if (memSpec != null) {
 			strats.addAll(new StickVMsHeuristic(memSpec).getHeuristics(problem));
 		}
@@ -242,6 +244,12 @@ public class Optiplace extends IOptiplace {
 
 	@Override
 	public void extractData() {
+		try {
+			problem.restoreLastSolution();
+		}
+		catch (ContradictionException e) {
+			throw new UnsupportedOperationException(e);
+		}
 		IMeasures m = problem.getSolver().getMeasures();
 		if (m.getSolutionCount() < 1) {
 			return;

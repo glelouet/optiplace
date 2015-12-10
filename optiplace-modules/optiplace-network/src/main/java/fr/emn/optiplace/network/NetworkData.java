@@ -164,7 +164,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	// instead of using a new VMCouple every time we want to check/remove we
 	// instead modify this couple.
-	private final VMCouple internalCouple = new VMCouple(null, null);
+	private final VMCouple internalCouple = new VMCouple(new VM(""), new VM(""));
 
 	public void setUse(VM v0, VM v1, int use) {
 		couple2use.put(new VMCouple(v0, v1), use);
