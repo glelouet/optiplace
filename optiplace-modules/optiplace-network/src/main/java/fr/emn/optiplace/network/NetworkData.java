@@ -1,14 +1,7 @@
 package fr.emn.optiplace.network;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -25,7 +18,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
  * store data related to a
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
@@ -40,7 +33,7 @@ public class NetworkData implements ProvidedDataReader {
 	/**
 	 * * couple of VM. The vms are not final because modifying them reduces memory
 	 * management overhead in Set based collections.
-	 * 
+	 *
 	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
 	 *
 	 */
@@ -59,7 +52,7 @@ public class NetworkData implements ProvidedDataReader {
 
 		/**
 		 * protected copy constructor that does not check the data.
-		 * 
+		 *
 		 * @param other
 		 */
 		protected VMCouple(VMCouple other) {
@@ -76,18 +69,21 @@ public class NetworkData implements ProvidedDataReader {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == this)
+			if (obj == this) {
 				return true;
-			if (obj == null || obj.getClass() != VMCouple.class)
+			}
+			if (obj == null || obj.getClass() != VMCouple.class) {
 				return false;
+			}
 			VMCouple o = (VMCouple) obj;
 			return o.v0.equals(v0) && o.v1.equals(v1);
 		}
 
 		@Override
 		public String toString() {
-			if (toString == null)
+			if (toString == null) {
 				toString = "couple{" + v0 + ", " + v1 + ")";
+			}
 			return toString;
 		}
 
@@ -183,7 +179,7 @@ public class NetworkData implements ProvidedDataReader {
 	 * get the network use between two VM. If there is a direct use specified,
 	 * this value is returned ; if the two VM belong to a group , the group value
 	 * is returned ; else 0 is returned
-	 * 
+	 *
 	 * @param vm1
 	 *          a VM
 	 * @param vm2
@@ -195,8 +191,9 @@ public class NetworkData implements ProvidedDataReader {
 			return 0;
 		}
 		internalCouple.update(vm1, vm2);
-		if (couple2use.contains(internalCouple))
+		if (couple2use.contains(internalCouple)) {
 			return couple2use.get(internalCouple);
+		}
 		VMGroup g = vm2group.get(vm1);
 		if (g != null && g.equals(vm2group.get(vm2))) {
 			return g.use;
@@ -228,7 +225,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	/**
 	 * add capacity between two elements
-	 * 
+	 *
 	 * @param h1
 	 *          the first element
 	 * @param h2
@@ -259,11 +256,12 @@ public class NetworkData implements ProvidedDataReader {
 				hoster2links.put(h2, set2);
 			}
 		} else {
-			for (Link l : set1)
+			for (Link l : set1) {
 				if (l.v0.equals(h1) || l.v1.equals(h1)) {
 					link = l;
 					break;
 				}
+			}
 		}
 		if (link == null) {
 			link = new Link(h1, h2);
@@ -272,17 +270,19 @@ public class NetworkData implements ProvidedDataReader {
 			link2capa.put(link, capa);
 		} else {
 			int newCapa = link2capa.get(link) + capa;
-			if (newCapa != 0)
+			if (newCapa != 0) {
 				link2capa.put(link, newCapa);
-			else
+			} else {
 				link2capa.remove(link);
+			}
 		}
 		return link;
 	}
 
 	public Link addLink(VMHoster h1, VMHoster h2, int capa) {
-		if (h2 == null | h1 == null)
+		if (h2 == null | h1 == null) {
 			return null;
+		}
 		return addLink(h1.getName(), h2.getName(), capa);
 	}
 
@@ -292,7 +292,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	/**
 	 * deep-first exploration to find the first path from an hoster to another
-	 * 
+	 *
 	 * @param from
 	 *          the initial hoster
 	 * @param to
@@ -301,14 +301,16 @@ public class NetworkData implements ProvidedDataReader {
 	 *         same.
 	 */
 	public List<Link> findPath(String from, String to) {
-		if (from == null || to == null || from.equals(to))
+		if (from == null || to == null || from.equals(to)) {
 			return null;
+		}
 		return findPath(from, to, new HashSet<>(Arrays.asList(from)));
 	}
 
 	public List<Link> findPath(VMHoster fromhost, VMHoster tohost) {
-		if (fromhost == null || tohost == null)
+		if (fromhost == null || tohost == null) {
 			return null;
+		}
 		return findPath(fromhost.getName(), tohost.getName());
 	}
 
@@ -316,8 +318,9 @@ public class NetworkData implements ProvidedDataReader {
 	protected List<Link> findPath(String from, String to, Set<String> avoid) {
 		for (Link l : hoster2links.get(from)) {
 			String target = l.v0.equals(from) ? l.v1 : l.v0;
-			if (target.equals(to))
+			if (target.equals(to)) {
 				return new LinkedList<>(Arrays.asList(l));
+			}
 			if (!avoid.contains(target)) {
 				avoid.add(target);
 				List<Link> list = findPath(target, to, avoid);
@@ -336,7 +339,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	/**
 	 * create a new bridge that associates Links to indexes
-	 * 
+	 *
 	 * @return a new bridge. This
 	 */
 	public NetworkDataBridge bridge(Bridge b) {
@@ -345,7 +348,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	/**
 	 * Bridge between a {@link NetworkData} and a {@link ReconfigurationProblem}.
-	 * 
+	 *
 	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
 	 *
 	 */
@@ -386,16 +389,20 @@ public class NetworkData implements ProvidedDataReader {
 			LinkedHashSet<VMCouple> couplesl = new LinkedHashSet<>();
 			Set<VMCouple> removedCouples = new HashSet<>();
 			for (VMCouple c : couple2use.keySet()) {
-				if (couple2use.get(c) == 0)
+				if (couple2use.get(c) == 0) {
 					removedCouples.add(c);
-				else
+				} else {
 					couplesl.add(c);
+				}
 			}
 			for (Set<VM> set : group2vms.values()) {
-				for (VM v1 : set)
-					for (VM v2 : set)
-						if (!v1.equals(v2))
+				for (VM v1 : set) {
+					for (VM v2 : set) {
+						if (!v1.equals(v2)) {
 							couplesl.add(new VMCouple(v1, v2));
+						}
+					}
+				}
 			}
 			couplesl.removeAll(removedCouples);
 			IConfiguration src = b.source();
@@ -438,10 +445,11 @@ public class NetworkData implements ProvidedDataReader {
 			}
 			// then upper right diag : i>j
 			for (int i = 0; i < b.nbHosters(); i++) {
-				if (hoster2hoster2links[i] != null)
+				if (hoster2hoster2links[i] != null) {
 					for (int j = i + 1; j < b.nbHosters(); j++) {
 						hoster2hoster2links[i][j] = hoster2hoster2links[j] == null ? NO_LINK : hoster2hoster2links[j][i];
 					}
+				}
 
 			}
 		}
@@ -451,7 +459,7 @@ public class NetworkData implements ProvidedDataReader {
 		}
 
 		public Link link(int idx) {
-			return (idx < 0 || idx >= linksByIndex.length) ? null : linksByIndex[idx];
+			return idx < 0 || idx >= linksByIndex.length ? null : linksByIndex[idx];
 		}
 
 		public int nbLinks() {
@@ -460,7 +468,7 @@ public class NetworkData implements ProvidedDataReader {
 
 		/**
 		 * get the indexes of the links required to go from one hoster to another
-		 * 
+		 *
 		 * @param h1
 		 *          the first hoster
 		 * @param h2
@@ -471,13 +479,15 @@ public class NetworkData implements ProvidedDataReader {
 		 */
 		public int[] links(VMHoster h1, VMHoster h2) {
 			int idxFrom = b.vmHoster(h1), idxto = b.vmHoster(h2);
-			if (idxFrom == -1 || idxto == -1)
+			if (idxFrom == -1 || idxto == -1) {
 				return NO_LINK;
+			}
 			int[][] line = hoster2hoster2links[idxFrom];
-			if (line == null)
+			if (line == null) {
 				return NO_LINK;
-			else
+			} else {
 				return line[idxto];
+			}
 		}
 
 		public int vmcouple(VMCouple c) {
@@ -485,7 +495,7 @@ public class NetworkData implements ProvidedDataReader {
 		}
 
 		public VMCouple vmcCouple(int idx) {
-			return (idx < 0 || idx >= couplesByIndex.length) ? null : couplesByIndex[idx];
+			return idx < 0 || idx >= couplesByIndex.length ? null : couplesByIndex[idx];
 		}
 
 		public int nbCouples() {
@@ -497,7 +507,7 @@ public class NetworkData implements ProvidedDataReader {
 	@Override
 	public void readLine(String line) {
 		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("implement this");
 	}
 
 	@Override

@@ -1,6 +1,8 @@
+
 package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
@@ -9,6 +11,7 @@ import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Grants acces to the management of variables in a view.
@@ -93,13 +96,13 @@ public class VariablesManager {
 		return ret;
 	}
 
-  /**
-   * creates an int variables whom ranges goes from minimum value to maximum
-   * value
-   */
+	/**
+	 * creates an int variables whom ranges goes from minimum value to maximum
+	 * value
+	 */
 	public IntVar createBoundIntVar(String name) {
-    return createBoundIntVar(name, VF.MIN_INT_BOUND, VF.MAX_INT_BOUND);
-  }
+		return createBoundIntVar(name, VF.MIN_INT_BOUND, VF.MAX_INT_BOUND);
+	}
 
 	////////////////////////////////////////////////
 	// operations on variables
@@ -111,9 +114,13 @@ public class VariablesManager {
 	 * @return a new variable constrained to ret=left+right
 	 */
 	public IntVar plus(IntVar left, IntVar right) {
-		IntVar ret = createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
-				left.getUB() + right.getUB());
-		getSolver().post(ICF.sum(new IntVar[] { left, right }, ret));
+		IntVar ret = right.hasEnumeratedDomain() && left.hasEnumeratedDomain()
+		    ? createEnumIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(), left.getUB() + right.getUB())
+		    : createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
+		        left.getUB() + right.getUB());
+		getSolver().post(ICF.sum(new IntVar[] {
+		    left, right
+		}, ret));
 		return ret;
 	}
 
@@ -132,7 +139,9 @@ public class VariablesManager {
 			name = "sum(" + Arrays.asList(vars) + ")";
 		}
 		int[] minmax = getMinMax(vars);
-		IntVar ret = createBoundIntVar(name, minmax[0], minmax[1]);
+		boolean enumerated = Stream.of(vars).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
+		IntVar ret = enumerated ? createEnumIntVar(name, minmax[0], minmax[1])
+		    : createBoundIntVar(name, minmax[0], minmax[1]);
 		getSolver().post(ICF.sum(vars, ret));
 		return ret;
 	}
@@ -169,7 +178,7 @@ public class VariablesManager {
 			return createIntegerConstant(valTrue);
 		}
 		if (x.isInstantiated()) {
-			return createIntegerConstant(x.contains(1)?valTrue:valFalse);
+			return createIntegerConstant(x.contains(1) ? valTrue : valFalse);
 		}
 		return linear(x, valTrue - valFalse, valFalse);
 	}
@@ -274,7 +283,9 @@ public class VariablesManager {
 			}
 			sb.append(v.getName() + "⋅" + m);
 		}
-		IntVar ret = createBoundIntVar(sb.append("]").toString(), min, max);
+		boolean enumerated = Stream.of(pos).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
+		IntVar ret = enumerated ? createEnumIntVar(sb.append("]").toString(), min, max)
+		    : createBoundIntVar(sb.append("]").toString(), min, max);
 		getSolver().post(ICF.scalar(pos, mults, ret));
 		return ret;
 	}
@@ -293,10 +304,10 @@ public class VariablesManager {
 		}
 		// precheck equality
 		if (x.isInstantiated() && !y.contains(x.getValue())) {
-				return createBoolVar(name, false);
+			return createBoolVar(name, false);
 		}
 		if (y.isInstantiated() && !x.contains(y.getValue())) {
-				return createBoolVar(name, false);
+			return createBoolVar(name, false);
 		}
 		if (x.isInstantiated() && y.isInstantiated()) {
 			return createBoolVar(name, true);
@@ -323,7 +334,7 @@ public class VariablesManager {
 			name = "(" + x.getName() + "?=" + y + ")";
 		}
 		// precheck equality
-		if(x.isInstantiated()){
+		if (x.isInstantiated()) {
 			return createBoolVar(name, x.isInstantiatedTo(y));
 		}
 		if (!x.contains(y)) {
@@ -409,7 +420,9 @@ public class VariablesManager {
 			return values[0];
 		}
 		int[] minmax = getMinMax(values);
-		IntVar ret = createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
+		IntVar ret = enumerated ? createEnumIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1])
+		    : createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		maxOfList(ret, values);
 		return ret;
 	}
@@ -444,7 +457,9 @@ public class VariablesManager {
 				max = idv.getUB();
 			}
 		}
-		return new int[] { min, max };
+		return new int[] {
+		    min, max
+		};
 	}
 
 	/**
@@ -459,7 +474,9 @@ public class VariablesManager {
 			return values[0];
 		}
 		int[] minmax = getMinMax(values);
-		IntVar ret = createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
+		IntVar ret = enumerated ? createEnumIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1])
+		    : createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		minOfList(ret, values);
 
 		return ret;
@@ -472,7 +489,9 @@ public class VariablesManager {
 	 */
 	public IntVar nth(IntVar index, IntVar[] array) {
 		int[] minmax = getMinMax(array);
-		IntVar ret = createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
+		boolean enumerated = Stream.of(array).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
+		IntVar ret = enumerated ? createEnumIntVar(foldSetNames(array), minmax[0], minmax[1])
+		    : createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
 		nth(index, array, ret);
 		return ret;
 	}

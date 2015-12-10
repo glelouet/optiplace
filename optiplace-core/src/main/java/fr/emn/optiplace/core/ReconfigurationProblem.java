@@ -10,12 +10,7 @@
 
 package fr.emn.optiplace.core;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
@@ -25,20 +20,11 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -403,7 +389,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		IntVar ret = vmHosters[idx];
 		if (ret == null) {
 			VM vm = b.vm(idx);
-			ret = v.createBoundIntVar(vmName(idx) + "_hoster", c.isWaiting(vm) ? -1 : 0, c.nbNodes() + c.nbExterns());
+			ret = v.createEnumIntVar(vmName(idx) + "_hoster", c.isWaiting(vm) ? -1 : 0, c.nbNodes() + c.nbExterns());
 			switchState(vm, ret, getNode(idx), VF.offset(getExtern(idx), c.nbNodes()), v.createIntegerConstant(-1));
 			vmHosters[idx] = ret;
 		}
@@ -443,7 +429,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = vmSites[vmidx];
 		if (ret == null) {
-			ret = v.createBoundIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
+			ret = v.createEnumIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
 			post(ICF.element(ret, hosterSite, getHoster(vmidx), -1, "detect"));
 			vmSites[vmidx] = ret;
 		}
@@ -483,7 +469,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = nodesCards[idx];
 		if (ret == null) {
-			ret = v.createBoundIntVar(nodeName(idx) + ".#VMs", 0, c.nbVMs());
+			ret = v.createEnumIntVar(nodeName(idx) + ".#VMs", 0, c.nbVMs());
 			post(SetConstraintsFactory.cardinality(nodeVMs(idx), ret));
 			nodesCards[idx] = ret;
 		}
@@ -502,7 +488,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = externCards[idx];
 		if (ret == null) {
-			ret = v.createBoundIntVar(externName(idx) + ".#VMs", 0, c.nbVMs());
+			ret = v.createEnumIntVar(externName(idx) + ".#VMs", 0, c.nbVMs());
 			post(SetConstraintsFactory.cardinality(externVMs(idx), ret));
 			externCards[idx] = ret;
 		}
@@ -564,7 +550,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar nbHosters() {
 		if (nbHosters == null) {
-			nbHosters = v.createBoundIntVar("nbHosters", 0, c.nbNodes());
+			nbHosters = v.createEnumIntVar("nbHosters", 0, c.nbNodes());
 			post(ICF.sum(isHosters(), nbHosters));
 		}
 		return nbHosters;
@@ -572,7 +558,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	HashMap<String, IntVar[]> hostUsedResources = new HashMap<>();
 
-	// FIXME not correct
+	// FIXME not correct if not on host
 	@Override
 	public IntVar getHostUse(String resource, int vmIndex) {
 		if (vmIndex < 0) {
