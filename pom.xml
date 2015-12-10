@@ -9,6 +9,7 @@
 	of the GNU Lesser General Public License ~ along with Entropy. If not, see 
 	<http://www.gnu.org/licenses />. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <prerequisites><maven>3.3.9</maven></prerequisites>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.emn</groupId>
@@ -124,6 +125,7 @@
 			</plugin>
         <plugin>
             <artifactId>maven-release-plugin</artifactId>
+            <version>2.4.1</version>
             <configuration>
                 <goals>deploy</goals>
                 <autoVersionSubmodules>true</autoVersionSubmodules>
