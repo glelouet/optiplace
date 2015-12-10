@@ -1,21 +1,22 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>optiplace-graphical</artifactId>
+  <name>optiplace-graphical</name>
+  <description>graphical presentation of a configuration.</description>
+  <groupId>fr.emn.optiplace</groupId>
+
 	<repositories>
-        <repository>
-            <id>entropy.repos</id>
-            <url>http://entropy.gforge.inria.fr/repos/</url>
-        </repository>
-        <repository>
-            <id>entropy.emn.repos</id>
-            <url>http://www.emn.fr/z-info/entropy/repository/</url>
-        </repository>
-        <repository>
-            <id>bitbucket.org</id>
-            <name>Internal Maven2 Repository</name>
-            <url>https://bitbucket.org/W1M0/maven/raw/tip/2/</url>
-        </repository>
+		<repository>
+			<id>kimsufi-stable</id>
+			<url>http://91.121.120.36/maven/stable</url>
+		</repository>
+		<repository>
+			<id>kimsufi-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
+		</repository>
 	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>fr.emn.optiplace</groupId>
@@ -67,7 +68,4 @@
 		<groupId>fr.emn</groupId>
 		<version>4.0.2-SNAPSHOT</version>
 	</parent>
-	<name>optiplace-graphical</name>
-	<description>graphical presentation of a configuration.</description>
-	<groupId>fr.emn.optiplace</groupId>
 </project>

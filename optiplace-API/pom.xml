@@ -1,12 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>optiplace</artifactId>
 		<groupId>fr.emn</groupId>
 		<version>4.0.2-SNAPSHOT</version>
 	</parent>
+  <groupId>fr.emn.optiplace</groupId>
 	<artifactId>optiplace-API</artifactId>
 	<name>optiplace-API</name>
+
+	<repositories>
+		<repository>
+			<id>kimsufi-stable</id>
+			<url>http://91.121.120.36/maven/stable</url>
+		</repository>
+		<repository>
+			<id>kimsufi-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -39,5 +53,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<groupId>fr.emn.optiplace</groupId>
 </project>

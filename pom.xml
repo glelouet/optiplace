@@ -16,6 +16,7 @@
 	<packaging>pom</packaging>
 	<version>4.0.2-SNAPSHOT</version>
 	<name>optiplace</name>
+	
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License v3</name>
@@ -23,6 +24,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	
 	<scm>
 		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
 		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
@@ -49,11 +51,8 @@
 			<id>kimsufi-snapshots</id>
 			<url>http://91.121.120.36/maven/snapshot/</url>
 		</repository>
-		<repository>
-			<id>choco.repos</id>
-			<url>http://www.emn.fr/z-info/choco-repo/mvn/repository/</url>
-		</repository>
 	</repositories>
+	
 	<modules>
 		<!-- <module>entropy-main</module> -->
 		<module>optiplace-API</module>

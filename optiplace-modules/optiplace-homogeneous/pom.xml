@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>fr.emn.optiplace</groupId>
@@ -6,6 +7,20 @@
 		<version>4.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>optiplace-homogeneous</artifactId>
+  <groupId>fr.emn.optiplace.modules</groupId>
+  <name>optiplace-homogeneous</name>
+
+	<repositories>
+		<repository>
+			<id>kimsufi-stable</id>
+			<url>http://91.121.120.36/maven/stable</url>
+		</repository>
+		<repository>
+			<id>kimsufi-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>fr.emn.optiplace</groupId>
@@ -23,6 +38,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<groupId>fr.emn.optiplace.modules</groupId>
-	<name>optiplace-homogeneous</name>
 </project>

@@ -1,37 +1,40 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>fr.emn.optiplace</groupId>
-    <artifactId>modules</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
-  </parent>
-  <groupId>fr.emn.optiplace.modules</groupId>
-  <artifactId>optiplace-network</artifactId>
-  <repositories>
-    <repository>
-      <id>lelouet-snapshots</id>
-      <url>http://91.121.120.36/maven/snapshot/</url>
-    </repository>
-    <repository>
-      <id>lelouet-stable</id>
-      <url>http://91.121.120.36/maven/stable/</url>
-    </repository>
-  </repositories>
-  <dependencies>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>fr.emn.optiplace</groupId>
-      <artifactId>optiplace-server</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.emn.optiplace</groupId>
+		<artifactId>modules</artifactId>
+		<version>4.0.2-SNAPSHOT</version>
+	</parent>
+	<groupId>fr.emn.optiplace.modules</groupId>
+	<artifactId>optiplace-network</artifactId>
+
+	<repositories>
+		<repository>
+			<id>kimsufi-stable</id>
+			<url>http://91.121.120.36/maven/stable</url>
+		</repository>
+		<repository>
+			<id>kimsufi-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.emn.optiplace</groupId>
+			<artifactId>optiplace-server</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>

@@ -1,45 +1,34 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-    <artifactId>modules</artifactId>
-    <packaging>pom</packaging>
-    <name>optiplace-modules</name>
-    <description>root project of optiplace modules</description>
-    <repositories>
-        <repository>
-            <id>kimsufi-stable</id>
-            <url>http://91.121.120.36/maven/stable</url>
-        </repository>
-        <repository>
-            <id>kimsufi-snapshots</id>
-            <url>http://91.121.120.36/maven/snapshot/</url>
-        </repository>
-    </repositories>
+	<artifactId>modules</artifactId>
+	<packaging>pom</packaging>
+	<name>optiplace-modules</name>
+	<description>root project of optiplace modules</description>
+	<groupId>fr.emn.optiplace</groupId>
 	<parent>
 		<artifactId>optiplace</artifactId>
 		<groupId>fr.emn</groupId>
 		<version>4.0.2-SNAPSHOT</version>
 	</parent>
-    
-    
-    <dependencies>
-        <dependency>
-            <groupId>fr.emn.optiplace</groupId>
-            <artifactId>optiplace-core</artifactId>
-        </dependency>
-    </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>kimsufi-repository</id>
-            <url>ftp://91.121.120.36:12345/stable</url>
-        </repository>
-        <snapshotRepository>
-            <id>kimsufi-repository</id>
-            <url>ftp://91.121.120.36:12345/snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <properties>
-        <privateProjectSuffix>-private</privateProjectSuffix>
-    </properties>
+
+	<repositories>
+		<repository>
+			<id>kimsufi-stable</id>
+			<url>http://91.121.120.36/maven/stable</url>
+		</repository>
+		<repository>
+			<id>kimsufi-snapshots</id>
+			<url>http://91.121.120.36/maven/snapshot/</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>fr.emn.optiplace</groupId>
+			<artifactId>optiplace-core</artifactId>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -54,10 +43,9 @@
 	</build>
 	<modules>
 		<module>optiplace-power</module>
-        <module>optiplace-HA</module>
-        <module>optiplace-hotspot</module>
+		<module>optiplace-HA</module>
+		<module>optiplace-hotspot</module>
 		<module>optiplace-thermal</module>
-		
 		<module>optiplace-linearPower</module>
 		<module>optiplace-homogeneous</module>
 		<module>modules-tests</module>
@@ -94,5 +82,4 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<groupId>fr.emn.optiplace</groupId>
 </project>
