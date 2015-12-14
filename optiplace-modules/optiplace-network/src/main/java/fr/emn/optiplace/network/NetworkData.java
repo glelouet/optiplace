@@ -1,7 +1,7 @@
+
 package fr.emn.optiplace.network;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -14,7 +14,9 @@ import fr.emn.optiplace.network.data.VMGroup;
 import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.view.ProvidedDataReader;
 import gnu.trove.impl.Constants;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
+
 
 /**
  * store data related to a
@@ -221,7 +223,7 @@ public class NetworkData implements ProvidedDataReader {
 	protected Map<String, Set<Link>> hoster2links = new HashMap<>();
 
 	/** for each existing link, its capacity */
-	protected Map<Link, Integer> link2capa = new HashMap<>();
+	protected TObjectIntHashMap<Link> link2capa = new TObjectIntHashMap<>();
 
 	/**
 	 * add capacity between two elements
@@ -284,6 +286,36 @@ public class NetworkData implements ProvidedDataReader {
 			return null;
 		}
 		return addLink(h1.getName(), h2.getName(), capa);
+	}
+
+	public Link setLink(String hoster0name, String hoster1name, int capa) {
+		Link ret = null;
+		Set<Link> set1 = hoster2links.get(hoster0name);
+		if (set1 != null && !set1.isEmpty()) {
+			for (Link l : set1) {
+				if (l.v0.equals(hoster1name) || l.v1.equals(hoster1name)) {
+					ret = l;
+					break;
+				}
+			}
+		}
+		if (ret == null) {
+			return addLink(hoster0name, hoster1name, capa);
+		} else {
+			link2capa.put(ret, capa);
+		}
+		return ret;
+	}
+
+	public Link setLink(VMHoster h1, VMHoster h2, int capa) {
+		if (h2 == null | h1 == null) {
+			return null;
+		}
+		return setLink(h1.getName(), h2.getName(), capa);
+	}
+
+	public int getCapacity(Link l) {
+		return link2capa.get(l);
 	}
 
 	//////////////////////////////////////////////////
@@ -356,9 +388,9 @@ public class NetworkData implements ProvidedDataReader {
 
 		final int[] NO_LINK = {};
 
-		protected Link[] linksByIndex;
+		protected ArrayList<Link> linksByIndex;
 		protected TObjectIntHashMap<Link> revLinks;
-		protected int[] linkCapaByIndex;
+		protected TIntArrayList linkCapaByIndex;
 
 		protected VMCouple[] couplesByIndex;
 		protected TObjectIntHashMap<VMCouple> revCouples;
@@ -373,16 +405,11 @@ public class NetworkData implements ProvidedDataReader {
 			this.b = b;
 
 			// map link <=> index
-			linksByIndex = new Link[link2capa.size()];
-			revLinks = new TObjectIntHashMap<>(link2capa.size(), Constants.DEFAULT_LOAD_FACTOR, -1);
-			linkCapaByIndex = new int[link2capa.size()];
-			int idx = 0;
-			for (Entry<Link, Integer> e : link2capa.entrySet()) {
-				linksByIndex[idx] = e.getKey();
-				revLinks.put(e.getKey(), idx);
-				linkCapaByIndex[idx] = e.getValue();
-				idx++;
-			}
+			// we don't fill it now, links are stored in as they are requested
+			// see adLink(Link)
+			linksByIndex = new ArrayList<>();
+			revLinks = new TObjectIntHashMap<>(0, Constants.DEFAULT_LOAD_FACTOR, -1);
+			linkCapaByIndex = new TIntArrayList();
 
 			// map VM couples <=> index
 			// first we get all the couples with non-null use
@@ -407,11 +434,11 @@ public class NetworkData implements ProvidedDataReader {
 			couplesl.removeAll(removedCouples);
 			IConfiguration src = b.source();
 			couplesl.removeIf(c -> !(src.hasVM(c.v0) && src.hasVM(c.v1)));
-			// then put them in the arrays
+			// then put them in the mapping
 			couplesByIndex = couplesl.toArray(new VMCouple[] {});
 			revCouples = new TObjectIntHashMap<>();
 			coupleUseByIndex = new int[couplesByIndex.length];
-			for(int i=0;i<couplesByIndex.length;i++) {
+			for (int i = 0; i < couplesByIndex.length; i++) {
 				VMCouple c = couplesByIndex[i];
 				revCouples.put(c, i);
 				coupleUseByIndex[i] = use(c.v0, c.v1);
@@ -422,13 +449,13 @@ public class NetworkData implements ProvidedDataReader {
 			// first lower left diag : i<j
 			for (int i = 0; i < b.nbHosters(); i++) {
 				VMHoster from = b.vmHoster(i);
-				if (hoster2links.containsKey(from)) {
+				if (hoster2links.containsKey(from.getName())) {
 					hoster2hoster2links[i] = new int[b.nbHosters()][];
 					for (int j = 0; j < i; j++) {
 						VMHoster to = b.vmHoster(j);
-						if (hoster2links.containsKey(to)) {
-							List<Integer> l = findPath(from.getName(), to.getName()).stream().map(this::link)
-									.collect(Collectors.toList());
+						if (hoster2links.containsKey(to.getName())) {
+							List<Integer> l = findPath(from.getName(), to.getName()).stream().map(this::addLink)
+							    .collect(Collectors.toList());
 							hoster2hoster2links[i][j] = new int[l.size()];
 							for (int k = 0; k < l.size(); k++) {
 								hoster2hoster2links[i][j][k] = l.get(k);
@@ -459,26 +486,57 @@ public class NetworkData implements ProvidedDataReader {
 		}
 
 		public Link link(int idx) {
-			return idx < 0 || idx >= linksByIndex.length ? null : linksByIndex[idx];
+			return idx < 0 || idx >= linksByIndex.size() ? null : linksByIndex.get(idx);
 		}
 
+		/**
+		 * get the number of already added links
+		 *
+		 * @return the size of the known links collection.
+		 */
 		public int nbLinks() {
-			return linksByIndex.length;
+			return linksByIndex.size();
+		}
+
+		/**
+		 * get the index of a link, or add it and return the new index if not
+		 * present yet. subsequent calls to this method should return the same value
+		 *
+		 * @param l
+		 *          a link
+		 * @return the already present index if exists, or a new created index.
+		 */
+		protected int addLink(Link l) {
+			int ret = link(l);
+			if (ret == -1) {
+				ret = linksByIndex.size();
+				revLinks.put(l, ret);
+				linksByIndex.add(l);
+				linkCapaByIndex.add(link2capa.get(l));
+			}
+			return ret;
+		}
+
+		/**
+		 * get the indexes of the links required to go from one hoster to another
+		 * link to {@link #links(int, int)}
+		 */
+		public int[] links(VMHoster h1, VMHoster h2) {
+			return links(b.vmHoster(h1), b.vmHoster(h2));
 		}
 
 		/**
 		 * get the indexes of the links required to go from one hoster to another
 		 *
-		 * @param h1
+		 * @param idxFrom
 		 *          the first hoster
-		 * @param h2
+		 * @param idxto
 		 *          the second hoster
 		 * @return an empty array if an hoster is null, or there is no path from an
 		 *         hoster to another ; or an internal array containing the indexes
 		 *         of the links if there is a path linking those two hosters
 		 */
-		public int[] links(VMHoster h1, VMHoster h2) {
-			int idxFrom = b.vmHoster(h1), idxto = b.vmHoster(h2);
+		public int[] links(int idxFrom, int idxto) {
 			if (idxFrom == -1 || idxto == -1) {
 				return NO_LINK;
 			}
@@ -486,15 +544,17 @@ public class NetworkData implements ProvidedDataReader {
 			if (line == null) {
 				return NO_LINK;
 			} else {
-				return line[idxto];
+				int[] ret = line[idxto];
+				return ret;
 			}
+
 		}
 
 		public int vmcouple(VMCouple c) {
 			return revCouples.get(c);
 		}
 
-		public VMCouple vmcCouple(int idx) {
+		public VMCouple vmCouple(int idx) {
 			return idx < 0 || idx >= couplesByIndex.length ? null : couplesByIndex[idx];
 		}
 
@@ -502,17 +562,26 @@ public class NetworkData implements ProvidedDataReader {
 			return couplesByIndex.length;
 		}
 
+		/**
+		 * create and return a copy of the internal array. Don't call this inside a
+		 * loop.
+		 *
+		 * @return a copy of the internal array of use value for each couple index.
+		 */
+		public int[] coupleUseArray() {
+			return Arrays.copyOf(coupleUseByIndex, couplesByIndex.length);
+		}
+
 	}
 
 	@Override
 	public void readLine(String line) {
-		// TODO Auto-generated method stub
+		// TODO implement this and toString()
 		throw new UnsupportedOperationException("implement this");
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return super.toString();
 	}
 

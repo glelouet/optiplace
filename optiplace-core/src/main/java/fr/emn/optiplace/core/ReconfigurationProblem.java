@@ -31,6 +31,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
 import fr.emn.optiplace.solver.SolvingStatistics;
 import fr.emn.optiplace.solver.choco.Bridge;
+import fr.emn.optiplace.solver.choco.ConstraintHelper;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.VariablesManager;
 import fr.emn.optiplace.view.access.CoreView;
@@ -73,6 +74,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public VariablesManager v() {
 		return v;
+	}
+
+	public final ConstraintHelper h;
+
+	@Override
+	public ConstraintHelper h() {
+		return h;
 	}
 
 	/** The source configuration. */
@@ -274,6 +282,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		c = src;
 		b = new Bridge(src);
 		v = new VariablesManager(this);
+		h = new ConstraintHelper(this);
 		makeDynamicConfig();
 		removeHostTags();
 	}

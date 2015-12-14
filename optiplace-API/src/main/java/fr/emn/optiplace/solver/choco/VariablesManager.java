@@ -8,11 +8,7 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.solver.variables.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +61,30 @@ public class VariablesManager {
 		return VariableFactory.bounded(name, min, max, getSolver());
 	}
 
+	/**
+	 * create a Set var containing at most a given set of values
+	 * 
+	 * @param name
+	 *          the name of the var
+	 * @param values
+	 *          the array of values allowed in the variable
+	 * @return a new set that can contain from 0 to all of the values parameter.
+	 */
 	public SetVar createEnumSetVar(String name, int... values) {
 		return VariableFactory.set(name, values, getSolver());
+	}
+
+	/**
+	 * create a constant Set var containing exactly a given set of values
+	 * 
+	 * @param name
+	 *          the name of the var
+	 * @param values
+	 *          the array of values contained in the variable
+	 * @return a new set that contains all of the values parameter.
+	 */
+	public SetVar createFixedSet(String name, int... values) {
+		return VariableFactory.set(name, values, values, getSolver());
 	}
 
 	/**
@@ -482,7 +500,6 @@ public class VariablesManager {
 		IntVar ret = enumerated ? createEnumIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1])
 		    : createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		minOfList(ret, values);
-
 		return ret;
 	}
 

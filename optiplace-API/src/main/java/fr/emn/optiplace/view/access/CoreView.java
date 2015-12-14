@@ -18,6 +18,7 @@ import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.Bridge;
+import fr.emn.optiplace.solver.choco.ConstraintHelper;
 import fr.emn.optiplace.solver.choco.VariablesManager;
 
 /**
@@ -42,6 +43,12 @@ public interface CoreView {
 	 * @return the manager of variables. Create simple or constrained variables
 	 */
 	public VariablesManager v();
+
+	/**
+	 *
+	 * @return the helper to constraint elements
+	 */
+	public ConstraintHelper h();
 
 	/**
 	 *

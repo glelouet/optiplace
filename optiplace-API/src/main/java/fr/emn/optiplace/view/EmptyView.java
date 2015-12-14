@@ -13,6 +13,7 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.solver.choco.Bridge;
+import fr.emn.optiplace.solver.choco.ConstraintHelper;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.solver.choco.VariablesManager;
 
@@ -52,6 +53,8 @@ public class EmptyView implements View {
 
 	public VariablesManager v;
 
+	public ConstraintHelper h;
+
 	public Bridge b;
 
 	public IConfiguration c;
@@ -63,6 +66,7 @@ public class EmptyView implements View {
 		c = rp.c();
 		b = rp.b();
 		v = rp.v();
+		h = rp.h();
 	}
 
 	/** remove all data added to the last {@link #pb} and cached */
