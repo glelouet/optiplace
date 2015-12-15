@@ -8,7 +8,11 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+import org.chocosolver.solver.variables.VariableFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +27,7 @@ public class VariablesManager {
 	private static final Logger logger = LoggerFactory.getLogger(VariablesManager.class);
 
 	Solver solver;
+	ConstraintHelper helper;
 
 	public Solver getSolver() {
 		return solver;
@@ -32,8 +37,9 @@ public class VariablesManager {
 		solver.post(c);
 	}
 
-	public VariablesManager(Solver s) {
+	public VariablesManager(Solver s, ConstraintHelper h) {
 		solver = s;
+		helper = h;
 	}
 
 	public IntVar createIntegerConstant(int val) {
@@ -84,6 +90,8 @@ public class VariablesManager {
 	 * @return a new set that contains all of the values parameter.
 	 */
 	public SetVar createFixedSet(String name, int... values) {
+		if (values == null)
+			values = new int[] {};
 		return VariableFactory.set(name, values, values, getSolver());
 	}
 
@@ -243,13 +251,8 @@ public class VariablesManager {
 			return left;
 		}
 		IntVar ret = createBoundIntVar("(" + left.getName() + ")*(" + right.getName() + ")");
-		mult(left, right, ret);
+		helper.mult(left, right, ret);
 		return ret;
-	}
-
-	/** add a constraint, left*right==product */
-	public void mult(IntVar left, IntVar right, IntVar product) {
-		getSolver().post(ICF.times(left, right, product));
 	}
 
 	/**
@@ -445,18 +448,8 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1])
 		    : createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
-		maxOfList(ret, values);
+		helper.maxOfList(ret, values);
 		return ret;
-	}
-
-	/** add a constraint, such as max = max(values) */
-	public void maxOfList(IntVar max, IntVar... values) {
-		getSolver().post(ICF.maximum(max, values));
-	}
-
-	/** add a constraint, such as min = min(values) */
-	public void minOfList(IntVar min, IntVar... values) {
-		getSolver().post(ICF.minimum(min, values));
 	}
 
 	/**
@@ -499,7 +492,7 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1])
 		    : createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
-		minOfList(ret, values);
+		helper.minOfList(ret, values);
 		return ret;
 	}
 
@@ -513,38 +506,8 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(array).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(foldSetNames(array), minmax[0], minmax[1])
 		    : createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
-		nth(index, array, ret);
+		helper.nth(index, array, ret);
 		return ret;
-	}
-
-	/**
-	 * ensures var belongs to array[index], ie var.inf>=array[index].min and
-	 * var.sup<=array[index].inf
-	 *
-	 * @param index
-	 *          variable to index
-	 * @param array
-	 *          array of variables
-	 * @param var
-	 *          variable
-	 */
-	public void nth(IntVar index, IntVar[] array, IntVar var) {
-		getSolver().post(ICF.element(var, array, index, 0));
-	}
-
-	/**
-	 * ensures var belongs to array[index], ie var.inf>=array[index].min and
-	 * var.sup<=array[index].inf
-	 *
-	 * @param index
-	 *          variable to index
-	 * @param array
-	 *          array of int
-	 * @param var
-	 *          variable
-	 */
-	public void nth(IntVar index, int[] array, IntVar var) {
-		getSolver().post(ICF.element(var, array, index));
 	}
 
 	/**

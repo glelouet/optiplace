@@ -1,7 +1,15 @@
 
 package fr.emn.optiplace.network;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -16,7 +24,6 @@ import fr.emn.optiplace.view.ProvidedDataReader;
 import gnu.trove.impl.Constants;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
-
 
 /**
  * store data related to a
@@ -416,7 +423,7 @@ public class NetworkData implements ProvidedDataReader {
 			LinkedHashSet<VMCouple> couplesl = new LinkedHashSet<>();
 			Set<VMCouple> removedCouples = new HashSet<>();
 			for (VMCouple c : couple2use.keySet()) {
-				if (couple2use.get(c) == 0) {
+				if (couple2use.get(c) == 0 || !b.source().hasVM(c.v0) || !b.source().hasVM(c.v1)) {
 					removedCouples.add(c);
 				} else {
 					couplesl.add(c);
@@ -424,11 +431,12 @@ public class NetworkData implements ProvidedDataReader {
 			}
 			for (Set<VM> set : group2vms.values()) {
 				for (VM v1 : set) {
-					for (VM v2 : set) {
-						if (!v1.equals(v2)) {
-							couplesl.add(new VMCouple(v1, v2));
+					if (b.source().hasVM(v1))
+						for (VM v2 : set) {
+							if (b.source().hasVM(v2) && !v1.equals(v2)) {
+								couplesl.add(new VMCouple(v1, v2));
+							}
 						}
-					}
 				}
 			}
 			couplesl.removeAll(removedCouples);
@@ -455,7 +463,7 @@ public class NetworkData implements ProvidedDataReader {
 						VMHoster to = b.vmHoster(j);
 						if (hoster2links.containsKey(to.getName())) {
 							List<Integer> l = findPath(from.getName(), to.getName()).stream().map(this::addLink)
-							    .collect(Collectors.toList());
+									.collect(Collectors.toList());
 							hoster2hoster2links[i][j] = new int[l.size()];
 							for (int k = 0; k < l.size(); k++) {
 								hoster2hoster2links[i][j][k] = l.get(k);

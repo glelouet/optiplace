@@ -175,13 +175,13 @@ public class StepCPUCons implements PowerModel {
     }
 		IntVar index = parent.v.createEnumIntVar(n.getName() + "cons_idx", 0,
         thres.length);
-		pb.v().nth(index, ranges, pb.getUsedCPU(n));
+		pb.h().nth(index, ranges, pb.getUsedCPU(n));
     int[] consumptions = new int[vals.length + 1];
     for (int i = 0; i < vals.length; i++) {
       consumptions[i + 1] = vals[i];
     }
     consumptions[0] = min;
-		pb.v().nth(index, consumptions, ret);
+		pb.h().nth(index, consumptions, ret);
     return ret;
   }
 

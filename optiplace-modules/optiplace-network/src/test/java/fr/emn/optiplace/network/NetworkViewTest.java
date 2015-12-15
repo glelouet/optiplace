@@ -3,6 +3,7 @@ package fr.emn.optiplace.network;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -43,7 +44,7 @@ public class NetworkViewTest {
 		Assert.assertEquals(dest.getLocation(v0), dest.getLocation(v1));
 	}
 
-	@Test
+	@Test(dependsOnMethods = "testSimpleProblem")
 	public void testSimpleProblemWithRouter() {
 		// now we test with a router between the two nodes
 		Configuration c = new Configuration();
@@ -67,7 +68,7 @@ public class NetworkViewTest {
 		Assert.assertEquals(dest.getLocation(v0), dest.getLocation(v1));
 	}
 
-	@Test
+	@Test(dependsOnMethods = "testSimpleProblemWithRouter")
 	public void test3VM3NodeOneRouter() {
 		// little more complex problem, with VM use adds up
 		// the configuration is initially bad, as each node can only host ONE VM
@@ -95,7 +96,7 @@ public class NetworkViewTest {
 		Assert.assertEquals(dest.getLocation(v2), n2);
 	}
 
-	@Test
+	@Test(dependsOnMethods = "testSimpleProblem")
 	public void testWaiting() {
 		// we test a bad configuration, each node can only host one VM but each VM
 		// request too much network : they should stay waiting.
@@ -108,7 +109,9 @@ public class NetworkViewTest {
 		nv.getData().setUse(v0, v1, 10);
 
 		nv.getData().setLink(n0, n1, 5);
-		IConfiguration dest = new Optiplace(c).with(nv).solve().getDestination();
+		IOptiplace o = new Optiplace(c).with(nv);
+		o.getStrat().setLogContradictions(true);
+		IConfiguration dest = o.solve().getDestination();
 		Assert.assertEquals(dest.getLocation(v0), null);
 		Assert.assertEquals(dest.getLocation(v1), null);
 

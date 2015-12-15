@@ -200,7 +200,7 @@ pb.getSourceConfiguration(), null, null);
 				IntVar vmCons = pb.v().createBoundIntVar("vm" + i + ".cons", 0,
             Integer.MAX_VALUE - 1);
         cachedVMCons[i] = vmCons;
-				v.nth(pb.getNode(pb.b().vm(i)), hostingCosts[i], vmCons);
+				h.nth(pb.getNode(pb.b().vm(i)), hostingCosts[i], vmCons);
       }
     }
     return cachedVMCons;

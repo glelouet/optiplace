@@ -39,6 +39,7 @@ public class NetworkView extends EmptyView {
 		super.associate(rp);
 		bridge = data.bridge(rp.b());
 		makeLinksUses();
+		forceVMStates();
 	}
 
 	@Override
@@ -115,12 +116,16 @@ public class NetworkView extends EmptyView {
 				flatMat[i * nbcols + j] = hoster2hoster2links[i][j];
 			}
 		}
+		SetVar emptySet = v.createFixedSet("emptySet");
 		vmCouple2Links = new SetVar[bridge.nbCouples()];
 		for (int i = 0; i < vmCouple2Links.length; i++) {
 			VMCouple c = bridge.vmCouple(i);
 			vmCouple2Links[i] = v.createRangeSetVar(c.toString + ".links", 0, bridge.nbLinks() - 1);
 			IntVar flatIdx = v.plus(VF.scale(pb.getHoster(c.v0), nbcols), pb.getHoster(c.v1));
-			post(SCF.element(flatIdx, flatMat, 0, vmCouple2Links[i]));
+			// we only post on one VM state as both VM running state are the same in
+			// forceVMstates()
+			h.onCondition(SCF.element(flatIdx, flatMat, 0, vmCouple2Links[i]), pb.isWaiting(c.v0).not());
+			h.onCondition(SCF.all_equal(new SetVar[] { vmCouple2Links[i], emptySet }), pb.isWaiting(c.v0));
 		}
 	}
 
@@ -148,6 +153,16 @@ public class NetworkView extends EmptyView {
 				SetVar links = v.createFixedSet("path(" + hi.getName() + "-" + hj.getName() + ").links", h2hLinks);
 				hoster2hoster2links[i][j] = hoster2hoster2links[j][i] = links;
 			}
+		}
+	}
+
+	/**
+	 * force all the vms in a couple to have same waiting state.
+	 */
+	public void forceVMStates() {
+		for (int i = 0; i < bridge.nbCouples(); i++) {
+			VMCouple vmc = bridge.vmCouple(i);
+			h.equality(pb.isWaiting(vmc.v0), pb.isWaiting(vmc.v1));
 		}
 	}
 
