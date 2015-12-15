@@ -7,7 +7,6 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.network.NetworkData.NetworkDataBridge;
@@ -39,7 +38,6 @@ public class NetworkView extends EmptyView {
 		super.associate(rp);
 		bridge = data.bridge(rp.b());
 		makeLinksUses();
-		forceVMStates();
 	}
 
 	@Override
@@ -107,25 +105,29 @@ public class NetworkView extends EmptyView {
 		// XXX we use a flatmat (one-dimension array representation) of the matrix,
 		// we should use dedicated constraint
 		int nbcols = hoster2hoster2links[0].length;
-		SetVar[] flatMat = new SetVar[hoster2hoster2links.length * nbcols];
-		// matrix[i][j]=flatmat[i*nbcols+j]
+		SetVar[] flatMat = new SetVar[hoster2hoster2links.length * nbcols + 1];
+		flatMat[0] = v.createEnumSetVar("noLink", new int[] {});
+		// matrix[i][j]=flatmat[i*nbcols+j+1]
+		// flamat[0] = empty set, case where a VM of the couple is not running
 		for (int i = 0; i < hoster2hoster2links.length; i++) {
 			assert hoster2hoster2links[i].length == nbcols : "hoster2hoster2links has invalid number of columns : "
 			    + hoster2hoster2links[i].length + " on row " + i;
 			for (int j = 0; j < nbcols; j++) {
-				flatMat[i * nbcols + j] = hoster2hoster2links[i][j];
+				flatMat[i * nbcols + j + 1] = hoster2hoster2links[i][j];
 			}
 		}
-		SetVar emptySet = v.createFixedSet("emptySet");
 		vmCouple2Links = new SetVar[bridge.nbCouples()];
 		for (int i = 0; i < vmCouple2Links.length; i++) {
 			VMCouple c = bridge.vmCouple(i);
+			// if a vm is waiting, so is the other one.
+			h.equality(pb.isWaiting(c.v0), pb.isWaiting(c.v1));
 			vmCouple2Links[i] = v.createRangeSetVar(c.toString + ".links", 0, bridge.nbLinks() - 1);
-			IntVar flatIdx = v.plus(VF.scale(pb.getHoster(c.v0), nbcols), pb.getHoster(c.v1));
-			// we only post on one VM state as both VM running state are the same in
-			// forceVMstates()
-			h.onCondition(SCF.element(flatIdx, flatMat, 0, vmCouple2Links[i]), pb.isWaiting(c.v0).not());
-			h.onCondition(SCF.all_equal(new SetVar[] { vmCouple2Links[i], emptySet }), pb.isWaiting(c.v0));
+			// idx on the array (when both VM are running)
+			IntVar idxNonWaiting = v.plus(v.plus(v.mult(pb.getHoster(c.v0), nbcols), pb.getHoster(c.v1)), 1);
+			// we check the state of
+			IntVar flatMatIdx = v.createEnumIntVar(c.toString() + ".flatMatIdx", 0, flatMat.length);
+			pb.switchState(c.v0, flatMatIdx, idxNonWaiting, idxNonWaiting, v.createIntegerConstant(0));
+			post(SCF.element(flatMatIdx, flatMat, 0, vmCouple2Links[i]));
 		}
 	}
 
@@ -153,16 +155,6 @@ public class NetworkView extends EmptyView {
 				SetVar links = v.createFixedSet("path(" + hi.getName() + "-" + hj.getName() + ").links", h2hLinks);
 				hoster2hoster2links[i][j] = hoster2hoster2links[j][i] = links;
 			}
-		}
-	}
-
-	/**
-	 * force all the vms in a couple to have same waiting state.
-	 */
-	public void forceVMStates() {
-		for (int i = 0; i < bridge.nbCouples(); i++) {
-			VMCouple vmc = bridge.vmCouple(i);
-			h.equality(pb.isWaiting(vmc.v0), pb.isWaiting(vmc.v1));
 		}
 	}
 
