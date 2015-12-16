@@ -12,7 +12,6 @@ import fr.emn.optiplace.network.data.Link;
 import fr.emn.optiplace.network.data.Router;
 import fr.emn.optiplace.network.data.VMGroup;
 
-
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
@@ -78,6 +77,24 @@ public class NetworkDataTest {
 		Assert.assertEquals(test.findPath(n0, e0), Arrays.asList(l0, l1, l2));
 		Assert.assertEquals(test.findPath(e0, n0), Arrays.asList(l2, l1, l0));
 		Assert.assertEquals(test.findPath(r0, r2), Arrays.asList(l1, l3), "list is : " + test.findPath(r0, r2));
+	}
+
+	@Test
+	public void testParsing() {
+		NetworkData test = new NetworkData();
+		test.addLink("n0", "n1", 3);
+		VMGroup g1 = test.addGroup("g1", 2);
+		VMGroup g0 = test.addGroup("g0", 5);
+		test.addVM(g0, new VM("vX"));
+		test.addVM(g1, new VM("v0"), new VM("v1"));
+		test.setUse(new VM("v2"), new VM("v3"), 7);
+
+		String data = test.toString();
+
+		NetworkData newData = new NetworkData();
+		for (String line : data.split("\n"))
+			newData.readLine(line);
+		Assert.assertEquals(newData.toString(), data);
 	}
 
 }

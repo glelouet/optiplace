@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -91,7 +93,7 @@ public class NetworkData implements ProvidedDataReader {
 		@Override
 		public String toString() {
 			if (toString == null) {
-				toString = "couple{" + v0 + ", " + v1 + ")";
+				toString = "couple{" + v0 + ", " + v1 + "}";
 			}
 			return toString;
 		}
@@ -582,15 +584,56 @@ public class NetworkData implements ProvidedDataReader {
 
 	}
 
+	private static final Pattern GROUPSET_PAT = Pattern.compile("groups=\\{(.*)\\}");
+	private static final Pattern GROUP_PAT = Pattern.compile("(\\w+)\\((\\d+)\\)=\\[([ \\w,]*)\\]");
+
+	private static final Pattern COUPLESET_PAT = Pattern.compile("couples=\\{(.*)\\}");
+	private static final Pattern COUPLE_PAT = Pattern.compile("couple\\{(\\w+), (\\w+)\\}=(\\d+)");
+
+	private static final Pattern LINKSET_PAT = Pattern.compile("links=\\{(.*)\\}");
+	private static final Pattern LINK_PAT = Pattern.compile("link\\[(\\w+)-(\\w+)\\]=(\\d+)");
+
 	@Override
 	public void readLine(String line) {
-		// TODO implement this and toString()
-		throw new UnsupportedOperationException("implement this");
+		Matcher m;
+		m = GROUPSET_PAT.matcher(line);
+		if (m.matches()) {
+			Matcher mg = GROUP_PAT.matcher(m.group(1));
+			while (mg.find()) {
+				VMGroup created = addGroup(mg.group(1), Integer.parseInt(mg.group(2)));
+				for (String name : mg.group(3).split(", "))
+					addVM(created, new VM(name));
+			}
+			return;
+		}
+
+		m = COUPLESET_PAT.matcher(line);
+		if (m.matches()) {
+			Matcher mg = COUPLE_PAT.matcher(m.group(1));
+			while (mg.find()) {
+				setUse(new VM(mg.group(1)), new VM(mg.group(2)), Integer.parseInt(mg.group(3)));
+			}
+			return;
+		}
+
+		m = LINKSET_PAT.matcher(line);
+		if (m.matches()) {
+			System.err.println("matching links " + m.group(1));
+			Matcher mg = LINK_PAT.matcher(m.group(1));
+			while (mg.find()) {
+				System.err.println(" mg found " + mg.group(0));
+				setLink(mg.group(1), mg.group(2), Integer.parseInt(mg.group(3)));
+			}
+			return;
+		}
 	}
 
 	@Override
 	public String toString() {
-		return super.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("groups=").append(group2vms);
+		sb.append("\ncouples=").append(couple2use.toString()).append("\nlinks=").append(link2capa.toString());
+		return sb.toString();
 	}
 
 }

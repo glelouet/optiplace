@@ -6,6 +6,7 @@ public class VMGroup extends ManagedElement {
 
 	public final int use;
 	public final int hashcode;
+	public final String toString;
 
 	/**
 	 *
@@ -14,6 +15,7 @@ public class VMGroup extends ManagedElement {
 		super(name);
 		this.use = use;
 		hashcode = name.toLowerCase().hashCode() + use;
+		toString = name + "(" + use + ")";
 	}
 
 	@Override
@@ -34,5 +36,10 @@ public class VMGroup extends ManagedElement {
 	@Override
 	public int hashCode() {
 		return hashcode;
+	}
+
+	@Override
+	public String toString() {
+		return toString;
 	}
 }
