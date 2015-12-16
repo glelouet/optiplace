@@ -618,10 +618,8 @@ public class NetworkData implements ProvidedDataReader {
 
 		m = LINKSET_PAT.matcher(line);
 		if (m.matches()) {
-			System.err.println("matching links " + m.group(1));
 			Matcher mg = LINK_PAT.matcher(m.group(1));
 			while (mg.find()) {
-				System.err.println(" mg found " + mg.group(0));
 				setLink(mg.group(1), mg.group(2), Integer.parseInt(mg.group(3)));
 			}
 			return;
