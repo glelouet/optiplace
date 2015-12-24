@@ -115,6 +115,7 @@ public class NetworkViewTest {
 		Assert.assertEquals(dest.getLocation(v0), null);
 		Assert.assertEquals(dest.getLocation(v1), null);
 
+		// now the link between the two nodes is correct : the vm should be running
 		nv.getData().setLink(n0, n1, 10);
 		dest = new Optiplace(c).with(nv).solve().getDestination();
 		Assert.assertNotNull(dest.getLocation(v0));

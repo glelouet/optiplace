@@ -10,8 +10,17 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -488,42 +497,46 @@ public class Configuration implements IConfiguration {
 		return Stream.empty();
 	}
 
-	@Override
-	public String toString() {
+	public String toString(String fieldSeparator) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("onlines : ").append(nodesVM);
 		if (!offlines.isEmpty()) {
-			sb.append("\nofflines : ").append(offlines);
+			sb.append(fieldSeparator).append("offlines : ").append(offlines);
 		}
 		if (!externVM.isEmpty()) {
-			sb.append("\nexterns : ").append(externVM);
+			sb.append(fieldSeparator).append("externs : ").append(externVM);
 		}
 		if (!waitings.isEmpty()) {
-			sb.append("\nwaitings : ").append(waitings);
+			sb.append(fieldSeparator).append("waitings : ").append(waitings);
 		}
 		if (!vmMigration.isEmpty()) {
-			sb.append("\nmigrations : ").append(vmMigration);
+			sb.append(fieldSeparator).append("migrations : ").append(vmMigration);
 		}
 		if (!sitesToHosters.isEmpty()) {
-			sb.append("\nsites : ").append(sitesToHosters);
+			sb.append(fieldSeparator).append("sites : ").append(sitesToHosters);
 		}
 		if (!resources.isEmpty()) {
-			sb.append("\nresources : ")
-					.append(resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + "\n" + t));
+			sb.append(fieldSeparator).append("resources : ").append(
+					resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + fieldSeparator + t));
 		}
 		if (!nodesTags.isEmpty()) {
-			sb.append("\nnodesTags : ").append(nodesTags);
+			sb.append(fieldSeparator).append("nodesTags : ").append(nodesTags);
 		}
 		if (!vmsTags.isEmpty()) {
-			sb.append("\nvmsTags : ").append(vmsTags);
+			sb.append(fieldSeparator).append("vmsTags : ").append(vmsTags);
 		}
 		if (!sitesTags.isEmpty()) {
-			sb.append("\nsitesTags : ").append(sitesTags);
+			sb.append(fieldSeparator).append("sitesTags : ").append(sitesTags);
 		}
 		if (!externsTags.isEmpty()) {
-			sb.append("\nexternsTags : ").append(externsTags);
+			sb.append(fieldSeparator).append("externsTags : ").append(externsTags);
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return toString("\n");
 	}
 
 	@Override

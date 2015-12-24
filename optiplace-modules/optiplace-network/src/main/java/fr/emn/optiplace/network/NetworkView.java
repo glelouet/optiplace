@@ -31,6 +31,10 @@ public class NetworkView extends EmptyView {
 		return data;
 	}
 
+	public void setData(NetworkData data) {
+		this.data = data;
+	}
+
 	NetworkDataBridge bridge;
 
 	@Override
