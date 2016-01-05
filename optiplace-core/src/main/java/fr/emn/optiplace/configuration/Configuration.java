@@ -10,17 +10,8 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -64,6 +55,8 @@ public class Configuration implements IConfiguration {
 	/** VM to the target is is migrating to. */
 	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
 
+	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
+
 	public Configuration(String... resources) {
 		if (resources == null || resources.length == 0) {
 		} else {
@@ -73,7 +66,28 @@ public class Configuration implements IConfiguration {
 		}
 	}
 
-	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
+	@Override
+	public Configuration clone() {
+		Configuration other = new Configuration();
+		externsTags.forEach((e, v) -> other.externsTags.put(e, new LinkedHashSet<>(v)));
+		externVM.forEach((e, v) -> other.externVM.put(e, new LinkedHashSet<>(v)));
+		nameToElement.forEach((e, v) -> other.nameToElement.put(e, v));
+		nodesTags.forEach((e, v) -> other.nodesTags.put(e, new LinkedHashSet<>(v)));
+		nodesVM.forEach((e, v) -> other.nodesVM.put(e, new LinkedHashSet<>(v)));
+		offlines.forEach(n -> other.offlines.add(n));
+		resources.forEach((e, v) -> other.resources.put(e, v));
+		// TODO clone the resourcespecification
+		if (!resources.isEmpty()) {
+			throw new UnsupportedOperationException("can not clone non-empty resource configurations");
+		}
+		sitesTags.forEach((e, v) -> other.sitesTags.put(e, new LinkedHashSet<>(v)));
+		sitesToHosters.forEach((e, v) -> other.sitesToHosters.put(e, new LinkedHashSet<>(v)));
+		vmHoster.forEach((e, v) -> other.vmHoster.put(e, v));
+		vmMigration.forEach((e, v) -> other.vmMigration.put(e, v));
+		vmsTags.forEach((e, v) -> other.vmsTags.put(e, new LinkedHashSet<>(v)));
+		other.waitings.addAll(waitings);
+		return other;
+	}
 
 	@Override
 	public LinkedHashMap<String, ResourceSpecification> resources() {
@@ -427,7 +441,7 @@ public class Configuration implements IConfiguration {
 			if (ret == null) {
 				ret = new Site(siteName);
 				nameToElement.put(siteName.toLowerCase(), ret);
-				set = new HashSet<>();
+				set = new LinkedHashSet<>();
 				sitesToHosters.put(ret, set);
 			} else {
 				set = sitesToHosters.get(ret);
@@ -679,10 +693,10 @@ public class Configuration implements IConfiguration {
 	//////////////////////////////////////////
 	// host tags
 
-	protected HashMap<String, Set<VM>> vmsTags = new HashMap<>();
-	protected HashMap<String, Set<Site>> sitesTags = new HashMap<>();
-	protected HashMap<String, Set<Node>> nodesTags = new HashMap<>();
-	protected HashMap<String, Set<Extern>> externsTags = new HashMap<>();
+	protected HashMap<String, Set<VM>> vmsTags = new LinkedHashMap<>();
+	protected HashMap<String, Set<Site>> sitesTags = new LinkedHashMap<>();
+	protected HashMap<String, Set<Node>> nodesTags = new LinkedHashMap<>();
+	protected HashMap<String, Set<Extern>> externsTags = new LinkedHashMap<>();
 
 	@Override
 	public void tagNode(Node n, String tag) {
@@ -691,7 +705,7 @@ public class Configuration implements IConfiguration {
 		}
 		Set<Node> s = nodesTags.get(tag);
 		if (s == null) {
-			s = new HashSet<>();
+			s = new LinkedHashSet<>();
 			nodesTags.put(tag, s);
 		}
 		s.add(n);
@@ -704,7 +718,7 @@ public class Configuration implements IConfiguration {
 		}
 		Set<Extern> s = externsTags.get(tag);
 		if (s == null) {
-			s = new HashSet<>();
+			s = new LinkedHashSet<>();
 			externsTags.put(tag, s);
 		}
 		s.add(e);
@@ -717,7 +731,7 @@ public class Configuration implements IConfiguration {
 		}
 		Set<VM> s = vmsTags.get(tag);
 		if (s == null) {
-			s = new HashSet<>();
+			s = new LinkedHashSet<>();
 			vmsTags.put(tag, s);
 		}
 		s.add(v);
@@ -730,7 +744,7 @@ public class Configuration implements IConfiguration {
 		}
 		Set<Site> set = sitesTags.get(tag);
 		if (set == null) {
-			set = new HashSet<>();
+			set = new LinkedHashSet<>();
 			sitesTags.put(tag, set);
 		}
 		set.add(s);

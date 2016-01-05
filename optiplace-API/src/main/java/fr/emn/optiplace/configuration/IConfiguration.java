@@ -40,7 +40,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  * @author Fabien Hermenier
  * @author guillaume Le Louët
  */
-public interface IConfiguration {
+public interface IConfiguration extends Cloneable {
 
 	static enum VMSTATES {
 		RUNNING, WAITING, EXTERN
@@ -69,6 +69,8 @@ public interface IConfiguration {
 				&& !first.getSites().parallel().filter(v -> !second.hasSite(v)).findAny().isPresent();
 	}
 
+	public IConfiguration clone();
+
 	/**
 	 * get an element with given name if it exists
 	 *
@@ -80,7 +82,7 @@ public interface IConfiguration {
 
 	/**
 	 * get an element with a name and a given type in the configuration
-	 * 
+	 *
 	 * @param name
 	 *          the name of the element
 	 * @param clazz
@@ -93,13 +95,16 @@ public interface IConfiguration {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends ManagedElement> T getElementByName(String name, Class<T> clazz) throws ClassCastException {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		ManagedElement ret = getElementByName(name.toLowerCase());
-		if (ret == null)
+		if (ret == null) {
 			return null;
-		if (clazz.isAssignableFrom(ret.getClass()))
+		}
+		if (clazz.isAssignableFrom(ret.getClass())) {
 			return (T) ret;
+		}
 		throw new ClassCastException("cannot cast " + ret + " to " + clazz);
 	}
 

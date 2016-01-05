@@ -1,12 +1,7 @@
 package fr.emn.optiplace.network.benches;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.network.NetworkData;
 import fr.emn.optiplace.network.NetworkView;
 
@@ -52,13 +47,15 @@ public class BenchSmallProblems {
 			for (int i = 0; i < nbIterations; i++) {
 				for (boolean view : new boolean[] { true, false }) {
 					Optiplace o = new Optiplace(cfg);
-					if (view)
+					if (view) {
 						o.addView(v);
+					}
 					long time = o.solve().getSearchTime();
-					if (view && data != null)
+					if (view && data != null) {
 						findWithView = Math.min(findWithView, time);
-					else
+					} else {
 						findNoView = Math.min(findNoView, time);
+					}
 				}
 			}
 		}
@@ -83,30 +80,17 @@ public class BenchSmallProblems {
 		for (int i = 0; i < 10; i++) {
 			for (boolean view : new boolean[] { true, false }) {
 				Optiplace o = new Optiplace(cfg);
-				if (view)
+				if (view) {
 					o.addView(v);
+				}
 				long time = o.solve().getSearchTime();
-				if (view)
+				if (view) {
 					ret.findWithView = Math.min(ret.findWithView, time);
-				else
+				} else {
 					ret.findNoView = Math.min(ret.findNoView, time);
+				}
 			}
 		}
 		return ret;
-	}
-
-	public static void main(String[] args) {
-		Configuration cfg = new Configuration("mem");
-		Node n0 = cfg.addOnline("n0", 100);
-		Node n1 = cfg.addOnline("n1", 100);
-		Node n2 = cfg.addOnline("n2", 200);
-		VM v0 = cfg.addVM("v0", n0, 50);
-		Stream.generate(new Supplier<String>() {
-
-			@Override
-			public String get() {
-				return null;
-			}
-		});
 	}
 }

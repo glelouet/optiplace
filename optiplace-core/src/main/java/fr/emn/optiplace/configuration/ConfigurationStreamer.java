@@ -1,17 +1,28 @@
+
 package fr.emn.optiplace.configuration;
 
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.ICF;
+import org.chocosolver.solver.constraints.set.SCF;
+import org.chocosolver.solver.search.solution.Solution;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.VF;
+
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
+
 /**
  * tooling class aiming at mùaking streams of configurations.
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
@@ -23,7 +34,7 @@ public class ConfigurationStreamer {
 	/**
 	 * generates a stream of Configurations which do not specify resources use or
 	 * capacities.
-	 * 
+	 *
 	 * @param maxVMPerHost
 	 *          max number of VM per hoster, only checked if >0.
 	 * @param maxCfgSize
@@ -31,7 +42,7 @@ public class ConfigurationStreamer {
 	 *          {@link #getSize(IConfiguration)}.
 	 * @return a new stream containing configurations which only have VM waiting
 	 */
-	public static Stream<IConfiguration> noResource(int maxVMPerHost, int maxCfgSize) {
+	public static Stream<IConfiguration> streamElements(int maxVMPerHost, int maxCfgSize) {
 		Spliterator<IConfiguration> ret = new Spliterator<IConfiguration>() {
 
 			@Override
@@ -61,7 +72,7 @@ public class ConfigurationStreamer {
 			public boolean tryAdvance(Consumer<? super IConfiguration> action) {
 				nbVMs++;
 				if (maxVMPerHost > 0 && nbVMs > nbHosters * maxVMPerHost
-						|| maxCfgSize > 0 && getSize(nbHosters, nbVMs) > maxCfgSize) {
+		        || maxCfgSize > 0 && getSize(nbHosters, nbVMs) > maxCfgSize) {
 					nbVMs = 1;
 					nbExterns++;
 					if (nbExterns > nbHosters) {
@@ -96,24 +107,28 @@ public class ConfigurationStreamer {
 	}
 
 	public static long getSize(long nbHosters, long nbVMs) {
-		return nbHosters + nbVMs + ((long) Math.pow(nbHosters, nbVMs));
+		return nbHosters + nbVMs + (long) Math.pow(nbHosters, nbVMs);
 	}
 
 	/**
 	 * creates a stream of ResourceSpecification to add to a configuration.
-	 * 
+	 *
 	 * @param cfg
 	 *          the configuration to make the resources for
 	 * @param resName
 	 *          the name of the resource specification
 	 * @param maxNodeRes
 	 *          the maximum total resource of the nodes
-	 * @param maxVMMult
-	 *          maximum total resource use of the VM for each node resource capa.
+	 * @param maxVmLoadPct
+	 *          maximum load of the nodes (ie max 100*vmtotaluse/nodetotalUse),
+	 *          limited from 0 to 100.
 	 * @return a new Stream.
 	 */
-	public static Stream<ResourceSpecification> addResource(IConfiguration cfg, String resName, int maxNodeRes,
-			float maxVMMult) {
+	public static Stream<ResourceSpecification> streamResource(IConfiguration cfg, String resName, int maxNodeRes,
+	    int maxVmLoadPct) {
+		if (maxNodeRes < cfg.nbNodes() || maxNodeRes < cfg.nbVMs()) {
+			return Stream.empty();
+		}
 		Spliterator<ResourceSpecification> ret = new Spliterator<ResourceSpecification>() {
 
 			@Override
@@ -131,172 +146,97 @@ public class ConfigurationStreamer {
 				return 0;
 			}
 
-			boolean stop = false;
-
 			Node[] nodes = cfg.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
-			int[] nodesCapas = new int[nodes.length];
-			int nodesMinCap, nodesMaxCap;
-			int maxVMTotalUse = 0;
-
+			IntVar[] nodeCaps = new IntVar[nodes.length];
+			// sum of the node capas from 0 to i
+			IntVar[] nodeCapCumuls = new IntVar[nodes.length];
 			VM[] vms = cfg.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
-			int[] vmsUses = new int[vms.length];
-			// at most as many different values than we have vms.
-			int[] uniqVMsUses = new int[vms.length];
-			int nbuniqVMs = 0;
-			// the index of the last VM which use == same index node capa.
-			int lastMaxVMIdx = -1;
-			int totalVMUse = 0;
-
+			IntVar[] vmUses = new IntVar[vms.length];
+			IntVar[] vmUseCumuls = new IntVar[vms.length];
 			Extern[] externs = cfg.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
-			// the index of the extern on the uniq VM use array.
-			// we must ensure they are decreasing
-			int[] externsCapasIndex = new int[externs.length];
+			IntVar[] externCaps = new IntVar[externs.length];
+			Solver s = null;
 
-			{
-				for (int i = 0; i < nodesCapas.length; i++)
-					nodesCapas[i] = 1;
-				updateNodesStats();
-				resetVMs();
-				if (externs.length > 0) {
-					resetExterns();
-					externsCapasIndex[externsCapasIndex.length - 1] = -1;
-				} else {
-					vmsUses[vmsUses.length - 1] = 0;
+			protected void makeSolver() {
+				s = new Solver();
+				for (int i = 0; i < nodes.length; i++) {
+					nodeCaps[i] = VF.bounded("n_" + nodes[i].getName(), 1, maxNodeRes, s);
+					if (i != 0) {
+						// node caps are decreasing
+						s.post(ICF.arithm(nodeCaps[i - 1], ">=", nodeCaps[i]));
+						// cumul Node caps
+						nodeCapCumuls[i] = VF.bounded("nc_" + nodes[i].getName(), 1, maxNodeRes, s);
+						s.post(ICF.sum(new IntVar[] {
+		            nodeCaps[i], nodeCapCumuls[i - 1]
+						}, nodeCapCumuls[i]));
+					} else {
+						nodeCapCumuls[0] = nodeCaps[0];
+					}
+				}
+
+				for (int i = 0; i < vms.length; i++) {
+					vmUses[i] = VF.bounded("v_" + vms[i].getName(), 1, maxNodeRes, s);
+					if (i != 0) {
+						// vm uses are decreasing
+						s.post(ICF.arithm(vmUses[i - 1], ">=", vmUses[i]));
+						// cumul vm uses
+						vmUseCumuls[i] = VF.bounded("vc_" + vms[i].getName(), 1, maxNodeRes, s);
+						s.post(ICF.sum(new IntVar[] {
+		            vmUses[i], vmUseCumuls[i - 1]
+						}, vmUseCumuls[i]));
+					} else {
+						vmUseCumuls[0] = vmUses[0];
+					}
+					s.post(ICF.arithm(vmUseCumuls[i], "<=", nodeCapCumuls[i < nodes.length ? i : nodes.length - 1]));
+				}
+				s.post(ICF.arithm(VF.scale(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
+		        VF.scale(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
+
+				SetVar vmsUses = VF.set("vmUses", 1, maxNodeRes, s);
+				s.post(SCF.int_values_union(vmUses, vmsUses));
+				for (int i = 0; i < externs.length; i++) {
+					externCaps[i] = VF.bounded("e_" + externs[i].getName(), 1, maxNodeRes, s);
+					s.post(SCF.member(externCaps[i], vmsUses));
+					if (i != 0) {
+						// extern caps are decreasing
+						s.post(ICF.arithm(externCaps[i - 1], ">=", externCaps[i]));
+					}
 				}
 			}
 
 			/** extract the specification from the arrays data */
-			public ResourceSpecification makeSpec() {
+			public ResourceSpecification makeSpec(Solution sol) {
 				ResourceSpecification ret = new MappedResourceSpecification(resName);
-				for (int i = 0; i < nodes.length; i++)
-					ret.capacity(nodes[i], nodesCapas[i]);
-				if (externs.length > 0)
-					for (int i = 0; i < externs.length; i++)
-						ret.capacity(externs[i], uniqVMsUses[externsCapasIndex[i]]);
-				for (int i = 0; i < vms.length; i++)
-					ret.use(vms[i], vmsUses[i]);
+				for (int i = 0; i < nodes.length; i++) {
+					ret.capacity(nodes[i], sol.getIntVal(nodeCaps[i]));
+				}
+				if (externs.length > 0) {
+					for (int i = 0; i < externs.length; i++) {
+						ret.capacity(externs[i], sol.getIntVal(externCaps[i]));
+					}
+				}
+				for (int i = 0; i < vms.length; i++) {
+					ret.use(vms[i], sol.getIntVal(vmUses[i]));
+				}
 				return ret;
 			}
 
 			@Override
 			public boolean tryAdvance(Consumer<? super ResourceSpecification> action) {
-				if (stop)
-					return false;
-				if (externs.length > 0)
-					nextExtern();
-				else
-					nextVM();
-				if (!stop) {
-					action.accept(makeSpec());
-				}
-				return !stop;
-			}
-
-			/**
-			 * find the next extern with given vms and nodes.
-			 * 
-			 * @return true if an extern was found, false if no more extern could be
-			 *         found. If false, then we must advance to next vm specifications
-			 *         and reset the externs.
-			 */
-			protected boolean nextExtern() {
-				for (int i = externs.length - 1; i >= 0; i--) {
-					if ((i == 0 || externsCapasIndex[i] < externsCapasIndex[i - 1]) && externsCapasIndex[i] < nbuniqVMs) {
-						externsCapasIndex[i]++;
-						for (int j = i + 1; j < externsCapasIndex.length; j++) {
-							externsCapasIndex[j] = 0;
-						}
+				if (s == null) {
+					makeSolver();
+					if (s.findSolution()) {
+						action.accept(makeSpec(s.getSolutionRecorder().getLastSolution()));
 						return true;
 					}
+					return false;
 				}
-				return false;
-			}
-
-			protected void resetExterns() {
-				for (int i = 0; i < externsCapasIndex.length; i++) {
-					externsCapasIndex[i] = 0;
-				}
-			}
-
-			protected boolean nextVM() {
-				// we must remove at least one res from a VM to increase the previous VM
-				if (totalVMUse == maxVMTotalUse) {
-					int removable = 0;
-					for (int i = vms.length - 1; i >= 0; i--) {
-						removable += (vmsUses[i] - 1);
-
-					}
-				} else
-					for (int i = vms.length - 1; i >= 0; i--) {
-						// we could not modify the last i.. n VM
-						// and the VMs from 0 to i have
-						// same use as their node capacity.
-						if (isVMOverNode(i))
-							return false;
-						if ((i == 0 || vmsUses[i] < vmsUses[i - 1])) {
-							increaseVM(i);
-							return true;
-						}
-					}
-				return false;
-			}
-
-			protected boolean isVMOverNode(int vmidx) {
-				if (lastMaxVMIdx >= vmidx - 1 && vmidx < nodes.length && vmsUses[vmidx] == nodesCapas[vmidx])
+				if (!s.nextSolution()) {
+					return false;
+				} else {
+					action.accept(makeSpec(s.getSolutionRecorder().getLastSolution()));
 					return true;
-				return false;
-			}
-
-			/**
-			 * increase the load of a vm at given index. set next Vm load to 1.
-			 * 
-			 * @param vmidx
-			 */
-			protected void increaseVM(int vmidx) {
-				vmsUses[vmidx]++;
-				totalVMUse += 1;
-				if (lastMaxVMIdx == vmidx - 1 && vmidx < nodes.length && vmsUses[vmidx] == nodesCapas[vmidx])
-					lastMaxVMIdx = vmidx;
-				for (int i = vmidx + 1; i < vms.length; i++) {
-					totalVMUse -= (vmsUses[i] - 1);
-					vmsUses[i] = 1;
 				}
-			}
-
-			protected void resetVMs() {
-				for (int i = 0; i < vmsUses.length; i++) {
-					vmsUses[i] = 1;
-				}
-				updateVMsStats();
-				lastMaxVMIdx = -1;
-				for (int i = 0; i < vmsUses.length; i++) {
-					if (lastMaxVMIdx == i - 1 && i < nodes.length && vmsUses[i] == nodesCapas[i])
-						lastMaxVMIdx = i;
-				}
-				totalVMUse = vms.length;
-			}
-
-			protected void updateVMsStats() {
-				nbuniqVMs = 0;
-				totalVMUse = 0;
-				for (int i = 0; i < vmsUses.length; i++) {
-					if (i == 0 || vmsUses[i] != vmsUses[i - 1]) {
-						uniqVMsUses[nbuniqVMs] = vmsUses[i];
-						nbuniqVMs++;
-					}
-				}
-			}
-
-			protected void updateNodesStats() {
-				nodesMaxCap = 0;
-				nodesMinCap = Integer.MAX_VALUE;
-				int totalNodeCapa = 0;
-				for (int i = 0; i < nodesCapas.length; i++) {
-					nodesMaxCap = Math.max(nodesMaxCap, nodesCapas[i]);
-					nodesMinCap = Math.min(nodesMinCap, nodesCapas[i]);
-					totalNodeCapa += nodesCapas[i];
-				}
-				maxVMTotalUse = (int) (totalNodeCapa * maxVMMult);
 			}
 
 		};
@@ -304,7 +244,36 @@ public class ConfigurationStreamer {
 		return StreamSupport.stream(ret, false);
 	}
 
+	/**
+	 * generate a stream of configuration
+	 *
+	 * @param maxVMPerHost
+	 *          max number of VM per hoster, only checked if >0.
+	 * @param maxCfgSize
+	 *          maximum size of the configuration, only checked if >0. see
+	 *          {@link #getSize(IConfiguration)}.
+	 * @param resName
+	 *          the name of the resource specification
+	 * @param maxNodeRes
+	 *          the maximum total resource of the nodes
+	 * @param maxVmLoadPct
+	 *          maximum load of the nodes (ie max 100*vmtotaluse/nodetotalUse),
+	 *          limited from 0 to 100.
+	 * @return
+	 */
+	public static Stream<IConfiguration> streamConfigurations(int maxVMPerHost, int maxCfgSize, String resName,
+	    Function<IConfiguration, Integer> maxLoadFunc, int maxVmLoadPct) {
+		return streamElements(maxVMPerHost, maxCfgSize)
+		    .flatMap(c -> streamResource(c, resName, maxLoadFunc.apply(c), maxVmLoadPct)
+		    				.map(s ->{
+		    					IConfiguration c2 = c.clone();
+		    					c2.resources().put(s.getType(), s);
+		    					return c2;
+		    				})
+		    );
+	}
+
 	public static void main(String[] args) {
-		System.err.println(noResource(-1, 1000).count());
+		streamConfigurations(10, 10, "cpu", c -> 3 * c.nbNodes(), 50).forEach(System.err::println);
 	}
 }
