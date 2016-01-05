@@ -274,6 +274,6 @@ public class ConfigurationStreamer {
 	}
 
 	public static void main(String[] args) {
-		streamConfigurations(10, 10, "cpu", c -> 3 * c.nbNodes(), 50).forEach(System.err::println);
+		System.err.println(streamConfigurations(10, 20, "cpu", c -> 3 * c.nbNodes(), 80).count());
 	}
 }
