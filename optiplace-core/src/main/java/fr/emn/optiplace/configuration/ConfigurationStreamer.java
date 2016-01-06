@@ -11,6 +11,7 @@ import java.util.stream.StreamSupport;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.set.SCF;
+import org.chocosolver.solver.propagation.NoPropagationEngine;
 import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
@@ -21,7 +22,7 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 
 /**
- * tooling class aiming at mùaking streams of configurations.
+ * tool class to make streams of configurations.
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
@@ -30,6 +31,53 @@ public class ConfigurationStreamer {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationStreamer.class);
+
+	/**
+	 * Stream over the solutions not found already.
+	 * <p>
+	 * As Solver does not support concurrent solution searches, you must ensure
+	 * there is no call to any search method between this method call and the last
+	 * use of the returned stream.
+	 * </p>
+	 *
+	 * @param s
+	 *          the solver to stream over its solutions
+	 * @return a new sequential Stream containing the next solutions to call.
+	 */
+	public static Stream<Solution> nextSolutions(Solver s) {
+		return StreamSupport.stream(new Spliterator<Solution>() {
+
+			@Override
+			public int characteristics() {
+				return DISTINCT | NONNULL | IMMUTABLE | CONCURRENT;
+			}
+
+			@Override
+			public Spliterator<Solution> trySplit() {
+				return null;
+			}
+
+			@Override
+			public long estimateSize() {
+				return Long.MAX_VALUE;
+			}
+
+			@Override
+			public boolean tryAdvance(Consumer<? super Solution> action) {
+				boolean ret = false;
+				if (s.getEngine() == NoPropagationEngine.SINGLETON || !s.getEngine().isInitialized()) {
+					ret = s.findSolution();
+				} else {
+					ret = s.nextSolution();
+				}
+				if (ret) {
+					action.accept(s.getSolutionRecorder().getLastSolution());
+				}
+				return ret;
+			}
+
+		}, false);
+	}
 
 	/**
 	 * generates a stream of Configurations which do not specify resources use or
@@ -43,6 +91,7 @@ public class ConfigurationStreamer {
 	 * @return a new stream containing configurations which only have VM waiting
 	 */
 	public static Stream<IConfiguration> streamElements(int maxVMPerHost, int maxCfgSize) {
+
 		Spliterator<IConfiguration> ret = new Spliterator<IConfiguration>() {
 
 			@Override
@@ -94,7 +143,7 @@ public class ConfigurationStreamer {
 
 			@Override
 			public long estimateSize() {
-				return 0;
+				return Long.MAX_VALUE;
 			}
 
 		};
@@ -129,119 +178,75 @@ public class ConfigurationStreamer {
 		if (maxNodeRes < cfg.nbNodes() || maxNodeRes < cfg.nbVMs()) {
 			return Stream.empty();
 		}
-		Spliterator<ResourceSpecification> ret = new Spliterator<ResourceSpecification>() {
+		Solver s = new Solver();
 
-			@Override
-			public int characteristics() {
-				return DISTINCT | NONNULL | IMMUTABLE | CONCURRENT;
+		Node[] nodes = cfg.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
+		IntVar[] nodeCaps = new IntVar[nodes.length];
+		// sum of the node capas from 0 to i
+		IntVar[] nodeCapCumuls = new IntVar[nodes.length];
+		VM[] vms = cfg.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
+		IntVar[] vmUses = new IntVar[vms.length];
+		IntVar[] vmUseCumuls = new IntVar[vms.length];
+		Extern[] externs = cfg.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
+		IntVar[] externCaps = new IntVar[externs.length];
+		for (int i = 0; i < nodes.length; i++) {
+			nodeCaps[i] = VF.bounded("n_" + nodes[i].getName(), 1, maxNodeRes, s);
+			if (i != 0) {
+				// node caps are decreasing
+				s.post(ICF.arithm(nodeCaps[i - 1], ">=", nodeCaps[i]));
+				// cumul Node caps
+				nodeCapCumuls[i] = VF.bounded("nc_" + nodes[i].getName(), 1, maxNodeRes, s);
+				s.post(ICF.sum(new IntVar[] {
+				    nodeCaps[i], nodeCapCumuls[i - 1]
+				}, nodeCapCumuls[i]));
+			} else {
+				nodeCapCumuls[0] = nodeCaps[0];
 			}
+		}
 
-			@Override
-			public Spliterator<ResourceSpecification> trySplit() {
-				return null;
+		for (int i = 0; i < vms.length; i++) {
+			vmUses[i] = VF.bounded("v_" + vms[i].getName(), 1, maxNodeRes, s);
+			if (i != 0) {
+				// vm uses are decreasing
+				s.post(ICF.arithm(vmUses[i - 1], ">=", vmUses[i]));
+				// cumul vm uses
+				vmUseCumuls[i] = VF.bounded("vc_" + vms[i].getName(), 1, maxNodeRes, s);
+				s.post(ICF.sum(new IntVar[] {
+				    vmUses[i], vmUseCumuls[i - 1]
+				}, vmUseCumuls[i]));
+			} else {
+				vmUseCumuls[0] = vmUses[0];
 			}
+			s.post(ICF.arithm(vmUseCumuls[i], "<=", nodeCapCumuls[i < nodes.length ? i : nodes.length - 1]));
+		}
+		s.post(ICF.arithm(VF.scale(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
+		    VF.scale(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
 
-			@Override
-			public long estimateSize() {
-				return 0;
+		SetVar vmsUses = VF.set("vmUses", 1, maxNodeRes, s);
+		s.post(SCF.int_values_union(vmUses, vmsUses));
+		for (int i = 0; i < externs.length; i++) {
+			externCaps[i] = VF.bounded("e_" + externs[i].getName(), 1, maxNodeRes, s);
+			s.post(SCF.member(externCaps[i], vmsUses));
+			if (i != 0) {
+				// extern caps are decreasing
+				s.post(ICF.arithm(externCaps[i - 1], ">=", externCaps[i]));
 			}
-
-			Node[] nodes = cfg.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
-			IntVar[] nodeCaps = new IntVar[nodes.length];
-			// sum of the node capas from 0 to i
-			IntVar[] nodeCapCumuls = new IntVar[nodes.length];
-			VM[] vms = cfg.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
-			IntVar[] vmUses = new IntVar[vms.length];
-			IntVar[] vmUseCumuls = new IntVar[vms.length];
-			Extern[] externs = cfg.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
-			IntVar[] externCaps = new IntVar[externs.length];
-			Solver s = null;
-
-			protected void makeSolver() {
-				s = new Solver();
-				for (int i = 0; i < nodes.length; i++) {
-					nodeCaps[i] = VF.bounded("n_" + nodes[i].getName(), 1, maxNodeRes, s);
-					if (i != 0) {
-						// node caps are decreasing
-						s.post(ICF.arithm(nodeCaps[i - 1], ">=", nodeCaps[i]));
-						// cumul Node caps
-						nodeCapCumuls[i] = VF.bounded("nc_" + nodes[i].getName(), 1, maxNodeRes, s);
-						s.post(ICF.sum(new IntVar[] {
-		            nodeCaps[i], nodeCapCumuls[i - 1]
-						}, nodeCapCumuls[i]));
-					} else {
-						nodeCapCumuls[0] = nodeCaps[0];
-					}
-				}
-
-				for (int i = 0; i < vms.length; i++) {
-					vmUses[i] = VF.bounded("v_" + vms[i].getName(), 1, maxNodeRes, s);
-					if (i != 0) {
-						// vm uses are decreasing
-						s.post(ICF.arithm(vmUses[i - 1], ">=", vmUses[i]));
-						// cumul vm uses
-						vmUseCumuls[i] = VF.bounded("vc_" + vms[i].getName(), 1, maxNodeRes, s);
-						s.post(ICF.sum(new IntVar[] {
-		            vmUses[i], vmUseCumuls[i - 1]
-						}, vmUseCumuls[i]));
-					} else {
-						vmUseCumuls[0] = vmUses[0];
-					}
-					s.post(ICF.arithm(vmUseCumuls[i], "<=", nodeCapCumuls[i < nodes.length ? i : nodes.length - 1]));
-				}
-				s.post(ICF.arithm(VF.scale(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
-		        VF.scale(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
-
-				SetVar vmsUses = VF.set("vmUses", 1, maxNodeRes, s);
-				s.post(SCF.int_values_union(vmUses, vmsUses));
+		}
+		return nextSolutions(s).map(sol -> {
+			ResourceSpecification ret = new MappedResourceSpecification(resName);
+			for (int i = 0; i < nodes.length; i++) {
+				ret.capacity(nodes[i], sol.getIntVal(nodeCaps[i]));
+			}
+			if (externs.length > 0) {
 				for (int i = 0; i < externs.length; i++) {
-					externCaps[i] = VF.bounded("e_" + externs[i].getName(), 1, maxNodeRes, s);
-					s.post(SCF.member(externCaps[i], vmsUses));
-					if (i != 0) {
-						// extern caps are decreasing
-						s.post(ICF.arithm(externCaps[i - 1], ">=", externCaps[i]));
-					}
+					ret.capacity(externs[i], sol.getIntVal(externCaps[i]));
 				}
 			}
-
-			/** extract the specification from the arrays data */
-			public ResourceSpecification makeSpec(Solution sol) {
-				ResourceSpecification ret = new MappedResourceSpecification(resName);
-				for (int i = 0; i < nodes.length; i++) {
-					ret.capacity(nodes[i], sol.getIntVal(nodeCaps[i]));
-				}
-				if (externs.length > 0) {
-					for (int i = 0; i < externs.length; i++) {
-						ret.capacity(externs[i], sol.getIntVal(externCaps[i]));
-					}
-				}
-				for (int i = 0; i < vms.length; i++) {
-					ret.use(vms[i], sol.getIntVal(vmUses[i]));
-				}
-				return ret;
+			for (int i = 0; i < vms.length; i++) {
+				ret.use(vms[i], sol.getIntVal(vmUses[i]));
 			}
-
-			@Override
-			public boolean tryAdvance(Consumer<? super ResourceSpecification> action) {
-				if (s == null) {
-					makeSolver();
-					if (s.findSolution()) {
-						action.accept(makeSpec(s.getSolutionRecorder().getLastSolution()));
-						return true;
-					}
-					return false;
-				}
-				if (!s.nextSolution()) {
-					return false;
-				} else {
-					action.accept(makeSpec(s.getSolutionRecorder().getLastSolution()));
-					return true;
-				}
-			}
-
-		};
-
-		return StreamSupport.stream(ret, false);
+			return ret;
+		});
 	}
 
 	/**
@@ -264,13 +269,12 @@ public class ConfigurationStreamer {
 	public static Stream<IConfiguration> streamConfigurations(int maxVMPerHost, int maxCfgSize, String resName,
 	    Function<IConfiguration, Integer> maxLoadFunc, int maxVmLoadPct) {
 		return streamElements(maxVMPerHost, maxCfgSize)
-		    .flatMap(c -> streamResource(c, resName, maxLoadFunc.apply(c), maxVmLoadPct)
-		    				.map(s ->{
-		    					IConfiguration c2 = c.clone();
-		    					c2.resources().put(s.getType(), s);
-		    					return c2;
-		    				})
-		    );
+		    .flatMap(c -> streamResource(c, resName, maxLoadFunc.apply(c), maxVmLoadPct).map(s ->
+		{
+			    IConfiguration c2 = c.clone();
+			    c2.resources().put(s.getType(), s);
+			    return c2;
+		    }));
 	}
 
 	public static void main(String[] args) {
