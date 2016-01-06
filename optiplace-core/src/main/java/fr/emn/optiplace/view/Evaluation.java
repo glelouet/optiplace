@@ -2,6 +2,7 @@ package fr.emn.optiplace.view;
 
 import java.util.stream.Stream;
 
+import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.IConfiguration;
 
@@ -11,7 +12,6 @@ import fr.emn.optiplace.configuration.IConfiguration;
  */
 public class Evaluation {
 
-	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Evaluation.class);
 
 	public static class ViewImpact<T extends View> {
@@ -46,7 +46,14 @@ public class Evaluation {
 			vex.explore(c).forEach(v->{
 				long viewtime = Long.MAX_VALUE;
 				for (int i = 0; i < 10; i++) {
-					viewtime = Math.min(viewtime, new Optiplace(c).with(v).solve().getFirstSolTime());
+					DeducedTarget t = new Optiplace(c).with(v).solve();
+					if (t.getDestination() == null) {
+						if (i != 0)
+							logger.error("error : sequential calls to solve() return non-null then null results for config " + c
+									+ " and view " + v);
+						break;
+					}
+					viewtime = Math.min(viewtime, t.getFirstSolTime());
 				}
 				impact.addView(viewtime, v);
 			});

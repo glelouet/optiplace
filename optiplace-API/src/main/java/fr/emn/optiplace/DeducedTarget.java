@@ -26,27 +26,27 @@ public class DeducedTarget {
 
 	private final ActionGraph actions = new ActionGraph();
 
-	private long buildTime;
+	private long buildTime = -1;
 
-	private long configTime;
+	private long configTime = -1;
 
-	private long searchTime;
+	private long searchTime = -1;
 
-	private long firstSolTime;
+	private long firstSolTime = -1;
 
 	private IReconfigurationProblem problem;
 
-	private int objective;
+	private int objective = -1;
 
-	private long searchNodes;
+	private long searchNodes = -1;
 
-	private long firstSolNodes;
+	private long firstSolNodes = -1;
 
-	private long searchBacktracks;
+	private long searchBacktracks = -1;
 
-	private long firstSolBacktracks;
+	private long firstSolBacktracks = -1;
 
-	private long searchSolutions;
+	private long searchSolutions = -1;
 
 	/**
 	 * @return the destination
