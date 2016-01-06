@@ -14,28 +14,43 @@ public class Evaluation {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Evaluation.class);
 
-	public static <T extends View> void eval(Stream<? extends IConfiguration> cex, ViewStreamer<T> vex) {
-		cex.filter(Evaluation::hasSolution).forEach(c->{
-			long nudetime = Long.MAX_VALUE;
-			for (int i = 0; i < 10; i++) {
-				nudetime = Math.min(nudetime, new Optiplace(c).solve().getFirstSolTime());
+	public static class ViewImpact<T extends View> {
+
+		public ViewImpact(IConfiguration cfg) {
+			configuration = cfg;
+		}
+
+		public final IConfiguration configuration;
+		public long minTimeNude = Long.MAX_VALUE;
+		public T worseView = null;
+		public long worseViewTime = Long.MAX_VALUE;
+
+		public void addNudeTime(long time) {
+			minTimeNude = Math.min(minTimeNude, time);
+		}
+
+		public void addView(long time, T view) {
+			if (worseView == null || time < worseViewTime) {
+				worseViewTime = time;
+				worseView = view;
 			}
-			long maxTime = 0;
-			T maxView = null;
+		}
+	}
+
+	public static <T extends View> Stream<ViewImpact<T>> eval(Stream<? extends IConfiguration> cex, ViewStreamer<T> vex) {
+		return cex.filter(Optiplace::hasSolution).map(c -> {
+			ViewImpact<T> impact = new ViewImpact<>(c);
+			for (int i = 0; i < 10; i++) {
+				impact.addNudeTime(new Optiplace(c).solve().getFirstSolTime());
+			}
 			vex.explore(c).forEach(v->{
 				long viewtime = Long.MAX_VALUE;
 				for (int i = 0; i < 10; i++) {
 					viewtime = Math.min(viewtime, new Optiplace(c).with(v).solve().getFirstSolTime());
 				}
-				if (viewtime > maxTime) {
-					maxTime = viewtime;
-					maxView = v;
-				}
+				impact.addView(viewtime, v);
 			});
+			return impact;
 		});
-	}
-
-	public static boolean hasSolution(IConfiguration cfg) {
-		return new Optiplace(cfg).solve().getDestination() != null;
 	}
 }

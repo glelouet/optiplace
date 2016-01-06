@@ -53,6 +53,16 @@ public class Optiplace extends IOptiplace {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Optiplace.class);
 
+	/**
+	 * find a solution if exists to a Configuration
+	 * 
+	 * @param cfg
+	 *          the configuration to test
+	 * @return true if an instance of {@link Optiplace} can find a solution.
+	 */
+	public static boolean hasSolution(IConfiguration cfg) {
+		return new Optiplace(cfg).solve().getDestination() != null;
+	}
 	/** the core problem, modified by the views */
 	protected ReconfigurationProblem problem;
 
