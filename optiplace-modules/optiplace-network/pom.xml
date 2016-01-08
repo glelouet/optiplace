@@ -35,5 +35,10 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.choco-solver</groupId>
+			<artifactId>choco-graph</artifactId>
+			<version>3.3.0</version>
+		</dependency>
 	</dependencies>
 </project>
