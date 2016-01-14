@@ -80,6 +80,21 @@ public class ConfigurationStreamer {
 	}
 
 	/**
+	 * get the next solutions of a solver and convert them to another type
+	 * 
+	 * @param <T>
+	 *          the type of returned solutions
+	 * @param s
+	 *          the solver to extract the solutions
+	 * @param mapper
+	 *          the function to convert the solutions of the solver to a T
+	 * @return the stream of the next solutions casted to T of the solver s
+	 */
+	public static <T> Stream<T> nextSolutions(Solver s, Function<Solution, T> mapper) {
+		return nextSolutions(s).map(mapper);
+	}
+
+	/**
 	 * generates a stream of Configurations which do not specify resources use or
 	 * capacities.
 	 *

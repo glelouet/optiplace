@@ -10,9 +10,9 @@ import fr.emn.optiplace.configuration.IConfiguration;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
-public class Evaluation {
+public class ViewEvaluation {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Evaluation.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ViewEvaluation.class);
 
 	public static class ViewImpact<T extends View> {
 

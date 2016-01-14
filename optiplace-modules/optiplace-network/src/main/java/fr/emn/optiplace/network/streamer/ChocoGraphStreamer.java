@@ -1,4 +1,4 @@
-package fr.emn.optiplace.network;
+package fr.emn.optiplace.network.streamer;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -16,13 +16,14 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.network.NetworkView;
 import fr.emn.optiplace.network.data.Router;
 import fr.emn.optiplace.view.ViewStreamer;
 
-public class Generator implements ViewStreamer<NetworkView> {
+public class ChocoGraphStreamer implements ViewStreamer<NetworkView> {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Generator.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChocoGraphStreamer.class);
 
 	@Override
 	public Stream<NetworkView> explore(IConfiguration v) {

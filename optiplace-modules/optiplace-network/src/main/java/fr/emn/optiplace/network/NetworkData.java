@@ -3,6 +3,7 @@ package fr.emn.optiplace.network;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -10,9 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
@@ -24,8 +29,10 @@ import fr.emn.optiplace.network.data.VMGroup;
 import fr.emn.optiplace.solver.choco.Bridge;
 import fr.emn.optiplace.view.ProvidedDataReader;
 import gnu.trove.impl.Constants;
+import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
 
 /**
  * store data related to a
@@ -93,7 +100,7 @@ public class NetworkData implements ProvidedDataReader {
 		@Override
 		public String toString() {
 			if (toString == null) {
-				toString = "couple{" + v0 + ", " + v1 + "}";
+				toString = "c{" + v0 + ", " + v1 + "}";
 			}
 			return toString;
 		}
@@ -228,6 +235,15 @@ public class NetworkData implements ProvidedDataReader {
 		return ret;
 	}
 
+	public Router addRouter(Router r) {
+		Router ret = name2router.get(r.getName());
+		if (ret != null) {
+			return ret;
+		}
+		name2router.put(r.getName(), r);
+		return r;
+	}
+
 	/** for each known hoster the list of links it has */
 	protected Map<String, Set<Link>> hoster2links = new HashMap<>();
 
@@ -295,6 +311,61 @@ public class NetworkData implements ProvidedDataReader {
 			return null;
 		}
 		return addLink(h1.getName(), h2.getName(), capa);
+	}
+
+	/**
+	 * apply a bi-parameter function(Link,int) for each (link, capacity) value
+	 * set.
+	 * 
+	 * @param c
+	 *          the procedure to apply
+	 */
+	public void forEachLink(TObjectIntProcedure<Link> c) {
+		link2capa.forEachEntry(c);
+	}
+
+	/** functional interface for mapLinks */
+	public static interface MapperLinkCapa<T> {
+		T apply(Link link, int capa);
+	}
+
+	/**
+	 * apply a function to the couples of (link, capacity)
+	 * 
+	 * @param mapper
+	 *          the function to apply
+	 * @return a new stream of the mapped T values
+	 */
+	public <T> Stream<T> mapLinks(MapperLinkCapa<T> mapper) {
+		return StreamSupport.stream(new Spliterator<T>() {
+
+			TObjectIntIterator<Link> it = link2capa.iterator();
+
+			@Override
+			public boolean tryAdvance(Consumer<? super T> action) {
+				if (it.hasNext()) {
+					it.advance();
+					action.accept(mapper.apply(it.key(), it.value()));
+					return true;
+				} else
+					return false;
+			}
+
+			@Override
+			public Spliterator<T> trySplit() {
+				return null;
+			}
+
+			@Override
+			public long estimateSize() {
+				return Long.MAX_VALUE;
+			}
+
+			@Override
+			public int characteristics() {
+				return Spliterator.ORDERED;
+			}
+		}, false);
 	}
 
 	public Link setLink(String hoster0name, String hoster1name, int capa) {
@@ -588,10 +659,10 @@ public class NetworkData implements ProvidedDataReader {
 	private static final Pattern GROUP_PAT = Pattern.compile("(\\w+)\\((\\d+)\\)=\\[([ \\w,]*)\\]");
 
 	private static final Pattern COUPLESET_PAT = Pattern.compile("couples=\\{(.*)\\}");
-	private static final Pattern COUPLE_PAT = Pattern.compile("couple\\{(\\w+), (\\w+)\\}=(\\d+)");
+	private static final Pattern COUPLE_PAT = Pattern.compile("c\\{(\\w+), (\\w+)\\}=(\\d+)");
 
 	private static final Pattern LINKSET_PAT = Pattern.compile("links=\\{(.*)\\}");
-	private static final Pattern LINK_PAT = Pattern.compile("link\\[(\\w+)-(\\w+)\\]=(\\d+)");
+	private static final Pattern LINK_PAT = Pattern.compile("l\\[(\\w+)-(\\w+)\\]=(\\d+)");
 
 	@Override
 	public void readLine(String line) {
@@ -628,10 +699,20 @@ public class NetworkData implements ProvidedDataReader {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("groups=").append(group2vms);
-		sb.append("\ncouples=").append(couple2use.toString()).append("\nlinks=").append(link2capa.toString());
-		return sb.toString();
+		StringBuilder sb = null;
+		if (!group2vms.isEmpty()) {
+			sb = new StringBuilder();
+			sb.append("groups=").append(group2vms);
+		}
+		if (!couple2use.isEmpty()) {
+			sb = sb != null ? sb.append("\n") : new StringBuilder();
+			sb.append("couples=").append(couple2use.toString());
+		}
+		if (!link2capa.isEmpty()) {
+			sb = sb != null ? sb.append("\n") : new StringBuilder();
+			sb.append("links=").append(link2capa.toString());
+		}
+		return sb != null ? sb.toString() : "links=" + Collections.EMPTY_LIST;
 	}
 
 }

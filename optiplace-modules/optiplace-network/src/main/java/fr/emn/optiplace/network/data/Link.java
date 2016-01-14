@@ -38,7 +38,7 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "link[" + v0 + "-" + v1 + "]";
+		return "l[" + v0 + "-" + v1 + "]";
 	}
 
 }

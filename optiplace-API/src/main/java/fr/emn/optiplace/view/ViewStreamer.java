@@ -22,11 +22,11 @@ public interface ViewStreamer<T extends View> {
 	 * The stream makes it possible to lazy instantiate the views, reducing the
 	 * memory overhead.
 	 *
-	 * @param v
+	 * @param c
 	 *          the configuration to explore the views on
 	 * @return a new stream of views related to the configuration.
 	 */
-	public Stream<T> explore(IConfiguration v);
+	public Stream<T> explore(IConfiguration c);
 
 	/**
 	 * abstract implementation of {@link ViewStreamer} using {@link Spliterator}.
