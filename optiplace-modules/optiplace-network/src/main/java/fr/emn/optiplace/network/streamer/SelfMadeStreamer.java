@@ -1,7 +1,5 @@
 package fr.emn.optiplace.network.streamer;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,15 +12,17 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.ConfigurationStreamer;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.core.ReconfigurationProblem;
-import fr.emn.optiplace.network.data.Link;
+import fr.emn.optiplace.network.NetworkData;
+import fr.emn.optiplace.network.NetworkView;
 import fr.emn.optiplace.network.data.Router;
+import fr.emn.optiplace.network.data.VMGroup;
 
 /**
  * explores the network graphs available to a {@link IConfiguration} using a
@@ -75,6 +75,7 @@ public class SelfMadeStreamer extends Solver {
 
 	static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfMadeStreamer.class);
 
 	Node[] nodes;
@@ -82,6 +83,14 @@ public class SelfMadeStreamer extends Solver {
 	int maxNbRouters;
 	Router[] routers;
 	VMHoster[] vertices;
+	VM[] vms;
+
+	int minLinkCapa;
+	int maxLinkCapa;
+
+	int maxNbVMGroup;
+	int maxGroupSize;
+	int maxGroupUse;
 
 	/** number of routers added */
 	IntVar nbRouters;
@@ -98,9 +107,34 @@ public class SelfMadeStreamer extends Solver {
 	IntVar[] routerHeights;
 	IntVar[] routerIndexes;
 
-	public SelfMadeStreamer(IConfiguration v) {
+	IntVar[] linkCapas;
+	IntVar totalLinksCapa;
+
+	IntVar[] vmGroup;
+	IntVar[] groupUse;
+	IntVar[] groupSize;
+
+	/**
+	 * 
+	 * @param v
+	 *          the configuration to work on
+	 * @param minLinksCapa
+	 *          minimum total capacity of links
+	 * @param maxLinksCapa
+	 *          maximum total capacity of links
+	 * @param maxNbVMGroups
+	 *          maximum number of groups of VM
+	 */
+	public SelfMadeStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
+			int maxGroupUse) {
+		maxLinkCapa = maxLinksCapa;
+		minLinkCapa = minLinksCapa;
+		this.maxNbVMGroup = maxNbVMGroups;
+		this.maxGroupSize = maxGroupSize;
+		this.maxGroupUse = maxGroupUse;
 		nodes = v.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
 		externs = v.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
+		vms = v.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
 		maxNbRouters = externs.length + nodes.length - 2;
 		routers = new Router[maxNbRouters];
 		vertices = new VMHoster[externs.length + nodes.length + maxNbRouters];
@@ -158,7 +192,6 @@ public class SelfMadeStreamer extends Solver {
 
 		routerHeights = new IntVar[routers.length];
 		routerIndexes = new IntVar[routers.length];
-		// TODO all router have a height >=3
 		for (int router = externs.length + nodes.length; router < vertices.length; router++) {
 			// the index where the router is added in edgeaddedvertex
 			IntVar routerIndex = VF.enumerated(vertices[router].name + ".index", -1, vertices.length, this);
@@ -172,34 +205,65 @@ public class SelfMadeStreamer extends Solver {
 			post(ICF.count(routerIndex, edgePreviousIdx, VF.offset(routerHeight, -1)));
 			LCF.ifThen(edgeActivated[router], ICF.arithm(routerHeight, ">=", 3));
 		}
+
+		linkCapas = new IntVar[vertices.length - 1];
+		// the edge i has capacity at position i-1
+		// because first step is not an edge, it's a vertex alone.
+		for (int idx = 0; idx < linkCapas.length; idx++) {
+			linkCapas[idx] = VF.bounded("link." + idx, 0, maxLinkCapa, this);
+			LCF.ifThenElse(edgeActivated[idx + 1], ICF.arithm(linkCapas[idx], ">", 0), ICF.arithm(linkCapas[idx], "=", 0));
+		}
+
+		totalLinksCapa = VF.bounded("totalLinkCapa", minLinkCapa, maxLinkCapa, this);
+		post(ICF.sum(linkCapas, totalLinksCapa));
+
+		vmGroup = new IntVar[vms.length];
+		for (int idx = 0; idx < vms.length; idx++) {
+			vmGroup[idx] = VF.enumerated(vms[idx].getName() + ".group", 0, maxNbVMGroup, this);
+		}
+		groupUse = new IntVar[maxNbVMGroup];
+		groupSize = new IntVar[maxNbVMGroup];
+		for (int i = 0; i < groupSize.length; i++) {
+			if (i == 0) {
+				groupUse[i] = ZERO();
+				groupSize[i] = VF.bounded("group_0.size", 0, vms.length, this);
+			} else {
+				groupUse[i] = VF.bounded("group_" + i + ".use", 1, maxGroupUse, this);
+				// group uses are ordered
+				post(ICF.arithm(groupUse[i - 1], "<=", groupUse[i]));
+				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
+				post(ICF.arithm(groupSize[i], "!=", 1));
+				if (i > 1)
+					LCF.ifThen(ICF.arithm(groupSize[i - 1], "=", 0), ICF.arithm(groupSize[i], "=", 0));
+			}
+			post(ICF.count(i, vmGroup, groupSize[i]));
+		}
 	}
 
-	public Set<Link> extract(Solution s) {
-		Set<Link> ret = new HashSet<>();
+	public NetworkView extract(Solution s) {
+		NetworkView ret = new NetworkView();
+		NetworkData d = ret.getData();
+
 		for (int i = 1; i <= s.getIntVal(nbEdges); i++) {
 			int vfrom = s.getIntVal(edgeAddedVertex[s.getIntVal(edgePreviousIdx[i])]);
 			int vto = s.getIntVal(edgeAddedVertex[i]);
-			Link add = new Link(vertices[vfrom].name, vertices[vto].name);
-			if (!ret.add(add)) {
-				logger.warn("can not add link");
-			}
+			d.addLink(vertices[vfrom], vertices[vto], s.getIntVal(linkCapas[i - 1]));
 		}
+
+		VMGroup[] groups = new VMGroup[groupUse.length];
+		for (int i = 1; i < groupUse.length; i++)
+			groups[i] = d.addGroup("g_" + i, s.getIntVal(groupUse[i]));
+		for (int i = 0; i < vms.length; i++) {
+			int group = s.getIntVal(vmGroup[i]);
+			if (group != 0)
+				d.addVM(groups[group], vms[i]);
+		}
+
 		return ret;
 	}
 
 	/** stream the deduced possible set of links to add to the data. */
-	public Stream<Set<Link>> stream() {
+	public Stream<NetworkView> stream() {
 		return ConfigurationStreamer.nextSolutions(this, this::extract);
-	}
-
-	public static void main(String[] args) {
-		Configuration c = new Configuration();
-		c.addOnline("n0");
-		c.addOnline("n1");
-		c.addOnline("n2");
-		c.addExtern("e0");
-		SelfMadeStreamer sms = new SelfMadeStreamer(c);
-		sms.stream()
-				.forEach(d -> System.err.println("\n" + d));
 	}
 }
