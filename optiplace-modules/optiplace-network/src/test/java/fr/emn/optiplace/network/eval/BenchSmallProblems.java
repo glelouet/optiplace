@@ -1,4 +1,4 @@
-package fr.emn.optiplace.network.benches;
+package fr.emn.optiplace.network.eval;
 
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;

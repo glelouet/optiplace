@@ -1,24 +1,22 @@
-package fr.emn.optiplace.network.streamer;
+package fr.emn.optiplace.network.eval;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.ConfigurationStreamer;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.core.ReconfigurationProblem;
+import fr.emn.optiplace.eval.ConfigurationStreamer;
 import fr.emn.optiplace.network.NetworkData;
 import fr.emn.optiplace.network.NetworkView;
 import fr.emn.optiplace.network.data.Router;
@@ -67,7 +65,7 @@ import fr.emn.optiplace.network.data.VMGroup;
  * ordered new vertex (ie I can't have 0,2 followed by 0,1)</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
@@ -115,7 +113,7 @@ public class SelfMadeStreamer extends Solver {
 	IntVar[] groupSize;
 
 	/**
-	 * 
+	 *
 	 * @param v
 	 *          the configuration to work on
 	 * @param minLinksCapa
@@ -124,24 +122,33 @@ public class SelfMadeStreamer extends Solver {
 	 *          maximum total capacity of links
 	 * @param maxNbVMGroups
 	 *          maximum number of groups of VM
+	 * @param maxGroupSize
+	 *          maximum number of VM each group can have
+	 * @param maxGroupUse
+	 *          maximum use of the groups
 	 */
 	public SelfMadeStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
 			int maxGroupUse) {
 		maxLinkCapa = maxLinksCapa;
 		minLinkCapa = minLinksCapa;
-		this.maxNbVMGroup = maxNbVMGroups;
+		maxNbVMGroup = maxNbVMGroups;
 		this.maxGroupSize = maxGroupSize;
 		this.maxGroupUse = maxGroupUse;
 		nodes = v.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
 		externs = v.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
 		vms = v.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
 		maxNbRouters = externs.length + nodes.length - 2;
+		if (maxNbRouters < 0) {
+			maxNbRouters=0;
+		}
 		routers = new Router[maxNbRouters];
 		vertices = new VMHoster[externs.length + nodes.length + maxNbRouters];
-		for (int i = 0; i < nodes.length; i++)
+		for (int i = 0; i < nodes.length; i++) {
 			vertices[i] = nodes[i];
-		for (int i = 0; i < externs.length; i++)
+		}
+		for (int i = 0; i < externs.length; i++) {
 			vertices[i + nodes.length] = externs[i];
+		}
 		for (int i = 0; i < maxNbRouters; i++) {
 			routers[i] = new Router("r_" + i);
 			vertices[i + nodes.length + externs.length] = routers[i];
@@ -221,8 +228,8 @@ public class SelfMadeStreamer extends Solver {
 		for (int idx = 0; idx < vms.length; idx++) {
 			vmGroup[idx] = VF.enumerated(vms[idx].getName() + ".group", 0, maxNbVMGroup, this);
 		}
-		groupUse = new IntVar[maxNbVMGroup];
-		groupSize = new IntVar[maxNbVMGroup];
+		groupUse = new IntVar[maxNbVMGroup + 1];
+		groupSize = new IntVar[maxNbVMGroup + 1];
 		for (int i = 0; i < groupSize.length; i++) {
 			if (i == 0) {
 				groupUse[i] = ZERO();
@@ -233,10 +240,22 @@ public class SelfMadeStreamer extends Solver {
 				post(ICF.arithm(groupUse[i - 1], "<=", groupUse[i]));
 				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
 				post(ICF.arithm(groupSize[i], "!=", 1));
-				if (i > 1)
+				if (i > 1) {
 					LCF.ifThen(ICF.arithm(groupSize[i - 1], "=", 0), ICF.arithm(groupSize[i], "=", 0));
+				}
 			}
 			post(ICF.count(i, vmGroup, groupSize[i]));
+		}
+
+		// if we have at least two VM and one group, then we must have at least a
+		// group with vms.
+		if (vms.length > 1 && groupSize.length > 1) {
+			try {
+				groupSize[1].updateLowerBound(2, Cause.Null);
+			}
+			catch (ContradictionException e) {
+				throw new UnsupportedOperationException(e);
+			}
 		}
 	}
 
@@ -251,12 +270,16 @@ public class SelfMadeStreamer extends Solver {
 		}
 
 		VMGroup[] groups = new VMGroup[groupUse.length];
-		for (int i = 1; i < groupUse.length; i++)
-			groups[i] = d.addGroup("g_" + i, s.getIntVal(groupUse[i]));
+		for (int i = 1; i < groupUse.length; i++) {
+			if (s.getIntVal(groupSize[i]) > 0) {
+				groups[i] = d.addGroup("g_" + i, s.getIntVal(groupUse[i]));
+			}
+		}
 		for (int i = 0; i < vms.length; i++) {
 			int group = s.getIntVal(vmGroup[i]);
-			if (group != 0)
+			if (group != 0) {
 				d.addVM(groups[group], vms[i]);
+			}
 		}
 
 		return ret;

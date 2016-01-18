@@ -55,7 +55,7 @@ public class Optiplace extends IOptiplace {
 
 	/**
 	 * find a solution if exists to a Configuration
-	 * 
+	 *
 	 * @param cfg
 	 *          the configuration to test
 	 * @return true if an instance of {@link Optiplace} can find a solution.
@@ -76,7 +76,7 @@ public class Optiplace extends IOptiplace {
 
 	@Override
 	public void makeProblem() {
-		long st = System.currentTimeMillis();
+		long st = System.nanoTime();
 
 		// each view can pre-process the configuration, creating or removing VM,
 		// nodes, etc.
@@ -104,7 +104,7 @@ public class Optiplace extends IOptiplace {
 			}
 		}
 
-		target.setBuildTime(System.currentTimeMillis() - st);
+		target.setBuildTime(System.nanoTime() - st);
 		target.setProblem(problem);
 	}
 
@@ -129,7 +129,7 @@ public class Optiplace extends IOptiplace {
 
 	@Override
 	public void configSearch() {
-		long st = System.currentTimeMillis();
+		long st = System.nanoTime();
 		// get the goal if any
 		SearchGoal goalMaker = null;
 		String goalId = strat.getGoalId();
@@ -169,7 +169,7 @@ public class Optiplace extends IOptiplace {
 			problem.setObjective(null);
 		}
 
-		target.setConfigTime(System.currentTimeMillis() - st);
+		target.setConfigTime(System.nanoTime() - st);
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class Optiplace extends IOptiplace {
 
 	@Override
 	public void makeSearch() {
-		long st = System.currentTimeMillis();
+		long st = System.nanoTime();
 		if (problem.getObjective() != null) {
 			problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
 			if (problem.getSolutionRecorder().getLastSolution() == null) {
@@ -263,7 +263,7 @@ public class Optiplace extends IOptiplace {
 			};
 			problem.set(om);
 		}
-		target.setSearchTime(System.currentTimeMillis() - st);
+		target.setSearchTime(System.nanoTime() - st);
 	}
 
 	@Override

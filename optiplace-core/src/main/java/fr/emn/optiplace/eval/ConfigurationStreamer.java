@@ -1,9 +1,10 @@
 
-package fr.emn.optiplace.configuration;
+package fr.emn.optiplace.eval;
 
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -17,6 +18,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.VF;
 
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
@@ -81,7 +83,7 @@ public class ConfigurationStreamer {
 
 	/**
 	 * get the next solutions of a solver and convert them to another type
-	 * 
+	 *
 	 * @param <T>
 	 *          the type of returned solutions
 	 * @param s
@@ -274,25 +276,29 @@ public class ConfigurationStreamer {
 	 *          {@link #getSize(IConfiguration)}.
 	 * @param resName
 	 *          the name of the resource specification
-	 * @param maxNodeRes
-	 *          the maximum total resource of the nodes
+	 * @param maxResFunc
+	 *          a function that give, according to the elements, the max capacity
+	 *          of the resource.
 	 * @param maxVmLoadPct
 	 *          maximum load of the nodes (ie max 100*vmtotaluse/nodetotalUse),
 	 *          limited from 0 to 100.
 	 * @return
 	 */
+	@SafeVarargs
 	public static Stream<IConfiguration> streamConfigurations(int maxVMPerHost, int maxCfgSize, String resName,
-	    Function<IConfiguration, Integer> maxLoadFunc, int maxVmLoadPct) {
-		return streamElements(maxVMPerHost, maxCfgSize)
-		    .flatMap(c -> streamResource(c, resName, maxLoadFunc.apply(c), maxVmLoadPct).map(s ->
+	    Function<IConfiguration, Integer> maxResFunc, int maxVmLoadPct, Predicate<IConfiguration>... elementCheckers) {
+		Predicate<IConfiguration> checker = c -> true;
+		if (elementCheckers != null) {
+			for (Predicate<IConfiguration> p : elementCheckers) {
+				checker = checker.and(p);
+			}
+		}
+		return streamElements(maxVMPerHost, maxCfgSize).filter(checker)
+		    .flatMap(c -> streamResource(c, resName, maxResFunc.apply(c), maxVmLoadPct).map(s ->
 		{
 			    IConfiguration c2 = c.clone();
 			    c2.resources().put(s.getType(), s);
 			    return c2;
 		    }));
-	}
-
-	public static void main(String[] args) {
-		System.err.println(streamConfigurations(10, 20, "cpu", c -> 3 * c.nbNodes(), 80).count());
 	}
 }

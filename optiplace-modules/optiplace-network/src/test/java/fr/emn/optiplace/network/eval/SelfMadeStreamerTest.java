@@ -1,12 +1,12 @@
-package fr.emn.optiplace.network.benches;
+package fr.emn.optiplace.network.eval;
 
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.network.streamer.SelfMadeStreamer;
+import fr.emn.optiplace.network.eval.SelfMadeStreamer;
 
-public class SelfMadeStreamerBench {
+public class SelfMadeStreamerTest {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfMadeStreamerBench.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfMadeStreamerTest.class);
 
 	public static void main(String[] args) {
 		Configuration c = new Configuration();
@@ -16,7 +16,7 @@ public class SelfMadeStreamerBench {
 		c.addVM("vm0", null);
 		c.addVM("vm1", null);
 
-		SelfMadeStreamer sms = new SelfMadeStreamer(c, 0, 3, 2, 2, 2);
+		SelfMadeStreamer sms = new SelfMadeStreamer(c, 0, 6, 2, 3, 3);
 		sms.stream().forEach(d -> System.err.println("\n" + d.getData()));
 	}
 }

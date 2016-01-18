@@ -71,7 +71,7 @@ public class DeducedTarget {
 	}
 
 	/**
-	 * @return the buildTime
+	 * @return the buildTime in nanosecond
 	 */
 	public long getBuildTime() {
 		return buildTime;
@@ -101,7 +101,7 @@ public class DeducedTarget {
 	}
 
 	/**
-	 * @return the searchTime
+	 * @return the time to search for solution, in nanosecond
 	 */
 	public long getSearchTime() {
 		return searchTime;
@@ -113,21 +113,6 @@ public class DeducedTarget {
 	 */
 	public void setSearchTime(long searchTime) {
 		this.searchTime = searchTime;
-	}
-
-	/**
-	 * @return the searchTime
-	 */
-	public long getFirstSolTime() {
-		return firstSolTime;
-	}
-
-	/**
-	 * @param searchTime
-	 *          the searchTime to set
-	 */
-	public void setFirstSolTime(long firstSolTime) {
-		this.firstSolTime = firstSolTime;
 	}
 
 	/**
