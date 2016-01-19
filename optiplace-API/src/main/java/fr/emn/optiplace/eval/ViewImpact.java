@@ -1,7 +1,5 @@
 package fr.emn.optiplace.eval;
 
-import java.util.function.Function;
-
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.view.View;
 
@@ -21,51 +19,33 @@ public class ViewImpact<T extends View> {
 	}
 
 	public final IConfiguration configuration;
-	public long minTimeNude = Long.MAX_VALUE;
-	public long viewsTested = 0;
+	public long nudeTime_ns = Long.MAX_VALUE;
 	public T worseView = null;
-	public long worseViewTime = 0;
+	public long worseViewTime_ns = 0;
 
-	public void addNudeTime(long time) {
-		minTimeNude = Math.min(minTimeNude, time);
+	public boolean addNudeTime(long time) {
+		boolean ret = time < nudeTime_ns;
+		if (ret) {
+			nudeTime_ns = time;
+		}
+		return ret;
 	}
 
 	public void addView(long time, T view) {
-		if (worseView == null || time > worseViewTime) {
-			worseViewTime = time;
+		if (worseView == null || time > worseViewTime_ns) {
+			worseViewTime_ns = time;
 			worseView = view;
+			System.err.println("new worse view time " + time + " , nude time is " + nudeTime_ns);
 		}
-		viewsTested++;
 	}
 
 	@Override
 	public String toString() {
-		return "nude time is " + minTimeNude + " for config \n " + configuration + "\nand worse time is " + worseViewTime
+		return "nude time is " + nudeTime_ns + " for config \n " + configuration + "\nand worse time is " + worseViewTime_ns
 		    + " with view\n " + worseView;
 	}
 
-	/**
-	 *
-	 * @param size
-	 *          convert the configuration to its size
-	 * @param separator
-	 *          separates the size, and converted values.
-	 * @param conversions
-	 *          methods to extract deduced values from this.
-	 * @return a new String built with the given specifications.
-	 */
-	@SuppressWarnings("unchecked")
-	public String printValue(String separator,
-	    Function<ViewImpact<T>, Object>... conversions) {
-		StringBuilder sb = null;
-		for (Function<ViewImpact<T>, Object> f : conversions) {
-			if (sb != null) {
-				sb.append(separator);
-			} else {
-				sb = new StringBuilder();
-			}
-			sb.append(f.apply(this));
-		}
-		return sb.toString();
+	public int pctIncrease() {
+		return (int) ((worseViewTime_ns - nudeTime_ns) * 100 / nudeTime_ns);
 	}
 }

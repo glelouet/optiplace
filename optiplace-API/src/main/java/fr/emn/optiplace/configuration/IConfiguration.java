@@ -98,7 +98,7 @@ public interface IConfiguration extends Cloneable {
 		if (name == null) {
 			return null;
 		}
-		ManagedElement ret = getElementByName(name.toLowerCase());
+		ManagedElement ret = getElementByName(name);
 		if (ret == null) {
 			return null;
 		}
@@ -535,6 +535,18 @@ public interface IConfiguration extends Cloneable {
 	int nbExterns();
 
 	boolean remove(Extern e);
+
+	default int nbHosts() {
+		return nbExterns() + nbNodes();
+	}
+
+	/**
+	 *
+	 * @return the total number of nodes, externs and VMs.
+	 */
+	default int nbElems() {
+		return nbHosts() + nbVMs();
+	}
 
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();

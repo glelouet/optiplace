@@ -1,9 +1,10 @@
 
 package fr.emn.optiplace.network.eval;
 
-import fr.emn.optiplace.eval.ConfigurationStreamer;
-import fr.emn.optiplace.eval.ViewEvaluation;
-import fr.emn.optiplace.eval.ViewImpact;
+import java.util.stream.Stream;
+
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.eval.*;
 import fr.emn.optiplace.network.NetworkView;
 
 
@@ -16,9 +17,9 @@ public class NetworkViewEvaluation {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkViewEvaluation.class);
 
-	public static void main(String[] args) {
-		System.err.println("nude_ns\tview_ns\ttests_#\tincr_%\telements_#\tplacement_#");
-		ViewEvaluation
+	public static void main2(String[] args) {
+		System.err.println("nude_ns\tview_ns\tincr_%\telements_#\tplacement_#");
+		ViewEvaluator
 		    .eval(
 		        ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50, c -> c.nbNodes() > 2,
 		            c -> c.nbVMs() > 2),
@@ -30,8 +31,21 @@ public class NetworkViewEvaluation {
 		int nbHosts = vi.configuration.nbNodes() + vi.configuration.nbExterns();
 		int nbVMs = vi.configuration.nbVMs();
 
-		System.out.println(vi.minTimeNude + "\t" + vi.worseViewTime + "\t" + vi.viewsTested + "\t"
-		    + (100 * vi.worseViewTime / vi.minTimeNude - 100) + "\t" + (nbHosts + nbVMs) + "\t" + Math.pow(nbHosts, nbVMs));
+		System.out
+		    .println(vi.nudeTime_ns + "\t" + vi.worseViewTime_ns + "\t" 
+		    + (100 * vi.worseViewTime_ns / vi.nudeTime_ns - 100) + "\t" + (nbHosts + nbVMs) + "\t" + Math.pow(nbHosts, nbVMs));
+	}
+
+	public static void main(String[] args) {
+		ViewEvaluator v = new ViewEvaluator(10, 1000);
+		ViewImpactAggregator<NetworkView> agg = new ViewImpactAggregator<NetworkView>()
+		    .withConfigWeigther(IConfiguration::nbHosts);
+		Stream<IConfiguration> cex = ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50,
+		    c -> c.nbNodes() > 2, c -> c.nbVMs() > 2);
+		ViewStreamer<NetworkView> vex = c -> new SelfMadeStreamer(c, 2 * (c.nbNodes() + c.nbExterns()), 4 * c.nbNodes(), 3,
+		    4, 4).stream();
+		v.eval(cex, vex, agg);
+		agg.dataOrdered((i, w) -> System.err.println("weight " + w + " pct " + i.pctIncrease()));
 	}
 
 }
