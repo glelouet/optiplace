@@ -4,7 +4,11 @@ package fr.emn.optiplace.network.eval;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.eval.*;
+import fr.emn.optiplace.eval.ConfigurationStreamer;
+import fr.emn.optiplace.eval.ViewEvaluator;
+import fr.emn.optiplace.eval.ViewImpact;
+import fr.emn.optiplace.eval.ViewImpactAggregator;
+import fr.emn.optiplace.eval.ViewStreamer;
 import fr.emn.optiplace.network.NetworkView;
 
 
@@ -21,7 +25,7 @@ public class NetworkViewEvaluation {
 		System.err.println("nude_ns\tview_ns\tincr_%\telements_#\tplacement_#");
 		ViewEvaluator
 		    .eval(
-		        ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50, c -> c.nbNodes() > 2,
+						ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50, 5, c -> c.nbNodes() > 2,
 		            c -> c.nbVMs() > 2),
 		        c -> new SelfMadeStreamer(c, 2 * (c.nbNodes() + c.nbExterns()), 4 * c.nbNodes(), 3, 4, 4).stream(), 10)
 		    .limit(5000).forEach(vi -> acceptViewImpact(vi));
@@ -40,7 +44,7 @@ public class NetworkViewEvaluation {
 		ViewEvaluator v = new ViewEvaluator(10, 1000);
 		ViewImpactAggregator<NetworkView> agg = new ViewImpactAggregator<NetworkView>()
 		    .withConfigWeigther(IConfiguration::nbHosts);
-		Stream<IConfiguration> cex = ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50,
+		Stream<IConfiguration> cex = ConfigurationStreamer.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50, 5,
 		    c -> c.nbNodes() > 2, c -> c.nbVMs() > 2);
 		ViewStreamer<NetworkView> vex = c -> new SelfMadeStreamer(c, 2 * (c.nbNodes() + c.nbExterns()), 4 * c.nbNodes(), 3,
 		    4, 4).stream();

@@ -18,7 +18,11 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
@@ -191,7 +195,7 @@ public class ConfigurationStreamer {
 	 * @return a new Stream.
 	 */
 	public static Stream<ResourceSpecification> streamResource(IConfiguration cfg, String resName, int maxNodeRes,
-	    int maxVmLoadPct) {
+			int maxVmLoadPct, int nbTotalResValues) {
 		if (maxNodeRes < cfg.nbNodes() || maxNodeRes < cfg.nbVMs()) {
 			return Stream.empty();
 		}
@@ -239,6 +243,27 @@ public class ConfigurationStreamer {
 		s.post(ICF.arithm(VF.scale(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
 		    VF.scale(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
 
+		// do we need to have a limited number of values for cumul VM/Node load?
+		if (nbTotalResValues > 1) {
+			int minVMLoad = vms.length, maxVMLoad = maxNodeRes * maxVmLoadPct / 100;
+			int[] allowedVMCumul = new int[nbTotalResValues];
+			for (int i = 0; i < nbTotalResValues; i++) {
+				allowedVMCumul[i] = minVMLoad + (maxVMLoad - minVMLoad) * i / (nbTotalResValues - 1);
+			}
+			IntVar vmTotalCumul = VF.enumerated("vmTotalUse", allowedVMCumul, s);
+			s.post(ICF.arithm(vmTotalCumul, "=", vmUseCumuls[vms.length - 1]));
+
+			int minNodeCumul = Math.max(nodes.length, vms.length);
+			int maxNodeCumul = maxNodeRes;
+			int[] allowedNodeCumul = new int[nbTotalResValues];
+			for (int i = 0; i < nbTotalResValues; i++) {
+				allowedNodeCumul[i] = minNodeCumul + (maxNodeCumul - minNodeCumul) * i / (nbTotalResValues - 1);
+			}
+			IntVar nodeTotalCumul = VF.enumerated("nodeTotalUse", allowedNodeCumul, s);
+			s.post(ICF.sum(nodeCaps, nodeTotalCumul));
+		}
+
+		// set the extern values
 		SetVar vmsUses = VF.set("vmUses", 1, maxNodeRes, s);
 		s.post(SCF.int_values_union(vmUses, vmsUses));
 		for (int i = 0; i < externs.length; i++) {
@@ -286,7 +311,8 @@ public class ConfigurationStreamer {
 	 */
 	@SafeVarargs
 	public static Stream<IConfiguration> streamConfigurations(int maxVMPerHost, int maxCfgSize, String resName,
-	    Function<IConfiguration, Integer> maxResFunc, int maxVmLoadPct, Predicate<IConfiguration>... elementCheckers) {
+			Function<IConfiguration, Integer> maxResFunc, int maxVmLoadPct, int nbTotalResValues,
+			Predicate<IConfiguration>... elementCheckers) {
 		Predicate<IConfiguration> checker = c -> true;
 		if (elementCheckers != null) {
 			for (Predicate<IConfiguration> p : elementCheckers) {
@@ -294,7 +320,7 @@ public class ConfigurationStreamer {
 			}
 		}
 		return streamElements(maxVMPerHost, maxCfgSize).filter(checker)
-		    .flatMap(c -> streamResource(c, resName, maxResFunc.apply(c), maxVmLoadPct).map(s ->
+				.flatMap(c -> streamResource(c, resName, maxResFunc.apply(c), maxVmLoadPct, nbTotalResValues).map(s ->
 		{
 			    IConfiguration c2 = c.clone();
 			    c2.resources().put(s.getType(), s);

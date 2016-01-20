@@ -104,7 +104,6 @@ public class ViewEvaluator implements IViewEvaluator {
 					}
 					long searchTime = t.getSearchTime();
 					if (searchTime < mintime_ns) {
-						System.err.println("view is too fast with search time " + searchTime);
 						break;
 					}
 					viewtime = Math.min(viewtime, searchTime);
