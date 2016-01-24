@@ -11,8 +11,8 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 
 
 /**
- * Aggregates View impact data. Also provides a return on the max time percent
- * increase to a similar configuration.
+ * Aggregates View evaluation data. Also provides a return on the max time
+ * percent increase to a similar configuration.
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
@@ -30,35 +30,34 @@ public class ViewImpactAggregator<T extends View> {
 		return this;
 	}
 
-	TLongObjectHashMap<ViewImpact<T>> weightToImpact = new TLongObjectHashMap<>();
+	TLongObjectHashMap<WorseViewEvaluation<T>> weightToEval = new TLongObjectHashMap<>();
 	TLongIntHashMap weightToIncrease = new TLongIntHashMap();
 
-	public void add(ViewImpact<T> impact) {
-		int pct = (int) (100 * (impact.worseViewTime_ns - impact.nudeTime_ns) / impact.nudeTime_ns);
-		long weight = weight(impact.configuration);
+	public void add(WorseViewEvaluation<T> eval) {
+		int pct = (int) (100 * (eval.worseViewEval - eval.nudeEval) / eval.nudeEval);
+		long weight = weight(eval.configuration);
 		if(pct>increase(weight)) {
-			System.err.println("increased pct (" + pct + ") for weight " + weight);
-			weightToImpact.put(weight, impact);
+			System.err.println("new worse pct " + pct + " for view size " + weight);
+			weightToEval.put(weight, eval);
 			weightToIncrease.put(weight, pct);
 		}
 	}
 
 	public long weight(IConfiguration cfg) {
 		long w = configurationWeighter.applyAsLong(cfg);
-		System.err.println("weight " + w);
 		return w;
 	}
 
 	/**
-	 * get the worse time increase percent registered for a Configuration with
-	 * same weigth as the one given.
+	 * get the worse value increase percent registered for a Configuration with
+	 * same weight as the one given.
 	 *
 	 * @param cfg
 	 *          a {@link IConfiguration} to get the weight.
 	 * @return the existing worse percentage increase if existing, or 0 if no
 	 *         configuration with same weight has been added yet.
 	 */
-	public int increase(IConfiguration cfg) {
+	public int getIncrease(IConfiguration cfg) {
 		return increase(weight(cfg));
 	}
 
@@ -66,11 +65,18 @@ public class ViewImpactAggregator<T extends View> {
 		return weightToIncrease.get(weight);
 	}
 
-	public void dataOrdered(ObjLongConsumer<ViewImpact<T>> consumer) {
-		long[] keys = weightToImpact.keys();
+	/**
+	 * apply a consumer on the couples (impact, weight) after ordering them by
+	 * weight
+	 * 
+	 * @param consumer
+	 *          a consumer to apply
+	 */
+	public void dataOrdered(ObjLongConsumer<WorseViewEvaluation<T>> consumer) {
+		long[] keys = weightToEval.keys();
 		java.util.Arrays.sort(keys);
 		for (long l : keys) {
-			consumer.accept(weightToImpact.get(l), l);
+			consumer.accept(weightToEval.get(l), l);
 		}
 	}
 

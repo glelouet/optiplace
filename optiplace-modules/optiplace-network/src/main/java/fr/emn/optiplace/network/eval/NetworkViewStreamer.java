@@ -14,7 +14,11 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.eval.ConfigurationStreamer;
 import fr.emn.optiplace.network.NetworkData;
@@ -69,12 +73,12 @@ import fr.emn.optiplace.network.data.VMGroup;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
-public class SelfMadeStreamer extends Solver {
+public class NetworkViewStreamer extends Solver {
 
 	static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfMadeStreamer.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkViewStreamer.class);
 
 	Node[] nodes;
 	Extern[] externs;
@@ -89,6 +93,8 @@ public class SelfMadeStreamer extends Solver {
 	int maxNbVMGroup;
 	int maxGroupSize;
 	int maxGroupUse;
+
+	int nbCumulValues;
 
 	/** number of routers added */
 	IntVar nbRouters;
@@ -127,19 +133,20 @@ public class SelfMadeStreamer extends Solver {
 	 * @param maxGroupUse
 	 *          maximum use of the groups
 	 */
-	public SelfMadeStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
-			int maxGroupUse) {
+	public NetworkViewStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
+			int maxGroupUse, int nbCumulValues) {
 		maxLinkCapa = maxLinksCapa;
 		minLinkCapa = minLinksCapa;
 		maxNbVMGroup = maxNbVMGroups;
 		this.maxGroupSize = maxGroupSize;
 		this.maxGroupUse = maxGroupUse;
+		this.nbCumulValues = nbCumulValues;
 		nodes = v.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
 		externs = v.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
 		vms = v.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
 		maxNbRouters = externs.length + nodes.length - 2;
 		if (maxNbRouters < 0) {
-			maxNbRouters=0;
+			maxNbRouters = 0;
 		}
 		routers = new Router[maxNbRouters];
 		vertices = new VMHoster[externs.length + nodes.length + maxNbRouters];
@@ -220,8 +227,15 @@ public class SelfMadeStreamer extends Solver {
 			linkCapas[idx] = VF.bounded("link." + idx, 0, maxLinkCapa, this);
 			LCF.ifThenElse(edgeActivated[idx + 1], ICF.arithm(linkCapas[idx], ">", 0), ICF.arithm(linkCapas[idx], "=", 0));
 		}
-
-		totalLinksCapa = VF.bounded("totalLinkCapa", minLinkCapa, maxLinkCapa, this);
+		if (nbCumulValues > 1) {
+			int[] totalCapaValues = new int[nbCumulValues];
+			for (int i = 0; i < nbCumulValues; i++) {
+				totalCapaValues[i] = minLinkCapa + i * (maxLinkCapa - minLinkCapa) / (nbCumulValues - 1);
+			}
+			totalLinksCapa = VF.enumerated("totalLinkCapa", totalCapaValues, this);
+		} else {
+			totalLinksCapa = VF.bounded("totalLinkCapa", minLinkCapa, maxLinkCapa, this);
+		}
 		post(ICF.sum(linkCapas, totalLinksCapa));
 
 		vmGroup = new IntVar[vms.length];
@@ -236,15 +250,25 @@ public class SelfMadeStreamer extends Solver {
 				groupSize[i] = VF.bounded("group_0.size", 0, vms.length, this);
 			} else {
 				groupUse[i] = VF.bounded("group_" + i + ".use", 1, maxGroupUse, this);
-				// group uses are ordered
-				post(ICF.arithm(groupUse[i - 1], "<=", groupUse[i]));
 				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
 				post(ICF.arithm(groupSize[i], "!=", 1));
-				if (i > 1) {
-					LCF.ifThen(ICF.arithm(groupSize[i - 1], "=", 0), ICF.arithm(groupSize[i], "=", 0));
-				}
+				// group uses are ordered
+				post(ICF.arithm(groupUse[i - 1], "<=", groupUse[i]));
+				// groups are strict increasing either in use or in size
+				LCF.or(ICF.arithm(groupUse[i - 1], "<", groupUse[i]), ICF.arithm(groupSize[i - 1], "<", groupSize[i]));
+				//
+				LCF.ifThen(ICF.arithm(groupSize[i - 1], "=", 0), ICF.arithm(groupSize[i], "=", 0));
 			}
 			post(ICF.count(i, vmGroup, groupSize[i]));
+		}
+		if (nbCumulValues > 1) {
+			int minTotalGroupUse = 2, maxTotalGroupUse = maxNbVMGroup * maxGroupUse;
+			int[] totalGroupUseValues = new int[nbCumulValues];
+			for (int i = 0; i < nbCumulValues; i++) {
+				totalGroupUseValues[i] = minTotalGroupUse + i * (maxTotalGroupUse - minTotalGroupUse) / (nbCumulValues - 1);
+			}
+			IntVar totalGroupUse = VF.enumerated("totalGroupUse", totalGroupUseValues, this);
+			post(ICF.sum(groupUse, totalGroupUse));
 		}
 
 		// if we have at least two VM and one group, then we must have at least a
@@ -252,8 +276,7 @@ public class SelfMadeStreamer extends Solver {
 		if (vms.length > 1 && groupSize.length > 1) {
 			try {
 				groupSize[1].updateLowerBound(2, Cause.Null);
-			}
-			catch (ContradictionException e) {
+			} catch (ContradictionException e) {
 				throw new UnsupportedOperationException(e);
 			}
 		}

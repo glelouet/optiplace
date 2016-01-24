@@ -162,4 +162,9 @@ public class NetworkView extends EmptyView {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return data.toString();
+	}
+
 }

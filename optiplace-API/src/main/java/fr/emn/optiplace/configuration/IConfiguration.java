@@ -548,6 +548,14 @@ public interface IConfiguration extends Cloneable {
 		return nbHosts() + nbVMs();
 	}
 
+	/**
+	 * 
+	 * @return the total placement solution, as nb(hosts)^nb(vms)
+	 */
+	default long nbPlacement() {
+		return (long) Math.pow(nbHosts(), nbVMs());
+	}
+
 	/** get the known list of resources specifications. It can be modified */
 	LinkedHashMap<String, ResourceSpecification> resources();
 

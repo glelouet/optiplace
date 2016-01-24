@@ -32,19 +32,13 @@ public class DeducedTarget {
 
 	private long searchTime = -1;
 
-	private long firstSolTime = -1;
-
 	private IReconfigurationProblem problem;
 
 	private int objective = -1;
 
 	private long searchNodes = -1;
 
-	private long firstSolNodes = -1;
-
 	private long searchBacktracks = -1;
-
-	private long firstSolBacktracks = -1;
 
 	private long searchSolutions = -1;
 
@@ -116,6 +110,15 @@ public class DeducedTarget {
 	}
 
 	/**
+	 * 
+	 * @return the total time to build the problem, configure the search and
+	 *         launch the search.
+	 */
+	public long getTotalTime() {
+		return searchTime + configTime + buildTime;
+	}
+
+	/**
 	 * @return the problem
 	 */
 	public IReconfigurationProblem getProblem() {
@@ -161,18 +164,11 @@ public class DeducedTarget {
 	}
 
 	/**
-	 * @return the searchNodes
-	 */
-	public long getFirstSolNodes() {
-		return firstSolNodes;
-	}
-
-	/**
 	 * @param l
-	 *          the searchNodes to set
+	 *          the searchBacktracks to set
 	 */
-	public void setFirstSolNodes(long l) {
-		firstSolNodes = l;
+	public void setSearchBacktracks(long l) {
+		searchBacktracks = l;
 	}
 
 	/**
@@ -180,29 +176,6 @@ public class DeducedTarget {
 	 */
 	public long getSearchBacktracks() {
 		return searchBacktracks;
-	}
-
-	/**
-	 * @param l
-	 *          the searchBacktracks to set
-	 */
-	public void setFirstSolBacktracks(long l) {
-		firstSolBacktracks = l;
-	}
-
-	/**
-	 * @return the searchBacktracks
-	 */
-	public long getFirstSolBacktracks() {
-		return firstSolBacktracks;
-	}
-
-	/**
-	 * @param l
-	 *          the searchBacktracks to set
-	 */
-	public void setSearchBacktracks(long l) {
-		searchBacktracks = l;
 	}
 
 	/**
@@ -226,8 +199,6 @@ public class DeducedTarget {
 		sb.append("times : config=" + configTime + "ms build=" + buildTime + "ms search=" + searchTime + "ms\n");
 		sb.append(
 		    "stats : " + searchSolutions + " solutions, " + searchNodes + " nodes, " + searchBacktracks + " backtracks\n");
-		sb.append(
-		    "first sol : " + firstSolTime + "ms, " + firstSolNodes + " nodes, " + firstSolBacktracks + " backtracks\n");
 		sb.append("actions (").append(actions.nbActions()).append(") :\n").append(actions).append("\ndestination : \n")
 		    .append(destination).append("\nobjective result = " + objective);
 		return sb.toString();

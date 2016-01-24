@@ -283,7 +283,7 @@ public class Optiplace extends IOptiplace {
 		}
 		target.setDestination(dest);
 		if (problem.getObjective() != null) {
-			target.setObjective(((IntVar) problem.getSolver().getObjectiveManager().getObjective()).getValue());
+			target.setObjective((int) m.getBestSolutionValue());
 		}
 		Migrate.extractMigrations(source, dest, target.getActions());
 		Allocate.extractAllocates(source, dest, target.getActions());
