@@ -28,6 +28,7 @@ import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.SearchGoal;
 
+
 /**
  * A dummy placement heuristic. Branch on all the variables in a static manner,
  * and select the minimum value for each selected variable.
@@ -37,7 +38,7 @@ import fr.emn.optiplace.view.SearchGoal;
  */
 public class DummyPlacementHeuristic {
 
-	public static final org.slf4j.Logger        logger   = LoggerFactory.getLogger(DummyPlacementHeuristic.class);
+	public static final org.slf4j.Logger logger = LoggerFactory.getLogger(DummyPlacementHeuristic.class);
 
 	public static final DummyPlacementHeuristic INSTANCE = new DummyPlacementHeuristic();
 
@@ -45,8 +46,9 @@ public class DummyPlacementHeuristic {
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
 		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
-		for (VM v : m.b().vms())
+		for (VM v : m.b().vms()) {
 			vars.add(m.getState(v));
+		}
 		for (IntVar v : m.getNodes()) {
 			vars.add(v);
 		}

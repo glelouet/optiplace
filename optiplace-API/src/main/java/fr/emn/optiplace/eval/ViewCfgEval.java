@@ -12,9 +12,9 @@ import fr.emn.optiplace.view.View;
  * @param <T>
  *          type of the view.
  */
-public class WorseViewEvaluation<T extends View> {
+public class ViewCfgEval<T extends View> {
 
-	public WorseViewEvaluation(IConfiguration cfg) {
+	public ViewCfgEval(IConfiguration cfg) {
 		configuration = cfg;
 	}
 

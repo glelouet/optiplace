@@ -1,5 +1,9 @@
+
 package fr.emn.optiplace.network.eval;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,21 +14,22 @@ import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.solution.Solution;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+import org.chocosolver.solver.search.strategy.selectors.variables.InputOrder;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.*;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.eval.ConfigurationStreamer;
 import fr.emn.optiplace.network.NetworkData;
 import fr.emn.optiplace.network.NetworkView;
 import fr.emn.optiplace.network.data.Router;
 import fr.emn.optiplace.network.data.VMGroup;
+
 
 /**
  * explores the network graphs available to a {@link IConfiguration} using a
@@ -132,9 +137,11 @@ public class NetworkViewStreamer extends Solver {
 	 *          maximum number of VM each group can have
 	 * @param maxGroupUse
 	 *          maximum use of the groups
+	 * @param nbCumulValues
+	 *          max umber of cumulative values for link capas and group use
 	 */
 	public NetworkViewStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
-			int maxGroupUse, int nbCumulValues) {
+	    int maxGroupUse, int nbCumulValues) {
 		maxLinkCapa = maxLinksCapa;
 		minLinkCapa = minLinksCapa;
 		maxNbVMGroup = maxNbVMGroups;
@@ -161,6 +168,7 @@ public class NetworkViewStreamer extends Solver {
 			vertices[i + nodes.length + externs.length] = routers[i];
 		}
 		makeVariables();
+		makeHeuristics();
 	}
 
 	protected void makeVariables() {
@@ -190,14 +198,14 @@ public class NetworkViewStreamer extends Solver {
 			Constraint idxOrdered = ICF.arithm(edgePreviousIdx[i - 1], "<=", edgePreviousIdx[i]);
 			// same idx => ordered added
 			Constraint addedOrdered = LCF.or(ICF.arithm(edgePreviousIdx[i - 1], "!=", edgePreviousIdx[i]),
-					ICF.arithm(edgeAddedVertex[i - 1], "<", edgeAddedVertex[i]));
+			    ICF.arithm(edgeAddedVertex[i - 1], "<", edgeAddedVertex[i]));
 			// the idx/vertices can not be -1 if activated
 			Constraint edgeAddedPositiv = ICF.arithm(edgeAddedVertex[i], ">=", 0);
 			Constraint edgeIdxPositiv = ICF.arithm(edgePreviousIdx[i], ">=", 0);
 			Constraint cActivated = LCF.and(idxOrdered, addedOrdered, edgeAddedPositiv, edgeIdxPositiv);
 			// if edge not activated then from and to = -1
 			Constraint cUnactivated = LCF.and(ICF.arithm(edgeAddedVertex[i], "=", -1),
-					ICF.arithm(edgePreviousIdx[i], "=", -1));
+			    ICF.arithm(edgePreviousIdx[i], "=", -1));
 			LCF.ifThenElse(edgeActivated[i], cActivated, cUnactivated);
 		}
 
@@ -211,7 +219,7 @@ public class NetworkViewStreamer extends Solver {
 			IntVar routerIndex = VF.enumerated(vertices[router].name + ".index", -1, vertices.length, this);
 			routerIndexes[router - externs.length - nodes.length] = routerIndex;
 			LCF.ifThenElse(edgeActivated[router], ICF.element(VF.fixed(router, this), edgeAddedVertex, routerIndex, 0),
-					ICF.arithm(routerIndex, "=", -1));
+			    ICF.arithm(routerIndex, "=", -1));
 			// the height of the router
 			IntVar routerHeight = VF.bounded(vertices[router].name + ".height", 0, vertices.length, this);
 			routerHeights[router - externs.length - nodes.length] = routerHeight;
@@ -252,12 +260,17 @@ public class NetworkViewStreamer extends Solver {
 				groupUse[i] = VF.bounded("group_" + i + ".use", 1, maxGroupUse, this);
 				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
 				post(ICF.arithm(groupSize[i], "!=", 1));
-				// group uses are ordered
-				post(ICF.arithm(groupUse[i - 1], "<=", groupUse[i]));
-				// groups are strict increasing either in use or in size
-				LCF.or(ICF.arithm(groupUse[i - 1], "<", groupUse[i]), ICF.arithm(groupSize[i - 1], "<", groupSize[i]));
-				//
-				LCF.ifThen(ICF.arithm(groupSize[i - 1], "=", 0), ICF.arithm(groupSize[i], "=", 0));
+				// a group is activated iff its size is >1
+				Constraint activated = ICF.arithm(groupSize[i], ">", 1);
+				// if a group is activated then its usze is non null
+				LCF.ifThenElse(activated, ICF.arithm(groupUse[i], ">", 0), ICF.arithm(groupUse[i], "=", 0));
+				if (i != 1) {
+					// group size are decreasing
+					post(ICF.arithm(groupSize[i - 1], ">=", groupSize[i]));
+					// groups are strict decreasing either in use or in size
+					LCF.ifThen(activated,
+					    LCF.or(ICF.arithm(groupUse[i - 1], ">", groupUse[i]), ICF.arithm(groupSize[i - 1], ">", groupSize[i])));
+				}
 			}
 			post(ICF.count(i, vmGroup, groupSize[i]));
 		}
@@ -276,10 +289,25 @@ public class NetworkViewStreamer extends Solver {
 		if (vms.length > 1 && groupSize.length > 1) {
 			try {
 				groupSize[1].updateLowerBound(2, Cause.Null);
-			} catch (ContradictionException e) {
+			}
+			catch (ContradictionException e) {
 				throw new UnsupportedOperationException(e);
 			}
 		}
+	}
+
+	protected void makeHeuristics() {
+		List<AbstractStrategy<?>> strats = new ArrayList<>();
+		ArrayList<IntVar> vars = new ArrayList<>();
+		vars.add(nbEdges);
+		vars.addAll(Arrays.asList(edgeAddedVertex));
+		vars.addAll(Arrays.asList(edgePreviousIdx));
+		vars.addAll(Arrays.asList(linkCapas));
+		vars.addAll(Arrays.asList(vmGroup));
+		vars.addAll(Arrays.asList(groupUse));
+		vars.addAll(Arrays.asList(retrieveIntVars()));
+		strats.add(new IntStrategy(vars.toArray(new IntVar[] {}), new InputOrder<>(), new IntDomainMin()));
+		set(strats.toArray(new AbstractStrategy[] {}));
 	}
 
 	public NetworkView extract(Solution s) {

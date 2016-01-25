@@ -46,7 +46,7 @@ public class ViewEvaluator {
 		final long timeInit = System.currentTimeMillis();
 		final long[] nbCfg = new long[] { 0, timeInit };
 		cex.forEach(c -> {
-			WorseViewEvaluation<T> impact = new WorseViewEvaluation<>(c);
+			ViewCfgEval<T> impact = new ViewCfgEval<>(c);
 			impact.nudeEval = eval.evalBestIfWorse(new Optiplace(c), 0);
 			// we can't accept a configuration if another with same weight has already
 			// got more percent increase.

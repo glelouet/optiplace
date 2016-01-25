@@ -30,10 +30,10 @@ public class ViewImpactAggregator<T extends View> {
 		return this;
 	}
 
-	TLongObjectHashMap<WorseViewEvaluation<T>> weightToEval = new TLongObjectHashMap<>();
+	TLongObjectHashMap<ViewCfgEval<T>> weightToEval = new TLongObjectHashMap<>();
 	TLongIntHashMap weightToIncrease = new TLongIntHashMap();
 
-	public void add(WorseViewEvaluation<T> eval) {
+	public void add(ViewCfgEval<T> eval) {
 		int pct = (int) (100 * (eval.worseViewEval - eval.nudeEval) / eval.nudeEval);
 		long weight = weight(eval.configuration);
 		if(pct>increase(weight)) {
@@ -72,7 +72,7 @@ public class ViewImpactAggregator<T extends View> {
 	 * @param consumer
 	 *          a consumer to apply
 	 */
-	public void dataOrdered(ObjLongConsumer<WorseViewEvaluation<T>> consumer) {
+	public void dataOrdered(ObjLongConsumer<ViewCfgEval<T>> consumer) {
 		long[] keys = weightToEval.keys();
 		java.util.Arrays.sort(keys);
 		for (long l : keys) {
