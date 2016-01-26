@@ -7,22 +7,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
 import org.chocosolver.solver.search.strategy.selectors.variables.InputOrder;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
+import org.chocosolver.solver.trace.Chatterbox;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.eval.ConfigurationStreamer;
 import fr.emn.optiplace.network.NetworkData;
@@ -171,6 +174,17 @@ public class NetworkViewStreamer extends Solver {
 		makeHeuristics();
 	}
 
+	public NetworkViewStreamer withShowContradictions() {
+		Chatterbox.showContradiction(this);
+		return this;
+	}
+
+	public NetworkViewStreamer withShowDecisions() {
+		Chatterbox.showDecisions(this);
+		return this;
+	}
+
+
 	protected void makeVariables() {
 		routerActivateds = new BoolVar[maxNbRouters];
 		nbRouters = VF.bounded("nbrouters", 0, maxNbRouters, this);
@@ -246,6 +260,9 @@ public class NetworkViewStreamer extends Solver {
 		}
 		post(ICF.sum(linkCapas, totalLinksCapa));
 
+		//
+		// vms capacities
+		//
 		vmGroup = new IntVar[vms.length];
 		for (int idx = 0; idx < vms.length; idx++) {
 			vmGroup[idx] = VF.enumerated(vms[idx].getName() + ".group", 0, maxNbVMGroup, this);
@@ -255,21 +272,21 @@ public class NetworkViewStreamer extends Solver {
 		for (int i = 0; i < groupSize.length; i++) {
 			if (i == 0) {
 				groupUse[i] = ZERO();
-				groupSize[i] = VF.bounded("group_0.size", 0, vms.length, this);
+				groupSize[i] = VF.bounded("group_0.size", 0, vms.length > 1 ? vms.length - 2 : vms.length, this);
 			} else {
-				groupUse[i] = VF.bounded("group_" + i + ".use", 1, maxGroupUse, this);
+				groupUse[i] = VF.bounded("group_" + i + ".use", 0, maxGroupUse, this);
 				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
 				post(ICF.arithm(groupSize[i], "!=", 1));
 				// a group is activated iff its size is >1
 				Constraint activated = ICF.arithm(groupSize[i], ">", 1);
-				// if a group is activated then its usze is non null
+				// if a group is activated then its use is non null
 				LCF.ifThenElse(activated, ICF.arithm(groupUse[i], ">", 0), ICF.arithm(groupUse[i], "=", 0));
 				if (i != 1) {
 					// group size are decreasing
 					post(ICF.arithm(groupSize[i - 1], ">=", groupSize[i]));
 					// groups are strict decreasing either in use or in size
 					LCF.ifThen(activated,
-					    LCF.or(ICF.arithm(groupUse[i - 1], ">", groupUse[i]), ICF.arithm(groupSize[i - 1], ">", groupSize[i])));
+							LCF.or(ICF.arithm(groupUse[i - 1], ">", groupUse[i]), ICF.arithm(groupSize[i - 1], ">", groupSize[i])));
 				}
 			}
 			post(ICF.count(i, vmGroup, groupSize[i]));
@@ -282,17 +299,6 @@ public class NetworkViewStreamer extends Solver {
 			}
 			IntVar totalGroupUse = VF.enumerated("totalGroupUse", totalGroupUseValues, this);
 			post(ICF.sum(groupUse, totalGroupUse));
-		}
-
-		// if we have at least two VM and one group, then we must have at least a
-		// group with vms.
-		if (vms.length > 1 && groupSize.length > 1) {
-			try {
-				groupSize[1].updateLowerBound(2, Cause.Null);
-			}
-			catch (ContradictionException e) {
-				throw new UnsupportedOperationException(e);
-			}
 		}
 	}
 

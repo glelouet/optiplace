@@ -41,9 +41,9 @@ public class ViewEvaluator {
 
 	public static <T extends View> void evaluate(Stream<IConfiguration> cex, ViewStreamer<T> vex,
 			ProblemEvaluatorIfWorse eval, ViewImpactAggregator<T> aggreg) {
-		// we can't pass non-final elements to a closure so we use a 1-size array of
-		// int.
 		final long timeInit = System.currentTimeMillis();
+		// we can't pass non-final elements to a closure so we use an array of int.
+		// [ nb cfg tested, last print time]
 		final long[] nbCfg = new long[] { 0, timeInit };
 		cex.forEach(c -> {
 			ViewCfgEval<T> impact = new ViewCfgEval<>(c);
@@ -51,7 +51,7 @@ public class ViewEvaluator {
 			// we can't accept a configuration if another with same weight has already
 			// got more percent increase.
 			// because we want the worst %increase for a given configuration weight
-			impact.worseViewEval = (aggreg.getIncrease(c) + 100) * impact.nudeEval / 100 - 1;
+			impact.worseViewEval = aggreg.getPercent(c) * impact.nudeEval / 100;
 
 			vex.explore(c).forEach(v -> {
 				impact.nbViewsTested++;
@@ -63,7 +63,6 @@ public class ViewEvaluator {
 			if (impact.worseView != null) {
 				aggreg.add(impact);
 			}
-			System.gc();
 			nbCfg[0]++;
 			long time = System.currentTimeMillis();
 			if (time - nbCfg[1] > 10000) {

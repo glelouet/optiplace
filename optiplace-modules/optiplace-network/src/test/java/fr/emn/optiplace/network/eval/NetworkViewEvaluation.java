@@ -25,9 +25,9 @@ public class NetworkViewEvaluation {
 				.withConfigWeigther(IConfiguration::nbElems);
 		Stream<IConfiguration> cex = ConfigurationStreamer
 				.streamConfigurations(5, -1, "mem", c -> c.nbNodes() * 5, 50, 3, c -> c.nbNodes() > 2, c -> c.nbVMs() > 2)
-				.filter(Optiplace::hasSolution).limit(10000);
+				.filter(Optiplace::hasSolution).limit(1).peek(System.err::println);
 		ViewStreamer<NetworkView> vex = c -> new NetworkViewStreamer(c, 2 * (c.nbNodes() + c.nbExterns()), 4 * c.nbNodes(),
-				3, 4, 4, 3).stream();
+				3, 4, 4, 10).stream();
 		ViewEvaluator.evaluate(cex, vex, ViewEvaluator.OPEN_NODES, agg);
 		agg.dataOrdered((i, w) -> System.err.println("weight " + w + " pct " + i.pctIncrease()));
 	}

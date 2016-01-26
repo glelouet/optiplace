@@ -31,15 +31,17 @@ public class ViewImpactAggregator<T extends View> {
 	}
 
 	TLongObjectHashMap<ViewCfgEval<T>> weightToEval = new TLongObjectHashMap<>();
-	TLongIntHashMap weightToIncrease = new TLongIntHashMap();
+	TLongIntHashMap weightToPct = new TLongIntHashMap();
 
 	public void add(ViewCfgEval<T> eval) {
-		int pct = (int) (100 * (eval.worseViewEval - eval.nudeEval) / eval.nudeEval);
+		int pct = (int) (100 * (eval.worseViewEval) / eval.nudeEval);
 		long weight = weight(eval.configuration);
-		if(pct>increase(weight)) {
+		if(pct>percent(weight)) {
 			System.err.println("new worse pct " + pct + " for view size " + weight);
 			weightToEval.put(weight, eval);
-			weightToIncrease.put(weight, pct);
+			weightToPct.put(weight, pct);
+		} else {
+			System.err.println("view impact too low pct=" + pct + " weight=" + weight);
 		}
 	}
 
@@ -49,20 +51,20 @@ public class ViewImpactAggregator<T extends View> {
 	}
 
 	/**
-	 * get the worse value increase percent registered for a Configuration with
-	 * same weight as the one given.
+	 * get the worse value percent registered for a Configuration with same weight
+	 * as the one given.
 	 *
 	 * @param cfg
 	 *          a {@link IConfiguration} to get the weight.
-	 * @return the existing worse percentage increase if existing, or 0 if no
-	 *         configuration with same weight has been added yet.
+	 * @return the existing worse percentage if existing, or 0 if no configuration
+	 *         with same weight has been added yet.
 	 */
-	public int getIncrease(IConfiguration cfg) {
-		return increase(weight(cfg));
+	public int getPercent(IConfiguration cfg) {
+		return percent(weight(cfg));
 	}
 
-	public int increase(long weight) {
-		return weightToIncrease.get(weight);
+	public int percent(long weight) {
+		return weightToPct.get(weight);
 	}
 
 	/**
