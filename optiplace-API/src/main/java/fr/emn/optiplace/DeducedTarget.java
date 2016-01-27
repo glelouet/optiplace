@@ -110,7 +110,7 @@ public class DeducedTarget {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the total time to build the problem, configure the search and
 	 *         launch the search.
 	 */

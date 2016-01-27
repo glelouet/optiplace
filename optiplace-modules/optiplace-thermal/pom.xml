@@ -33,6 +33,11 @@
 			<groupId>fr.emn.optiplace.modules</groupId>
 			<artifactId>optiplace-power</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<name>optiplace-thermal</name>
 </project>
