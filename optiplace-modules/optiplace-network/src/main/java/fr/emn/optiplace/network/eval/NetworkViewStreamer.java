@@ -226,6 +226,20 @@ public class NetworkViewStreamer extends Solver {
 		// all the node only appear once in the added
 		post(ICF.alldifferent_conditionnal(edgeAddedVertex, v -> v.getLB() > -1));
 
+		if (nbCumulValues > 1) {
+			// limit number of values for sum(edgepreviousidx)
+			int minPreviousIdxSum = 0;// all vertices are linked to the first one
+			// all vertices are linked to the previous one
+			int maxPreviousIdxSum = vertices.length * (vertices.length - 1) / 2;
+			int[] totalPreviousIdxSumValues = new int[nbCumulValues];
+			for (int i = 0; i < nbCumulValues; i++) {
+				totalPreviousIdxSumValues[i] = minPreviousIdxSum
+						+ i * (maxPreviousIdxSum - minPreviousIdxSum) / (nbCumulValues - 1);
+			}
+			IntVar totalPreviousIdx = VF.enumerated("totalpreviousidx", totalPreviousIdxSumValues, this);
+			post(ICF.sum(edgePreviousIdx, totalPreviousIdx));
+		}
+
 		routerHeights = new IntVar[routers.length];
 		routerIndexes = new IntVar[routers.length];
 		for (int router = externs.length + nodes.length; router < vertices.length; router++) {
@@ -249,7 +263,9 @@ public class NetworkViewStreamer extends Solver {
 			linkCapas[idx] = VF.bounded("link." + idx, 0, maxLinkCapa, this);
 			LCF.ifThenElse(edgeActivated[idx + 1], ICF.arithm(linkCapas[idx], ">", 0), ICF.arithm(linkCapas[idx], "=", 0));
 		}
+		
 		if (nbCumulValues > 1) {
+			//limit number of values of sum(linkscapa)
 			int[] totalCapaValues = new int[nbCumulValues];
 			for (int i = 0; i < nbCumulValues; i++) {
 				totalCapaValues[i] = minLinkCapa + i * (maxLinkCapa - minLinkCapa) / (nbCumulValues - 1);
@@ -292,6 +308,7 @@ public class NetworkViewStreamer extends Solver {
 			post(ICF.count(i, vmGroup, groupSize[i]));
 		}
 		if (nbCumulValues > 1) {
+			// limit possible values of sum(groupUse)
 			int minTotalGroupUse = 2, maxTotalGroupUse = maxNbVMGroup * maxGroupUse;
 			int[] totalGroupUseValues = new int[nbCumulValues];
 			for (int i = 0; i < nbCumulValues; i++) {

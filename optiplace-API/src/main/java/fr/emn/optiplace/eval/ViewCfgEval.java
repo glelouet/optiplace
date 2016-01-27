@@ -43,11 +43,11 @@ public class ViewCfgEval<T extends View> {
 
 	@Override
 	public String toString() {
-		return "nude time is " + nudeEval + " for config \n " + configuration + "\nand worse time is " + worseViewEval
+		return "nude time is " + nudeEval + " for config \n " + configuration + "\nand worse eval is " + worseViewEval
 		    + " with view\n " + worseView;
 	}
 
-	public int pctIncrease() {
-		return (int) ((worseViewEval - nudeEval) * 100 / nudeEval);
+	public int pctView() {
+		return (int) (worseViewEval * 100 / nudeEval);
 	}
 }

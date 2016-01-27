@@ -43,8 +43,8 @@ public class ViewEvaluator {
 			ProblemEvaluatorIfWorse eval, ViewImpactAggregator<T> aggreg) {
 		final long timeInit = System.currentTimeMillis();
 		// we can't pass non-final elements to a closure so we use an array of int.
-		// [ nb cfg tested, last print time]
-		final long[] nbCfg = new long[] { 0, timeInit };
+		// [ nb cfg tested, last print time, last nb config]
+		final long[] nbCfg = new long[] { 0, timeInit, 0 };
 		cex.forEach(c -> {
 			ViewCfgEval<T> impact = new ViewCfgEval<>(c);
 			impact.nudeEval = eval.evalBestIfWorse(new Optiplace(c), 0);
@@ -65,10 +65,15 @@ public class ViewEvaluator {
 			}
 			nbCfg[0]++;
 			long time = System.currentTimeMillis();
-			if (time - nbCfg[1] > 10000) {
-				System.err.println("#cfg=" + nbCfg[0] + " time=" + (time - timeInit) / 1000 + "s cfg/s="
-						+ (1000.0 * nbCfg[0] / (time - timeInit)));
+			long deltat = time - nbCfg[1];
+			if (deltat > 10000) {
+			long deltac = nbCfg[0] - nbCfg[2];
+				System.err.println(" " + deltac + " cfg in " + deltat / 1000 + "s : cfg/s=" + (1000.0 * deltac / deltat)
+						+ " ; total #cfg=" + nbCfg[0]);
+				aggreg.dataOrdered(
+						(i, w) -> System.err.println("weight=" + w + " pct=" + i.pctView() + " #views=" + i.nbViewsTested));
 				nbCfg[1] = time;
+				nbCfg[2] = nbCfg[0];
 			}
 		});
 	}
@@ -105,6 +110,6 @@ public class ViewEvaluator {
 		long ret = o.solve().getSearchNodes();
 		if (ret == -1)
 			return -1;
-		return ret > v ? ret : 0;
+		return ret;
 	};
 }

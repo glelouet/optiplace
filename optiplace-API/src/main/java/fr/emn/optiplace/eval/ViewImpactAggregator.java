@@ -37,11 +37,8 @@ public class ViewImpactAggregator<T extends View> {
 		int pct = (int) (100 * (eval.worseViewEval) / eval.nudeEval);
 		long weight = weight(eval.configuration);
 		if(pct>percent(weight)) {
-			System.err.println("new worse pct " + pct + " for view size " + weight);
 			weightToEval.put(weight, eval);
 			weightToPct.put(weight, pct);
-		} else {
-			System.err.println("view impact too low pct=" + pct + " weight=" + weight);
 		}
 	}
 
