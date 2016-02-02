@@ -36,9 +36,9 @@ public class AmongTest extends SolvingExample {
 		// strat.setLogSolutions(true);
 		// strat.setLogChoices(true);
 		Set<VM> vms = Stream.concat(src.getHosted(nodes[0]), src.getHosted(nodes[1])).distinct()
-		    .collect(Collectors.toSet());
+				.collect(Collectors.toSet());
 		Node n = nodes[nodes.length - 1];
-		Among among = new Among(vms, n.getName());
+		Among among = new Among(vms, new String[] { n.getName() });
 		IConfiguration d = solve(src, among).getDestination();
 		for (VM v : vms) {
 			Assert.assertEquals(d.getLocation(v), n, "dest is " + d + " among is" + among);
@@ -88,7 +88,7 @@ public class AmongTest extends SolvingExample {
 			Assert.assertEquals(l_dest, dest, "VM " + v + " is hosted on " + l_dest + " while previous VMs were on " + dest);
 		}
 		Assert.assertTrue(ns.contains(Collections.singleton(dest.getName())),
-		    "allowed nodes : " + ns + " does not contain node " + dest);
+				"allowed nodes : " + ns + " does not contain node " + dest);
 		// System.err.println("" + d);
 	}
 

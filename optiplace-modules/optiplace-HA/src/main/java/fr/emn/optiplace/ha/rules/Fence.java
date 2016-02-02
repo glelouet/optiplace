@@ -16,13 +16,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -30,11 +28,12 @@ import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
- * A constraint to enforce a set of virtual machines to be hosted on a single
- * group of physical elements.
+ * A constraint to enforce a set of virtual machines to be hosted on a group of
+ * physical elements. Reduces the potential locations of the VM
  *
  * @author Fabien Hermenier
  */
@@ -54,13 +53,7 @@ public class Fence implements Rule {
 		return new Fence(vms, nodes);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Fence parse(String def) {
-			return Fence.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Fence.parse(def);
 
 	protected Set<VM> vms;
 
@@ -68,7 +61,7 @@ public class Fence implements Rule {
 
 	/**
 	 * Make a new constraint that enforce all the virtual machines to be hosted on
-	 * a single group of nodes.
+	 * a group of nodes.
 	 *
 	 * @param vms
 	 *          the set of VMs to assign.
@@ -114,38 +107,31 @@ public class Fence implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		List<VM> runnings = vms.stream().filter(core.getSourceConfiguration()::hasVM).collect(Collectors.toList());
-		if (runnings.isEmpty())
+		if (runnings.isEmpty()) {
 			return;
-		int[] iExlude = new int[core.getSourceConfiguration().nbNodes(null)];
+		}
+		TIntArrayList iExlude = new TIntArrayList();
 		TIntHashSet toKeep = new TIntHashSet(nodes.size());
 		for (Node n : nodes) {
-			toKeep.add(core.b().node(n));
+			int idx = core.b().node(n);
+			if (idx != -1) {
+				toKeep.add(idx);
+			}
 		}
-		AtomicInteger i = new AtomicInteger(0);
-		core.getSourceConfiguration().getOnlines().forEach(n -> {
-			int idx = core.b().node(n);
-			if (!toKeep.contains(idx)) {
-				iExlude[i.getAndAdd(1)] = idx;
-			}
-		});
-
-		core.getSourceConfiguration().getOfflines().forEach(n -> {
-			int idx = core.b().node(n);
-			if (!toKeep.contains(idx)) {
-				iExlude[i.getAndAdd(1)] = idx;
-			}
-		});
+		core.getSourceConfiguration().getNodes().mapToInt(core.b()::node).filter(ni -> !toKeep.contains(ni))
+		.forEach(ni -> iExlude.add(ni));
 
 		// Domain restriction. Remove all the non-involved nodes
 		for (VM vm : runnings) {
 			IntVar hoster = core.getNode(vm);
-			for (int a = 0; a < i.get(); a++) {
+			iExlude.forEach(ni -> {
 				try {
-					hoster.removeValue(iExlude[a], Cause.Null);
-				} catch (ContradictionException e) {
-					logger.error("while removing " + iExlude[a] + " from vm " + vm + " hoster", e);
+					hoster.removeValue(ni, Cause.Null);
+				} catch (Exception e) {
+					logger.warn("", e);
 				}
-			}
+				return false;
+			});
 		}
 	}
 

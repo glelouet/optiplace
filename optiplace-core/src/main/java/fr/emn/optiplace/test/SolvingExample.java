@@ -1,12 +1,13 @@
 package fr.emn.optiplace.test;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.EmptyView;
@@ -75,11 +76,10 @@ public class SolvingExample {
 	}
 
 	public DeducedTarget solve(IConfiguration src, Rule... rules) {
-		Optiplace p = new Optiplace();
-		p.source(src);
+		Optiplace p = new Optiplace(src);
 		EmptyView v = new EmptyView();
-		v.getInternalRules().addAll(Arrays.asList(rules));
-		p.views().add(v);
+		Stream.of(rules).forEach(r -> v.addRule(r));
+		p.with(v);
 		p.strat(strat);
 		p.views().addAll(Arrays.asList(views));
 		p.solve();

@@ -12,6 +12,7 @@
 package fr.emn.optiplace.ha.rules;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,13 +58,7 @@ public class Among implements Rule {
 		return new Among(vms, nodess);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Among parse(String def) {
-			return Among.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Among.parse(def);
 
 	/** The set of possible groups of nodes. */
 	private final Set<Set<String>> groups;
@@ -77,7 +72,8 @@ public class Among implements Rule {
 	 * @param vms
 	 *          the set of VMs to assign.
 	 * @param groups
-	 *          the list of possible groups of nodes.
+	 *          the list of possible groups of nodes. If empty, the group of vm
+	 *          must all be on the same node.
 	 */
 	public Among(Set<VM> vms, Set<Set<String>> groups) {
 		this.groups = groups;
@@ -87,20 +83,19 @@ public class Among implements Rule {
 	public Among(Set<VM> vms, String[]... groups) {
 		this.vms = vms;
 		this.groups = new HashSet<>();
-		for (String[] ar : groups) {
-			HashSet<String> set = new HashSet<>();
-			for (String s : ar)
-				set.add(s);
-			this.groups.add(set);
+		if (groups != null) {
+			for (String[] ar : groups) {
+				HashSet<String> set = new HashSet<>();
+				for (String s : ar) {
+					set.add(s);
+				}
+				this.groups.add(set);
+			}
 		}
 	}
 
-	public Among(Set<VM> vms, String... nodesnames) {
-		this(vms, new String[][] { nodesnames });
-	}
-
 	public Among(String hostername, VM... vms) {
-		this(new HashSet<>(Arrays.asList(vms)), new String[] { hostername });
+		this(new HashSet<>(Arrays.asList(vms)), hostername == null ? null : new String[] { hostername });
 	}
 
 	/**
@@ -141,9 +136,10 @@ public class Among implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
+		Set<Set<String>> groups = this.groups;
 		if (groups.isEmpty()) {
-			logger.debug("Ignoring " + this + ", no groups were specified");
-			return;
+			groups = core.getSourceConfiguration().getOnlines().map(n -> Collections.singleton(n.getName()))
+					.collect(Collectors.toSet());
 		}
 		// Get the nodes of the VMs
 		IConfiguration cfg = core.getSourceConfiguration();
@@ -174,12 +170,11 @@ public class Among implements Rule {
 	 */
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		if (groups.isEmpty()) {
-			logger.error("No group of nodes was specified");
-			return false;
-		}
 		Set<String> locations = vms.stream().filter(cfg::isRunning).map(cfg::getLocation).map(VMHoster::getName)
 				.collect(Collectors.toSet());
+		if (groups.isEmpty() && locations.size() != vms.stream().filter(cfg::isRunning).count()) {
+			return false;
+		}
 		List<Set<String>> matches = groups.stream().filter(s -> s.containsAll(locations)).collect(Collectors.toList());
 		if (matches.size() != 1) {
 			logger.debug("among " + this + " is not satisfied because matching groups should be 1 and are " + matches);
