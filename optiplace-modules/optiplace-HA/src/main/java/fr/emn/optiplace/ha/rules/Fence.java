@@ -110,7 +110,7 @@ public class Fence implements Rule {
 		if (runnings.isEmpty()) {
 			return;
 		}
-		TIntArrayList iExlude = new TIntArrayList();
+		TIntArrayList iExclude = new TIntArrayList();
 		TIntHashSet toKeep = new TIntHashSet(nodes.size());
 		for (Node n : nodes) {
 			int idx = core.b().node(n);
@@ -119,18 +119,18 @@ public class Fence implements Rule {
 			}
 		}
 		core.getSourceConfiguration().getNodes().mapToInt(core.b()::node).filter(ni -> !toKeep.contains(ni))
-		.forEach(ni -> iExlude.add(ni));
+		.forEach(ni -> iExclude.add(ni));
 
 		// Domain restriction. Remove all the non-involved nodes
 		for (VM vm : runnings) {
 			IntVar hoster = core.getNode(vm);
-			iExlude.forEach(ni -> {
+			iExclude.forEach(ni -> {
 				try {
 					hoster.removeValue(ni, Cause.Null);
 				} catch (Exception e) {
 					logger.warn("", e);
 				}
-				return false;
+				return true;
 			});
 		}
 	}
