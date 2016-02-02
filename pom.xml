@@ -60,7 +60,7 @@
 		<!-- <module>entropy-main</module> -->
 		<module>optiplace-API</module>
 		<module>optiplace-core</module>
-		<module>optiplace-graphical</module>
+		
 		<module>optiplace-server</module>
 		<module>optiplace-modules</module>
 	</modules>
