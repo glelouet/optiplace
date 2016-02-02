@@ -1,7 +1,6 @@
 package fr.emn.optiplace.eval;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
@@ -12,7 +11,6 @@ public class ViewEvaluatorTest {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ViewEvaluatorTest.class);
 
-	@Test
 	public void testSameSearchTime() {
 		Configuration c = new Configuration();
 		int allowedpercent = 5;
@@ -32,8 +30,8 @@ public class ViewEvaluatorTest {
 			maxTime = Math.max(maxTime, time);
 			minTime = Math.min(minTime, time);
 		}
-		Assert.assertTrue(maxTime / minTime < 1 + (0.01 * allowedpercent),
+		Assert.assertTrue(maxTime / minTime < 1 + 0.01 * allowedpercent,
 				"two different searches give two different times : " + maxTime + " >>> " + minTime + ", factor is "
-						+ (maxTime / minTime));
+						+ maxTime / minTime);
 	}
 }
