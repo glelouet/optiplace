@@ -42,7 +42,7 @@ public class Among implements Rule {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Among.class);
 
-	public static final Pattern pat = Pattern.compile("among\\[(.*)\\]\\[\\[(.*)\\]\\]");
+	public static final Pattern pat = Pattern.compile("among\\[(.*)\\]\\[(.*)\\]");
 
 	public static Among parse(String s) {
 		Matcher m = pat.matcher(s);
@@ -51,9 +51,12 @@ public class Among implements Rule {
 		}
 		Set<VM> vms = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new VM(n)).collect(Collectors.toSet());
 		Set<Set<String>> nodess = new HashSet<>();
-		for (String hosterName : m.group(2).split("\\], \\[")) {
-			Set<String> nodes = Stream.of(hosterName.split(", ")).collect(Collectors.toSet());
-			nodess.add(nodes);
+		String sgroups = m.group(2);
+		if (sgroups != null && sgroups.length() > 1) {
+			for (String hosterName : sgroups.substring(1, sgroups.length() - 1).split("\\], \\[")) {
+				Set<String> nodes = Stream.of(hosterName.split(", ")).collect(Collectors.toSet());
+				nodess.add(nodes);
+			}
 		}
 		return new Among(vms, nodess);
 	}

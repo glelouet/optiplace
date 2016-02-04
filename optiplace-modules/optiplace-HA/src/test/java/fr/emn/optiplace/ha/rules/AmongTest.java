@@ -109,6 +109,7 @@ public class AmongTest extends SolvingExample {
 		Rule r = new Among(vms, nnodes);
 		String s = r.toString();
 		Among parsed = Among.parse(s);
-		Assert.assertEquals(parsed, r);
+		Assert.assertEquals(parsed, r, "string is " + s);
+		Assert.assertNotNull(Among.parse("among[vm2, vm1][]"));
 	}
 }
