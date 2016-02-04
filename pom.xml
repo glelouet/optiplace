@@ -17,7 +17,7 @@
 	<groupId>fr.emn</groupId>
 	<artifactId>optiplace</artifactId>
 	<packaging>pom</packaging>
-	<version>4.1.2</version>
+	<version>4.1.3-SNAPSHOT</version>
 	<name>optiplace</name>
 
 	<licenses>
@@ -32,7 +32,7 @@
 		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
 		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
 		<connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</connection>
-		<tag>optiplace-4.1.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
