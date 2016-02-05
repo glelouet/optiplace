@@ -196,7 +196,7 @@ public class DeducedTarget {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("times : config=" + configTime + "ms build=" + buildTime + "ms search=" + searchTime + "ms\n");
+		sb.append("time : config=" + configTime + "ns build=" + buildTime + "ns search=" + searchTime + "ns\n");
 		sb.append(
 		    "stats : " + searchSolutions + " solutions, " + searchNodes + " nodes, " + searchBacktracks + " backtracks\n");
 		sb.append("actions (").append(actions.nbActions()).append(") :\n").append(actions).append("\ndestination : \n")
