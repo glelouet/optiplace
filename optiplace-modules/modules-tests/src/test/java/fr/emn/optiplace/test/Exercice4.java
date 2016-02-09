@@ -47,6 +47,8 @@ public class Exercice4 {
 		// définition de l'objectif de la résolution
 		// HAView.migrationCost() sera utilisé pour définir la fonction de coût
 		s.getStrat().setGoalId("migrationcost");
+		// équivalent car la recheche ignore la casse
+		s.getStrat().setGoalId("migRationCOST");
 		// pour les détails d'implémentation voir
 		// fr.emn.optiplace.view.ViewAsModule#getGoal(String)
 		// fr.emn.optiplace.Optiplace#configSearch()

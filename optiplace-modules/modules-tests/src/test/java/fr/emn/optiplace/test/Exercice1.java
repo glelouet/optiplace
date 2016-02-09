@@ -9,7 +9,7 @@ import fr.emn.optiplace.configuration.VM;
 
 /**
  * Placement de VM sur des Node et Extern
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
@@ -41,7 +41,7 @@ public class Exercice1 {
 
 		// on crée une VM avec un nom équivalent a celui d'un node existant
 		// donc elle est null
-		VM falseVM = c.addVM("Node", n);
+		VM falseVM = c.addVM("NODE", n);
 		// lève une NPE
 		System.err.println(falseVM.getName());
 
