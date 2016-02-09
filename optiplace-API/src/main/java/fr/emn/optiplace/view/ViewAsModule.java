@@ -188,12 +188,14 @@ public interface ViewAsModule {
 		HashSet<String> ret = new HashSet<>();
 		for (Method m : getClass().getMethods()) {
 			// a goal is annotated with @Goal
-			if (m.getAnnotation(Goal.class) != null)
+			if (m.getAnnotation(Goal.class) != null) {
 				// a goal method returns a subclass of SearchGoal
-				if (SearchGoal.class.isAssignableFrom(m.getReturnType()))
+				if (SearchGoal.class.isAssignableFrom(m.getReturnType())) {
 					if (m.getParameterCount() == 0) {
 						ret.add(m.getName().toLowerCase());
 					}
+				}
+			}
 		}
 		return ret;
 	}
@@ -208,7 +210,8 @@ public interface ViewAsModule {
 	 *         default implementation returns a SearchGoal provided by a method of
 	 *         the same name that goalId and annotated with {@link Goal}
 	 */
-	public default SearchGoal getGoal(String goalID) {
+	public default SearchGoal getGoal(String goalName) {
+		String goalID = goalName.toLowerCase();
 		for (Method m : getClass().getMethods()) {
 			Goal g = m.getAnnotation(Goal.class);
 			// a goal is annotated with @Goal
@@ -217,8 +220,9 @@ public interface ViewAsModule {
 				if (m.getName().toLowerCase().equals(goalID)) {
 					try {
 						SearchGoal ret = (SearchGoal) m.invoke(this);
-						if (ret != null)
+						if (ret != null) {
 							return ret;
+						}
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						logger.warn("can't invoke method " + m + " to get a searchGoal", e);
 					}

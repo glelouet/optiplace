@@ -22,8 +22,20 @@ import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.annotations.ViewDesc;
 
 /**
- * Parses the views of a project at compile time to produce a viewDescription to
- * add to the jar.
+ * <h2>Parse the views of a project at compile time to produce a viewDescription
+ * to add to the jar.</h2>
+ * <p>
+ * The project must contain one class that is annotated with {@link ViewDesc}.
+ * </p>
+ * <p>
+ * On the compile phase, this parser will store that annotated class
+ * informations ( {@link #extractConfs(Element, RoundEnvironment, Boolean)
+ * parameters}, {@link #extractDependenciesTypes(Element, RoundEnvironment)
+ * dependencies} ) in a {@link ViewDescription}({@link #vd}), then will
+ * {@link #write()} the ViewDescription in the
+ * {@link StandardLocation#CLASS_OUTPUT} path under the name
+ * {@link #DESCRIPTORFILENAME}
+ * </p>
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
@@ -40,12 +52,13 @@ public class PluginParser extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (annotations == null || annotations.isEmpty()) {
+			// called when no more data remains to be parsed : we write collected data
 			write();
 			return true;
 		}
 		Set<? extends Element> els = roundEnv.getElementsAnnotatedWith(ViewDesc.class);
 		if (els.size() != 1) {
-			logger.debug("cannot generate plugin desc for : " + els);
+			logger.debug("cannot generate plugin desc for : " + els + ", need one element");
 			return true;
 		}
 		Element el = els.stream().findAny().get();
@@ -77,11 +90,9 @@ public class PluginParser extends AbstractProcessor {
 	 */
 	public static Set<String> extractConfs(Element el, RoundEnvironment roundEnv, Boolean required) {
 		Set<? extends Element> parameters = roundEnv.getElementsAnnotatedWith(Parameter.class);
-		return new HashSet<Element>(el.getEnclosedElements())
-				.stream()
-				.filter(
-						e -> parameters.contains(e)
-								&& (required == null || e.getAnnotation(Parameter.class).required() == required))
+		return new HashSet<Element>(el.getEnclosedElements()).stream()
+				.filter(e -> parameters.contains(e)
+						&& (required == null || e.getAnnotation(Parameter.class).required() == required))
 				.map(e -> e.getAnnotation(Parameter.class).confName()).collect(Collectors.toSet());
 	}
 

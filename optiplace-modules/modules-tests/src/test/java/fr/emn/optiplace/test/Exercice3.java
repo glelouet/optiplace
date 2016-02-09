@@ -38,7 +38,7 @@ public class Exercice3 {
 		HAView ha = new HAView();
 
 		// ajout d'une règle spread dans cette vue.
-		// généralement les règles de placement sont propres
+		// généralement les règles de placement sont attachées
 		// à la vue qui les définit.
 		ha.addRule(new Spread(vm0, vm1, vm2, vm3));
 

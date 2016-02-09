@@ -19,8 +19,8 @@ import fr.emn.optiplace.solver.choco.VariablesManager;
 
 
 /**
- * Common view behaviour. classes inheriting from view should implement it to
- * get a minimal set of useful creation tools.
+ * Common view behavior. classes inheriting from view should implement it to get
+ * a minimal set of useful creation tools.
  * <ul>
  * <li>all variables created by a view should be added using
  * {@link #onNewVar(Var)}</li>
