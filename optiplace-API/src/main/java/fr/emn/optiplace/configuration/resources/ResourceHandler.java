@@ -90,7 +90,7 @@ public class ResourceHandler {
 			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
 		}
 		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex, nodesCapacities);
-		for(VM v : pb.c().getMIgratingVMs()) {
+		for(VM v : pb.c().getMigratingVMs()) {
 			VMHoster host = pb.c().getLocation(v);
 			if (host instanceof Node) {
 				resourceLoad.addUse(pb.b().node((Node) host), pb.b().vm(v));

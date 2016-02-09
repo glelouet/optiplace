@@ -351,7 +351,7 @@ public interface IConfiguration extends Cloneable {
 	 */
 	VMHoster getMigTarget(VM vm);
 
-	Set<VM> getMIgratingVMs();
+	Set<VM> getMigratingVMs();
 
 	default Node getNodeMig(VM vm) {
 		VMHoster h = getMigTarget(vm);
@@ -383,17 +383,25 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * Add a VM in this; putting it on a Node or waiting. It also map the
-	 * specified resource uses in the linkedHashMap of resources.
+	 * Add a VM in this; putting it on an Host or waiting. It also set the use of
+	 * the VM if specification is given
+	 * <p>
+	 * the resources array is truncated to meet {@link #resources()} size, and
+	 * missing resource specifications are set to 0
+	 * </p>
 	 *
 	 * @param vmName
 	 *          the name of the VM
 	 * @param host
-	 *          the host or null if it is waiting
+	 *          the host of the VM or null if it is waiting
 	 * @param resources
-	 *          the resource use of the VM. Their must be less than
-	 *          {@link #resources()} size, and any missing will be set to 0.
-	 * @return a new VM with given specifications
+	 *          the resource use of the VM, corresponding to the resources in
+	 *          {@link #resources()}. If null and a VM with given name already
+	 *          exists this VM resources are not modified.
+	 * @return depending on whether an element with given name exists or not : if
+	 *         exists and is a VM the existing VM is modified and then returned ;
+	 *         if exist and not a VM returns null ; if not exist then a new VM is
+	 *         creatd and returned
 	 */
 	VM addVM(String vmName, VMHoster host, int... resources);
 
@@ -416,6 +424,15 @@ public interface IConfiguration extends Cloneable {
 	 */
 	boolean setOnline(Node node);
 
+	/**
+	 * add an online Node
+	 * 
+	 * @param name
+	 *          the name of the node
+	 * @param resources
+	 * @return null if a on-node with give name exists, a new noe if no node with
+	 *         given name exists, or previous node modified if already exists
+	 */
 	Node addOnline(String name, int... resources);
 
 	Node addOffline(String name, int... resources);
@@ -549,7 +566,7 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the total placement solution, as nb(hosts)^nb(vms)
 	 */
 	default long nbPlacement() {

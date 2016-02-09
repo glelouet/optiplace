@@ -5,7 +5,6 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
-import fr.emn.optiplace.homogeneous.HomogeneousView;
 
 /**
  * Problème de placement avec spécification de l'objectif à réduire.
@@ -61,15 +60,11 @@ public class Exercice4 {
 		System.err.println(s.getTarget().getDestination());
 
 		// en une ligne :
-		// System.err.println(new Optiplace(c).with(new
-		// HAView()).withGoal("migrationcost").solve().getDestination());
-
-		// cette fois on utilise la vue homogeneous : on réduit le nombre de
-		// serveurs
-		// utilisés.
-
-		System.err.println(new Optiplace(c).with(new HomogeneousView()).withGoal("packingGoal").solve().getDestination());
-
+		// System.err.println(new Optiplace(c)
+		// .with(new HAView())
+		// .withGoal("migrationcost")
+		// .solve()
+		// .getDestination());
 	}
 
 }

@@ -71,12 +71,27 @@
 			</dependency>
 			<dependency>
 				<groupId>fr.emn.optiplace.modules</groupId>
+				<artifactId>optiplace-homogeneous</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.emn.optiplace.modules</groupId>
 				<artifactId>optiplace-hostCost</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>fr.emn.optiplace.modules</groupId>
-				<artifactId>optiplace-homogeneous</artifactId>
+				<artifactId>optiplace-linearPower</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.emn.optiplace.modules</groupId>
+				<artifactId>optiplace-network</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.emn.optiplace.modules</groupId>
+				<artifactId>optiplace-thermal</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>

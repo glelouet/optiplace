@@ -10,8 +10,16 @@
 
 package fr.emn.optiplace.configuration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -243,7 +251,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Set<VM> getMIgratingVMs() {
+	public Set<VM> getMigratingVMs() {
 		return vmMigration.keySet();
 	}
 
@@ -280,10 +288,10 @@ public class Configuration implements IConfiguration {
 		} else {
 			setHost(ret, host);
 		}
-		if (resources != null && resources.length > 0) {
+		if (resources != null) {
 			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
-			for (int i = 0; i < specs.length && i < resources.length; i++) {
-				specs[i].use(ret, resources[i]);
+			for (int i = 0; i < specs.length; i++) {
+				specs[i].use(ret, i < resources.length ? resources[i] : 0);
 			}
 		}
 		return ret;
@@ -339,10 +347,10 @@ public class Configuration implements IConfiguration {
 		} catch (ClassCastException cce) {
 			return null;
 		}
-		if (resources != null && resources.length > 0) {
+		if (resources != null) {
 			ResourceSpecification[] specs = this.resources.values().toArray(new ResourceSpecification[this.resources.size()]);
 			for (int i = 0; i < specs.length && i < resources.length; i++) {
-				specs[i].capacity(ret, resources[i]);
+				specs[i].capacity(ret, i < resources.length ? resources[i] : 0);
 			}
 		}
 		return ret;
@@ -590,8 +598,8 @@ public class Configuration implements IConfiguration {
 	@Override
 	public int hashCode() {
 		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
-				+ vmMigration.hashCode() + sitesToHosters.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
-				+ externsTags.hashCode() + sitesTags.hashCode();
+		+ vmMigration.hashCode() + sitesToHosters.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
+		+ externsTags.hashCode() + sitesTags.hashCode();
 	}
 
 	@Override

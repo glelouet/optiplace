@@ -19,6 +19,7 @@ import fr.emn.optiplace.ha.rules.SiteOff;
 import fr.emn.optiplace.ha.rules.SiteOn;
 import fr.emn.optiplace.ha.rules.Split;
 import fr.emn.optiplace.ha.rules.Spread;
+import fr.emn.optiplace.ha.rules.Together;
 import fr.emn.optiplace.view.ProvidedDataReader;
 import fr.emn.optiplace.view.Rule;
 import fr.emn.optiplace.view.Rule.ChainedParser;
@@ -32,7 +33,7 @@ public class HAData implements ProvidedDataReader {
 
 	public static ChainedParser HAPARSER = new ChainedParser(Among.PARSER, Ban.PARSER, Capacity.PARSER, Far.PARSER,
 			Fence.PARSER, Greedy.PARSER, Lazy.PARSER, LoadInc.PARSER, Near.PARSER, Quarantine.PARSER, Replication.PARSER,
-			Root.PARSER, SiteOff.PARSER, SiteOn.PARSER, Split.PARSER, Spread.PARSER);
+			Root.PARSER, SiteOff.PARSER, SiteOn.PARSER, Split.PARSER, Spread.PARSER, Together.PARSER);
 
 	List<Rule> rules = new ArrayList<>();
 

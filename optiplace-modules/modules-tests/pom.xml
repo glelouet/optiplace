@@ -51,5 +51,17 @@
 			<groupId>fr.emn.optiplace.modules</groupId>
 			<artifactId>optiplace-homogeneous</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>fr.emn.optiplace.modules</groupId>
+			<artifactId>optiplace-network</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>fr.emn.optiplace.modules</groupId>
+			<artifactId>optiplace-thermal</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>fr.emn.optiplace.modules</groupId>
+			<artifactId>optiplace-linearPower</artifactId>
+		</dependency>
 	</dependencies>
 </project>
