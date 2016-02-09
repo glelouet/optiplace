@@ -23,7 +23,7 @@ public class LinearPowerModel {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(LinearPowerModel.class);
+	.getLogger(LinearPowerModel.class);
 
 	double base = 0;
 
@@ -40,9 +40,9 @@ public class LinearPowerModel {
 	 * get the weight of a resource
 	 *
 	 * @param resName
-	 *            the id of the resource
-	 * @return 0 if name is null, resource is not found ; or the numberr of W
-	 *         each unit of the resource used will consume.
+	 *          the id of the resource
+	 * @return 0 if name is null, resource is not found ; or the number of W each
+	 *         unit of the resource used will consume.
 	 */
 	public double weight(String resName) {
 		if (resName == null || resources == null) {
