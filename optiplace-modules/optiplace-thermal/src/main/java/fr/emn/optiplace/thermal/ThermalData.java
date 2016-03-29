@@ -1,8 +1,6 @@
 package fr.emn.optiplace.thermal;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import fr.emn.optiplace.power.PowerData;
 import fr.emn.optiplace.view.ProvidedDataReader;
@@ -27,7 +25,7 @@ public class ThermalData implements ProvidedDataReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(ThermalData.class);
+	.getLogger(ThermalData.class);
 
 	/**
 	 * make a weight map of strings to the given value.
@@ -52,21 +50,10 @@ public class ThermalData implements ProvidedDataReader {
 	/** max temperature allowed for each server. */
 	protected HashMap<String, Double> serversMaxTemperature = new HashMap<String, Double>();
 
-	/** @return */
-	protected HashMap<String, Double> getServersMaxTemperature() {
-		return serversMaxTemperature;
-	}
-
 	/**
-	 * @param serversMaxTemperature
-	 * the serversMaxTemperature to set
+	 * impact from power consumption of one server to the air income of another
+	 * server
 	 */
-	public void setServersMaxTemperature(
-			HashMap<String, Double> serversMaxTemperature) {
-		this.serversMaxTemperature = serversMaxTemperature;
-	}
-
-	/** the map of impact from each server to each other */
 	protected ImpactMap impactMap = new ImpactMap();
 
 	/** @return the impactMap */
@@ -82,23 +69,19 @@ public class ThermalData implements ProvidedDataReader {
 		this.impactMap = impactMap;
 	}
 
-	protected HeatRepartition heatRepartition = new HeatRepartition();
-
-	protected List<CoolingSystem> coolingSystems = new ArrayList<CoolingSystem>();
+	protected CoolingSystem coolingSystem = null;
 
 	/** @return the coolingSystems */
-	public List<CoolingSystem> getCoolingSystems() {
-		return coolingSystems;
+	public CoolingSystem getCoolingSystem() {
+		return coolingSystem;
 	}
 
 	/**
 	 * @param coolingSystems
 	 * the coolingSystems to set
 	 */
-	public void setCoolingSystems(List<CoolingSystem> coolingSystems) {
-		this.coolingSystems = coolingSystems;
-		heatRepartition.addCoolingSystem(coolingSystems
-				.toArray(new CoolingSystem[] {}));
+	public void setCoolingSystem(CoolingSystem coolingSystem) {
+		this.coolingSystem = coolingSystem;
 	}
 
 	/**
