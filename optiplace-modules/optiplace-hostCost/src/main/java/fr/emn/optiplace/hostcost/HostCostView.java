@@ -16,6 +16,13 @@ import fr.emn.optiplace.view.annotations.Goal;
 import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.annotations.ViewDesc;
 
+/**
+ * each Node and Extern has a costs for running a VM. each waiting VM also has a
+ * cost (which is the highest cost of extern/node +1)
+ *
+ * @author Guillaume Le Louët 2016 [ guillaume.lelouet@gmail.com ]
+ *
+ */
 @ViewDesc
 public class HostCostView extends EmptyView {
 

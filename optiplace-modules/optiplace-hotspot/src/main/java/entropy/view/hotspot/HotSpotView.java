@@ -7,10 +7,13 @@ import java.util.Map.Entry;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
+import entropy.view.hotspot.goals.ReduceHeatGoal;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.view.EmptyView;
+import fr.emn.optiplace.view.SearchGoal;
 import fr.emn.optiplace.view.annotations.Depends;
+import fr.emn.optiplace.view.annotations.Goal;
 import fr.emn.optiplace.view.annotations.Parameter;
 import fr.emn.optiplace.view.annotations.ViewDesc;
 
@@ -91,6 +94,32 @@ public class HotSpotView extends EmptyView {
 		}
 		pb.getSolver().post(ICF.arithm(ret, "=", v.div(val, granularity)));
 		return ret;
+	}
+
+	@Goal
+	public SearchGoal reduceHeat() {
+		return new ReduceHeatGoal(this);
+	}
+
+	IntVar cachedMaxRear = null;
+	public IntVar maxRearIncrease() {
+		IntVar ret = cachedMaxRear;
+		if (ret == null) {
+			IntVar[] increases = new IntVar[pb.b().nodes().length];
+			for (int i = 0; i < increases.length; i++) {
+				increases[i] = makeRear(pb.b().node(i));
+			}
+			ret = pb.v().max(increases);
+			cachedMaxRear = ret;
+		}
+		return ret;
+	}
+
+	@Override
+	public void clear() {
+		super.clear();
+		cachedMaxRear = null;
+		cachedRears.clear();
 	}
 
 }
