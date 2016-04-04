@@ -29,13 +29,38 @@ public class ThermalView extends EmptyView {
 		data.read(conf);
 	};
 
+	@Override
+	public void clear() {
+		super.clear();
+		cachedCRACPower = null;
+		cachedNodeInc = null;
+	}
+
 	@Depends
 	PowerView cons;
 
 	int granularity = 100;
 
+	protected IntVar[] cachedNodeInc = null;
+
 	IntVar getIncrease(int nodeIdx) {
+		if (cachedNodeInc == null) {
+			cachedNodeInc= new IntVar[b.nodes().length];
+		}
 		return null;
+	}
+
+	protected IntVar cachedCRACPower = null;
+
+	public IntVar getCRACPower() {
+		if (cachedCRACPower == null) {
+			cachedCRACPower = makeCRACPower();
+		}
+		return cachedCRACPower;
+	}
+
+	protected IntVar makeCRACPower() {
+		IntVar nodePow = cons.getTotalPower();
 	}
 
 }

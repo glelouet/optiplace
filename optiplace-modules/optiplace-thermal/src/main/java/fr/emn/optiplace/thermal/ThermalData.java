@@ -69,19 +69,26 @@ public class ThermalData implements ProvidedDataReader {
 		this.impactMap = impactMap;
 	}
 
-	protected CoolingSystem coolingSystem = null;
+	protected double eff0 = 1;
+
+	protected double effMult = 0;
 
 	/** @return the coolingSystems */
-	public CoolingSystem getCoolingSystem() {
-		return coolingSystem;
+	public double getEff0() {
+		return eff0;
+	}
+
+	public double getEffMult() {
+		return effMult;
 	}
 
 	/**
 	 * @param coolingSystems
 	 * the coolingSystems to set
 	 */
-	public void setCoolingSystem(CoolingSystem coolingSystem) {
-		this.coolingSystem = coolingSystem;
+	public void setCoolingSystem(double eff0, double effMult) {
+		this.eff0 = eff0;
+		this.effMult = effMult;
 	}
 
 	/**
