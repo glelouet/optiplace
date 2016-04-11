@@ -181,7 +181,7 @@ public class PowerView extends EmptyView {
 			case ZEROANDWARN:
 				logger.warn("no consumption model for node " + n);
 				return v.createIntegerConstant(0);
-			// no break, we go to zero then
+				// no break, we go to zero then
 			case ZERO:
 				return v.createIntegerConstant(0);
 			default:
@@ -285,7 +285,10 @@ public class PowerView extends EmptyView {
 	}
 
 	/**
-	 * @return a table of all nodes' consumption IntVars.
+	 * create and return an array of the nodes' power, so that
+	 * ret[i]=power(node(i))
+	 * 
+	 * @return a new table of all nodes' consumption IntVars.
 	 */
 	public IntVar[] getAllNodesPowers() {
 		Node[] nodes = b.nodes();
