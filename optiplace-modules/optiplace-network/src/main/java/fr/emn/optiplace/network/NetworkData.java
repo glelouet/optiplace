@@ -49,7 +49,7 @@ public class NetworkData implements ProvidedDataReader {
 	// VM use part
 	/////////////////////////////////////////////// **
 	/**
-	 * * couple of VM. The vms are not final because modifying them reduces memory
+	 * couple of VM. The vms are not final because modifying them reduces memory
 	 * management overhead in Set based collections.
 	 *
 	 * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
