@@ -69,7 +69,7 @@ public class VariablesManager {
 
 	/**
 	 * create a Set var containing at most a given set of values
-	 * 
+	 *
 	 * @param name
 	 *          the name of the var
 	 * @param values
@@ -82,7 +82,7 @@ public class VariablesManager {
 
 	/**
 	 * create a constant Set var containing exactly a given set of values
-	 * 
+	 *
 	 * @param name
 	 *          the name of the var
 	 * @param values
@@ -90,8 +90,9 @@ public class VariablesManager {
 	 * @return a new set that contains all of the values parameter.
 	 */
 	public SetVar createFixedSet(String name, int... values) {
-		if (values == null)
+		if (values == null) {
 			values = new int[] {};
+		}
 		return VariableFactory.set(name, values, values, getSolver());
 	}
 
@@ -145,13 +146,13 @@ public class VariablesManager {
 	 */
 	public IntVar plus(IntVar left, IntVar right) {
 		IntVar ret = right.hasEnumeratedDomain() && left.hasEnumeratedDomain()
-		    ? createEnumIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(), left.getUB() + right.getUB())
-		    : createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
-		        left.getUB() + right.getUB());
-		getSolver().post(ICF.sum(new IntVar[] {
-		    left, right
-		}, ret));
-		return ret;
+				? createEnumIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(), left.getUB() + right.getUB())
+						: createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
+								left.getUB() + right.getUB());
+				getSolver().post(ICF.sum(new IntVar[] {
+						left, right
+				}, ret));
+				return ret;
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class VariablesManager {
 		int[] minmax = getMinMax(vars);
 		boolean enumerated = Stream.of(vars).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(name, minmax[0], minmax[1])
-		    : createBoundIntVar(name, minmax[0], minmax[1]);
+				: createBoundIntVar(name, minmax[0], minmax[1]);
 		getSolver().post(ICF.sum(vars, ret));
 		return ret;
 	}
@@ -267,6 +268,17 @@ public class VariablesManager {
 	}
 
 	/**
+	 * @param x
+	 * @param y
+	 * @return a new variable constrained to ret * y = x
+	 */
+	public IntVar div(IntVar x, IntVar y) {
+		IntVar ret = createBoundIntVar("(" + x.getName() + ")/" + y.getName());
+		getSolver().post(ICF.times(ret, y, x));
+		return ret;
+	}
+
+	/**
 	 * make a variable constrained to the scalar product of the elements. The
 	 * weights are multiplied by a common value to prevent granularity issues.
 	 *
@@ -290,6 +302,21 @@ public class VariablesManager {
 		return div(thescalar, (int) granularity);
 	}
 
+	/**
+	 * same as {@link #scalar(IntVar[], double[])} but with fixed granularity.
+	 *
+	 * @param granularity
+	 */
+	public IntVar scalar(IntVar[] pos, double[] weights, int granularity) {
+		assert pos.length == weights.length;
+		int[] mults = new int[weights.length];
+		for (int i = 0; i < weights.length; i++) {
+			mults[i] = (int) (weights[i] * granularity);
+		}
+		IntVar thescalar = scalar(pos, mults);
+		return div(thescalar, granularity);
+	}
+
 	public IntVar scalar(IntVar[] pos, int[] mults) {
 		int min = 0, max = 0;
 		StringBuilder sb = new StringBuilder("scalar[");
@@ -310,7 +337,7 @@ public class VariablesManager {
 		}
 		boolean enumerated = Stream.of(pos).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(sb.append("]").toString(), min, max)
-		    : createBoundIntVar(sb.append("]").toString(), min, max);
+				: createBoundIntVar(sb.append("]").toString(), min, max);
 		getSolver().post(ICF.scalar(pos, mults, ret));
 		return ret;
 	}
@@ -447,7 +474,7 @@ public class VariablesManager {
 		int[] minmax = getMinMax(values);
 		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1])
-		    : createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+				: createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		helper.maxOfList(ret, values);
 		return ret;
 	}
@@ -473,7 +500,7 @@ public class VariablesManager {
 			}
 		}
 		return new int[] {
-		    min, max
+				min, max
 		};
 	}
 
@@ -491,7 +518,7 @@ public class VariablesManager {
 		int[] minmax = getMinMax(values);
 		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1])
-		    : createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
+				: createBoundIntVar("min(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
 		helper.minOfList(ret, values);
 		return ret;
 	}
@@ -505,7 +532,7 @@ public class VariablesManager {
 		int[] minmax = getMinMax(array);
 		boolean enumerated = Stream.of(array).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(foldSetNames(array), minmax[0], minmax[1])
-		    : createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
+				: createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
 		helper.nth(index, array, ret);
 		return ret;
 	}
