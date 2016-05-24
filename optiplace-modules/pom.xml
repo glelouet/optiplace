@@ -50,6 +50,7 @@
 		<module>modules-tests</module>
 		<module>optiplace-hostCost</module>
 		<module>optiplace-network</module>
+		<module>optiplace-distance</module>
 	</modules>
 
 	<dependencyManagement>
