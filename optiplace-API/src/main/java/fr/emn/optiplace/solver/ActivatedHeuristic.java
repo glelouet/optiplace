@@ -6,15 +6,20 @@ package fr.emn.optiplace.solver;
 import java.util.Arrays;
 
 import org.chocosolver.memory.IStateBool;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.explanations.RuleStore;
 import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IVariableMonitor;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.util.PoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.THashMap;
 
 /**
  * <p>
@@ -108,6 +113,16 @@ public abstract class ActivatedHeuristic<T extends Variable> extends AbstractStr
 		@Override
 		public final void onUpdate(Variable var, IEventType evt) throws ContradictionException {
 			dirty();
+		}
+		
+		@Override
+		public void duplicate(Solver arg0, THashMap<Object, Object> arg1) {			
+		}
+
+		@Override
+		public boolean why(RuleStore arg0, IntVar arg1, IEventType arg2, int arg3) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 	};
 
