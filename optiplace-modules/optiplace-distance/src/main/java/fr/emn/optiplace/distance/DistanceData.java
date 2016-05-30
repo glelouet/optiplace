@@ -2,6 +2,7 @@ package fr.emn.optiplace.distance;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +28,10 @@ public class DistanceData {
 	protected Table<String, String, Integer> distances = HashBasedTable.create();
 
 	public void setDist(String name1, String name2, int distance) {
+		if (distance < 1) {
+			delDist(name1, name2);
+			return;
+		}
 		if (name1.compareTo(name2) < 0) {
 			setDist(name2, name1, distance);
 		} else {
@@ -40,6 +45,11 @@ public class DistanceData {
 		} else {
 			return distances.get(name1, name2);
 		}
+	}
+
+	public void delDist(String name1, String name2) {
+		distances.remove(name1, name2);
+		distances.remove(name2, name1);
 	}
 
 	public Stream<String> getNeighbours(String node) {
@@ -63,6 +73,53 @@ public class DistanceData {
 			remaining.removeAll(nextExplore);
 		}
 		return remaining.isEmpty();
+	}
+
+	/**
+	 *
+	 * @param names
+	 *          the names to consider
+	 * @return a nex int[names.length][names.length], symetric, containg all the
+	 *         distances.
+	 */
+	public int[][] makeDistancesTable(String[] names) {
+		if (names == null || names.length == 0) {
+			return new int[0][0];
+		}
+		int[][] ret = new int[names.length][names.length];
+		for (int i = 0; i < names.length; i++) {
+			for (int j = 0; j < i; j++) {
+				int dist = getDist(names[i], names[j]);
+				ret[i][j] = ret[j][i] = dist;
+			}
+		}
+		return ret;
+	}
+
+	protected HashMap<Set<String>, Integer> limits = new HashMap<>();
+
+	protected HashMap<String, Set<String>> groups = new HashMap<>();
+
+	public void addLimit(int limit, String... names) {
+		if (names == null || names.length == 0) {
+			return;
+		}
+		if (limit < 1) {
+			return;
+		}
+		HashSet<String> group = new HashSet<>(Arrays.asList(names));
+		limits.put(group, limit);
+		for (String s : group) {
+			groups.put(s, group);
+		}
+	}
+
+	public Set<String> getGroup(String name) {
+		return groups.get(name);
+	}
+
+	public int getLimit(Set<String> group) {
+		return limits.get(group);
 	}
 
 }
