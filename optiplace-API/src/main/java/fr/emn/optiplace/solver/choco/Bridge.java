@@ -189,7 +189,7 @@ public class Bridge {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param h
 	 *          an hoster of the configuration
 	 * @return the index of the node if a node is given in parameters, the index
@@ -205,7 +205,7 @@ public class Bridge {
 		} else if (h instanceof Extern) {
 			return extern((Extern) h) + nodes.length;
 		} else {
-			logger.warn("incorrect class " + h.getClass());
+			Bridge.logger.warn("incorrect class " + h.getClass());
 			return -1;
 		}
 	}
@@ -218,7 +218,7 @@ public class Bridge {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the number of hosters (extern + node) in the configuration
 	 */
 	public int nbHosters() {

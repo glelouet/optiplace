@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,11 +40,24 @@ public class DistanceData {
 		}
 	}
 
+	/**
+	 * get the direct distance between two names.
+	 *
+	 * @param name1
+	 *          first name
+	 * @param name2
+	 *          second name
+	 * @return the stored distance between two names, or -1 if one is null or no distance stored.
+	 */
 	public int getDist(String name1, String name2) {
+		if (name1 == null || name2 == null) {
+			return -1;
+		}
 		if (name1.compareTo(name2) < 0) {
 			return getDist(name2, name1);
 		} else {
-			return distances.get(name1, name2);
+			Integer value = distances.get(name1, name2);
+			return value != null ? value : -1;
 		}
 	}
 
@@ -60,7 +74,7 @@ public class DistanceData {
 	 * check if all nodes can be reached from the first node, ie explore
 	 * width-first
 	 */
-	public boolean isComplete(String[] graphNames) {
+	public boolean isComplete(String... graphNames) {
 		if (graphNames == null || graphNames.length == 0) {
 			return true;
 		}
@@ -76,13 +90,12 @@ public class DistanceData {
 	}
 
 	/**
-	 *
 	 * @param names
 	 *          the names to consider
-	 * @return a nex int[names.length][names.length], symetric, containg all the
-	 *         distances.
+	 * @return a nex int[names.length][names.length], symetric, containg all the distances. IF the distances is not
+	 *         complete wrt names, distance is set to -1.
 	 */
-	public int[][] makeDistancesTable(String[] names) {
+	public int[][] makeDistancesTable(String... names) {
 		if (names == null || names.length == 0) {
 			return new int[0][0];
 		}
@@ -120,6 +133,10 @@ public class DistanceData {
 
 	public int getLimit(Set<String> group) {
 		return limits.get(group);
+	}
+
+	public Stream<Entry<Set<String>, Integer>> streamGroups() {
+		return limits.entrySet().stream();
 	}
 
 }

@@ -45,8 +45,7 @@ public interface CoreView {
 	public VariablesManager v();
 
 	/**
-	 *
-	 * @return the helper to constraint elements
+	 * @return the helper to create constraints
 	 */
 	public ConstraintHelper h();
 
