@@ -113,7 +113,7 @@ public class DistanceData {
 
 	protected HashMap<String, Set<String>> groups = new HashMap<>();
 
-	public void addLimit(int limit, String... names) {
+	public void setLimit(int limit, String... names) {
 		if (names == null || names.length == 0) {
 			return;
 		}

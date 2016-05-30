@@ -22,7 +22,14 @@ public class DistanceView extends EmptyView {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DistanceView.class);
 
 	@Parameter(confName = "distances")
-	protected DistanceData data;
+	protected DistanceData data = new DistanceData();
+
+	public DistanceView() {
+	}
+
+	public DistanceView(DistanceData data) {
+		this.data = data;
+	}
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {
