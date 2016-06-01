@@ -16,13 +16,14 @@ import com.google.common.collect.Table;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
  *
  * @author Guillaume Le Louët
  *
  */
-public class DistanceData {
+public class DistanceData implements ProvidedDataReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DistanceData.class);
@@ -35,7 +36,8 @@ public class DistanceData {
 
 	public void setDist(String name1, String name2, int distance) {
 		if (distance < 1) {
-			delDist(name1, name2);
+			distances.remove(name1, name2);
+			distances.remove(name2, name1);
 			return;
 		}
 		if (name1.compareTo(name2) < 0) {
@@ -65,11 +67,6 @@ public class DistanceData {
 			Integer value = distances.get(name1, name2);
 			return value != null ? value : -1;
 		}
-	}
-
-	public void delDist(String name1, String name2) {
-		distances.remove(name1, name2);
-		distances.remove(name2, name1);
 	}
 
 	public Stream<String> getNeighbours(String node) {
@@ -134,11 +131,11 @@ public class DistanceData {
 		}
 	}
 
-	public Set<VM> getGroup(String name) {
-		return groups.get(name);
+	public Set<VM> getGroup(VM vm) {
+		return groups.get(vm);
 	}
 
-	public int getLimit(Set<String> group) {
+	public int getLimit(Set<VM> group) {
 		return limits.get(group);
 	}
 
@@ -163,6 +160,47 @@ public class DistanceData {
 		limits.entrySet().stream().forEach(e -> {
 			apply.accept(e.getKey().stream(), e.getValue());
 		});
+	}
+
+	@Override
+	public void onNewConfig() {
+		ProvidedDataReader.super.onNewConfig();
+		groups.clear();
+		limits.clear();
+		patLimits.clear();
+		distances.clear();
+	}
+
+	@Override
+	public void readLine(String line) {
+		if (line.startsWith("distance ")) {
+			String[] data = line.substring("distance ".length()).split(" ");
+			setDist(data[1], data[2], Integer.parseInt(data[0]));
+		} else if (line.startsWith("limit ")) {
+			String[] data = line.substring("limit ".length()).replaceAll("\\[|,|\\]", "").split(" ");
+			VM[] vms = new VM[data.length - 1];
+			for (int i = 0; i < vms.length; i++) {
+				vms[i] = new VM(data[i + 1]);
+			}
+			setLimit(Integer.parseInt(data[0]), vms);
+		} else if (line.startsWith("limPat")) {
+			String[] data = line.substring("limPat ".length()).split(" ");
+			setPatLimit(Pattern.compile(data[1]), Integer.parseInt(data[0]));
+		}
+	}
+
+	public Stream<String> exportTxt() {
+		return Stream.concat(
+				distances.columnMap().entrySet().stream()
+				.flatMap(e -> e.getValue().entrySet().stream()
+						.map(e2 -> "distance " + e2.getValue() + " " + e.getKey() + " " + e2.getKey())),
+				Stream.concat(limits.entrySet().stream().map(e -> "limit " + e.getValue() + " " + e.getKey()),
+						patLimits.entrySet().stream().map(e -> "limPat " + e.getValue() + " " + e.getKey().pattern())));
+	}
+
+	@Override
+	public String toString() {
+		return exportTxt().collect(Collectors.joining("\n"));
 	}
 
 }
