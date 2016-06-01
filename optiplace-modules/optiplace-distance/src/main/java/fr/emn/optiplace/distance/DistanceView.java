@@ -1,5 +1,8 @@
 package fr.emn.optiplace.distance;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.VM;
@@ -45,21 +48,22 @@ public class DistanceView extends EmptyView {
 				flatDistances[i * distances.length + j] = distances[i][j];
 			}
 		}
-		data.streamGroups().forEach(e -> {
-			int limit = e.getValue();
-			for (String from : e.getKey()) {
-				IntVar posFrom = pb.getHoster(pb.b().vm(new VM(from)));
+		data.applyGroups((s, limit) -> {
+			Set<VM> vms = s.collect(Collectors.toSet());
+
+			for (VM from : vms) {
+				IntVar posFrom = pb.getHoster(from);
 				IntVar posFromMult = pb.v().mult(posFrom, distances.length);
-				for (String to : e.getKey()) {
-					if (from == to || from.compareTo(to) < 1) {
+				for (VM to : vms) {
+					if (from == to || from.getName().compareTo(to.getName()) < 1) {
 						continue;
 					}
-					IntVar posTo = pb.getHoster(pb.b().vm(new VM(to)));
+					IntVar posTo = pb.getHoster(to);
 					IntVar coupleDistance = pb.v().createBoundIntVar("distance_" + from + "-" + to, 0, limit);
 					pb.h().nth(pb.v().plus(posTo, posFromMult), flatDistances, coupleDistance);
 				}
 			}
-		});
+		}, rp.getSourceConfiguration());
 	}
 
 }

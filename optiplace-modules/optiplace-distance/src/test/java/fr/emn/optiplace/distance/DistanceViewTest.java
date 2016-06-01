@@ -24,30 +24,32 @@ public class DistanceViewTest {
 	@Test
 	public void testVMSplit() {
 		Configuration source = new Configuration("mem");
-		// 4 servers with 5-4-5-4 mem capacity
-		IntStream.rangeClosed(1, 4).forEach(i -> source.addOnline("s" + i, i % 2 == 0 ? 4 : 5));
-		// 4 VM with 5-4-5-4 mem usage
-		IntStream.rangeClosed(1, 4).forEach(i -> source.addVM("v" + i, null, i % 2 == 0 ? 4 : 5));
+		// 4 servers with 4-5-4-5 mem capacity
+		Node[] nodes = new Node[4];
+		IntStream.rangeClosed(0, 3).forEach(i -> nodes[i] = source.addOnline("s" + i, i % 2 == 0 ? 4 : 5));
+		// 4 VM with 4-5-4-5 mem usage
+		VM[] vms = new VM[4];
+		IntStream.rangeClosed(0, 3).forEach(i -> vms[i] = source.addVM("v" + i, null, i % 2 == 0 ? 4 : 5));
 
 		DistanceData d = new DistanceData();
-		d.setDist("s1", "s2", 1);
+		d.setDist("s0", "s1", 1);
+		d.setDist("s0", "s2", 5);
+		d.setDist("s0", "s3", 5);
+		d.setDist("s1", "s2", 5);
 		d.setDist("s1", "s3", 5);
-		d.setDist("s1", "s4", 5);
-		d.setDist("s2", "s3", 5);
-		d.setDist("s2", "s4", 5);
-		d.setDist("s3", "s4", 2);
+		d.setDist("s2", "s3", 2);
 
 		// only possible solution is to put them on s1 ; s2
-		d.setLimit(1, "v1", "v2");
+		d.setLimit(1, vms[0], vms[1]);
 
 		// only remaining solution is to put them on s3;s4
-		d.setLimit(3, "v3", "v4");
+		d.setLimit(3, vms[2], vms[3]);
 
 		IOptiplace solver = new Optiplace(source).with(new DistanceView(d));
 		IConfiguration dest = solver.solve().getDestination();
 		Assert.assertNotNull(dest);
 		// vi is on si
-		IntStream.rangeClosed(1, 4).forEach(i -> Assert.assertEquals(dest.getLocation(new VM("v" + i)).getName(), "s" + i));
+		IntStream.rangeClosed(0, 3).forEach(i -> Assert.assertEquals(dest.getLocation(vms[i]), nodes[i]));
 	}
 
 	/**
@@ -63,7 +65,7 @@ public class DistanceViewTest {
 
 		DistanceData d = new DistanceData();
 		d.setDist("n1", "n2", 2);
-		d.setLimit(1, "v1", "v2");
+		d.setLimit(1, v1, v2);
 
 		IOptiplace solver = new Optiplace(source).with(new DistanceView(d));
 		IConfiguration dest = solver.solve().getDestination();
