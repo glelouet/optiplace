@@ -93,11 +93,13 @@ public class DistanceData implements ProvidedDataReader {
 	}
 
 	/**
+	 * translate the internal data to a matrix of integer. The matrix is optimized, meaning
+	 * {@link #reduceDistances(int[][])} is called on it.
+	 *
 	 * @param names
 	 *          the names to consider
-	 * @return a nex int[names.length][names.length], symetric, containg all the
-	 *         distances. IF the distances is not complete wrt names, distance is
-	 *         set to -1.
+	 * @return a new int[names.length][names.length], symetric, containg all the distances. IF the distances between two
+	 *         elements can not be deduced, corresponding cell is set to -1.
 	 */
 	public int[][] makeDistancesTable(String... names) {
 		if (names == null || names.length == 0) {
@@ -111,6 +113,39 @@ public class DistanceData implements ProvidedDataReader {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * reduce the distances based on dist(a-c) &le; dist(a-b)+dist(b-c). For example, if know the distance between a and b
+	 * is 1, between b and c is 1, then the distance a-c can be set to 2 if it is higher.
+	 *
+	 * @param distances
+	 *          a symetric table of distances.
+	 */
+	public static void reduceDistances(int[][] distances) {
+		if (distances == null || distances.length < 2 || distances[0].length != distances.length) {
+			return;
+		}
+		boolean modification = false;
+		do {
+			modification = false;
+			for (int i = 0; i < distances.length; i++) {
+				for (int k = 0; k < i; k++) {
+					int dist = distances[i][k];
+					for (int j = 0; j < distances.length; j++) {
+						int d1 = distances[i][j], d2 = distances[j][k];
+						if (d1 != -1 && d2 != -1) {
+							int newdist = d1 + d2;
+							if (dist == -1 || newdist < dist) {
+								distances[i][k] = distances[k][i] = dist = newdist;
+								modification = true;
+							}
+						}
+					}
+				}
+			}
+		} while (modification);
+
 	}
 
 	protected HashMap<Set<VM>, Integer> limits = new HashMap<>();

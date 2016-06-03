@@ -46,4 +46,24 @@ public class DistanceDataTest {
 		Assert.assertEquals(data2.getGroup(new VM("v1")).size(), 3);
 	}
 
+	@Test
+	public void testReduction(){
+		// first a path from 0-1-2-3 with distances 1-2-2 ; also a distance 0-3 of 7.
+		// after reduction, we should have 0-2=3, 0-3=5, 1-3=4.
+		int[][] distances = new int[4][4];
+		for(int i=0;i<distances.length;i++) {
+			for(int j=0;j<distances.length;j++) {
+				distances[i][j]=-1;
+			}
+		}
+		distances[0][1] = distances[1][0] = 1;
+		distances[2][1] = distances[1][2] = 2;
+		distances[2][3] = distances[3][2] = 2;
+		distances[0][3] = distances[3][0] = 7;
+		DistanceData.reduceDistances(distances);
+		Assert.assertEquals(distances[0][2], 3);
+		Assert.assertEquals(distances[3][0], 5);
+		Assert.assertEquals(distances[1][3], 4);
+	}
+
 }
