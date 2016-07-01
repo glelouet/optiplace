@@ -41,7 +41,7 @@ public class Main {
 		options.addOption("v", "viewspath", true,
 				"the paths in which to look after views. In case of several paths, they must be separated by ':'. default is 'views'.");
 
-		CommandLine line = new org.apache.commons.cli.BasicParser().parse(options, args);
+		CommandLine line = new org.apache.commons.cli.DefaultParser().parse(options, args);
 
 		if (line.hasOption('h')) {
 			new HelpFormatter().printHelp(
