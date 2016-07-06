@@ -16,13 +16,14 @@ import com.google.common.collect.Table;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
  *
  * @author Guillaume Le Louët
  *
  */
-public class DistanceData {
+public class DistanceData implements ProvidedDataReader {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DistanceData.class);
@@ -35,7 +36,8 @@ public class DistanceData {
 
 	public void setDist(String name1, String name2, int distance) {
 		if (distance < 1) {
-			delDist(name1, name2);
+			distances.remove(name1, name2);
+			distances.remove(name2, name1);
 			return;
 		}
 		if (name1.compareTo(name2) < 0) {
@@ -67,11 +69,6 @@ public class DistanceData {
 		}
 	}
 
-	public void delDist(String name1, String name2) {
-		distances.remove(name1, name2);
-		distances.remove(name2, name1);
-	}
-
 	public Stream<String> getNeighbours(String node) {
 		return Stream.concat(distances.column(node).keySet().stream(), distances.row(node).keySet().stream());
 	}
@@ -96,11 +93,13 @@ public class DistanceData {
 	}
 
 	/**
+	 * translate the internal data to a matrix of integer. The matrix is optimized, meaning
+	 * {@link #reduceDistances(int[][])} is called on it.
+	 *
 	 * @param names
 	 *          the names to consider
-	 * @return a nex int[names.length][names.length], symetric, containg all the
-	 *         distances. IF the distances is not complete wrt names, distance is
-	 *         set to -1.
+	 * @return a new int[names.length][names.length], symetric, containg all the distances. IF the distances between two
+	 *         elements can not be deduced, corresponding cell is set to -1.
 	 */
 	public int[][] makeDistancesTable(String... names) {
 		if (names == null || names.length == 0) {
@@ -114,6 +113,39 @@ public class DistanceData {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * reduce the distances based on dist(a-c) &le; dist(a-b)+dist(b-c). For example, if know the distance between a and b
+	 * is 1, between b and c is 1, then the distance a-c can be set to 2 if it is higher.
+	 *
+	 * @param distances
+	 *          a symetric table of distances.
+	 */
+	public static void reduceDistances(int[][] distances) {
+		if (distances == null || distances.length < 2 || distances[0].length != distances.length) {
+			return;
+		}
+		boolean modification = false;
+		do {
+			modification = false;
+			for (int i = 0; i < distances.length; i++) {
+				for (int k = 0; k < i; k++) {
+					int dist = distances[i][k];
+					for (int j = 0; j < distances.length; j++) {
+						int d1 = distances[i][j], d2 = distances[j][k];
+						if (d1 != -1 && d2 != -1) {
+							int newdist = d1 + d2;
+							if (dist == -1 || newdist < dist) {
+								distances[i][k] = distances[k][i] = dist = newdist;
+								modification = true;
+							}
+						}
+					}
+				}
+			}
+		} while (modification);
+
 	}
 
 	protected HashMap<Set<VM>, Integer> limits = new HashMap<>();
@@ -134,11 +166,11 @@ public class DistanceData {
 		}
 	}
 
-	public Set<VM> getGroup(String name) {
-		return groups.get(name);
+	public Set<VM> getGroup(VM vm) {
+		return groups.get(vm);
 	}
 
-	public int getLimit(Set<String> group) {
+	public int getLimit(Set<VM> group) {
 		return limits.get(group);
 	}
 
@@ -163,6 +195,47 @@ public class DistanceData {
 		limits.entrySet().stream().forEach(e -> {
 			apply.accept(e.getKey().stream(), e.getValue());
 		});
+	}
+
+	@Override
+	public void onNewConfig() {
+		ProvidedDataReader.super.onNewConfig();
+		groups.clear();
+		limits.clear();
+		patLimits.clear();
+		distances.clear();
+	}
+
+	@Override
+	public void readLine(String line) {
+		if (line.startsWith("distance ")) {
+			String[] data = line.substring("distance ".length()).split(" ");
+			setDist(data[1], data[2], Integer.parseInt(data[0]));
+		} else if (line.startsWith("limit ")) {
+			String[] data = line.substring("limit ".length()).replaceAll("\\[|,|\\]", "").split(" ");
+			VM[] vms = new VM[data.length - 1];
+			for (int i = 0; i < vms.length; i++) {
+				vms[i] = new VM(data[i + 1]);
+			}
+			setLimit(Integer.parseInt(data[0]), vms);
+		} else if (line.startsWith("limPat")) {
+			String[] data = line.substring("limPat ".length()).split(" ");
+			setPatLimit(Pattern.compile(data[1]), Integer.parseInt(data[0]));
+		}
+	}
+
+	public Stream<String> exportTxt() {
+		return Stream.concat(
+				distances.columnMap().entrySet().stream()
+				.flatMap(e -> e.getValue().entrySet().stream()
+						.map(e2 -> "distance " + e2.getValue() + " " + e.getKey() + " " + e2.getKey())),
+				Stream.concat(limits.entrySet().stream().map(e -> "limit " + e.getValue() + " " + e.getKey()),
+						patLimits.entrySet().stream().map(e -> "limPat " + e.getValue() + " " + e.getKey().pattern())));
+	}
+
+	@Override
+	public String toString() {
+		return exportTxt().collect(Collectors.joining("\n"));
 	}
 
 }
