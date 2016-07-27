@@ -51,6 +51,7 @@
 		<module>optiplace-hostCost</module>
 		<module>optiplace-network</module>
 		<module>optiplace-distance</module>
+		<module>optiplace-hosanna</module>
 	</modules>
 
 	<dependencyManagement>
