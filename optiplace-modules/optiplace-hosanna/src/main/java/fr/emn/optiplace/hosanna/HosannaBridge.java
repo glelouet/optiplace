@@ -6,6 +6,7 @@ package fr.emn.optiplace.hosanna;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import com.usharesoft.hosanna.tosca.parser.factory.ToscaParserFactory;
 
@@ -62,6 +63,7 @@ public class HosannaBridge {
 		dest.getDestination().getVMs().forEach(vm -> {
 			NodeTemplate node = modified.getTopology().getNodeTemplates().get(vm.getName());
 			Capability cap = new Capability();
+			cap.setProperties(new HashMap<>());
 			cap.getProperties().put("ref-name", new ScalarPropertyValue(dest.getDestination().getLocation(vm).getName()));
 			node.getCapabilities().put("iaas", cap);
 		});
@@ -77,7 +79,7 @@ public class HosannaBridge {
 		IConfiguration src = tosca2cfg(ret);
 		DeducedTarget dest = new Optiplace(src).solve();
 		addPlacement(dest, ret);
-		return null;
+		return ret;
 	}
 
 	public static void main(String[] args) throws IOException {

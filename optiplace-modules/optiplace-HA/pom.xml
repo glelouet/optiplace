@@ -25,6 +25,8 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
+			<version>2.0.2-beta</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>fr.emn.optiplace</groupId>
