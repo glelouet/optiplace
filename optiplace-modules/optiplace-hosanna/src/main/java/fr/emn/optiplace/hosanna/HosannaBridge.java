@@ -98,8 +98,6 @@ public class HosannaBridge {
 			return null;
 		}
 		IConfiguration src = tosca2cfg(ret);
-
-		System.err.println("cfg : " + src);
 		DeducedTarget dest = new Optiplace(src).solve();
 		addPlacement(dest, ret);
 		return ret;
