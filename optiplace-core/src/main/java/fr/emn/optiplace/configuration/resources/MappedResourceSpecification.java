@@ -50,6 +50,14 @@ public class MappedResourceSpecification implements ResourceSpecification {
 		this.type = type;
 	}
 
+	@Override
+	public ResourceSpecification clone() {
+		MappedResourceSpecification ret = new MappedResourceSpecification(type);
+		ret.vmsUses = new HashMap<>(vmsUses);
+		ret.hostersCapacities = new HashMap<>(hostersCapacities);
+		return ret;
+	}
+
 	private HashMap<VMHoster, Integer> hostersCapacities = new HashMap<>();
 
 	/**
@@ -60,7 +68,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 		hostersCapacities = nodesCapacities;
 	}
 
-	private HashMap<VM, Integer> vmsUses = new HashMap<VM, Integer>();
+	private HashMap<VM, Integer> vmsUses = new HashMap<>();
 
 	/**
 	 * @param vmsUses
@@ -134,18 +142,20 @@ public class MappedResourceSpecification implements ResourceSpecification {
 
 	@Override
 	public void use(VM v, int use) {
-		if (use == 0)
+		if (use == 0) {
 			vmsUses.remove(v);
-		else
-		vmsUses.put(v, use);
+		} else {
+			vmsUses.put(v, use);
+		}
 	}
 
 	@Override
 	public void capacity(VMHoster h, int capacity) {
-		if (capacity == 0)
+		if (capacity == 0) {
 			hostersCapacities.remove(h);
-		else
-		hostersCapacities.put(h, capacity);
+		} else {
+			hostersCapacities.put(h, capacity);
+		}
 	}
 
 	@Override

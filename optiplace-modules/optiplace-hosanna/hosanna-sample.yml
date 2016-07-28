@@ -30,6 +30,23 @@ topology_template:
                   version: "7"
                   arch: "x86_64"
                   profile: "Minimal"
+    hosannb:
+      type: hosanna.nodes.Compute
+      capabilities:
+            container:
+              properties:
+                disk_size: 5 GB
+                num_cpus: 8
+                mem_size: 4096 MB
+      properties:
+            stack:
+                name: "HosannaForge"
+                version: "1.0"
+                os:
+                  name: "CentOS"
+                  version: "7"
+                  arch: "x86_64"
+                  profile: "Minimal"
 
 node_types:
   hosanna.nodes.Compute:

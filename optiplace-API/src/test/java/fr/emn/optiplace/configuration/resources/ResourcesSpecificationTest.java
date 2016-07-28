@@ -81,11 +81,16 @@ public class ResourcesSpecificationTest {
 			@Override
 			public void remove(ManagedElement e) {
 			}
+
+			@Override
+			public ResourceSpecification clone() {
+				throw new UnsupportedOperationException();
+			}
 		};
 		ArrayList<Node> list = new ArrayList<>(Arrays.asList(nodes));
 
 		List<Node> expected = Arrays.asList(nodes[0], nodes[2], nodes[4], nodes[6], nodes[8], nodes[1], nodes[3], nodes[5],
-		    nodes[7], nodes[9]);
+				nodes[7], nodes[9]);
 		Comparator<Node> c = test.makeNodeComparator(true);
 		Collections.sort(list, c);
 		Assert.assertEquals(list, expected);
@@ -144,6 +149,11 @@ public class ResourcesSpecificationTest {
 
 			@Override
 			public void remove(ManagedElement e) {
+			}
+
+			@Override
+			public ResourceSpecification clone() {
+				throw new UnsupportedOperationException();
 			}
 		};
 		ArrayList<VM> list = new ArrayList<>(Arrays.asList(vms));

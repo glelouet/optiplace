@@ -13,6 +13,8 @@ import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 
 /**
+ * tests on the parser. Load a file to yaml, then from yaml to string.
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */

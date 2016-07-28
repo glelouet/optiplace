@@ -6,8 +6,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
@@ -243,7 +243,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 */
 	public static HashMap<String, ResourceSpecification> toMap(HashMap<String, ResourceSpecification> map,
 			ResourceSpecification... res) {
-		HashMap<String, ResourceSpecification> ret = map == null ? new HashMap<String, ResourceSpecification>() : map;
+		HashMap<String, ResourceSpecification> ret = map == null ? new HashMap<>() : map;
 		if (res != null) {
 			for (ResourceSpecification r : res) {
 				ret.put(r.getType(), r);
@@ -266,10 +266,12 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	/**
 	 * ensures an element has no reference. In most implementations that should be
 	 * the same as settings its capacity/use to 0.
-	 * 
+	 *
 	 * @param e
 	 *          the element
 	 */
 	public void remove(ManagedElement e);
+
+	ResourceSpecification clone();
 
 }

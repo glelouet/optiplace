@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import com.usharesoft.hosanna.tosca.parser.factory.ToscaParserFactory;
 
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -20,9 +21,14 @@ import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 
 /**
+ * loads up a TOSCA YAML file, translate it to an optiplace configuration, call
+ * optiplace on it and translate back to TOSCA.
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
@@ -30,6 +36,8 @@ public class HosannaBridge {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HosannaBridge.class);
+
+	public static final String[] resources = { "disk_size", "num_cpus", "mem_size" };
 
 	private IConfiguration physical = new Configuration();
 
@@ -48,7 +56,17 @@ public class HosannaBridge {
 	public IConfiguration tosca2cfg(ArchiveRoot data) {
 		IConfiguration ret = physical.clone();
 		data.getTopology().getNodeTemplates().entrySet().stream().forEach(e -> {
-			ret.addVM(e.getKey(), null);
+			VM v = ret.addVM(e.getKey(), null);
+			Capability container = e.getValue().getCapabilities().get("container");
+			if (container != null) {
+				for (String resName : resources) {
+					AbstractPropertyValue res = container.getProperties().get(resName);
+					if (res != null) {
+						int val = Integer.parseInt(((ScalarPropertyValue) res).getValue().split(" ")[0]);
+						ret.resource(resName).use(v, val);
+					}
+				}
+			}
 		});
 		return ret;
 	}
@@ -62,10 +80,13 @@ public class HosannaBridge {
 	public void addPlacement(DeducedTarget dest, ArchiveRoot modified) {
 		dest.getDestination().getVMs().forEach(vm -> {
 			NodeTemplate node = modified.getTopology().getNodeTemplates().get(vm.getName());
-			Capability cap = new Capability();
-			cap.setProperties(new HashMap<>());
-			cap.getProperties().put("ref-name", new ScalarPropertyValue(dest.getDestination().getLocation(vm).getName()));
-			node.getCapabilities().put("iaas", cap);
+			VMHoster hoster = dest.getDestination().getLocation(vm);
+			if (hoster != null) {
+				Capability cap = new Capability();
+				cap.setProperties(new HashMap<>());
+				cap.getProperties().put("ref-name", new ScalarPropertyValue(hoster.getName()));
+				node.getCapabilities().put("iaas", cap);
+			}
 		});
 	}
 
@@ -77,6 +98,8 @@ public class HosannaBridge {
 			return null;
 		}
 		IConfiguration src = tosca2cfg(ret);
+
+		System.err.println("cfg : " + src);
 		DeducedTarget dest = new Optiplace(src).solve();
 		addPlacement(dest, ret);
 		return ret;

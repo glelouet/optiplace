@@ -63,7 +63,7 @@ public class Configuration implements IConfiguration {
 	/** VM to the target is is migrating to. */
 	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
 
-	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<String, ResourceSpecification>();
+	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<>();
 
 	public Configuration(String... resources) {
 		if (resources == null || resources.length == 0) {
@@ -83,11 +83,8 @@ public class Configuration implements IConfiguration {
 		nodesTags.forEach((e, v) -> other.nodesTags.put(e, new LinkedHashSet<>(v)));
 		nodesVM.forEach((e, v) -> other.nodesVM.put(e, new LinkedHashSet<>(v)));
 		offlines.forEach(n -> other.offlines.add(n));
-		resources.forEach((e, v) -> other.resources.put(e, v));
-		// TODO clone the resourcespecification
-		if (!resources.isEmpty()) {
-			throw new UnsupportedOperationException("can not clone non-empty resource configurations");
-		}
+		resources.forEach((e, v) -> other.resources.put(e, v.clone()));
+
 		sitesTags.forEach((e, v) -> other.sitesTags.put(e, new LinkedHashSet<>(v)));
 		sitesToHosters.forEach((e, v) -> other.sitesToHosters.put(e, new LinkedHashSet<>(v)));
 		vmHoster.forEach((e, v) -> other.vmHoster.put(e, v));
