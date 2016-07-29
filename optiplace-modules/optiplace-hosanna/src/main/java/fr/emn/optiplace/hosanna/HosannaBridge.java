@@ -61,17 +61,32 @@ public class HosannaBridge {
 		}
 	}
 
+	/**
+	 * create a problem from the physical architecture, a TOSCA VM specification.
+	 * The specification may need some HA rule, so an HA view is added to the
+	 * problem.
+	 *
+	 * @param data
+	 *          the TOSCA specification
+	 * @return a new optiplace problem.
+	 */
 	public IOptiplace tosca2cfg(ArchiveRoot data) {
 		IConfiguration src = physical.clone();
 		HAView ha = new HAView();
+
+		// first we check if the VM is scalable. If scalable, we create copies of
+		// that VM
 		data.getTopology().getNodeTemplates().entrySet().stream().forEach(e -> {
 			VM v = src.addVM(e.getKey(), null);
 			VM[] copies = null;
-			Capability scalable = e.getValue().getCapabilities().get("scalable");
-			if (scalable != null) {
+			if (e.getValue().getCapabilities().containsKey("scalable")) {
+				Capability scalable = e.getValue().getCapabilities().get("scalable");
 				AbstractPropertyValue number = scalable.getProperties().get("default_instances");
 				if (number == null) {
 					number = scalable.getProperties().get("min_instances");
+				}
+				if (number == null) {
+					return;
 				}
 				int nbVMs = Integer.parseInt(((ScalarPropertyValue) number).getValue());
 				if (nbVMs > 1) {
@@ -82,11 +97,12 @@ public class HosannaBridge {
 					HashSet<VM> amongVMs = new HashSet<>(Arrays.asList(copies));
 					amongVMs.add(v);
 					Among among = new Among(amongVMs);
-					System.err.println("created among " + among);
 					ha.getData().getRules().add(among);
 
 				}
 			}
+
+			// now we get the resources specification of the VM
 			Capability container = e.getValue().getCapabilities().get("container");
 			if (container != null) {
 				for (String resName : resources) {
@@ -134,6 +150,14 @@ public class HosannaBridge {
 		});
 	}
 
+	/**
+	 * load a TOSCA file, add it to the physical infrastructure, then solve the
+	 * problem.
+	 *
+	 * @param filename
+	 *          name of the TOSCA file to solve
+	 * @return the modified TOSCA description, after solving the problem.
+	 */
 	public ArchiveRoot solveTosca(String filename) {
 		ArchiveRoot ret;
 		try {

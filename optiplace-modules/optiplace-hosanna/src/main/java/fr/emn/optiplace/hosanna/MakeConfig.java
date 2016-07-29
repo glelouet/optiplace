@@ -10,6 +10,8 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
 
 /**
+ * print a working config on a file at project root.
+ * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
@@ -21,7 +23,6 @@ public class MakeConfig {
 	/**
 	 * @param args
 	 */
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		Configuration cfg = new Configuration("disk_size", "num_cpus", "mem_size");
 		Extern e1 = cfg.addExtern("e1", 5, 8, 4096);

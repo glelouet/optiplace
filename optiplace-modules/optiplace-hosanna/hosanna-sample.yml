@@ -47,7 +47,6 @@ topology_template:
                   version: "7"
                   arch: "x86_64"
                   profile: "Minimal"
-            scalable:
             
     hosanns:
       type: hosanna.nodes.Compute
@@ -68,6 +67,8 @@ node_types:
     capabilities:
       container:
         type: hosanna.capabilities.Container
+      scalable:
+        type: hosanna.capabilities.Scalable
     properties:
         stack:
           type: hosanna.datatypes.Stack
@@ -97,11 +98,18 @@ capability_types:
   hosanna.capabilities.Scalable:
       derived_from: tosca.capabilities.Root
       properties:
+        min_instances:
+          type: integer
+          default: 1
+          required: false
         default_instances:
           type: integer
-          required: true
-          constraints:
-            - greater_or_equal: 2
+          default: 1
+          required: false
+        max_instances:
+          type: integer
+          default: 1
+          required: false
   hosanna.capabilities.Stack:
       derived_from: tosca.capabilities.Root
       properties:
