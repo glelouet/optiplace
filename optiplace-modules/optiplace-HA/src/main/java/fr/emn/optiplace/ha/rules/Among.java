@@ -37,6 +37,7 @@ import fr.emn.optiplace.view.Rule;
  * group of physical elements among those given in parameters.
  *
  * @author Fabien Hermenier
+ * @author Guillaume Le Louët
  */
 public class Among implements Rule {
 
@@ -141,8 +142,13 @@ public class Among implements Rule {
 	public void inject(IReconfigurationProblem core) {
 		Set<Set<String>> groups = this.groups;
 		if (groups.isEmpty()) {
-			groups = core.getSourceConfiguration().getOnlines().map(n -> Collections.singleton(n.getName()))
+			groups = Stream
+					.concat(core.getSourceConfiguration().getOnlines(),
+							core.getSourceConfiguration().getExterns()
+							.filter(ext -> core.getSourceConfiguration().isHosterTagged(ext, "support:ha/among")))
+					.map(n -> Collections.singleton(n.getName()))
 					.collect(Collectors.toSet());
+			System.err.println("deduced group of among is : ");
 		}
 		// Get the nodes of the VMs
 		IConfiguration cfg = core.getSourceConfiguration();

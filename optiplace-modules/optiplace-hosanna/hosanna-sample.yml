@@ -47,6 +47,19 @@ topology_template:
                   version: "7"
                   arch: "x86_64"
                   profile: "Minimal"
+            scalable:
+            
+    hosanns:
+      type: hosanna.nodes.Compute
+      capabilities:
+            container:
+              properties:
+                disk_size: 5 GB
+                num_cpus: 4
+                mem_size: 4096 MB
+            scalable:
+              properties:
+                default_instances: 3
 
 node_types:
   hosanna.nodes.Compute:
@@ -81,6 +94,14 @@ capability_types:
             required: false
             constraints:
               - greater_or_equal: 0 MB
+  hosanna.capabilities.Scalable:
+      derived_from: tosca.capabilities.Root
+      properties:
+        default_instances:
+          type: integer
+          required: true
+          constraints:
+            - greater_or_equal: 2
   hosanna.capabilities.Stack:
       derived_from: tosca.capabilities.Root
       properties:

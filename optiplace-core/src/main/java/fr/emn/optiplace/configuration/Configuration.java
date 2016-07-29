@@ -510,10 +510,10 @@ public class Configuration implements IConfiguration {
 			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}
 		Set<VMHoster> set = sitesToHosters.get(site);
-		if (set != null) {
-			return set.stream();
+		if (set == null) {
+			return Stream.empty();
 		}
-		return Stream.empty();
+		return set.stream();
 	}
 
 	public String toString(String fieldSeparator) {

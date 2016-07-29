@@ -26,7 +26,9 @@ public class MakeConfig {
 		Configuration cfg = new Configuration("disk_size", "num_cpus", "mem_size");
 		Extern e1 = cfg.addExtern("e1", 5, 8, 4096);
 		Extern e2 = cfg.addExtern("e2", 10, 4, 4096);
-
+		cfg.tag(e1, "support:ha/among");
+		cfg.tag(e2, "support:ha/among");
+		cfg.tag(e2, "disk-type:qcow2");
 
 		ConfigurationFiler filer = new ConfigurationFiler(new File("infra.cfg")).withConfiguration(cfg);
 		filer.write();

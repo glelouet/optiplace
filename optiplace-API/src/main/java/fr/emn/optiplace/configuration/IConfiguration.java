@@ -426,7 +426,7 @@ public interface IConfiguration extends Cloneable {
 
 	/**
 	 * add an online Node
-	 * 
+	 *
 	 * @param name
 	 *          the name of the node
 	 * @param resources
@@ -699,11 +699,20 @@ public interface IConfiguration extends Cloneable {
 	 *
 	 * @param Site
 	 *          a site
-	 * @return a stream over the nodes contained in this site. if this site is not
-	 *         present, return an empty stream ; if this site is null, return the
-	 *         stream of the nodes with no site.
+	 * @return a stream over the hosters contained in this site. if this site is
+	 *         not present, return an empty stream ; if this site is null, return
+	 *         the stream of the hosters with no site.
 	 */
 	public Stream<VMHoster> getHosters(Site site);
+
+	/**
+	 * stream over all the managed elements
+	 * 
+	 * @return
+	 */
+	public default Stream<ManagedElement> getManagedElements() {
+		return Stream.concat(Stream.concat(getNodes(), getExterns()), Stream.concat(getVMs(), getSites()));
+	}
 
 	///////////////////////////////////
 	// host tags

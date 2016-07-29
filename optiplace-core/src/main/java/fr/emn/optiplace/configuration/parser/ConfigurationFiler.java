@@ -4,11 +4,23 @@
 
 package fr.emn.optiplace.configuration.parser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.ManagedElement;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Site;
+import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
-
 
 /**
  * handles reading and writing a Configuration from/to a file
@@ -42,8 +54,7 @@ public class ConfigurationFiler {
 	public void read() {
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			br.lines().forEach(this::readLine);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new UnsupportedOperationException(e);
 		}
 	}
@@ -69,8 +80,7 @@ public class ConfigurationFiler {
 					}
 				}
 			}
-		} else
-		  if (line.startsWith("offlines : [")) {
+		} else if (line.startsWith("offlines : [")) {
 			if (line.length() > "offlines : []".length()) {
 				line = line.substring("offlines : [".length(), line.length() - 1);
 				String[] lines = line.split(", ");
@@ -78,8 +88,7 @@ public class ConfigurationFiler {
 					cfg.addOffline(s);
 				}
 			}
-		} else
-		    if (line.startsWith("waitings : [")) {
+		} else if (line.startsWith("waitings : [")) {
 			if (line.length() > "waitings : []".length()) {
 				line = line.substring("waitings : [".length(), line.length() - 1);
 				String[] lines = line.split(", ");
@@ -108,8 +117,47 @@ public class ConfigurationFiler {
 					}
 				}
 			}
-		} else
-		      if (line.startsWith(" ")) {
+		} else if (line.startsWith("nodesTags : {")) {
+			String[] tags = line.split("\\{|\\}")[1].split("=?\\[|\\],?\\ ?");
+			// result is tags[0] = name of first tag, tags[1]=value of first tag
+			for (int i = 0; i + 1 < tags.length; i += 2) {
+				String tag = tags[i];
+				String[] values = tags[i + 1].split(", ");
+				for (String name : Arrays.asList(values)) {
+					cfg.tagNode(new Node(name), tag);
+				}
+			}
+		} else if (line.startsWith("externsTags : {")) {
+			String[] tags = line.split("\\{|\\}")[1].split("=?\\[|\\],?\\ ?");
+			// result is tags[0] = name of first tag, tags[1]=value of first tag
+			for (int i = 0; i + 1 < tags.length; i += 2) {
+				String tag = tags[i];
+				String[] values = tags[i + 1].split(", ");
+				for (String name : Arrays.asList(values)) {
+					cfg.tagExtern(new Extern(name), tag);
+				}
+			}
+		} else if (line.startsWith("vmsTags : {")) {
+			String[] tags = line.split("\\{|\\}")[1].split("=?\\[|\\],?\\ ?");
+			// result is tags[0] = name of first tag, tags[1]=value of first tag
+			for (int i = 0; i + 1 < tags.length; i += 2) {
+				String tag = tags[i];
+				String[] values = tags[i + 1].split(", ");
+				for (String name : Arrays.asList(values)) {
+					cfg.tagVM(new VM(name), tag);
+				}
+			}
+		} else if (line.startsWith("sitesTags : {")) {
+			String[] tags = line.split("\\{|\\}")[1].split("=?\\[|\\],?\\ ?");
+			// result is tags[0] = name of first tag, tags[1]=value of first tag
+			for (int i = 0; i + 1 < tags.length; i += 2) {
+				String tag = tags[i];
+				String[] values = tags[i + 1].split(", ");
+				for (String name : Arrays.asList(values)) {
+					cfg.tagSite(new Site(name), tag);
+				}
+			}
+		} else if (line.startsWith(" ")) {
 			line = line.substring(" ".length());
 			String[] l2s = line.split("\\{");
 			String resName = l2s[0];
@@ -133,7 +181,10 @@ public class ConfigurationFiler {
 					res.use(new VM(vs[0]), Integer.parseInt(vs[1]));
 				}
 			}
+		} else {
+			logger.debug("dicarding line " + line);
 		}
+
 	}
 
 	/**
@@ -144,8 +195,7 @@ public class ConfigurationFiler {
 			BufferedWriter b = new BufferedWriter(new FileWriter(file));
 			b.append(cfg.toString());
 			b.close();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new UnsupportedOperationException(e);
 		}
 	}

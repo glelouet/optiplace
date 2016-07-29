@@ -18,9 +18,13 @@
     
       <dependencies>
       	<dependency>
-      		<groupId>com.usharesoft.hosanna</groupId>
+      		<groupId>org.hosanna</groupId>
       		<artifactId>tosca-parser</artifactId>
       		<version>1.0.0-SNAPSHOT</version>
+      	</dependency>
+      	<dependency>
+      		<groupId>fr.emn.optiplace.modules</groupId>
+      		<artifactId>optiplace-HA</artifactId>
       	</dependency>
       </dependencies>
 </project>

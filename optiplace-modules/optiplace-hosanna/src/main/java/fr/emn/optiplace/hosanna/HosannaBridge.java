@@ -6,11 +6,15 @@ package fr.emn.optiplace.hosanna;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Optional;
 
 import com.usharesoft.hosanna.tosca.parser.factory.ToscaParserFactory;
 
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ComplexPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -18,12 +22,16 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import fr.emn.optiplace.DeducedTarget;
+import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
 import fr.emn.optiplace.configuration.parser.ConfigurationFiler;
+import fr.emn.optiplace.configuration.resources.ResourceSpecification;
+import fr.emn.optiplace.ha.HAView;
+import fr.emn.optiplace.ha.rules.Among;
 
 /**
  * loads up a TOSCA YAML file, translate it to an optiplace configuration, call
@@ -53,22 +61,50 @@ public class HosannaBridge {
 		}
 	}
 
-	public IConfiguration tosca2cfg(ArchiveRoot data) {
-		IConfiguration ret = physical.clone();
+	public IOptiplace tosca2cfg(ArchiveRoot data) {
+		IConfiguration src = physical.clone();
+		HAView ha = new HAView();
 		data.getTopology().getNodeTemplates().entrySet().stream().forEach(e -> {
-			VM v = ret.addVM(e.getKey(), null);
+			VM v = src.addVM(e.getKey(), null);
+			VM[] copies = null;
+			Capability scalable = e.getValue().getCapabilities().get("scalable");
+			if (scalable != null) {
+				AbstractPropertyValue number = scalable.getProperties().get("default_instances");
+				if (number == null) {
+					number = scalable.getProperties().get("min_instances");
+				}
+				int nbVMs = Integer.parseInt(((ScalarPropertyValue) number).getValue());
+				if (nbVMs > 1) {
+					copies = new VM[nbVMs - 1];
+					for (int vmi = 0; vmi < nbVMs - 1; vmi++) {
+						copies[vmi] = src.addVM(e.getKey() + "_copy" + vmi, null);
+					}
+					HashSet<VM> amongVMs = new HashSet<>(Arrays.asList(copies));
+					amongVMs.add(v);
+					Among among = new Among(amongVMs);
+					System.err.println("created among " + among);
+					ha.getData().getRules().add(among);
+
+				}
+			}
 			Capability container = e.getValue().getCapabilities().get("container");
 			if (container != null) {
 				for (String resName : resources) {
 					AbstractPropertyValue res = container.getProperties().get(resName);
 					if (res != null) {
 						int val = Integer.parseInt(((ScalarPropertyValue) res).getValue().split(" ")[0]);
-						ret.resource(resName).use(v, val);
+						ResourceSpecification specification = src.resource(resName);
+						specification.use(v, val);
+						if (copies != null) {
+							for(VM copy : copies) {
+								specification.use(copy, val);
+							}
+						}
 					}
 				}
 			}
 		});
-		return ret;
+		return new Optiplace(src).with(ha);
 	}
 
 	/**
@@ -80,12 +116,20 @@ public class HosannaBridge {
 	public void addPlacement(DeducedTarget dest, ArchiveRoot modified) {
 		dest.getDestination().getVMs().forEach(vm -> {
 			NodeTemplate node = modified.getTopology().getNodeTemplates().get(vm.getName());
-			VMHoster hoster = dest.getDestination().getLocation(vm);
-			if (hoster != null) {
-				Capability cap = new Capability();
-				cap.setProperties(new HashMap<>());
-				cap.getProperties().put("ref-name", new ScalarPropertyValue(hoster.getName()));
-				node.getCapabilities().put("iaas", cap);
+			if (node != null) {
+				VMHoster hoster = dest.getDestination().getLocation(vm);
+				if (hoster != null) {
+					ComplexPropertyValue iaas = new ComplexPropertyValue();
+					node.getProperties().put("iaas", iaas);
+					iaas.setValue(new HashMap<>());
+					iaas.getValue().put("ref-name", hoster.getName());
+					Optional<String> opt = dest.getDestination().getTags(hoster).filter(t -> t.startsWith("disk-type:"))
+							.map(s -> s.replace("disk-type:", "")).findFirst();
+					if (opt.isPresent()) {
+						iaas.getValue().put("disk-type", opt.get());
+					}
+					iaas.getValue().put("ref-name", hoster.getName());
+				}
 			}
 		});
 	}
@@ -97,8 +141,9 @@ public class HosannaBridge {
 		} catch (IOException e) {
 			return null;
 		}
-		IConfiguration src = tosca2cfg(ret);
-		DeducedTarget dest = new Optiplace(src).solve();
+		IOptiplace pb = tosca2cfg(ret);
+		DeducedTarget dest = pb.solve();
+		// System.err.println("dest is " + dest.getDestination());
 		addPlacement(dest, ret);
 		return ret;
 	}
@@ -106,13 +151,15 @@ public class HosannaBridge {
 	public static void main(String[] args) throws IOException {
 		if (args.length < 2) {
 			System.err.println(
-					"error : requires at least two arguments : INFRATRUCTUREFILE TOSCAFILE [TOSCAOUTFILE]\nif TOSCAOUTFILE is not specified, the result is written to stdout");
+					"error : requires at least two arguments : INFRATRUCTUREFILE TOSCAFILE [TOSCAOUTFILE]\n"
+							+ "if TOSCAOUTFILE is not specified, the result is written to stdout");
 			return;
 		}
 		HosannaBridge hb = new HosannaBridge();
 		ConfigurationFiler cf = new ConfigurationFiler(new File(args[0]));
 		cf.read();
 		hb.setPhysical(cf.getCfg());
+		// System.err.println("physical infra is " + cf.getCfg());
 		ParsingResult<ArchiveRoot> res = new ParsingResult<>();
 		res.setResult(hb.solveTosca(args[1]));
 		String data = ToscaParserFactory.getInstance().getToscaParser().toYaml(res);
