@@ -178,9 +178,9 @@ public class HosannaBridge {
 	}
 
 	public static void main(String[] args) throws IOException {
-		final int NEXT_NONE = 0, NEXT_INFRA = 1, NEXT_OUT = 2;
+		final int NEXT_NONE = 0, NEXT_INFRA = 1, NEXT_OUT = 2, NEXT_SERVICE = 3;
 		int next = NEXT_NONE;
-		String toscaInFile = null, infraFile = null, toscaOutFile = null;
+		String toscaInFile = null, infraFile = null, toscaOutFile = null, serviceFile = null;
 
 		for (String arg : args) {
 			switch (next) {
@@ -191,6 +191,9 @@ public class HosannaBridge {
 					break;
 				case "-o":
 					next = NEXT_OUT;
+					break;
+				case "-s":
+					next = NEXT_SERVICE;
 					break;
 				default:
 					toscaInFile = arg;
@@ -204,23 +207,28 @@ public class HosannaBridge {
 				toscaOutFile = arg;
 				next = NEXT_NONE;
 				break;
+			case NEXT_SERVICE:
+				serviceFile = arg;
+				next = NEXT_NONE;
+				break;
 			default:
 				throw new UnsupportedOperationException(
 						"while parsing commad line argument, token type " + next + " is unknown");
 			}
 		}
-		if (toscaInFile == null) {
+		if (toscaInFile == null || next != NEXT_NONE) {
 			System.err.println("error : requires at least the tosca file to read\n"
-					+ "java -jar jarfile TOSCAFILE [-iINFRATRUCTUREFILE] [-oTOSCAOUTFILE]\n"
+					+ "java -jar jarfile TOSCAFILE [-i INFRATRUCTUREFILE] [-o TOSCAOUTFILE] [-s SERVICEFILE]\n"
 					+ "if TOSCAOUTFILE is not specified, the result is written to stdout");
 			return;
 		}
 		HosannaBridge hb = new HosannaBridge();
 		hb.setInfraFile(infraFile);
-		// System.err.println("physical infra is " + cf.getCfg());
+
 		ParsingResult<ArchiveRoot> res = new ParsingResult<>();
 		res.setResult(hb.solveTosca(toscaInFile));
 		String data = ToscaParserFactory.getInstance().getToscaParser().toYaml(res);
+
 		if (toscaOutFile != null) {
 			try (PrintWriter out = new PrintWriter(toscaOutFile)) {
 				out.println(data);
