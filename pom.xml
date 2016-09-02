@@ -27,13 +27,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
-	<scm>
-		<developerConnection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</developerConnection>
-		<url>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</url>
-		<connection>scm:git:ssh://git@ns355283.ip-91-121-120.eu/root/optiplace.git</connection>
-		<tag>HEAD</tag>
-	</scm>
 	<distributionManagement>
 		<repository>
 			<id>kimsufi-repository</id>
