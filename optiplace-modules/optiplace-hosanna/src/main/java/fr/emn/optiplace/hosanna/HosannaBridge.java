@@ -24,7 +24,6 @@ import alien4cloud.tosca.parser.ParsingResult;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMHoster;
@@ -34,11 +33,10 @@ import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.ha.rules.Among;
 
 /**
- * loads up a TOSCA YAML file, translate it to an optiplace configuration, call
- * optiplace on it and translate back to TOSCA.
+ * loads up a TOSCA YAML file, translate it to an optiplace configuration, call optiplace on it and translate back to
+ * TOSCA.
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
- *
  */
 public class HosannaBridge {
 
@@ -47,10 +45,19 @@ public class HosannaBridge {
 
 	public static final String[] resources = { "disk_size", "num_cpus", "mem_size" };
 
-	private IConfiguration physical = new Configuration();
+	private String infraFile = null;
 
-	public void setPhysical(IConfiguration cfg) {
-		physical = cfg;
+	public void setInfraFile(String fileName) {
+		infraFile = fileName;
+	}
+
+	public IConfiguration loadPhysical() {
+		if (infraFile != null) {
+			ConfigurationFiler cf = new ConfigurationFiler(new File(infraFile));
+			cf.read();
+			return cf.getCfg();
+		}
+		return null;
 	}
 
 	public ArchiveRoot readTosca(String filename) throws IOException {
@@ -62,16 +69,15 @@ public class HosannaBridge {
 	}
 
 	/**
-	 * create a problem from the physical architecture, a TOSCA VM specification.
-	 * The specification may need some HA rule, so an HA view is added to the
-	 * problem.
+	 * create a problem from the physical architecture, a TOSCA VM specification. The specification may need some HA rule,
+	 * so an HA view is added to the problem.
 	 *
 	 * @param data
 	 *          the TOSCA specification
 	 * @return a new optiplace problem.
 	 */
 	public IOptiplace tosca2cfg(ArchiveRoot data) {
-		IConfiguration src = physical.clone();
+		IConfiguration src = loadPhysical();
 		HAView ha = new HAView();
 
 		// first we check if the VM is scalable. If scalable, we create copies of
@@ -105,14 +111,14 @@ public class HosannaBridge {
 			// now we get the resources specification of the VM
 			Capability container = e.getValue().getCapabilities().get("container");
 			if (container != null) {
-				for (String resName : resources) {
+				for (String resName : HosannaBridge.resources) {
 					AbstractPropertyValue res = container.getProperties().get(resName);
 					if (res != null) {
 						int val = Integer.parseInt(((ScalarPropertyValue) res).getValue().split(" ")[0]);
 						ResourceSpecification specification = src.resource(resName);
 						specification.use(v, val);
 						if (copies != null) {
-							for(VM copy : copies) {
+							for (VM copy : copies) {
 								specification.use(copy, val);
 							}
 						}
@@ -151,8 +157,7 @@ public class HosannaBridge {
 	}
 
 	/**
-	 * load a TOSCA file, add it to the physical infrastructure, then solve the
-	 * problem.
+	 * load a TOSCA file, add it to the physical infrastructure, then solve the problem.
 	 *
 	 * @param filename
 	 *          name of the TOSCA file to solve
@@ -173,22 +178,51 @@ public class HosannaBridge {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length < 2) {
-			System.err.println(
-					"error : requires at least two arguments : INFRATRUCTUREFILE TOSCAFILE [TOSCAOUTFILE]\n"
-							+ "if TOSCAOUTFILE is not specified, the result is written to stdout");
+		final int NEXT_NONE = 0, NEXT_INFRA = 1, NEXT_OUT = 2;
+		int next = NEXT_NONE;
+		String toscaInFile = null, infraFile = null, toscaOutFile = null;
+
+		for (String arg : args) {
+			switch (next) {
+			case NEXT_NONE:
+				switch (arg) {
+				case "-i":
+					next = NEXT_INFRA;
+					break;
+				case "-o":
+					next = NEXT_OUT;
+					break;
+				default:
+					toscaInFile = arg;
+				}
+				break;
+			case NEXT_INFRA:
+				infraFile = arg;
+				next = NEXT_NONE;
+				break;
+			case NEXT_OUT:
+				toscaOutFile = arg;
+				next = NEXT_NONE;
+				break;
+			default:
+				throw new UnsupportedOperationException(
+						"while parsing commad line argument, token type " + next + " is unknown");
+			}
+		}
+		if (toscaInFile == null) {
+			System.err.println("error : requires at least the tosca file to read\n"
+					+ "java -jar jarfile TOSCAFILE [-iINFRATRUCTUREFILE] [-oTOSCAOUTFILE]\n"
+					+ "if TOSCAOUTFILE is not specified, the result is written to stdout");
 			return;
 		}
 		HosannaBridge hb = new HosannaBridge();
-		ConfigurationFiler cf = new ConfigurationFiler(new File(args[0]));
-		cf.read();
-		hb.setPhysical(cf.getCfg());
+		hb.setInfraFile(infraFile);
 		// System.err.println("physical infra is " + cf.getCfg());
 		ParsingResult<ArchiveRoot> res = new ParsingResult<>();
-		res.setResult(hb.solveTosca(args[1]));
+		res.setResult(hb.solveTosca(toscaInFile));
 		String data = ToscaParserFactory.getInstance().getToscaParser().toYaml(res);
-		if (args.length > 2) {
-			try (PrintWriter out = new PrintWriter(args[2])) {
+		if (toscaOutFile != null) {
+			try (PrintWriter out = new PrintWriter(toscaOutFile)) {
 				out.println(data);
 			}
 		} else {
