@@ -62,7 +62,7 @@ public class HosannaBridge {
 		ArchiveRoot ret = tb.addToOptiplace(src, ha);
 		IOptiplace pb = new Optiplace(src).with(ha);
 		DeducedTarget dest = pb.solve();
-		System.err.println("dest is " + dest.getDestination());
+		// System.err.println("dest is " + dest.getDestination());
 		tb.addPlacement(dest, ret);
 		return ret;
 	}
