@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import com.usharesoft.hosanna.tosca.parser.factory.ToscaParserFactory;
-
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingResult;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
@@ -54,7 +51,7 @@ public class HosannaBridge {
 	 *          name of the TOSCA file to solve
 	 * @return the modified TOSCA description, after solving the problem.
 	 */
-	public ArchiveRoot solveTosca(String filename) {
+	public String solveTosca(String filename) {
 		ToscaBridge tb = new ToscaBridge(filename);
 		IConfiguration src = loadPhysical();
 		HAView ha = new HAView();
@@ -64,7 +61,7 @@ public class HosannaBridge {
 		DeducedTarget dest = pb.solve();
 		// System.err.println("dest is " + dest.getDestination());
 		tb.addPlacement(dest, ret);
-		return ret;
+		return tb.toYaml(ret);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -108,9 +105,7 @@ public class HosannaBridge {
 		HosannaBridge hb = new HosannaBridge();
 		hb.setInfraFile(infraFile);
 
-		ParsingResult<ArchiveRoot> res = new ParsingResult<>();
-		res.setResult(hb.solveTosca(toscaInFile));
-		String data = ToscaParserFactory.getInstance().getToscaParser().toYaml(res);
+		String data = hb.solveTosca(toscaInFile);
 
 		if (toscaOutFile != null) {
 			try (PrintWriter out = new PrintWriter(toscaOutFile)) {

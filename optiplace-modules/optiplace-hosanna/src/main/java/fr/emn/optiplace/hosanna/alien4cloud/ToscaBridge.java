@@ -1,11 +1,14 @@
 package fr.emn.optiplace.hosanna.alien4cloud;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 
-import com.usharesoft.hosanna.tosca.parser.factory.ToscaParserFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.usharesoft.hosanna.tosca.parser.HosannaToscaParser;
 
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ComplexPropertyValue;
@@ -14,6 +17,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
@@ -78,7 +82,7 @@ public class ToscaBridge {
 			// now we get the resources specification of the VM
 			Capability container = e.getValue().getCapabilities().get("container");
 			if (container != null) {
-				for (String resName : resources) {
+				for (String resName : ToscaBridge.resources) {
 					AbstractPropertyValue res = container.getProperties().get(resName);
 					if (res != null) {
 						int val = Integer.parseInt(((ScalarPropertyValue) res).getValue().split(" ")[0]);
@@ -96,9 +100,12 @@ public class ToscaBridge {
 		return data;
 	}
 
+	private final HosannaToscaParser parser = new ClassPathXmlApplicationContext("hosanna-application-context.xml")
+			.getBean(HosannaToscaParser.class);
+
 	protected ArchiveRoot readTosca() {
 		try {
-			return ToscaParserFactory.getInstance().getToscaParser().fromYaml(filename).getResult();
+			return parser.fromYaml(filename).getResult();
 		} catch (ParsingException e) {
 			throw new UnsupportedOperationException(e);
 		}
@@ -129,6 +136,16 @@ public class ToscaBridge {
 				}
 			}
 		});
+	}
+
+	public String toYaml(ArchiveRoot modified) {
+		ParsingResult<ArchiveRoot> pres = new ParsingResult<>();
+		pres.setResult(modified);
+		try {
+			return parser.toYaml(pres);
+		} catch (IOException e) {
+			throw new UnsupportedOperationException("catch this exception", e);
+		}
 	}
 
 }
