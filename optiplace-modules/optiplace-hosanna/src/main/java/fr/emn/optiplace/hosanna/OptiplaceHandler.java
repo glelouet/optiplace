@@ -3,11 +3,11 @@ package fr.emn.optiplace.hosanna;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map.Entry;
-
-import javax.ws.rs.ApplicationPath;
+import java.util.Set;
 
 import org.hosanna.csar.Csar;
 import org.hosanna.csar.rest.CsarHandler;
+import org.hosanna.csar.rest.CsarServer;
 import org.hosanna.infrastructure.Iaas.Capacity;
 import org.hosanna.infrastructure.Infrastructure;
 import org.hosanna.tosca.types.scalarunit.Size;
@@ -21,12 +21,16 @@ import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.ha.rules.Among;
+import fr.emn.optiplace.ha.rules.Far;
+import fr.emn.optiplace.ha.rules.Near;
 import hosanna.capabilities.Container;
+import tosca.groups.GroupDefinition;
 import tosca.meta.Blueprint;
 import tosca.nodes.Compute;
 import tosca.nodes.Root;
+import tosca.policies.AntiColocation;
+import tosca.policies.Colocation;
 
-@ApplicationPath("rest")
 public class OptiplaceHandler extends CsarHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(OptiplaceHandler.class);
@@ -109,7 +113,40 @@ public class OptiplaceHandler extends CsarHandler {
 				}
 			}
 		}
-
+		for(tosca.policies.Root p : blueprint.topology_template.policies){
+			if(p instanceof AntiColocation){
+				AntiColocation a = (AntiColocation) p;
+				Set<VM> vms = new HashSet<>();
+				if(a.nodes!=null){
+					for(String name : a.nodes){
+						vms.add(src.getElementByName(name, VM.class));
+					}
+				}
+				if(a.group!=null&& blueprint.topology_template.groups.get(a.group)!=null){
+					GroupDefinition group = blueprint.topology_template.groups.get(a.group);
+					for (String name : group.members) {
+						vms.add(src.getElementByName(name, VM.class));
+					}
+				}
+				ha.addRule(new Far(vms));
+			}
+			if (p instanceof Colocation		) {
+				Colocation c = (Colocation) p;
+				Set<VM> vms = new HashSet<>();
+				if (c.nodes != null) {
+					for (String name : c.nodes) {
+						vms.add(src.getElementByName(name, VM.class));
+					}
+				}
+				if (c.group != null && blueprint.topology_template.groups.get(c.group) != null) {
+					GroupDefinition group = blueprint.topology_template.groups.get(c.group);
+					for (String name : group.members) {
+						vms.add(src.getElementByName(name, VM.class));
+					}
+				}
+				ha.addRule(new Near(vms));
+			}
+		}
 	}
 
 	private Configuration getInfrastructure() {
@@ -138,4 +175,7 @@ public class OptiplaceHandler extends CsarHandler {
 		return ret;
 	}
 
+	public static void main(String[] args) {
+		new CsarServer(OptiplaceHandler.class).port(1233).debug(true).start();
+	}
 }
