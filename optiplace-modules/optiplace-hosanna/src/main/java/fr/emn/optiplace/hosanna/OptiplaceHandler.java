@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
+import javax.ws.rs.ApplicationPath;
+
 import org.hosanna.csar.Csar;
 import org.hosanna.csar.rest.CsarHandler;
 import org.hosanna.infrastructure.Iaas.Capacity;
@@ -24,9 +26,10 @@ import tosca.meta.Blueprint;
 import tosca.nodes.Compute;
 import tosca.nodes.Root;
 
-public class OptipaceHandler extends CsarHandler {
+@ApplicationPath("rest")
+public class OptiplaceHandler extends CsarHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(OptipaceHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(OptiplaceHandler.class);
 
 	@Override
 	public Csar handle(Csar csar) {
