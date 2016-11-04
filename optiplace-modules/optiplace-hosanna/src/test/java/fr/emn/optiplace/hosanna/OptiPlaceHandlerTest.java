@@ -11,4 +11,9 @@ public class OptiPlaceHandlerTest {
 		System.err.println("" + infra);
 	}
 
+	@Test
+	public void testModification() {
+
+	}
+
 }

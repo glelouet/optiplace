@@ -153,12 +153,14 @@ public class OptiplaceHandler extends CsarHandler {
 		Configuration ret = new Configuration();
 		Infrastructure infra = Infrastructure.getInfrastructure();
 		infra.accounts.entrySet().forEach(e -> {
-			Extern ext = ret.addExtern(e.getKey());
-			int nbCapactities = 0;
-			for (Capacity c : e.getValue().capacities) {
-				Extern target = ext;
-				if (nbCapactities > 0) {
-					target = ret.addExtern(e.getKey() + "_copy_" + nbCapactities);
+			int nbCapactities = e.getValue().capacities.size();
+			for (Entry<String, Capacity> caps : e.getValue().capacities.entrySet()) {
+				Capacity c = caps.getValue();
+				Extern target = null;
+				if (nbCapactities > 1) {
+					target = ret.addExtern(e.getKey() + "." + caps.getKey());
+				} else {
+					target = ret.addExtern(e.getKey());
 				}
 				if (c.disk_size != null) {
 					ret.resource("disk_size").capacity(target, (int) Math.floor(c.disk_size.value / Size.SS.MB.mult));
@@ -169,7 +171,6 @@ public class OptiplaceHandler extends CsarHandler {
 				if (c.num_cpus > 0) {
 					ret.resource("num_cpus").capacity(target, c.num_cpus);
 				}
-				nbCapactities++;
 			}
 		});
 		return ret;
