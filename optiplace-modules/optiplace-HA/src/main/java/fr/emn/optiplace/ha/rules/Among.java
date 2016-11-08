@@ -34,7 +34,7 @@ import fr.emn.optiplace.view.Rule;
 
 /**
  * A constraint to enforce a set of virtual machines to be hosted on a single
- * group of physical elements among those given in parameters.
+ * group of node/extern among those given in parameters.
  *
  * @author Fabien Hermenier
  * @author Guillaume Le Louët
@@ -64,7 +64,13 @@ public class Among implements Rule {
 
 	public static final Parser PARSER = def -> Among.parse(def);
 
-	/** The set of possible groups of nodes. */
+	/**
+	 * if no group specified, only externs which are tagged with this are allowed
+	 * to host the group of VM
+	 */
+	public static final String SUPPORT_TAG = "support:ha/among";
+
+	/** The set of possible groups of nodes/externs. */
 	private final Set<Set<String>> groups;
 
 	private final Set<VM> vms;
@@ -145,7 +151,7 @@ public class Among implements Rule {
 			groups = Stream
 					.concat(core.getSourceConfiguration().getOnlines(),
 							core.getSourceConfiguration().getExterns()
-							.filter(ext -> core.getSourceConfiguration().isHosterTagged(ext, "support:ha/among")))
+							.filter(ext -> core.getSourceConfiguration().isHosterTagged(ext, SUPPORT_TAG)))
 					.map(n -> Collections.singleton(n.getName()))
 					.collect(Collectors.toSet());
 			System.err.println("deduced group of among is : ");

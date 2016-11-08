@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
@@ -50,13 +51,9 @@ public class Spread implements Rule {
 		return new Spread(vms);
 	}
 
-	public static final Parser PARSER = new Parser() {
+	public static final Parser PARSER = def -> Spread.parse(def);
 
-		@Override
-		public Spread parse(String def) {
-			return Spread.parse(def);
-		}
-	};
+	public static final String SUPPORT_TAG = "support:ha/spread";
 
 	protected Set<VM> vms;
 
@@ -120,7 +117,17 @@ public class Spread implements Rule {
 				core.getSolver().post(adc);
 			}
 			if (!extHosts.isEmpty()) {
-				Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNeg);
+				int[] withSupportTags = IntStream.concat(IntStream.of(-1),
+						cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().extern(e))).toArray();
+				Condition noNegAndNoSupport = a -> {
+					for (int i : withSupportTags) {
+						if(a.contains(i)) {
+							return false;
+						}
+					}
+					return true;
+				};
+				Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNegAndNoSupport);
 				core.getSolver().post(adc);
 			}
 		}

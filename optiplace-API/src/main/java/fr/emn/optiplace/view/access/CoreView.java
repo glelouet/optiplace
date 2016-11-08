@@ -116,6 +116,12 @@ public interface CoreView {
 		return getExtern(b().vm(vm));
 	}
 
+	/**
+	 * get the array of extern position.
+	 * 
+	 * @return the internal array of extern position, where ret[i] =
+	 *         getExtern(vm(i))
+	 */
 	public IntVar[] getExterns();
 
 	/**

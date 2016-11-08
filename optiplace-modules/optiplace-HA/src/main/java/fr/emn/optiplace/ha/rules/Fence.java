@@ -70,11 +70,11 @@ public class Fence implements Rule {
 	 */
 	public Fence(Set<VM> vms, Set<Node> group) {
 		this.vms = vms;
-		this.nodes = group;
+		nodes = group;
 	}
 
 	public Fence(Node node, VM... vms) {
-		this(new HashSet<VM>(Arrays.asList(vms)), Collections.singleton(node));
+		this(new HashSet<>(Arrays.asList(vms)), Collections.singleton(node));
 	}
 
 	@Override
