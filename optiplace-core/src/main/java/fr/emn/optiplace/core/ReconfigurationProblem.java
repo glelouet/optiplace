@@ -755,7 +755,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		c.getSites().forEach(s -> {
 			ret.addSite(s.getName(), c.getHosters(s).collect(Collectors.toList()).toArray(new VMHoster[] {}));
 		});
-		c.getVMs().forEach(vm -> {
+		c.getVMs().forEach(v -> {
+			VM vm = ret.addVM(v.getName(), null);
 			// if the VM was already migrating, we keep migrating.
 			VMHoster oldtarget = c.getMigTarget(vm);
 			if (oldtarget != null) {
@@ -763,7 +764,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				ret.setMigTarget(vm, oldtarget);
 				return;
 			}
-			VMHoster sourceHost = c.getLocation(vm);
+			VMHoster sourceHost = c.getLocation(v);
 			VMHoster destHost = null;
 			if (getState(vm).isInstantiatedTo(VM_RUNNING)) {
 				destHost = b.node(getNode(vm).getValue());
