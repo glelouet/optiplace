@@ -33,7 +33,7 @@ public class Bridge {
 	private int[] vmsSourceNode;
 
 	/** node i is in site nodeSites[i] */
-	protected int[] nodesSite;
+	protected int[] nodeSites;
 
 	/**
 	 * Bridge between the base configuration and the reconfiguration problem.
@@ -70,10 +70,10 @@ public class Bridge {
 			vmsSourceNode[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getNodeHost(vm));
 		}
 
-		nodesSite = new int[nodes().length];
-		for (int i = 0; i < nodesSite.length; i++) {
-			Site site = source.getSite(nodes[i]);
-			nodesSite[i] = site == null ? -1 : site(source.getSite(nodes[i]));
+		nodeSites = new int[nodes().length];
+		for (int i = 0; i < nodeSites.length; i++) {
+			Site nodeSite = source.getSite(nodes[i]);
+			nodeSites[i] = nodeSite == null ? -1 : site(nodeSite);
 		}
 	}
 
@@ -256,7 +256,7 @@ public class Bridge {
 	}
 
 	public int[] nodesSites() {
-		return nodesSite;
+		return nodeSites;
 	}
 
 }

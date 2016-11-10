@@ -85,9 +85,6 @@ public class Optiplace extends IOptiplace {
 		}
 
 		problem = new ReconfigurationProblem(source);
-		if (strat.getPacker() == null) {
-			strat.setPacker(new DefaultPacker());
-		}
 
 		for (ViewAsModule view : views) {
 			view.associate(problem);
@@ -97,6 +94,9 @@ public class Optiplace extends IOptiplace {
 		}
 		if (source.nbNodes(null) > 0) {
 			ChocoResourcePacker packer = strat.getPacker();
+			if (packer == null) {
+				packer = new DefaultPacker();
+			}
 			// all the resources should be added now, we pack them using the packing
 			// constraint.
 			for (Constraint c : packer.pack(problem.getNodes(), problem.getUses())) {
@@ -157,7 +157,7 @@ public class Optiplace extends IOptiplace {
 		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
 			problem.getSolver().set(makeProveHeuristic(goalMaker));
 		} else {
-			problem.getSolver().set(new FindAndProve<Variable>(problem.getSolver().getVars(), makeFindHeuristic(),
+			problem.getSolver().set(new FindAndProve<>(problem.getSolver().getVars(), makeFindHeuristic(),
 					makeProveHeuristic(goalMaker)));
 		}
 

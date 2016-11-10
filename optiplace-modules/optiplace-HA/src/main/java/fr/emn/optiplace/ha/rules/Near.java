@@ -8,7 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.constraints.ICF;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -24,7 +26,6 @@ import fr.emn.optiplace.view.Rule;
  */
 public class Near implements Rule {
 
-	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Near.class);
 
 	public static final Pattern pat = Pattern.compile("near\\[(.*)\\]");
@@ -38,13 +39,9 @@ public class Near implements Rule {
 		return new Near(vms);
 	}
 
-	public static final Parser PARSER = new Parser() {
+	public static final Parser PARSER = def -> Near.parse(def);
 
-		@Override
-		public Near parse(String def) {
-			return Near.parse(def);
-		}
-	};
+	public static final String SUPPORT_TAG = "support:ha/near";
 
 	protected Set<VM> vms;
 
@@ -63,14 +60,27 @@ public class Near implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		ArrayList<IntVar> sites = new ArrayList<IntVar>();
+		ArrayList<IntVar> vmSites = new ArrayList<>();
 		for (VM v : vms) {
 			if (core.getSourceConfiguration().hasVM(v)) {
-				sites.add(core.getSite(v));
+				vmSites.add(core.getSite(v));
 			}
 		}
-		for (int i = 1; i < sites.size(); i++) {
-			core.post(ICF.arithm(sites.get(0), "=", sites.get(i)));
+		for (int i = 1; i < vmSites.size(); i++) {
+			core.post(ICF.arithm(vmSites.get(0), "=", vmSites.get(i)));
+		}
+		// manage the support_tag : the group of VMs should not be placed on an
+		// extern that does not support this rule.
+		int[] forbiddenExterns = core.c().getExterns().filter(e->!core.c().isTagged(e, SUPPORT_TAG)).mapToInt(core.b()::extern).toArray();
+		for(VM v : vms){
+			IntVar externPosition = core.getExtern(v);
+			for(int e : forbiddenExterns) {
+				try {
+					externPosition.removeValue(e, Cause.Null);
+				} catch (ContradictionException e1) {
+					logger.warn("", e1);
+				}
+			}
 		}
 	}
 

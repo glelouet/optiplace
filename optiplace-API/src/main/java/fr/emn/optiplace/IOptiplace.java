@@ -87,8 +87,9 @@ public abstract class IOptiplace {
 
 	public void views(List<View> views) {
 		this.views.clear();
-		if (views != null)
+		if (views != null) {
 			this.views.addAll(views);
+		}
 	}
 
 	/**
@@ -99,11 +100,13 @@ public abstract class IOptiplace {
 	 * @return true if the view was inserted. false if null, view already present.
 	 */
 	public boolean addView(View v) {
-		if (v == null)
+		if (v == null) {
 			return false;
+		}
 		for (View vo : views) {
-			if (vo.getName().equals(v.getName()))
+			if (vo.getName().equals(v.getName())) {
 				return false;
+			}
 		}
 		views.add(v);
 		return true;

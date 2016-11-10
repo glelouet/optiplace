@@ -38,13 +38,9 @@ public class Far implements Rule {
 		return new Far(vms);
 	}
 
-	public static final Parser PARSER = new Parser() {
+	public static final Parser PARSER = def -> Far.parse(def);
 
-		@Override
-		public Far parse(String def) {
-			return Far.parse(def);
-		}
-	};
+	public static final String SUPPORT_TAG = "support:ha/far";
 
 	protected Set<VM> vms;
 
@@ -64,12 +60,13 @@ public class Far implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		ArrayList<IntVar> sites = new ArrayList<IntVar>();
+		ArrayList<IntVar> sites = new ArrayList<>();
 		for (VM v : vms) {
 			if (core.getSourceConfiguration().hasVM(v)) {
 				sites.add(core.getSite(v));
 			}
 		}
+		// TODO check for the support_tag
 		core.post(ICF.alldifferent(sites.toArray(new IntVar[] {})));
 	}
 

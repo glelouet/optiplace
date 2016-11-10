@@ -435,8 +435,9 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public Site addSite(String siteName, VMHoster... hosters) {
+		List<VMHoster> l = Arrays.asList(hosters);
+		removeHostersFromSites(l);
 		if (siteName == null) {
-			removeHostersFromSites(Arrays.asList(hosters));
 			return null;
 		}
 		Site ret;
@@ -454,8 +455,6 @@ public class Configuration implements IConfiguration {
 		} catch (ClassCastException e) {
 			return null;
 		}
-		List<VMHoster> l = Arrays.asList(hosters);
-		removeHostersFromSites(l);
 		set.addAll(l);
 		return ret;
 	}

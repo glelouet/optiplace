@@ -434,6 +434,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 */
 	@Override
 	public IntVar getSite(int vmidx) {
+		System.err.println("getting site of vm " + vmidx);
 		if (vmSites == null) {
 			return v.createIntegerConstant(-1);
 		}
@@ -461,7 +462,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public IntVar getState(int vmindex) {
-		if (vmindex == -1) {
+		if (vmindex < 0) {
 			return null;
 		} else {
 			return vmsState[vmindex];

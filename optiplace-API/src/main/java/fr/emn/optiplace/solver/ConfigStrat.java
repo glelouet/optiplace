@@ -32,7 +32,7 @@ public class ConfigStrat {
 
 	private ChocoResourcePacker packer = null;
 
-	private ArrayList<ISearchMonitor> displayers = new ArrayList<ISearchMonitor>();
+	private ArrayList<ISearchMonitor> displayers = new ArrayList<>();
 
 	private boolean logStats = false;
 
@@ -83,7 +83,7 @@ public class ConfigStrat {
 
 	/**
 	 * @param packer
-	 *          the packer to set
+	 *          the packer to set. if null, is reset to default value
 	 */
 	public void setPacker(ChocoResourcePacker packer) {
 		this.packer = packer;
