@@ -72,7 +72,7 @@ public class LinearCPUCons implements PowerModel {
 	public IntVar makePower(Node n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		double delta = max - min;
-		int capa = parent.getProblem().specs("cpu").getCapacity(n);
+		int capa = parent.getProblem().getResourceSpecification("cpu").getCapacity(n);
 		IntVar use = pb.getUsedCPU(n);
 		IntVar ret = pb.v().createBoundIntVar(n.getName() + ".power", (int) min, (int) max);
 		parent.onNewVar(ret);

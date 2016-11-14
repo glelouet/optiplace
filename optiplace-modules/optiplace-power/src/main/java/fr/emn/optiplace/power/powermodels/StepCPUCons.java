@@ -168,7 +168,7 @@ public class StepCPUCons implements PowerModel {
     IntVar[] ranges = new IntVar[thres.length + 1];
     for (int i = 0; i <= thres.length; i++) {
       int min = i == 0 ? 0 : ranges[i - 1].getUB() + 1;
-			int max = (int) ((i == thres.length ? 1.0 : thres[i]) * parent.getProblem().specs("cpu").getCapacity(n));
+			int max = (int) ((i == thres.length ? 1.0 : thres[i]) * parent.getProblem().getResourceSpecification("cpu").getCapacity(n));
 			ranges[i] = parent.v.createBoundIntVar(n.getName() + ".cpu.range_" + i,
           min, max);
       // ranges[i]=pb.
@@ -210,7 +210,7 @@ public class StepCPUCons implements PowerModel {
     IReconfigurationProblem pb = parent.getProblem();
 		IntVar ret = parent.v.createBoundIntVar(n.getName() + ".cons", min,
         (int) maxCons(n));
-		int[] thres = makeProportionnal(parent.getProblem().specs("cpu").getCapacity(n));
+		int[] thres = makeProportionnal(parent.getProblem().getResourceSpecification("cpu").getCapacity(n));
     int[] vals = new int[thres.length + 1];
     vals[0] = min;
     for (int i = 0; i < this.vals.length; i++) {

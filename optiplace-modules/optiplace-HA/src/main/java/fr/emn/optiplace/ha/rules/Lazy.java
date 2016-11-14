@@ -102,7 +102,7 @@ public class Lazy implements Rule {
 		if (nodes.size() == 0) {
 			return;
 		}
-		ResourceSpecification spec = core.specs(resName);
+		ResourceSpecification spec = core.getResourceSpecification(resName);
 		if (spec == null) {
 			logger.warn("no resource handler for " + resName + " on " + this);
 			return;

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -23,12 +24,15 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.FindAndProve;
 import org.chocosolver.solver.trace.Chatterbox;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.actions.Allocate;
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.IConfiguration.NODESTATES;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -92,7 +96,7 @@ public class Optiplace extends IOptiplace {
 		for (ViewAsModule view : views) {
 			view.getRequestedRules().forEach(cc -> cc.inject(problem));
 		}
-		if (source.nbNodes(null) > 0) {
+		if (source.nbNodes(NODESTATES.ONLINE) > 0) {
 			ChocoResourcePacker packer = strat.getPacker();
 			if (packer == null) {
 				packer = new DefaultPacker();
@@ -101,6 +105,29 @@ public class Optiplace extends IOptiplace {
 			// constraint.
 			for (Constraint c : packer.pack(problem.getNodes(), problem.getUses())) {
 				problem.getSolver().post(c);
+			}
+		}
+		// forbid the VM from extern with insufficient resources
+		if (source.nbExterns() > 0) {
+			for (String resName : problem.knownResources()) {
+				ResourceSpecification spec = problem.getResourceSpecification(resName);
+				for (int externIdx = 0; externIdx < problem.b.externs().length; externIdx++) {
+					Extern e = problem.b.extern(externIdx);
+					SetVar vms = problem.externVMs(externIdx);
+					int cap = spec.getCapacity(e);
+					for (int vmIdx = 0; vmIdx < problem.b.vms().length; vmIdx++) {
+						VM v = problem.b.vm(vmIdx);
+						int use = spec.getUse(v);
+						if (use > cap) {
+							logger.debug("resource " + resName + " prevents vm " + v + " from being hosted on extern " + e);
+							try {
+								vms.removeFromEnvelope(vmIdx, Cause.Null);
+							} catch (ContradictionException e1) {
+								logger.warn("while removing " + vmIdx + " from " + vms, e1);
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -211,9 +238,9 @@ public class Optiplace extends IOptiplace {
 			strats.addAll(goalMaker.getHeuristics(problem));
 		}
 		// then add default heuristics.
-		ResourceSpecification memSpec = problem.specs("mem");
+		ResourceSpecification memSpec = problem.getResourceSpecification("mem");
 		if (memSpec == null && !problem.knownResources().isEmpty()) {
-			memSpec = problem.specs(problem.knownResources().iterator().next());
+			memSpec = problem.getResourceSpecification(problem.knownResources().iterator().next());
 		}
 		if (memSpec != null) {
 			strats.addAll(new StickVMsHeuristic(memSpec).getHeuristics(problem));

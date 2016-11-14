@@ -303,7 +303,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public void post(Constraint cc) {
-		System.err.println("posted " + cc);
+		// System.err.println("posted " + cc);
 		super.post(cc);
 	}
 
@@ -327,6 +327,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return nodesVMs[nodeIdx];
 	}
 
+	/**
+	 * get the set of VM indexes hosted on an extern
+	 *
+	 * @param externIdx
+	 *          the index of the extern
+	 * @return the internal set of VM indexes for this extern
+	 */
 	public SetVar externVMs(int externIdx) {
 		makeExternHosteds();
 		return externsVMs[externIdx];
@@ -379,12 +386,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 */
 	protected void makeExternHosteds() {
 		if (externsVMs == null) {
-			// A set variable for each future online nodes
+			// the variable we create : for each extern, by index, its set of VM
 			externsVMs = new SetVar[c.nbExterns()];
 			for (int i = 0; i < externsVMs.length; i++) {
 				SetVar s = VF.set(externName(i) + ".hosted", 0, c.nbVMs() - 1, getSolver());
 				externsVMs[i] = s;
 			}
+			// offset previous array. index 0 is for VMs which are not executed on
+			// an extern.
 			SetVar[] usedLocations = new SetVar[externsVMs.length + 1];
 			usedLocations[0] = VF.set("nonExternedVMs", 0, c.nbVMs() - 1, this);
 			for (int i = 1; i < usedLocations.length; i++) {
@@ -434,7 +443,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 *         no site.
 	 */
 	@Override
-	public IntVar getSite(int vmidx) {
+	public IntVar getVMSite(int vmidx) {
 		System.err.println("getting site of vm " + vmidx);
 		if (vmSites == null) {
 			return v.createIntegerConstant(-1);
@@ -813,13 +822,13 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public ResourceLoad getUse(String res) {
 		ResourceHandler handler = resources.get(res.toLowerCase());
 		if (handler == null) {
-			logger.debug("handler for resource " + res + " is null, resources are " + resources);
+			logger.debug("handler for resource " + res + " is null, available resources are " + resources.keySet());
 		}
 		return handler == null ? null : handler.getResourceLoad();
 	}
 
 	@Override
-	public ResourceSpecification specs(String resName) {
+	public ResourceSpecification getResourceSpecification(String resName) {
 		ResourceHandler rh = resources.get(resName.toLowerCase());
 		return rh != null ? rh.getSpecs() : null;
 	}
@@ -828,12 +837,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public ResourceLoad[] getUses() {
 		return resources.values().stream().map(ResourceHandler::getResourceLoad).collect(Collectors.toList())
 				.toArray(new ResourceLoad[] {});
-	}
-
-	@Override
-	@Deprecated
-	public HashMap<String, ResourceHandler> getResourcesHandlers() {
-		return resources;
 	}
 
 	protected void onNewVar(Variable var) {

@@ -53,7 +53,7 @@ public class ProblemStatistics {
 	 */
 	public ResourceSpecification[] getResources() {
 		if (resources == null) {
-			resources = target.knownResources().stream().map(target::specs).collect(Collectors.toList())
+			resources = target.knownResources().stream().map(target::getResourceSpecification).collect(Collectors.toList())
 			    .toArray(new ResourceSpecification[0]);
 			Arrays.sort(resources, new Comparator<ResourceSpecification>() {
 

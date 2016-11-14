@@ -3,7 +3,6 @@
  */
 package fr.emn.optiplace.view.access;
 
-import java.util.HashMap;
 import java.util.Set;
 
 import org.chocosolver.solver.variables.BoolVar;
@@ -14,7 +13,6 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.resources.ResourceHandler;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.Bridge;
@@ -131,10 +129,10 @@ public interface CoreView {
 	 * @return the site index of the node hosting this VM
 	 */
 	public default IntVar getSite(VM vm) {
-		return getSite(b().vm(vm));
+		return getVMSite(b().vm(vm));
 	}
 
-	public IntVar getSite(int vmidx);
+	public IntVar getVMSite(int vmidx);
 
 	/**
 	 *
@@ -313,14 +311,8 @@ public interface CoreView {
 	 */
 	public Set<String> knownResources();
 
-	/**
-	 * @deprecated
-	 * @return the map of types to the associated resource handlers
-	 */
-	@Deprecated
-	public HashMap<String, ResourceHandler> getResourcesHandlers();
 
-	public ResourceSpecification specs(String resName);
+	public ResourceSpecification getResourceSpecification(String resName);
 
 	/**
 	 * @param res

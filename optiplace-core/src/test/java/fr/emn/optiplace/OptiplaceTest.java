@@ -20,9 +20,9 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
+@SuppressWarnings("unused")
 public class OptiplaceTest {
 
-	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceTest.class);
 
 	/**
@@ -62,8 +62,8 @@ public class OptiplaceTest {
 		num_cpus.with(a1, 1).with(a1v2, 2).with(a2, 1).with(n1, 1).with(n2, 2).with(n3, 1);
 
 		Optiplace opl = new Optiplace(cfg);
-		opl.getStrat().setLogChoices(true);
-		opl.getStrat().setLogContradictions(true);
+		// opl.getStrat().setLogChoices(true);
+		// opl.getStrat().setLogContradictions(true);
 		IConfiguration dest = opl.solve().getDestination();
 		// System.err.println(dest);
 		Assert.assertEquals(dest.getLocation(n1), a1);
@@ -86,8 +86,8 @@ public class OptiplaceTest {
 		mem_size.with(e1, 10000).with(e2, 20000).with(v1, 10000).with(v2, 20000);
 
 		Optiplace opl = new Optiplace(cfg);
-		opl.getStrat().setLogChoices(true);
-		opl.getStrat().setLogContradictions(true);
+		// opl.getStrat().setLogChoices(true);
+		// opl.getStrat().setLogContradictions(true);
 		IConfiguration dest = opl.solve().getDestination();
 		Assert.assertEquals(dest.getLocation(v2), e2);
 	}

@@ -36,13 +36,13 @@ public class HomogeneousView extends EmptyView {
 		}
 		ResourceSpecification r = null;
 		for (String s : new String[] { "mem", "ram", "cpu" }) {
-			r = pb.specs(s);
+			r = pb.getResourceSpecification(s);
 			if (r != null) {
 					break;
 				}
 		}
 		if (r == null && !pb.knownResources().isEmpty()) {
-			r = pb.specs(pb.knownResources().iterator().next());
+			r = pb.getResourceSpecification(pb.knownResources().iterator().next());
 		}
 		return new PackingGoal(r);
 	}

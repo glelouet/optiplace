@@ -57,8 +57,8 @@ public class EfficiencyMaxFirstNodes {
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
 
 		ResourceSpecification fallbackResource = null;
-		if (secondaryResource != null && rp.specs(secondaryResource) != null) {
-			fallbackResource = rp.specs(secondaryResource);
+		if (secondaryResource != null && rp.getResourceSpecification(secondaryResource) != null) {
+			fallbackResource = rp.getResourceSpecification(secondaryResource);
 		}
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 		Node[] sortedNodes = sortNodesByEfficiencyMax(rp, fallbackResource);
@@ -105,7 +105,7 @@ public class EfficiencyMaxFirstNodes {
 	 */
 	public Node[] sortNodesByEfficiencyMax(IReconfigurationProblem rp, ResourceSpecification fallbackResource) {
 		Map<Node, Double> efficiencies = new HashMap<>();
-		ResourceSpecification cpur = rp.specs("cpu");
+		ResourceSpecification cpur = rp.getResourceSpecification("cpu");
 		for (Node n : rp.b().nodes()) {
 			int cpu = cpur.getCapacity(n);
 			PowerModel cm = data.get(n);

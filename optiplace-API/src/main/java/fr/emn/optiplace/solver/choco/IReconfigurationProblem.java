@@ -74,7 +74,7 @@ public interface IReconfigurationProblem extends CoreView {
 	}
 
 	default int getNodeCap(String resource, Node n) {
-		return specs(resource).getCapacities()[b().node(n)];
+		return getResourceSpecification(resource).getCapacities()[b().node(n)];
 	}
 
 	default IntVar getUsedCPU(Node n) {

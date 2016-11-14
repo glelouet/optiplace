@@ -47,7 +47,7 @@ public class MigrationReducerGoal implements SearchGoal {
 
 	@Override
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
-		return new StickVMsHeuristic(rp.specs(resName).makeVMComparator(false))
+		return new StickVMsHeuristic(rp.getResourceSpecification(resName).makeVMComparator(false))
 		    .getHeuristics(rp);
 	}
 

@@ -44,7 +44,7 @@ public class QuadraticCPUCons implements PowerModel {
 	@Override
 	public IntVar makePower(Node n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
-		ResourceSpecification spec = pb.specs("cpu");
+		ResourceSpecification spec = pb.getResourceSpecification("cpu");
 		int capa = spec.getCapacity(n);
 		double alpha = (max - min) * (1 - lcoef) / capa / capa;
 		double beta = (max - min) * lcoef / capa;

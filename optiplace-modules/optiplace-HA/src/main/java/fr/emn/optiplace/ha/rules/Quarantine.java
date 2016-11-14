@@ -114,7 +114,7 @@ public class Quarantine implements Rule {
 						}
 					}
 					if (!siteIdx.isEmpty()) {
-						IntVar sv = core.getSite(idx);
+						IntVar sv = core.getVMSite(idx);
 						for (int si : siteIdx) {
 							sv.removeValue(si, Cause.Null);
 						}
