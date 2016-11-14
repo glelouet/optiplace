@@ -44,7 +44,7 @@ public class OptiplaceTest {
 	}
 
 	@Test
-	public void testBugSiteExtern() {
+	public void testBugSiteExternFull() {
 		Configuration cfg = new Configuration();
 
 		Extern a1 = cfg.addExtern("a1"), a1v2 = cfg.addExtern("a1.v2"), a2 = cfg.addExtern("a2");
@@ -69,5 +69,26 @@ public class OptiplaceTest {
 		Assert.assertEquals(dest.getLocation(n1), a1);
 		Assert.assertEquals(dest.getLocation(n2), a1v2);
 		Assert.assertEquals(dest.getLocation(n3), a2);
+	}
+
+	@Test
+	public void testBugSiteExtern() {
+		Configuration cfg = new Configuration();
+
+		Extern e1 = cfg.addExtern("e1"), e2 = cfg.addExtern("e2");
+
+		Site e1_site = cfg.addSite("e1Site", e1);
+		VM v1 = cfg.addVM("v1", null);
+		VM v2 = cfg.addVM("v2", null);
+
+
+		ResourceSpecification mem_size = cfg.resource("mem_size");
+		mem_size.with(e1, 10000).with(e2, 20000).with(v1, 10000).with(v2, 20000);
+
+		Optiplace opl = new Optiplace(cfg);
+		opl.getStrat().setLogChoices(true);
+		opl.getStrat().setLogContradictions(true);
+		IConfiguration dest = opl.solve().getDestination();
+		Assert.assertEquals(dest.getLocation(v2), e2);
 	}
 }

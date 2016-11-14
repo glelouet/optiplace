@@ -303,6 +303,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public void post(Constraint cc) {
+		System.err.println("posted " + cc);
 		super.post(cc);
 	}
 
