@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>modules</artifactId>
 		<groupId>fr.emn.optiplace</groupId>
-		<version>4.1.4</version>
+		<version>4.1.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>optiplace-power</artifactId>
   <groupId>fr.emn.optiplace.modules</groupId>

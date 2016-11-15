@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>fr.emn.optiplace</groupId>
 		<artifactId>modules</artifactId>
-		<version>4.1.4</version>
+		<version>4.1.5-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.emn.optiplace.modules</groupId>
 	<artifactId>optiplace-distance</artifactId>
