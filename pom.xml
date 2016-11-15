@@ -161,4 +161,9 @@
 			<version>1.7.21</version>
 		</dependency>
 	</dependencies>
+	<scm>
+		<url>https://github.com/glelouet/optiplace</url>
+		<connection>scm:git:git://github.com/glelouet/optiplace.git</connection>
+		<developerConnection>scm:git:git@github.com:glelouet/optiplace.git</developerConnection>
+	</scm>
 </project>
