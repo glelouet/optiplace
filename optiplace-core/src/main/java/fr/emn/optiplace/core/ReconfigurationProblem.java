@@ -444,7 +444,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 */
 	@Override
 	public IntVar getVMSite(int vmidx) {
-		System.err.println("getting site of vm " + vmidx);
 		if (vmSites == null) {
 			return v.createIntegerConstant(-1);
 		}
