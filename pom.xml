@@ -17,7 +17,7 @@
 	<groupId>fr.emn</groupId>
 	<artifactId>optiplace</artifactId>
 	<packaging>pom</packaging>
-	<version>4.1.4-SNAPSHOT</version>
+	<version>4.1.4</version>
 	<name>optiplace</name>
 
 	<licenses>
@@ -165,5 +165,6 @@
 		<url>https://github.com/glelouet/optiplace</url>
 		<connection>scm:git:git://github.com/glelouet/optiplace.git</connection>
 		<developerConnection>scm:git:git@github.com:glelouet/optiplace.git</developerConnection>
-	</scm>
+	  <tag>optiplace-4.1.4</tag>
+  </scm>
 </project>
