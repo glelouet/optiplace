@@ -1,7 +1,6 @@
 package fr.emn.optiplace.power;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
@@ -105,17 +104,18 @@ public class PowerView extends EmptyView {
 	@Override
 	public void associate(IReconfigurationProblem rp) {
 		super.associate(rp);
+		cachedPowers = new IntVar[rp.b().nodes().length];
 	}
 
 	@Override
 	public void clear() {
 		super.clear();
-		cachedPowers.clear();
+		cachedPowers = null;
 		cachedTotalPower = null;
 		cachedMaxPowerDiff = null;
 	}
 
-	private final HashMap<String, IntVar> cachedPowers = new HashMap<String, IntVar>();
+	private IntVar[] cachedPowers = null;
 
 	/**
 	 * get the constrained {@link IntVar variable} corresponding to a node
@@ -127,10 +127,14 @@ public class PowerView extends EmptyView {
 	 *         created ot retrieved if cached.
 	 */
 	public IntVar getPower(Node n) {
-		IntVar ret = cachedPowers.get(n.getName());
+		int nidx = pb.b().node(n);
+		if (nidx == -1) {
+			return null;
+		}
+		IntVar ret = cachedPowers[nidx];
 		if (ret == null) {
 			ret = makePower(n);
-			cachedPowers.put(n.getName(), ret);
+			cachedPowers[nidx] = ret;
 		}
 		return ret;
 	}
@@ -285,18 +289,16 @@ public class PowerView extends EmptyView {
 	}
 
 	/**
-	 * create and return an array of the nodes' power, so that
-	 * ret[i]=power(node(i))
-	 * 
-	 * @return a new table of all nodes' consumption IntVars.
+	 * ensure we cache all the nodes power and return the cached array of nodes
+	 * power
+	 *
+	 * @return the internal table of all nodes' power IntVars.
 	 */
 	public IntVar[] getAllNodesPowers() {
-		Node[] nodes = b.nodes();
-		IntVar[] ret = new IntVar[nodes.length];
-		for (int i = 0; i < nodes.length; i++) {
-			ret[i] = getPower(nodes[i]);
+		for (Node n : pb.b().nodes()) {
+			getPower(n);
 		}
-		return ret;
+		return cachedPowers;
 	}
 
 	protected IntVar cachedMaxPowerDiff = null;

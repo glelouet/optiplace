@@ -24,7 +24,7 @@ public class ReduceHeatGoal implements SearchGoal{
 
 	@Override
 	public IntVar getObjective(IReconfigurationProblem rp) {
-		return parent.maxRearIncrease();
+		return parent.maxRearTemperature();
 	}
 
 }
