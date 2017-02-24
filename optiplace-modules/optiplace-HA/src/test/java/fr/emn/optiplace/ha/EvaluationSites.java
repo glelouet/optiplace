@@ -62,8 +62,8 @@ public class EvaluationSites extends SolvingExample {
 		}
 
 		public String toTable(Function<String, String> tableMap, Function<String, String> headerMap,
-		    Function<String, String> cellMap,
-		    Function<String, String> rowMap) {
+				Function<String, String> cellMap,
+				Function<String, String> rowMap) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(rowMap.apply(fields.values().stream().map(headerMap).collect(Collectors.joining())));
 			for (Map<String, String> line : this) {
@@ -73,34 +73,34 @@ public class EvaluationSites extends SolvingExample {
 		}
 
 		public String toTable() {
-			return toTable(s -> "<table>" + s + "</table>", s -> "<th>" + s + "</th>", s -> "<td>" + s + "</td>",
-			    s -> "<tr>" + s + "</tr>\n");
+			return toTable(s -> "<table border=\"1\">" + s + "</table>", s -> "<th>" + s + "</th>", s -> "<td>" + s + "</td>",
+					s -> "<tr>" + s + "</tr>\n");
 		}
 	}
 
 	public static void main(String[] args) {
 		Data data = new Data();
 
-		for (int i = 10; i < 80; i *= 1.2) {
-			EvaluationSites es = new EvaluationSites(i);
+		for (int size = 10; size < 80; size *= 1.2) {
+			EvaluationSites es = new EvaluationSites(size);
 			for (boolean addSiteConstraints : new Boolean[] {
-			    true, false }) {
+						true, false }) {
 				es.addSiteConstraints = addSiteConstraints;
 				long minSearchTime = Long.MAX_VALUE;
-				long minNbServers = Integer.MAX_VALUE;
+				long minServersUsed = Integer.MAX_VALUE;
 				for (int nb = 0; nb < 5; nb++) {
 					DeducedTarget res = es.solve(es.src);
 					IConfiguration dest = res.getDestination();
 					minSearchTime = Math.min(minSearchTime, res.getSearchTime());
-					minNbServers = Math.min(minNbServers,
-					    res.getDestination().getNodes().filter(n -> dest.nbHosted(n) > 0).count());
+					minServersUsed = Math.min(minServersUsed,
+							res.getDestination().getNodes().filter(n -> dest.nbHosted(n) > 0).count());
 				}
-				data.set("nbServers", "" + i * 3);
+				data.set("nbServers", "" + size * 3);
 				data.set("addSiteConstraints", "" + addSiteConstraints);
 				data.set("minSearchTime", "" + minSearchTime);
-				data.set("minNbServers", "" + minNbServers);
+				data.set("minNbServers", "" + minServersUsed);
 				data.newEntry();
-				System.err.println(i);
+				System.err.println(size);
 			}
 		}
 		System.err.println("data:\n" + data);
@@ -119,12 +119,12 @@ public class EvaluationSites extends SolvingExample {
 	@Override
 	protected void prepare() {
 		resources = new String[] {
-		    "CPU", "MEM" };
+					"CPU", "MEM" };
 		nodeCapas = new int[] {
-		    100, 100 };
+					100, 100 };
 		ha = new HAView();
 		views = new View[] {
-		    ha };
+					ha };
 		super.prepare();
 		src.addSite("firstSite", Arrays.copyOf(nodes, centerSize * 2));
 		src.addSite("secondSite", Arrays.copyOfRange(nodes, centerSize * 2, nodes.length));
@@ -143,7 +143,7 @@ public class EvaluationSites extends SolvingExample {
 			VM cpu_gath = src.addVM("vm_" + i + "_cpu_gath", null, 35, 15);
 			VM cpu_clon = src.addVM("vm_" + i + "_cpu_clon", null, 35, 15);
 			if (addSiteConstraints) {
-			ha.addRule(new Far(cpu_main, cpu_clon));
+				ha.addRule(new Far(cpu_main, cpu_clon));
 			}
 
 			VM mem_main = src.addVM("vm_" + i + "_mem_main", null, 15, 35);
