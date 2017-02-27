@@ -1,6 +1,6 @@
 package fr.emn.optiplace.hostcost;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -25,22 +25,22 @@ public class CostData implements ProvidedDataReader {
 	/**
 	 * for each hoster (extern/node) we may have a given cost of its VM hosting
 	 */
-	protected Map<String, Integer> byHosterName = new HashMap<>();
+	protected Map<String, Integer> byHosterName = new LinkedHashMap<>();
 
 	/**
 	 * filter on the name of the host
 	 */
-	protected Map<Pattern, Integer> byHosterLike = new HashMap<>();
+	protected Map<Pattern, Integer> byHosterLike = new LinkedHashMap<>();
 
 	/**
 	 * for each site we may have a given cost of its VM hosting
 	 */
-	protected Map<String, Integer> bySiteName = new HashMap<>();
+	protected Map<String, Integer> bySiteName = new LinkedHashMap<>();
 
 	/**
 	 * filter on the name of the site
 	 */
-	protected Map<Pattern, Integer> bySiteLike = new HashMap<>();
+	protected Map<Pattern, Integer> bySiteLike = new LinkedHashMap<>();
 
 	/** default cost of Nodes non set */
 	protected int defaultCost = 0;

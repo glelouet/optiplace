@@ -435,7 +435,7 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public Site addSite(String siteName, VMHoster... hosters) {
-		List<VMHoster> l = Arrays.asList(hosters);
+		List<VMHoster> l = hosters == null ? Collections.emptyList() : Arrays.asList(hosters);
 		removeHostersFromSites(l);
 		if (siteName == null) {
 			return null;
