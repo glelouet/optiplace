@@ -3,6 +3,8 @@ package fr.emn.optiplace.evaluations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.ToLongFunction;
+import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
@@ -21,10 +23,23 @@ import fr.emn.optiplace.view.View;
 
 public class EvalSites {
 
+	///////////////////////////////////////////////////////////////
+	// Eval parameters
+
+	/**
+	 * number of physical nodes in the local site.
+	 *
+	 */
 	static int nbNodes = 5;
 
 	/** mem of local nodes */
 	static int nodeMem = 5000;
+
+	/**
+	 * mem limit of externs
+	 */
+	static int extMem = 2000;
+
 	/** mem of ftp VM */
 	static int ftpMem = 1000;
 	/**
@@ -40,6 +55,8 @@ public class EvalSites {
 	 */
 	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem);
 
+	///////////////////////////////////////////////////////////////////
+
 	/**
 	 * the physical infrastructure, only contains nodes and externs. It is cloned
 	 * for each test.
@@ -54,11 +71,10 @@ public class EvalSites {
 		// 4 externs, each on its site
 		Extern[] externs = new Extern[4];
 		for (int ie = 0; ie < externs.length; ie++) {
-			externs[ie] = physical.addExtern("e" + ie, 2000);
+			externs[ie] = physical.addExtern("e" + ie, extMem);
 			physical.addSite("site" + ie, externs[ie]);
 		}
 		// 5 nodes, each on the "local" site
-		int nodeMem = 5000;
 		Node[] nodes = new Node[nbNodes];
 		for (int in = 0; in < nodes.length; in++) {
 			nodes[in] = physical.addOnline("n" + in, nodeMem);
@@ -105,6 +121,49 @@ public class EvalSites {
 		return ret;
 	}
 
+	public static final ToLongFunction<Stream<DeducedTarget>> minTotalTime = new ToLongFunction<Stream<DeducedTarget>>() {
+		@Override
+		public long applyAsLong(Stream<DeducedTarget> value) {
+			return value.mapToLong(DeducedTarget::getTotalTime).min().getAsLong();
+		}
+
+		@Override
+		public String toString() {
+			return "minTotalTime";
+		}
+	};
+
+	public static final ToLongFunction<Stream<DeducedTarget>> medianTotalTime = new ToLongFunction<Stream<DeducedTarget>>() {
+
+		@Override
+		public long applyAsLong(Stream<DeducedTarget> value) {
+			long[] arr = value.mapToLong(DeducedTarget::getTotalTime).sorted().toArray();
+			return arr[arr.length / 2];
+		}
+
+		@Override
+		public String toString() {
+			return "medianTotalTime";
+		}
+	};
+
+	public static final ToLongFunction<Stream<DeducedTarget>> minBactracks = new ToLongFunction<Stream<DeducedTarget>>() {
+
+		@Override
+		public long applyAsLong(Stream<DeducedTarget> value) {
+			return value.mapToLong(DeducedTarget::getSearchBacktracks).min().getAsLong();
+		}
+
+		@Override
+		public String toString() {
+			return "minBacktracks";
+		}
+	};
+
+	@SuppressWarnings("unchecked")
+	static ToLongFunction<Stream<DeducedTarget>>[] evalMetrics = new ToLongFunction[] { minTotalTime, medianTotalTime,
+			minBactracks };
+
 	public static void main(String[] args) {
 		doPhysical();
 		// 4 externs, each on its site
@@ -131,8 +190,7 @@ public class EvalSites {
 		for (int iteration = 0; iteration < nbiterations; iteration++) {
 			for (int size = 1; size <= maxSize; size++) {
 				Optiplace opl = makeProblem(size, true, false, true, false);
-				DeducedTarget res = opl
-						.solve();
+				DeducedTarget res = opl.solve();
 				if (res.getDestination() != null) {
 					evals[size - 1].add(res);
 				} else {
@@ -148,14 +206,19 @@ public class EvalSites {
 			System.err.println("iteration " + iteration + " performed");
 		}
 
+		System.err.print("size");
+		for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
+			System.err.print("\t" + e);
+		}
+		System.err.println();
 		for (int size = 1; size <= maxSize; size++) {
+
+			System.err.print(size);
 			List<DeducedTarget> list = evals[size - 1];
-			boolean hasSolution = list.stream().filter(dt -> dt.getDestination() != null).findAny().isPresent();
-			long lowestSolutionTime = hasSolution
-					? list.stream().filter(dt -> dt.getDestination() != null).mapToLong(DeducedTarget::getTotalTime).min()
-							.getAsLong()
-							: 0;
-							System.err.println("" + size + "\t" + hasSolution + "\t" + lowestSolutionTime);
+			for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
+				System.err.print("\t" + e.applyAsLong(list.stream()));
+			}
+			System.err.println();
 		}
 	}
 
