@@ -68,18 +68,18 @@ public class HAView extends EmptyView {
 
 	/** update the internal rules fom the HADATA */
 	public void updateRules() {
-		if (!requestedRules.isEmpty()) {
-			logger.warn("discarding rules " + requestedRules + " from " + getClass().getSimpleName()
+		if (!Rules.isEmpty()) {
+			logger.warn("discarding rules " + Rules + " from " + getClass().getSimpleName()
 					+ " to load those provided by its data. Consider empty it to remove this message or adding the rules to the data provider instead of the view");
 		}
-		requestedRules = new ArrayList<>(data.getRules());
+		Rules = new ArrayList<>(data.getRules());
 	}
 
 	@Override
 	public void preProcessConfig(IConfiguration config) {
 		tempReplicateRules.clear();
 		tempReplicateVMs.clear();
-		List<VM> replicateVM = getRequestedRules().filter(r -> r instanceof Replication)
+		List<VM> replicateVM = rulesStream().filter(r -> r instanceof Replication)
 				.map(r -> ((Replication) r).getVMs()).flatMap(e -> e).distinct().collect(Collectors.toList());
 		if (!replicateVM.isEmpty()) {
 			String prefix = "HA";
@@ -108,7 +108,7 @@ public class HAView extends EmptyView {
 				}
 			}
 		}
-		requestedRules.addAll(tempReplicateRules);
+		Rules.addAll(tempReplicateRules);
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class HAView extends EmptyView {
 			src.remove(cloned);
 			config.setMigTarget(v, target);
 		}
-		requestedRules.removeAll(tempReplicateRules);
+		Rules.removeAll(tempReplicateRules);
 	}
 
 	@Override

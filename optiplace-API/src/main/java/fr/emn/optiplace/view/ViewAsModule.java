@@ -62,19 +62,21 @@ public interface ViewAsModule {
 	void associate(IReconfigurationProblem rp);
 
 	/**
-	 * empty any {@link IReconfigurationProblem} - related internal data. This
-	 * should be called within {@link #associate(IReconfigurationProblem)}.
+	 * @return the stream of Rules this view adds to a problem.
 	 */
-	public void clear();
+	public default Stream<Rule> rulesStream() {
+		return getRules().stream();
+	}
 
 	/**
-	 * @return the stream of constraints added by the administrator.
+	 *
+	 * @return the internal list of Rules to add to a problem
 	 */
-	public Stream<Rule> getRequestedRules();
+	public List<Rule> getRules();
 
 	/**
-	 * is called by the solver when the solving of the problem has ended. As such,
-	 * the view should retrieve the results of the problem
+	 * is called by the solver when a problem is solved. The view should retrieve
+	 * the results of the problem.
 	 *
 	 * @param actionGraph
 	 *          the action graph to modify
@@ -85,10 +87,10 @@ public interface ViewAsModule {
 	}
 
 	/**
-	 * provides view to fulfill the dependencies.
+	 * inject dependencies by introspoection.
 	 *
 	 * @param activatedViews
-	 *          a map of view name to views.
+	 *          a map of view name to views, to fulfill the dependencies.
 	 * @return true if all dependencies were satisfied
 	 */
 	default boolean setDependencies(Map<String, View> activatedViews) {

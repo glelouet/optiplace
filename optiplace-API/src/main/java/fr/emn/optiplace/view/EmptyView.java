@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -70,7 +68,6 @@ public class EmptyView implements View {
 	}
 
 	/** remove all data added to the last {@link #pb} and cached */
-	@Override
 	public void clear() {
 		addedConstraints.clear();
 		addedVars.clear();
@@ -91,10 +88,10 @@ public class EmptyView implements View {
 
 	@Override
 	public List<Constraint> getAddedConstraints() {
-		return Collections.unmodifiableList(new ArrayList<Constraint>(addedConstraints));
+		return Collections.unmodifiableList(new ArrayList<>(addedConstraints));
 	}
 
-	protected ArrayList<Variable> addedVars = new ArrayList<Variable>();
+	protected ArrayList<Variable> addedVars = new ArrayList<>();
 
 	@Override
 	public void onNewVar(Variable var) {
@@ -109,22 +106,16 @@ public class EmptyView implements View {
 		return Collections.unmodifiableList(addedVars);
 	}
 
-	protected ArrayList<Rule> requestedRules = new ArrayList<Rule>();
+	protected ArrayList<Rule> Rules = new ArrayList<>();
 
 	@Override
-	public Stream<Rule> getRequestedRules() {
-		return requestedRules.stream();
-	}
-
-	public ArrayList<Rule> getInternalRules() {
-		return requestedRules;
+	public ArrayList<Rule> getRules() {
+		return Rules;
 	}
 
 	@Override
 	public void addRule(Rule cst) {
-		requestedRules.add(cst);
+		Rules.add(cst);
 	}
-
-	protected ArrayList<AbstractStrategy<? extends Variable>> searchHeuristics = new ArrayList<>();
 
 }

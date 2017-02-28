@@ -31,7 +31,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * <li>on a {@link View.#associate(ReconfigurationProblem)} call, eg for some
  * new variables to integrate to the problem</li>
  * <li>by a solver call to {@linkplain Rule.#inject(ReconfigurationProblem)} for
- * the rules returned by {@link #getRequestedRules()}</li>
+ * the rules returned by {@link #rulesStream()}</li>
  * </ul>
  * </p>
  * <p>
@@ -58,16 +58,18 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 public interface View extends ViewAsModule {
 
 	/**
-	 * shortcut for {@link #getRequestedRules()}.add(cst)
+	 * shortcut for {@link #getRules()}.add(cst)
 	 *
 	 * @param r
 	 *          the rule to request
 	 */
-	public void addRule(Rule r);
+	public default void addRule(Rule r) {
+		getRules().add(r);
+	}
 
 	/**
 	 * add a rule to this.
-	 * 
+	 *
 	 * @param r
 	 *          the rule to add
 	 * @return this

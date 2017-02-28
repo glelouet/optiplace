@@ -4,7 +4,6 @@
 package fr.emn.optiplace.view.fakes;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.Variable;
@@ -17,7 +16,7 @@ import fr.emn.optiplace.view.View;
 /**
  * view that has no method working. used to check if the introspection mechanism
  * works
- * 
+ *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
@@ -29,12 +28,7 @@ public class HollowView implements View {
 	}
 
 	@Override
-	public Stream<Rule> getRequestedRules() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clear() {
+	public List<Rule> getRules() {
 		throw new UnsupportedOperationException();
 	}
 

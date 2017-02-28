@@ -94,7 +94,7 @@ public class Optiplace extends IOptiplace {
 			view.associate(problem);
 		}
 		for (ViewAsModule view : views) {
-			view.getRequestedRules().forEach(cc -> cc.inject(problem));
+			view.rulesStream().forEach(cc -> cc.inject(problem));
 		}
 		if (source.nbNodes(NODESTATES.ONLINE) > 0 && source.nbVMs() > 0) {
 			ChocoResourcePacker packer = strat.getPacker();

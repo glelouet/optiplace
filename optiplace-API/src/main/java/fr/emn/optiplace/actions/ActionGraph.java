@@ -23,7 +23,7 @@ public class ActionGraph {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActionGraph.class);
 
-	private final HashMap<Action, HashSet<Action>> dependencies = new HashMap<Action, HashSet<Action>>();
+	private final HashMap<Action, HashSet<Action>> dependencies = new HashMap<>();
 
 	/**
 	 * add an action, with no dependency
@@ -50,14 +50,15 @@ public class ActionGraph {
 	 *          the action to execute first
 	 * @return true if the dependency did not exist yet
 	 */
-	public boolean add(Action a, Action dep) {
+	public boolean addDependency(Action a, Action dep) {
 		add(a);
 		add(dep);
 		return dependencies.get(a).add(dep);
 	}
 
 	/**
-	 * remove an action, so it ensures a following add will return true.
+	 * remove an action, so it ensures a following add will return true. The
+	 * action is also removed from all dependencies.
 	 *
 	 * @param a
 	 *          the action
@@ -89,7 +90,7 @@ public class ActionGraph {
 	 *         dependency.
 	 */
 	public LinkedHashSet<Action> getFreeActions() {
-		LinkedHashSet<Action> ret = new LinkedHashSet<Action>();
+		LinkedHashSet<Action> ret = new LinkedHashSet<>();
 		for (Entry<Action, HashSet<Action>> e : dependencies.entrySet()) {
 			if (e.getValue().isEmpty()) {
 				ret.add(e.getKey());
@@ -104,7 +105,7 @@ public class ActionGraph {
 	 *         dependencies.
 	 */
 	public LinkedHashSet<Action> getActionsrelated(ManagedElement... me) {
-		LinkedHashSet<Action> ret = new LinkedHashSet<Action>();
+		LinkedHashSet<Action> ret = new LinkedHashSet<>();
 		if (me == null || me.length == 0) {
 			return ret;
 		}
@@ -123,7 +124,7 @@ public class ActionGraph {
 	public ActionGraph clone() {
 		ActionGraph ret = new ActionGraph();
 		for (Entry<Action, HashSet<Action>> e : dependencies.entrySet()) {
-			ret.dependencies.put(e.getKey(), new LinkedHashSet<Action>(e.getValue()));
+			ret.dependencies.put(e.getKey(), new LinkedHashSet<>(e.getValue()));
 		}
 		return ret;
 	}
