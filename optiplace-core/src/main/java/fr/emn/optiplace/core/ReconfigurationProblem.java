@@ -22,6 +22,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -126,7 +127,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	// instantiate the state var of a VM
 	private static final int[] VM_NODE_WAIT = new int[] { VM_RUNNODE, VM_WAITING };
 	private static final int[] VM_NODE_EXT = new int[] { VM_RUNNODE, VM_RUNEXT };
-	private static final int[] VM_WAIT_EXT = new int[] { VM_WAITING, VM_RUNEXT };
 	private static final int[] VM_NODE_WAIT_EXT = new int[] { VM_RUNNODE, VM_WAITING, VM_RUNEXT };
 
 	/** make the location variables */
@@ -141,22 +141,31 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		vmsState = new IntVar[c.nbVMs()];
 		vmsLocation = new IntVar[c.nbVMs()];
+		// if there is no extern, we only consider run mode without extern
+		int[] runMode = c.nbExterns() > 0 ? VM_NODE_EXT : new int[] { VM_RUNNODE };
+		int[] waitRunMode = c.nbExterns() > 0 ? VM_NODE_WAIT_EXT : VM_NODE_WAIT;
 		for (int i = 0; i < c.nbVMs(); i++) {
 			VM vm = b.vm(i);
 			boolean iswaiting = c.isWaiting(vm);
 			VMLocation migTarget = c.getMigTarget(vm);
 			if (migTarget == null) {
 				// VM can be running or externed or waiting.
-				vmsState[i] = v.createEnumIntVar(vmName(i) + "_state", iswaiting ? VM_NODE_WAIT_EXT : VM_NODE_EXT);
-				vmsLocation[i] = v.createEnumIntVar("" + vmName(i) + "_location", -1, b.locations().length);
+				vmsState[i] = v.createEnumIntVar(vmName(i) + "_state", iswaiting ? waitRunMode : runMode);
+				vmsLocation[i] = v.createEnumIntVar("" + vmName(i) + "_location", 0, iswaiting ? b.waitIdx() : b.waitIdx() - 1);
 				// constrain the state of the VM
 				// if VM location is node : state is running on node
 				LCF.ifThenElse(ICF.arithm(vmsLocation[i], "<", b.nodes().length), ICF.arithm(vmsState[i], "=", VM_RUNNODE),
 						ICF.arithm(vmsState[i], "!=", VM_RUNNODE));
 				// if VM was waiting, and location> max location then it is waiting
 				if (iswaiting) {
-					LCF.ifThenElse(ICF.arithm(vmsLocation[i], ">=", b.locations().length),
+					LCF.ifThenElse(ICF.arithm(vmsLocation[i], ">=", b.waitIdx()),
 							ICF.arithm(vmsState[i], "=", VM_WAITING), ICF.arithm(vmsState[i], "!=", VM_WAITING));
+				} else {
+					try {
+						vmsState[i].removeValue(VM_WAITING, Cause.Null);
+					} catch (ContradictionException e) {
+						logger.warn("while removing state waiting from " + vmsState[i], e);
+					}
 				}
 			} else {// the VM is being migrated
 				vmsLocation[i] = v.createIntegerConstant(b.location(migTarget));
@@ -256,6 +265,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	protected boolean useVMAndNodeIndex = false;
 
 	protected String locationName(int i) {
+		if (i == b().waitIdx()) {
+			return "waiting";
+		}
 		return useVMAndNodeIndex ? "l_" + i : b.location(i).getName();
 	}
 
@@ -274,15 +286,11 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				SetVar s = VF.set(locationName(i) + ".hosted", 0, c.nbVMs() - 1, getSolver());
 				locationVMsSets[i] = s;
 			}
-			SetVar[] usedLocations = new SetVar[locationVMsSets.length + 1];
-			locationVMsSets[locationVMsSets.length] = VF.set("nonNodeVMs", 0, c.nbVMs() - 1, this);
-			for (int i = 1; i < usedLocations.length; i++) {
-				usedLocations[i] = locationVMsSets[i - 1];
-			}
+			locationVMsSets[locationVMsSets.length - 1] = VF.set("nonNodeVMs", 0, c.nbVMs() - 1, this);
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(usedLocations, getVMLocations(), -1, 0);
+			Constraint c = SetConstraintsFactory.int_channel(locationVMsSets, getVMLocations(), 0, 0);
 			post(c);
 		}
 	}
@@ -346,7 +354,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar nbVMsOn(int idx) {
 		if (locationVMCards == null) {
-			locationVMCards = new IntVar[c.nbNodes()];
+			locationVMCards = new IntVar[b.waitIdx() + 1];
 		}
 		IntVar ret = locationVMCards[idx];
 		if (ret == null) {
@@ -649,8 +657,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public ResourceLoad[] getUses() {
-		return resources.values().stream().map(ResourceHandler::getResourceLoad).collect(Collectors.toList())
-				.toArray(new ResourceLoad[] {});
+		return resources.values().stream().map(ResourceHandler::getResourceLoad).toArray(ResourceLoad[]::new);
 	}
 
 	protected void onNewVar(Variable var) {

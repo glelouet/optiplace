@@ -45,10 +45,10 @@ public class ReconfigurationProblemTest {
 		vm1_0 = src.addVM("vm1_0", n1);
 		vm1_1 = src.addVM("vm1_1", n1);
 		nodes = new Node[] {
-					n0, n1
+				n0, n1
 		};
 		vms = new VM[] {
-					vm0_0, vm0_1, vm1_0, vm1_1
+				vm0_0, vm0_1, vm1_0, vm1_1
 		};
 		pb = new ReconfigurationProblem(src);
 	}
@@ -106,16 +106,15 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testBugZeroResource() {
 		Configuration c = new Configuration("mem");
-		Node n = c.addOnline("n", 4);
-		VM v = c.addVM("v", n, 2);
+		c.addOnline("n", 4);
+		VM v = c.addVM("v", null, 2);
 
 		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
 
-		Optiplace test = new Optiplace();
-		test.source(c);
-		test.solve();
-		IConfiguration t = test.getTarget().getDestination();
-		Assert.assertNull(t);
+		Optiplace test = new Optiplace(c);
+		IConfiguration t = test.solve().getDestination();
+		Assert.assertNotNull(t);
+		Assert.assertTrue(t.isWaiting(v));
 	}
 
 	@Test

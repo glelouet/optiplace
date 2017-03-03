@@ -25,20 +25,22 @@ public class DefaultPacker implements ChocoResourcePacker {
 		ArrayList<Constraint> res = new ArrayList<>();
 		// at least one VM can be set to non-running ?
 		boolean hasNonRunning = false;
-		for (IntVar i : binAssign)
+		for (IntVar i : binAssign) {
 			if (i.getLB() < 0) {
 				hasNonRunning = true;
 				break;
 			}
+		}
 		for (ResourceLoad ru : resourceUse) {
 			IntVar[] nodesUses = ru.getNodesLoad();
-			if(hasNonRunning) {
+			if (hasNonRunning) {
 				IntVar nonRunningNode = VF.bounded("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(),
 						binAssign[0].getSolver());
 				IntVar[] newNodesUses = new IntVar[nodesUses.length + 1];
 				newNodesUses[0] = nonRunningNode;
-				for (int i = 1; i < newNodesUses.length; i++)
+				for (int i = 1; i < newNodesUses.length; i++) {
 					newNodesUses[i] = nodesUses[i - 1];
+				}
 				nodesUses = newNodesUses;
 			}
 			if (ru.isAdditionalUse()) {
@@ -49,11 +51,10 @@ public class DefaultPacker implements ChocoResourcePacker {
 				for (int i = 0; i < nodesUses.length; i++) {
 					if (hasNonRunning && i == 0) {
 						sumElems[i] = nodesUses[i];
-					} else
-					sumElems[i] = 
-							ru.getAdditionalUse()[hasNonRunning?i-1:i] == 0 ? 
-									nodesUses[i] : 
-										nodesUses[i].duplicate();
+					} else {
+						sumElems[i] = ru.getAdditionalUse()[hasNonRunning ? i - 1 : i] == 0 ? nodesUses[i]
+								: nodesUses[i].duplicate();
+					}
 				}
 				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsLoads(), sumElems, hasNonRunning ? -1 : 0)));
 				for (int i = 0; i < nodesUses.length; i++) {

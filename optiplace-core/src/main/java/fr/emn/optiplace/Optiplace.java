@@ -38,6 +38,7 @@ import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.core.heuristics.DummyPlacementHeuristic;
+import fr.emn.optiplace.core.heuristics.NoWaitingHeuristic;
 import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
@@ -119,7 +120,8 @@ public class Optiplace extends IOptiplace {
 						VM v = problem.b.vm(vmIdx);
 						int use = spec.getUse(v);
 						if (use > cap) {
-							logger.debug("resource " + resName + " prevents vm " + v + " from being hosted on extern " + e);
+							logger.debug("resource " + resName + " prevents vm " + v + " using " + use
+									+ " from being hosted on extern " + e + " with cap " + cap);
 							try {
 								vms.removeFromEnvelope(vmIdx, Cause.Null);
 							} catch (ContradictionException e1) {
@@ -208,11 +210,11 @@ public class Optiplace extends IOptiplace {
 	 */
 	@SuppressWarnings("unchecked")
 	AbstractStrategy<Variable> makeFindHeuristic() {
-		// heuristic to find a solution fast
-		AbstractStrategy<? extends Variable> diveSrc = StickVMsHeuristic.makeStickVMs(
-				problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem);
 		ArrayList<AbstractStrategy<? extends Variable>> l = new ArrayList<>();
-		l.add(diveSrc);
+		// heuristic to find a solution fast
+		l.addAll(NoWaitingHeuristic.getHeuristics(problem));
+		l.add(StickVMsHeuristic.makeStickVMs(
+				problem.getSourceConfiguration().getRunnings().collect(Collectors.toList()).toArray(new VM[0]), problem));
 		// then add all heuristics from the view, in the views reverse order.
 		for (int i = views.size() - 1; i >= 0; i--) {
 			l.addAll(views.get(i).getSatisfactionHeuristics());
@@ -238,6 +240,7 @@ public class Optiplace extends IOptiplace {
 			strats.addAll(goalMaker.getHeuristics(problem));
 		}
 		// then add default heuristics.
+		strats.addAll(NoWaitingHeuristic.getHeuristics(problem));
 		ResourceSpecification memSpec = problem.getResourceSpecification("mem");
 		if (memSpec == null && !problem.knownResources().isEmpty()) {
 			memSpec = problem.getResourceSpecification(problem.knownResources().iterator().next());

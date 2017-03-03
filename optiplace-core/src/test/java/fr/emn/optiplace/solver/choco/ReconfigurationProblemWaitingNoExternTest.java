@@ -41,10 +41,10 @@ public class ReconfigurationProblemWaitingNoExternTest {
 		vm1 = src.addVM("vm1", null);
 		vm2 = src.addVM("vm2", null);
 		nodes = new Node[] {
-					n0, n1
+				n0, n1
 		};
 		vms = new VM[] {
-					vm0, vm1, vm2
+				vm0, vm1, vm2
 		};
 		pb = new ReconfigurationProblem(src);
 	}
@@ -74,10 +74,7 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	@Test
 	public void testStatePropagation() {
 		try {
-			// System.err.println("instantiating " + pb.getHost(vm0) + " to -1");
-			pb.getVMLocation(vm0).instantiateTo(-1, Cause.Null);
-			// System.err.println("instantiating " + pb.getHost(vm1) + " to " +
-			// pb.location(n0));
+			pb.getVMLocation(vm0).instantiateTo(pb.b().waitIdx(), Cause.Null);
 			pb.getVMLocation(vm1).instantiateTo(pb.b().location(n0), Cause.Null);
 			pb.getState(vm2).instantiateTo(CoreView.VM_WAITING, Cause.Null);
 			pb.propagate();
@@ -85,7 +82,8 @@ public class ReconfigurationProblemWaitingNoExternTest {
 					"" + pb.getState(vm0) + " should be " + CoreView.VM_WAITING);
 			Assert.assertTrue(pb.getState(vm1).isInstantiatedTo(CoreView.VM_RUNNODE),
 					"" + pb.getState(vm1) + " should be " + CoreView.VM_RUNNODE);
-			Assert.assertTrue(pb.getVMLocation(vm2).isInstantiatedTo(-1), "" + pb.getVMLocation(vm2) + " should be -1");
+			Assert.assertTrue(pb.getVMLocation(vm2).isInstantiatedTo(pb.b().waitIdx()),
+					"" + pb.getVMLocation(vm2) + " should be 2");
 		}
 		catch (ContradictionException e) {
 			e.printStackTrace(System.err);

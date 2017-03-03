@@ -17,12 +17,13 @@ public class BridgeTest {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BridgeTest.class);
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDefaultvalue() {
 		IConfiguration cfg = Mockito.mock(IConfiguration.class);
 		Mockito.when(cfg.getVMs()).thenReturn(Stream.empty());
-		Mockito.when(cfg.getNodes()).thenReturn(Stream.empty());
-		Mockito.when(cfg.getExterns()).thenReturn(Stream.empty());
+		Mockito.when(cfg.getNodes()).thenReturn(Stream.empty(), Stream.empty());
+		Mockito.when(cfg.getExterns()).thenReturn(Stream.empty(), Stream.empty());
 		Mockito.when(cfg.getSites()).thenReturn(Stream.empty());
 		Bridge test = new Bridge(cfg);
 		Assert.assertEquals(test.location(new Node("n0")), -1);

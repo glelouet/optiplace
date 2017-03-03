@@ -52,31 +52,28 @@ public class Bridge {
 
 		this.source = source;
 		vms = source.getVMs().collect(Collectors.toSet()).toArray(new VM[] {});
+		vmSourceLoc = new int[vms.length];
+		nodes = source.getNodes().toArray(Node[]::new);
+		externs = source.getExterns().toArray(Extern[]::new);
+		locations = Stream.concat(source.getNodes(), source.getExterns()).toArray(VMLocation[]::new);
+		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
+		locationSites = new int[locations.length];
+
 		revVMs = new TObjectIntHashMap<>(vms.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
 		}
-
-		locations = Stream.concat(source.getNodes(), source.getExterns()).toArray(VMLocation[]::new);
-		revLocations = new TObjectIntHashMap<>(locations.length, Constants.DEFAULT_LOAD_FACTOR, locations.length);
+		revLocations = new TObjectIntHashMap<>(locations.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < locations.length; i++) {
 			revLocations.put(locations[i], i);
 		}
-		nodes = source.getNodes().toArray(Node[]::new);
-		externs = source.getExterns().toArray(Extern[]::new);
-
-		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
+		for (VM vm : vms) {
+			vmSourceLoc[vm(vm)] = !source.isRunning(vm) ? -1 : location(source.getLocation(vm));
+		}
 		revSites = new TObjectIntHashMap<>(sites.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < sites.length; i++) {
 			revSites.put(sites[i], i);
 		}
-
-		vmSourceLoc = new int[vms.length];
-		for (VM vm : vms) {
-			vmSourceLoc[vm(vm)] = !source.isRunning(vm) ? -1 : location(source.getLocation(vm));
-		}
-
-		locationSites = new int[locations.length];
 		for (int i = 0; i < locationSites.length; i++) {
 			Site nodeSite = source.getSite(locations[i]);
 			locationSites[i] = nodeSite == null ? -1 : site(nodeSite);
@@ -131,14 +128,14 @@ public class Bridge {
 	 * @return the last extern index in locations
 	 */
 	public int lastExtIdx() {
-		return locations.length - 2;
+		return locations.length - 1;
 	}
 
 	/**
 	 * @return the index of the location for VM still waiting
 	 */
 	public int waitIdx() {
-		return locations.length - 1;
+		return locations.length;
 	}
 
 	/**
@@ -153,7 +150,7 @@ public class Bridge {
 	/**
 	 * @param l
 	 *          a VMLocation of the problem
-	 * @return the index of the loation in the problem, or -1
+	 * @return the index of the location in the problem, or {@link #waitIdx()}
 	 */
 	public int location(VMLocation l) {
 		return revLocations.get(l);

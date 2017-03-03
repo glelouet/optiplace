@@ -32,6 +32,9 @@ public class SolvingExampleTest extends SolvingExample {
 
 		prepare();
 		// strat.setMoveMigratingVMs(true);
+		// strat.setLogChoices(true);
+		// strat.setLogHeuristicsSelection(true);
+		// strat.setLogStats(true);
 		IConfiguration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
 		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbNodes * nbVMPerNode, "dest is : " + d);
@@ -39,7 +42,7 @@ public class SolvingExampleTest extends SolvingExample {
 		Assert.assertEquals(d.nbVMs(VMSTATES.WAITING), 0, "" + d.getWaitings().collect(Collectors.toList()));
 		for (Node n : nodes) {
 			Assert.assertTrue(d.nbHosted(n) >= nbVMPerNode,
-			    "node " + n + " has only vms : " + d.getHosted(n).collect(Collectors.toList()));
+					"node " + n + " has only vms : " + d.getHosted(n).collect(Collectors.toList()));
 		}
 	}
 }

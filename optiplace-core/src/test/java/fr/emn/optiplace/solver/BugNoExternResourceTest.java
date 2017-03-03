@@ -4,10 +4,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 
 public class BugNoExternResourceTest {
@@ -24,6 +24,9 @@ public class BugNoExternResourceTest {
 		Extern e = sc.addExtern("e");
 
 		Optiplace sp = new Optiplace();
+		sp.getStrat().setLogChoices(true);
+		sp.getStrat().setLogContradictions(true);
+		sp.getStrat().setLogSolutions(true);
 		sp.source(sc);
 		sp.solve();
 

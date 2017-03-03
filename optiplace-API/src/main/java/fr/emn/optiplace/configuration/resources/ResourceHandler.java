@@ -40,7 +40,7 @@ public class ResourceHandler {
 		return specs;
 	}
 
-	protected IntVar[] nodesLoadsByIndex = null;
+	protected IntVar[] locationLoadsByIndex = null;
 	protected int minVMUse = Integer.MAX_VALUE;
 	protected int maxVMUse = Integer.MAX_VALUE;
 	protected int minNodeCapa = Integer.MAX_VALUE;
@@ -67,34 +67,38 @@ public class ResourceHandler {
 	 *          the {@link IReconfigurationProblem} to add the variables into
 	 */
 	public void associate(IReconfigurationProblem pb) {
+		int totalVMUse = 0;
 		minVMUse = Integer.MAX_VALUE;
 		maxVMUse = Integer.MAX_VALUE;
 		minNodeCapa = Integer.MAX_VALUE;
 		maxNodeCapa = Integer.MIN_VALUE;
 		associatedPb = pb;
-		nodesLoadsByIndex = new IntVar[pb.c().nbNodes()];
+		locationLoadsByIndex = new IntVar[pb.b().waitIdx() + 1];
 		vmsLoads = new int[pb.c().nbVMs()];
 		for (int i = 0; i < pb.c().nbVMs(); i++) {
 			int use = specs.getUse(pb.b().vm(i));
 			vmsLoads[i] = use;
 			maxVMUse = Math.max(maxVMUse, use);
 			minVMUse = Math.min(minVMUse, use);
+			totalVMUse += use;
 		}
 		nodesCapacities = new int[pb.c().nbNodes()];
-		for (int i = 0; i < pb.c().nbNodes(); i++) {
+		for (int i = pb.b().firstNodeIdx(); i <= pb.b().waitIdx(); i++) {
 			VMLocation n = pb.b().location(i);
-			int capa = specs.getCapacity(n);
-			nodesCapacities[i] = capa;
-			maxNodeCapa = Math.max(maxNodeCapa, capa);
-			minNodeCapa = Math.min(minNodeCapa, capa);
-			nodesLoadsByIndex[i] = pb.v().createBoundIntVar(n.getName() + "." + specs.getType(), 0, capa);
-		}
-		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex, nodesCapacities);
-		for(VM v : pb.c().getMigratingVMs()) {
-			VMLocation host = pb.c().getLocation(v);
-			if (host instanceof Node) {
-				resourceLoad.addUse(pb.b().location(host), pb.b().vm(v));
+			int capa = totalVMUse;
+			if (i >= pb.b().firstNodeIdx() && i <= pb.b().lastNodeIdx()) {
+				capa = specs.getCapacity(n);
+				maxNodeCapa = Math.max(maxNodeCapa, capa);
+				minNodeCapa = Math.min(minNodeCapa, capa);
+				nodesCapacities[i] = capa;
 			}
+			locationLoadsByIndex[i] = pb.v()
+					.createBoundIntVar((n != null ? n.getName() : "waitingVM") + "." + specs.getType(), 0, capa);
+		}
+		resourceLoad = new ResourceLoad(vmsLoads, locationLoadsByIndex, nodesCapacities);
+		for (VM v : pb.c().getMigratingVMs()) {
+			VMLocation host = pb.c().getLocation(v);
+			resourceLoad.addUse(pb.b().location(host), pb.b().vm(v));
 		}
 	}
 
@@ -107,11 +111,11 @@ public class ResourceHandler {
 	 *         node(ie the sum of the use of its hosted vms)
 	 */
 	public IntVar[] getNodeLoads() {
-		return nodesLoadsByIndex;
+		return locationLoadsByIndex;
 	}
 
 	public IntVar getNodeLoad(Node n) {
-		return nodesLoadsByIndex[associatedPb.b().location(n)];
+		return locationLoadsByIndex[associatedPb.b().location(n)];
 	}
 
 	/**

@@ -46,6 +46,8 @@ public class DummyPlacementHeuristic {
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 
 		LinkedHashSet<IntVar> vars = new LinkedHashSet<>();
+		// first try to minimize the number of VM in wait state
+		vars.add(m.nbVMsOn(m.b().waitIdx()));
 		for (VM v : m.b().vms()) {
 			vars.add(m.getState(v));
 		}
