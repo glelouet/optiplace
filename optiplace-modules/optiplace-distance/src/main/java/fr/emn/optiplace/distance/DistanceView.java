@@ -37,7 +37,7 @@ public class DistanceView extends EmptyView {
 	@Override
 	public void associate(IReconfigurationProblem rp) {
 		super.associate(rp);
-		String[] hosterNames = new String[rp.b().nbHosters()];
+		String[] hosterNames = new String[rp.b().locations().length];
 		for (int i = 0; i < hosterNames.length; i++) {
 			hosterNames[i] = rp.b().location(i).getName();
 		}

@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
@@ -106,30 +105,29 @@ public class Spread implements Rule {
 
 		// Get only the future running VMS
 		IConfiguration cfg = core.getSourceConfiguration();
-		List<IntVar> nodeHosts = vms.stream().filter(cfg::hasVM).map(core::getLocation).collect(Collectors.toList());
-		List<IntVar> extHosts = vms.stream().filter(cfg::hasVM).map(core::getExtern).collect(Collectors.toList());
-		if (nodeHosts.isEmpty() && extHosts.isEmpty()) {
+		List<IntVar> locations = vms.stream().filter(cfg::hasVM).map(core::getVMLocation).collect(Collectors.toList());
+		if (locations.isEmpty()) {
 			logger.debug(this + " is entailed. No VMs are running");
 		} else {
-			Condition noNeg = a -> a.getLB() > -1;
-			if (!nodeHosts.isEmpty()) {
-				Constraint adc = ICF.alldifferent_conditionnal(nodeHosts.toArray(new IntVar[] {}), noNeg);
+			Condition noWait = a -> a.getLB() < core.b().waitIdx();
+			if (!locations.isEmpty()) {
+				Constraint adc = ICF.alldifferent_conditionnal(locations.toArray(new IntVar[] {}), noWait);
 				core.getSolver().post(adc);
 			}
-			if (!extHosts.isEmpty()) {
-				int[] withSupportTags = IntStream.concat(IntStream.of(-1),
-						cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().location(e))).toArray();
-				Condition noNegAndNoSupport = a -> {
-					for (int i : withSupportTags) {
-						if(a.contains(i)) {
-							return false;
-						}
-					}
-					return true;
-				};
-				Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNegAndNoSupport);
-				core.getSolver().post(adc);
-			}
+// if (!extHosts.isEmpty()) {
+// int[] withSupportTags = IntStream.concat(IntStream.of(-1),
+// cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().location(e))).toArray();
+// Condition noNegAndNoSupport = a -> {
+// for (int i : withSupportTags) {
+// if(a.contains(i)) {
+// return false;
+// }
+// }
+// return true;
+// };
+// Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNegAndNoSupport);
+// core.getSolver().post(adc);
+// }
 		}
 	}
 

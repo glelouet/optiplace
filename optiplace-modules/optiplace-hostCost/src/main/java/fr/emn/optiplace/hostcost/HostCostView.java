@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.hostcost.goals.TotalHostCostEvaluator;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -41,15 +39,14 @@ public class HostCostView extends EmptyView {
 		return data;
 	}
 
-	protected IntVar[] nodesCosts = null;
-	protected IntVar[] externsCosts = null;
+	protected IntVar[] locationCosts = null;
+
 	protected IntVar totalCost = null;
 
 	@Override
 	public void associate(IReconfigurationProblem rp) {
 		super.associate(rp);
-		nodesCosts = new IntVar[c.nbNodes()];
-		externsCosts = new IntVar[c.nbExterns()];
+		locationCosts = new IntVar[b.locations().length];
 	}
 
 	@Override
@@ -58,43 +55,21 @@ public class HostCostView extends EmptyView {
 		totalCost = null;
 	}
 
-	public IntVar getNodeCost(int nodeidx) {
-		IntVar ret = nodesCosts[nodeidx];
+	public IntVar getLocationCost(int locIdx) {
+		IntVar ret = locationCosts[locIdx];
 		if (ret == null) {
-			Node n = b.location(nodeidx);
-			ret = v.mult(pb.nbVMsOn(nodeidx), data.getCost(n, c.getSite(n)));
-			nodesCosts[nodeidx] = ret;
+			VMLocation n = b.location(locIdx);
+			ret = v.mult(pb.nbVMsOn(locIdx), data.getCost(n, c.getSite(n)));
+			locationCosts[locIdx] = ret;
 		}
 		return ret;
-	}
-
-	public IntVar getExternCost(int externidx) {
-		IntVar ret = externsCosts[externidx];
-		if (ret == null) {
-			Extern e = b.location(externidx);
-			ret = v.mult(pb.nbVMsOnExtern(externidx), data.getCost(e, c.getSite(e)));
-			externsCosts[externidx] = ret;
-		}
-		return ret;
-	}
-
-	public IntVar getCost(VMLocation h) {
-		if (h instanceof Node) {
-			return getNodeCost(b.location((Node) h));
-		} else if (h instanceof Extern) {
-			return getExternCost(b.location((Extern) h));
-		}
-		throw new UnsupportedOperationException("can't handle the class : " + h.getClass());
 	}
 
 	public IntVar getTotalCost() {
 		if (totalCost == null) {
 			List<IntVar> costsl = new ArrayList<>();
-			for (int i = 0; i < nodesCosts.length; i++) {
-				costsl.add(getNodeCost(i));
-			}
-			for (int i = 0; i < externsCosts.length; i++) {
-				costsl.add(getExternCost(i));
+			for (int i = 0; i < locationCosts.length; i++) {
+				costsl.add(getLocationCost(i));
 			}
 			int waitingVMCost = data.getWaitingVMCost();
 			for (int vmi = 0; vmi < c.nbVMs(); vmi++) {

@@ -77,7 +77,7 @@ public class Root implements Rule {
     for (VM vm : vms) {
 			if (core.getSourceConfiguration().isRunning(vm)) {
 				try {
-					core.getLocation(vm).instantiateTo(core.b().getCurrentLocation(core.b().vm(vm)),
+					core.getVMLocation(vm).instantiateTo(core.b().getCurrentLocation(core.b().vm(vm)),
 				      Cause.Null);
 				} catch (ContradictionException e) {
 				  logger.warn("", e);

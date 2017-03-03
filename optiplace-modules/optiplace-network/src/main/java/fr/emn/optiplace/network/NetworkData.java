@@ -178,7 +178,7 @@ public class NetworkData implements ProvidedDataReader {
 		return true;
 	}
 
-	protected TObjectIntHashMap<VMCouple> couple2use = new TObjectIntHashMap<VMCouple>();
+	protected TObjectIntHashMap<VMCouple> couple2use = new TObjectIntHashMap<>();
 
 	// instead of using a new VMCouple every time we want to check/remove we
 	// instead modify this couple.
@@ -316,7 +316,7 @@ public class NetworkData implements ProvidedDataReader {
 	/**
 	 * apply a bi-parameter function(Link,int) for each (link, capacity) value
 	 * set.
-	 * 
+	 *
 	 * @param c
 	 *          the procedure to apply
 	 */
@@ -331,7 +331,7 @@ public class NetworkData implements ProvidedDataReader {
 
 	/**
 	 * apply a function to the couples of (link, capacity)
-	 * 
+	 *
 	 * @param mapper
 	 *          the function to apply
 	 * @return a new stream of the mapped T values
@@ -347,8 +347,9 @@ public class NetworkData implements ProvidedDataReader {
 					it.advance();
 					action.accept(mapper.apply(it.key(), it.value()));
 					return true;
-				} else
+				} else {
 					return false;
+				}
 			}
 
 			@Override
@@ -504,12 +505,13 @@ public class NetworkData implements ProvidedDataReader {
 			}
 			for (Set<VM> set : group2vms.values()) {
 				for (VM v1 : set) {
-					if (b.source().hasVM(v1))
+					if (b.source().hasVM(v1)) {
 						for (VM v2 : set) {
 							if (b.source().hasVM(v2) && !v1.equals(v2)) {
 								couplesl.add(new VMCouple(v1, v2));
 							}
 						}
+					}
 				}
 			}
 			couplesl.removeAll(removedCouples);
@@ -526,12 +528,12 @@ public class NetworkData implements ProvidedDataReader {
 			}
 
 			// matrix from hoster i to hoster j => indexes of links to use
-			hoster2hoster2links = new int[b.nbHosters()][b.nbHosters()][];
+			hoster2hoster2links = new int[b.locations().length][b.locations().length][];
 			// first lower left diag : i<j
-			for (int i = 0; i < b.nbHosters(); i++) {
+			for (int i = 0; i < b.locations().length; i++) {
 				VMLocation from = b.location(i);
 				if (hoster2links.containsKey(from.getName())) {
-					hoster2hoster2links[i] = new int[b.nbHosters()][];
+					hoster2hoster2links[i] = new int[b.locations().length][];
 					for (int j = 0; j < i; j++) {
 						VMLocation to = b.location(j);
 						if (hoster2links.containsKey(to.getName())) {
@@ -552,9 +554,9 @@ public class NetworkData implements ProvidedDataReader {
 
 			}
 			// then upper right diag : i>j
-			for (int i = 0; i < b.nbHosters(); i++) {
+			for (int i = 0; i < b.locations().length; i++) {
 				if (hoster2hoster2links[i] != null) {
-					for (int j = i + 1; j < b.nbHosters(); j++) {
+					for (int j = i + 1; j < b.locations().length; j++) {
 						hoster2hoster2links[i][j] = hoster2hoster2links[j] == null ? NO_LINK : hoster2hoster2links[j][i];
 					}
 				}
@@ -672,8 +674,9 @@ public class NetworkData implements ProvidedDataReader {
 			Matcher mg = GROUP_PAT.matcher(m.group(1));
 			while (mg.find()) {
 				VMGroup created = addGroup(mg.group(1), Integer.parseInt(mg.group(2)));
-				for (String name : mg.group(3).split(", "))
+				for (String name : mg.group(3).split(", ")) {
 					addVM(created, new VM(name));
+				}
 			}
 			return;
 		}

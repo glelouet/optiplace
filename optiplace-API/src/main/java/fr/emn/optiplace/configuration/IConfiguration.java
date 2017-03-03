@@ -553,6 +553,10 @@ public interface IConfiguration extends Cloneable {
 
 	boolean remove(Extern e);
 
+	default Stream<VMLocation> getLocations() {
+		return Stream.concat(getNodes(), getExterns());
+	}
+
 	default int nbHosts() {
 		return nbExterns() + nbNodes();
 	}

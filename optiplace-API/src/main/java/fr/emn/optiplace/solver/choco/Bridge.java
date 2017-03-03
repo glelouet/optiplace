@@ -17,15 +17,12 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
  * bridge between the elements and their corresponding arrays
- *
  * <p>
- * nodes and externs are merged in the same "locations" array. also the index of
- * location given as locations.size is return for null, that is if a VM is
- * hosted on a location of index 'location.size()' then it is hosted nowhere
+ * nodes and externs are merged in the same "locations" array. also the index of location given as locations.size is
+ * return for null, that is if a VM is hosted on a location of index 'location.size()' then it is hosted nowhere
  * </p>
  *
  * @author Guillaume Le Louët
- *
  */
 public class Bridge {
 
@@ -102,16 +99,49 @@ public class Bridge {
 	}
 
 	/**
-	 *
-	 * @return an internal array of the externs of the problem. Node that this
-	 *         array does not correspond to the indexes of the externs
+	 * @return the first node index for locations
+	 */
+	public int firstNodeIdx() {
+		return 0;
+	}
+
+	/**
+	 * @return the last node index for locations
+	 */
+	public int lastNodeIdx() {
+		return nodes.length - 1;
+	}
+
+	/**
+	 * @return an internal array of the externs of the problem. Note that this array does not correspond to the indexes of
+	 *         the externs, for this you should use {@link #firstExtIdx()} and {@link #lastExtIdx()}
 	 */
 	public Extern[] externs() {
 		return externs;
 	}
 
 	/**
-	 *
+	 * @return the first extern index in locations
+	 */
+	public int firstExtIdx() {
+		return nodes.length;
+	}
+
+	/**
+	 * @return the last extern index in locations
+	 */
+	public int lastExtIdx() {
+		return locations.length - 2;
+	}
+
+	/**
+	 * @return the index of the location for VM still waiting
+	 */
+	public int waitIdx() {
+		return locations.length - 1;
+	}
+
+	/**
 	 * @param locationIndex
 	 *          an index of a location
 	 * @return true iff this index stands for a node
@@ -121,9 +151,9 @@ public class Bridge {
 	}
 
 	/**
-	 * @param n
-	 *          a node of the problem
-	 * @return the index of the node in the problem, or -1
+	 * @param l
+	 *          a VMLocation of the problem
+	 * @return the index of the loation in the problem, or -1
 	 */
 	public int location(VMLocation l) {
 		return revLocations.get(l);
@@ -141,8 +171,7 @@ public class Bridge {
 	}
 
 	/**
-	 * @return the array of vm of this problem, each vm being on its index,
-	 *         meaning vm(i)= vms[i]
+	 * @return the array of vm of this problem, each vm being on its index, meaning vm(i)= vms[i]
 	 */
 	public VM[] vms() {
 		return vms;

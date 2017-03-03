@@ -61,7 +61,7 @@ public class MonogameMetrics {
 			for (int j = 0; j < node2s.length; j++) {
 				Node n = node2s[j];
 				// vm i, node j
-				if (rp.getLocation(vm).contains(j)) {
+				if (rp.getVMLocation(vm).contains(j)) {
 					double eff = getMonogamEff(n, vm);
 					if (eff > maxVMEff[i]) {
 						maxVMEff[i] = eff;

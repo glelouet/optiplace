@@ -115,7 +115,7 @@ public class NetworkView extends EmptyView {
 		// flamat[0] = empty set, case where a VM of the couple is not running
 		for (int i = 0; i < hoster2hoster2links.length; i++) {
 			assert hoster2hoster2links[i].length == nbcols : "hoster2hoster2links has invalid number of columns : "
-			    + hoster2hoster2links[i].length + " on row " + i;
+					+ hoster2hoster2links[i].length + " on row " + i;
 			for (int j = 0; j < nbcols; j++) {
 				flatMat[i * nbcols + j + 1] = hoster2hoster2links[i][j];
 			}
@@ -145,12 +145,12 @@ public class NetworkView extends EmptyView {
 		if (hoster2hoster2links != null) {
 			return;
 		}
-		hoster2hoster2links = new SetVar[b.nbHosters()][];
+		hoster2hoster2links = new SetVar[b.locations().length][];
 		int[] empty = new int[] {};
-		for (int i = 0; i < b.nbHosters(); i++) {
-			hoster2hoster2links[i] = new SetVar[b.nbHosters()];
+		for (int i = 0; i < b.locations().length; i++) {
+			hoster2hoster2links[i] = new SetVar[b.locations().length];
 		}
-		for (int i = 0; i < b.nbHosters(); i++) {
+		for (int i = 0; i < b.locations().length; i++) {
 			VMLocation hi = b.location(i);
 			hoster2hoster2links[i][i] = v.createFixedSet("path(" + hi.getName() + ").links", empty);
 			for (int j = 0; j < i; j++) {

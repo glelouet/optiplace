@@ -5,8 +5,8 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.test.SolvingExample;
@@ -24,7 +24,7 @@ public class TestExternPlacement extends SolvingExample {
 	/**
 	 * 2 VM waiting. One is constrained externed, the other is constrained not
 	 * waiting ; no node to host so they should be placed on the extern.
-	 * 
+	 *
 	 * @throws ContradictionException
 	 */
 	@Test
@@ -41,8 +41,8 @@ public class TestExternPlacement extends SolvingExample {
 		p.getState(vm2).removeValue(CoreView.VM_WAITING, Cause.Null);
 
 		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getExtern(vm1).getValue(), p.b().location(e));
-		Assert.assertEquals(p.getExtern(vm2).getValue(), p.b().location(e));
+		Assert.assertEquals(p.getVMLocation(vm1).getValue(), p.b().location(e));
+		Assert.assertEquals(p.getVMLocation(vm2).getValue(), p.b().location(e));
 	}
 
 }

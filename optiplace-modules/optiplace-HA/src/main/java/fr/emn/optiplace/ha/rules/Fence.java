@@ -24,8 +24,8 @@ import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 import gnu.trove.list.array.TIntArrayList;
@@ -49,15 +49,15 @@ public class Fence implements Rule {
 			return null;
 		}
 		Set<VM> vms = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new VM(n)).collect(Collectors.toSet());
-		Set<Node> nodes = Arrays.asList(m.group(2).split(", ")).stream().map(n -> new Node(n)).collect(Collectors.toSet());
-		return new Fence(vms, nodes);
+		Set<String> locations = Arrays.asList(m.group(2).split(", ")).stream().collect(Collectors.toSet());
+		return new Fence(vms, locations);
 	}
 
 	public static final Parser PARSER = def -> Fence.parse(def);
 
 	protected Set<VM> vms;
 
-	protected Set<Node> nodes;
+	protected Set<String> locations;
 
 	/**
 	 * Make a new constraint that enforce all the virtual machines to be hosted on
@@ -68,19 +68,19 @@ public class Fence implements Rule {
 	 * @param group
 	 *          the group of nodes.
 	 */
-	public Fence(Set<VM> vms, Set<Node> group) {
+	public Fence(Set<VM> vms, Set<String> group) {
 		this.vms = vms;
-		nodes = group;
+		locations = group;
 	}
 
-	public Fence(Node node, VM... vms) {
-		this(new HashSet<>(Arrays.asList(vms)), Collections.singleton(node));
+	public Fence(String location, VM... vms) {
+		this(new HashSet<>(Arrays.asList(vms)), Collections.singleton(location));
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("fence").append(vms).append(nodes);
+		buffer.append("fence").append(vms).append(locations);
 		return buffer.toString();
 	}
 
@@ -93,13 +93,13 @@ public class Fence implements Rule {
 			return false;
 		}
 		Fence that = (Fence) o;
-		return nodes.equals(that.nodes) && vms.equals(that.vms);
+		return locations.equals(that.locations) && vms.equals(that.vms);
 	}
 
 	@Override
 	public int hashCode() {
 		int result = vms.hashCode();
-		result = 31 * result + nodes.hashCode();
+		result = 31 * result + locations.hashCode();
 		result = 31 * result + "fence".hashCode();
 		return result;
 	}
@@ -111,19 +111,19 @@ public class Fence implements Rule {
 			return;
 		}
 		TIntArrayList iExclude = new TIntArrayList();
-		TIntHashSet toKeep = new TIntHashSet(nodes.size());
-		for (Node n : nodes) {
-			int idx = core.b().location(n);
+		TIntHashSet toKeep = new TIntHashSet(locations.size());
+		for (String n : locations) {
+			int idx = core.b().location((VMLocation) core.c().getElementByName(n));
 			if (idx != -1) {
 				toKeep.add(idx);
 			}
 		}
-		core.getSourceConfiguration().getNodes().mapToInt(core.b()::node).filter(ni -> !toKeep.contains(ni))
+		core.getSourceConfiguration().getLocations().mapToInt(core.b()::location).filter(ni -> !toKeep.contains(ni))
 		.forEach(ni -> iExclude.add(ni));
 
 		// Domain restriction. Remove all the non-involved nodes
 		for (VM vm : runnings) {
-			IntVar hoster = core.getLocation(vm);
+			IntVar hoster = core.getVMLocation(vm);
 			iExclude.forEach(ni -> {
 				try {
 					hoster.removeValue(ni, Cause.Null);
@@ -144,12 +144,12 @@ public class Fence implements Rule {
 	 */
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		if (nodes.isEmpty()) {
+		if (locations.isEmpty()) {
 			logger.error("No group of nodes was specified");
 			return false;
 		}
 		for (VM vm : vms) {
-			if (cfg.isRunning(vm) && !nodes.contains(cfg.getLocation(vm))) {
+			if (cfg.isRunning(vm) && !locations.contains(cfg.getLocation(vm))) {
 				return false;
 			}
 		}

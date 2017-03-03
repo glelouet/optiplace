@@ -13,7 +13,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.test.SolvingExample;
 import fr.emn.optiplace.view.Rule;
@@ -34,7 +33,7 @@ public class FenceTest extends SolvingExample {
 		nbVMPerNode = 1;
 		prepare();
 		Set<VM> vms = src.getVMs().collect(Collectors.toSet());
-		Set<Node> nodes = Collections.singleton(this.nodes[0]);
+		Set<String> nodes = Collections.singleton(this.nodes[0].name);
 		Fence c = new Fence(vms, nodes);
 		IConfiguration d = solve(src, c).getDestination();
 		Assert.assertEquals(d.nbHosted(this.nodes[0]), 3, "cfg is " + d);
@@ -47,7 +46,7 @@ public class FenceTest extends SolvingExample {
 		nbVMPerNode = 1;
 		prepare();
 		Set<VM> vms = src.getVMs().collect(Collectors.toSet());
-		Set<Node> nodes = new HashSet<>(Arrays.asList(this.nodes[0], this.nodes[1]));
+		Set<String> nodes = new HashSet<>(Arrays.asList(this.nodes[0].name, this.nodes[1].name));
 		Fence c = new Fence(vms, nodes);
 		IConfiguration d = solve(src, c).getDestination();
 		Assert.assertEquals(d.nbHosted(this.nodes[0]) + d.nbHosted(this.nodes[1]),
@@ -57,9 +56,9 @@ public class FenceTest extends SolvingExample {
 
 	@Test
 	public void testParsing() {
-		HashSet<Node> nodes = new HashSet<>();
-		nodes.add(new Node("n1"));
-		nodes.add(new Node("n2"));
+		HashSet<String> nodes = new HashSet<>();
+		nodes.add("n1");
+		nodes.add("n2");
 		HashSet<VM> vms = new HashSet<>();
 		vms.add(new VM("vm1"));
 		vms.add(new VM("vm2"));

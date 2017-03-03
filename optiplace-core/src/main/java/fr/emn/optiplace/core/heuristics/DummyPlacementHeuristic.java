@@ -49,14 +49,8 @@ public class DummyPlacementHeuristic {
 		for (VM v : m.b().vms()) {
 			vars.add(m.getState(v));
 		}
-		for (IntVar v : m.getLocations()) {
+		for (IntVar v : m.getVMLocations()) {
 			vars.add(v);
-		}
-		IntVar[] exts = m.getExterns();
-		if (exts != null) {
-			for (IntVar v : exts) {
-				vars.add(v);
-			}
 		}
 		for (IntVar v : m.getSolver().retrieveIntVars()) {
 			vars.add(v);
@@ -66,7 +60,7 @@ public class DummyPlacementHeuristic {
 		}
 		if (vars.size() > 0) {
 			ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".IntVar", new InputOrder<>(),
-			    new IntDomainMin(), vars.toArray(new IntVar[] {})));
+					new IntDomainMin(), vars.toArray(new IntVar[] {})));
 		}
 
 		ArrayList<SetVar> bar = new ArrayList<>();
@@ -75,7 +69,7 @@ public class DummyPlacementHeuristic {
 		}
 		if (bar.size() > 0) {
 			ret.add(SearchGoal.makeAssignHeuristic(getClass().getSimpleName() + ".SetVar", new InputOrder<>(),
-			    new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
+					new SetDomainMin(), true, bar.toArray(new SetVar[] {})));
 		}
 		return ret;
 	}

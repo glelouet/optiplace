@@ -71,9 +71,10 @@ public class Near implements Rule {
 		}
 		// manage the support_tag : the group of VMs should not be placed on an
 		// extern that does not support this rule.
-		int[] forbiddenExterns = core.c().getExterns().filter(e->!core.c().isTagged(e, SUPPORT_TAG)).mapToInt(core.b()::extern).toArray();
+		int[] forbiddenExterns = core.c().getExterns().filter(e -> !core.c().isTagged(e, SUPPORT_TAG))
+				.mapToInt(core.b()::location).toArray();
 		for(VM v : vms){
-			IntVar externPosition = core.getExtern(v);
+			IntVar externPosition = core.getVMLocation(v);
 			for(int e : forbiddenExterns) {
 				try {
 					externPosition.removeValue(e, Cause.Null);

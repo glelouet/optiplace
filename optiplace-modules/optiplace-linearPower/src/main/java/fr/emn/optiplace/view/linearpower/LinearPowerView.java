@@ -222,7 +222,7 @@ public class LinearPowerView extends EmptyView {
 			for (int i = 0; i < nbVMs; i++) {
 				IntVar vmCons = pb.v().createBoundIntVar("vm" + i + ".cons", 0, Integer.MAX_VALUE - 1);
 				cachedVMCons[i] = vmCons;
-				h.nth(pb.getLocation(pb.b().vm(i)), hostingCosts[i], vmCons);
+				h.nth(pb.getVMLocation(pb.b().vm(i)), hostingCosts[i], vmCons);
 			}
 		}
 		return cachedVMCons;

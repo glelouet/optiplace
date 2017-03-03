@@ -27,29 +27,21 @@ import fr.emn.optiplace.view.Rule;
 public class LoadInc implements Rule {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(LoadInc.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoadInc.class);
 
-	public static final Pattern pat = Pattern
-			.compile("ordnodesload\\[(.*)\\]\\((.*)\\)");
+	public static final Pattern pat = Pattern.compile("ordnodesload\\[(.*)\\]\\((.*)\\)");
 
 	public static LoadInc parse(String s) {
 		Matcher m = pat.matcher(s);
 		if (!m.matches()) {
 			return null;
 		}
-		List<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream()
-				.map(n -> new Node(n)).collect(Collectors.toList());
+		List<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Node(n))
+				.collect(Collectors.toList());
 		return new LoadInc(m.group(2), nodes);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public LoadInc parse(String def) {
-			return LoadInc.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> LoadInc.parse(def);
 
 	protected String resName = "CPU";
 
@@ -60,7 +52,7 @@ public class LoadInc implements Rule {
 	 *
 	 * @param nodes
 	 * @param resource
-	 * the resource to have nodes' order on
+	 *          the resource to have nodes' order on
 	 */
 	public LoadInc(String resName, Node... nodes) {
 		this(resName, Arrays.asList(nodes));
@@ -71,7 +63,7 @@ public class LoadInc implements Rule {
 	 *
 	 * @param nodes
 	 * @param resource
-	 * the resource to have nodes' order on
+	 *          the resource to have nodes' order on
 	 */
 	public LoadInc(String resName, List<Node> nodes) {
 		this.nodes = nodes;
@@ -108,9 +100,8 @@ public class LoadInc implements Rule {
 		if (nodes == null || nodes.size() < 2) {
 			return;
 		}
-		List<IntVar> lnodes = nodes.stream()
-.filter(core.getSourceConfiguration()::hasNode).map(core.b()::node)
-		    .map(i -> handler.getNodesLoad()[i]).collect(Collectors.toList());
+		List<IntVar> lnodes = nodes.stream().filter(core.getSourceConfiguration()::hasNode).mapToInt(core.b()::location)
+				.mapToObj(i -> handler.getNodesLoad()[i]).collect(Collectors.toList());
 		for (int i = 0; i < lnodes.size() - 1; i++) {
 			core.getSolver().post(ICF.arithm(lnodes.get(i), "<=", lnodes.get(i + 1)));
 		}

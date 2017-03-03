@@ -10,10 +10,8 @@
  * <http://www.gnu.org/licenses/>. */
 package fr.emn.optiplace.ha.rules;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,10 +21,8 @@ import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -52,13 +48,7 @@ public class Ban implements Rule {
 		return new Ban(vms, hosters);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Ban parse(String def) {
-			return Ban.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Ban.parse(def);
 
 	private Set<VM> vms;
 	private Set<String> hosters;
@@ -77,7 +67,7 @@ public class Ban implements Rule {
 	}
 
 	public Ban(Set<VM> vms, String... hosters) {
-		this(vms, new HashSet<String>(Arrays.asList(hosters)));
+		this(vms, new HashSet<>(Arrays.asList(hosters)));
 	}
 
 	@Override
@@ -119,29 +109,15 @@ public class Ban implements Rule {
 	 */
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		ArrayList<Node> nodes = new ArrayList<>();
-		ArrayList<Extern> externs = new ArrayList<>();
-		for (String s : hosters) {
-			ManagedElement e = core.getSourceConfiguration().getElementByName(s);
-			if (e instanceof Node)
-				nodes.add((Node) e);
-			else if (e instanceof Extern)
-				externs.add((Extern) e);
-		}
-
-		List<Integer> nodesidx = nodes.stream().map(core.b()::node).collect(Collectors.toList());
-		List<Integer> externsidx = externs.stream().map(core.b()::extern).collect(Collectors.toList());
+		int[] bannedIndexes = hosters.stream().map(core.getSourceConfiguration()::getElementByName)
+				.map(me -> (VMLocation) me).mapToInt(core.b()::location).toArray();
 
 		for (VM vm : vms) {
 			if (core.getSourceConfiguration().hasVM(vm)) {
-				IntVar node = core.getLocation(core.b().vm(vm));
-				IntVar extern = core.getExtern(core.b().vm(vm));
+				IntVar location = core.getVMLocation(vm);
 				try {
-					for (int i : nodesidx) {
-						node.removeValue(i, Cause.Null);
-					}
-					for (int i : externsidx) {
-						extern.removeValue(i, Cause.Null);
+					for (int i : bannedIndexes) {
+						location.removeValue(i, Cause.Null);
 					}
 				} catch (Exception e) {
 					logger.warn("", e);

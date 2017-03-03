@@ -1,7 +1,12 @@
 
 package fr.emn.optiplace.power.heuristics;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -68,15 +73,15 @@ public class EfficiencyMaxFirstNodes {
 			// System.err.println("pack on node " + n);
 			final int idx = rp.b().location(n);
 			// first we pack the vms already assigned
-			ArrayList<VM> vms = new ArrayList<VM>();
+			ArrayList<VM> vms = new ArrayList<>();
 			rp.getSourceConfiguration().getHosted(n).forEach(vms::add);
 			// then we pack the vms not waiting in source
 			rp.getSourceConfiguration().getWaitings().forEach(vms::add);;
 			// finally we pack the vms from the least efficient nodes first
 			Collections.sort(vms, inNodeComparator);
-			ArrayList<IntVar> vars = new ArrayList<IntVar>();
+			ArrayList<IntVar> vars = new ArrayList<>();
 			for (VM vm : vms) {
-				IntVar var = rp.getLocation(vm);
+				IntVar var = rp.getVMLocation(vm);
 				if (!var.isInstantiated() && var.contains(idx)) {
 					vars.add(var);
 				}
@@ -112,7 +117,7 @@ public class EfficiencyMaxFirstNodes {
 			double maxCons = cm.maxCons(n);
 			efficiencies.put(n, maxCons / cpu);
 		}
-		ArrayList<Entry<Node, Double>> entries = new ArrayList<Map.Entry<Node, Double>>(efficiencies.entrySet());
+		ArrayList<Entry<Node, Double>> entries = new ArrayList<>(efficiencies.entrySet());
 		Collections.sort(entries, new NodeEfficiencyComparator(fallbackResource));
 		Node[] sortedNodes = new Node[entries.size()];
 		for (int i = 0; i < entries.size(); i++) {
@@ -135,14 +140,14 @@ public class EfficiencyMaxFirstNodes {
 	 *         comparator inside a node desc.
 	 */
 	public static ArrayList<IntVar> extractVMsWithComp(Node[] sortedNodes, IReconfigurationProblem rp,
-	    Comparator<VM> comp) {
-		ArrayList<IntVar> vmsHosters = new ArrayList<IntVar>();
+			Comparator<VM> comp) {
+		ArrayList<IntVar> vmsHosters = new ArrayList<>();
 		for (int i = sortedNodes.length - 1; i >= 0; i--) {
 			Node n = sortedNodes[i];
-			ArrayList<VM> vms = new ArrayList<VM>(rp.getSourceConfiguration().getHosted(n).collect(Collectors.toList()));
+			ArrayList<VM> vms = new ArrayList<>(rp.getSourceConfiguration().getHosted(n).collect(Collectors.toList()));
 			Collections.sort(vms, comp);
 			for (VM vm : vms) {
-				vmsHosters.add(rp.getLocation(vm));
+				vmsHosters.add(rp.getVMLocation(vm));
 			}
 		}
 		return vmsHosters;

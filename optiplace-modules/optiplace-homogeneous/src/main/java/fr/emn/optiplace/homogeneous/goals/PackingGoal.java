@@ -7,7 +7,6 @@ import java.util.List;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -191,7 +190,7 @@ public class PackingGoal implements SearchGoal {
 		IntVar[] hosteds = new IntVar[rp.c().nbNodes()];
 		int[] nodeCosts_a = new int[hosteds.length];
 		for (int i = 0; i < hosteds.length; i++) {
-			Node n = rp.b().location(i);
+			VMLocation n = rp.b().location(i);
 			hosteds[i] = rp.isHost(i);
 			nodeCosts_a[i] = getWeighter().weight(n, rp);
 		}

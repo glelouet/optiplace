@@ -1,12 +1,11 @@
-/* Copyright (c) Fabien Hermenier This file is part of Entropy. Entropy is free
- * software: you can redistribute it and/or modify it under the terms of the GNU
- * Lesser General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * Entropy is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details. You should have received a copy of the GNU Lesser General Public
- * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
+/*
+ * Copyright (c) Fabien Hermenier This file is part of Entropy. Entropy is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version. Entropy is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of
+ * the GNU Lesser General Public License along with Entropy. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package fr.emn.optiplace.core;
 
@@ -51,11 +50,10 @@ import fr.emn.optiplace.view.access.CoreView;
 import fr.emn.optiplace.view.annotations.Goal;
 
 /**
- * A CSP to model a reconfiguration plan composed of time bounded actions. In
- * this model, regarding to the current configuration and the sample destination
- * configuration, the model create the different actions that aims to perform
- * the transition to the destination configuration. In addition, several actions
- * acting on the placement of the virtual machines can be added.
+ * A CSP to model a reconfiguration plan composed of time bounded actions. In this model, regarding to the current
+ * configuration and the sample destination configuration, the model create the different actions that aims to perform
+ * the transition to the destination configuration. In addition, several actions acting on the placement of the virtual
+ * machines can be added.
  *
  * @author Guillaume Le Louët
  * @author Fabien Hermenier
@@ -109,8 +107,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	// is null if no site defined.
 
 	/**
-	 * VM state. see {@link CoreView#VM_RUNNODE},{@link CoreView#VM_RUNEXT},
-	 * {@link CoreView#VM_WAITING}
+	 * VM state. see {@link CoreView#VM_RUNNODE},{@link CoreView#VM_RUNEXT}, {@link CoreView#VM_WAITING}
 	 */
 	protected IntVar[] vmsState = null;
 
@@ -158,8 +155,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 						ICF.arithm(vmsState[i], "!=", VM_RUNNODE));
 				// if VM was waiting, and location> max location then it is waiting
 				if (iswaiting) {
-					LCF.ifThenElse(ICF.arithm(vmsLocation[i], ">=", b.locations().length), ICF.arithm(vmsState[i], "=", VM_WAITING),
-							ICF.arithm(vmsState[i], "!=", VM_WAITING));
+					LCF.ifThenElse(ICF.arithm(vmsLocation[i], ">=", b.locations().length),
+							ICF.arithm(vmsState[i], "=", VM_WAITING), ICF.arithm(vmsState[i], "!=", VM_WAITING));
 				}
 			} else {// the VM is being migrated
 				vmsLocation[i] = v.createIntegerConstant(b.location(migTarget));
@@ -191,8 +188,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	/**
-	 * for each VM that has an host tag, remove all Nodes/externs that do not have
-	 * this hosttag.
+	 * for each VM that has an host tag, remove all Nodes/externs that do not have this hosttag.
 	 */
 	protected void removeHostTags() {
 		c.getVmsTags().forEach(tag -> {
@@ -239,18 +235,23 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public SetVar hosted(VMLocation n) {
-		return nodeVMs(b.location(n));
-	}
-
-	public SetVar nodeVMs(int nodeIdx) {
-		makeHosteds();
-		return locationVMsSets[nodeIdx];
+	public SetVar getHostedOn(VMLocation n) {
+		return getHostedOn(b.location(n));
 	}
 
 	/**
-	 * should we name the variables by using the nodes and VMs index or using the
-	 * nodes and VM names ? default is : use their name
+	 * @param locationIdx
+	 *          an indx of Location
+	 * @return the SetVar of the VM hosted on this location
+	 */
+	public SetVar getHostedOn(int locationIdx) {
+		makeHosteds();
+		return locationVMsSets[locationIdx];
+	}
+
+	/**
+	 * should we name the variables by using the nodes and VMs index or using the nodes and VM names ? default is : use
+	 * their name
 	 */
 	protected boolean useVMAndNodeIndex = false;
 
@@ -306,8 +307,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	 *
 	 * @param vmidx
 	 *          the index of the VM
-	 * @return the variable representing the destination site of the VM, or -1 if
-	 *         no site.
+	 * @return the variable representing the destination site of the VM, or -1 if no site.
 	 */
 	@Override
 	public IntVar getVMSite(int vmidx) {
@@ -344,23 +344,6 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	}
 
 	@Override
-	public IntVar getExtern(int vmindex) {
-		if (vmsExtern == null) {
-			return v.createIntegerConstant(-1);
-		}
-		if (vmindex == -1) {
-			return null;
-		} else {
-			return vmsExtern[vmindex];
-		}
-	}
-
-	@Override
-	public IntVar[] getExterns() {
-		return vmsExtern;
-	}
-
-	@Override
 	public IntVar nbVMsOn(int idx) {
 		if (locationVMCards == null) {
 			locationVMCards = new IntVar[c.nbNodes()];
@@ -368,34 +351,15 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		IntVar ret = locationVMCards[idx];
 		if (ret == null) {
 			ret = v.createEnumIntVar(locationName(idx) + ".#VMs", 0, c.nbVMs());
-			post(SetConstraintsFactory.cardinality(nodeVMs(idx), ret));
+			post(SetConstraintsFactory.cardinality(getHostedOn(idx), ret));
 			locationVMCards[idx] = ret;
 		}
 		return ret;
 	}
 
 	@Override
-	public IntVar nbVMsOn(Node n) {
-		return nbVMsOn(b.location(n));
-	}
-
-	@Override
-	public IntVar nbVMsOnExtern(int idx) {
-		if (externCards == null) {
-			externCards = new IntVar[c.nbExterns()];
-		}
-		IntVar ret = externCards[idx];
-		if (ret == null) {
-			ret = v.createEnumIntVar(externName(idx) + ".#VMs", 0, c.nbVMs());
-			post(SetConstraintsFactory.cardinality(externVMs(idx), ret));
-			externCards[idx] = ret;
-		}
-		return ret;
-	}
-
-	@Override
-	public IntVar nbVMs(Extern e) {
-		return nbVMsOnExtern(b.location(e));
+	public IntVar nbVMsOn(VMLocation l) {
+		return nbVMsOn(b.location(l));
 	}
 
 	@Override
@@ -409,8 +373,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	BoolVar[] nodesIsHostings = null;
 
 	/**
-	 * generate the boolean value of wether a node is used or not, using the
-	 * number of vms on it.
+	 * generate the boolean value of wether a node is used or not, using the number of vms on it.
 	 */
 	protected BoolVar makeIsHosting(int nodeIdx) {
 		BoolVar ret = v.boolenize(nbVMsOn(nodeIdx), b.location(nodeIdx).getName() + "?hosting");
@@ -472,7 +435,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			h.nth(getLocation(vmIndex), getUse(resource).getNodesLoad(), ret);
+			h.nth(getVMLocation(vmIndex), getUse(resource).getNodesLoad(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -497,7 +460,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterMax_" + resource, 0, VF.MAX_INT_BOUND);
 			onNewVar(ret);
-			h.nth(getLocation(vmIndex), resources.get(resource).getCapacities(), ret);
+			h.nth(getVMLocation(vmIndex), resources.get(resource).getCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -516,23 +479,18 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		IConfiguration cfg = getSourceConfiguration();
 		for (int i = 0; i < vmsIsMigrated.length; i++) {
 			VM vm = b.vm(i);
-			vmsIsMigrated[i] = v.createBoolVar(vm.getName() + ".ismigrated");
-			BoolVar val;
 			switch (cfg.getState(vm)) {
 			case WAITING:
-				val = v.isDifferent(getState(i), v.createIntegerConstant(CoreView.VM_WAITING),
-						"" + vm.getName() + ".isMigrated");
+				vmsIsMigrated[i] = v.createBoolVar(vm.getName() + ".ismigrated", false);
 				break;
 			case RUNNING:
-				val = v.isDifferent(getLocation(i), b.location(cfg.getNodeHost(vm)), "" + vm.getName() + ".isMigrated");
-				break;
 			case EXTERN:
-				val = v.isDifferent(getExtern(i), b.location(cfg.getExternHost(vm)), "" + vm.getName() + ".isMigrated");
+				vmsIsMigrated[i] = v.isDifferent(getVMLocation(i), b.location(cfg.getLocation(vm)),
+						"" + vm.getName() + ".isMigrated");
 				break;
 			default:
 				throw new UnsupportedOperationException("case not supported here " + cfg.getState(vm));
 			}
-			post(ICF.arithm(val, "=", vmsIsMigrated[i]));
 		}
 	}
 
@@ -560,56 +518,56 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		return nbLiveMigrations;
 	}
 
-	BoolVar[] isrunnings = null;
+	BoolVar[] isRunNodes = null;
 
 	@Override
 	public BoolVar isRunNode(int vmindex) {
 		if (vmindex < 0 || vmindex >= c.nbVMs()) {
 			return null;
 		}
-		if (isrunnings == null) {
-			isrunnings = new BoolVar[c.nbVMs()];
+		if (isRunNodes == null) {
+			isRunNodes = new BoolVar[c.nbVMs()];
 		}
-		BoolVar ret = isrunnings[vmindex];
+		BoolVar ret = isRunNodes[vmindex];
 		if (ret == null) {
 			ret = v.isSame(getState(vmindex), CoreView.VM_RUNNODE, "" + vmName(vmindex) + ".isrunning");
-			isrunnings[vmindex] = ret;
+			isRunNodes[vmindex] = ret;
 		}
 		return ret;
 	}
 
-	BoolVar[] isexterneds = null;
+	BoolVar[] isRunExt = null;
 
 	@Override
 	public BoolVar isRunExt(int vmindex) {
 		if (vmindex < 0 || vmindex >= c.nbVMs()) {
 			return null;
 		}
-		if (isexterneds == null) {
-			isexterneds = new BoolVar[c.nbVMs()];
+		if (isRunExt == null) {
+			isRunExt = new BoolVar[c.nbVMs()];
 		}
-		BoolVar ret = isexterneds[vmindex];
+		BoolVar ret = isRunExt[vmindex];
 		if (ret == null) {
 			ret = v.isSame(getState(vmindex), CoreView.VM_RUNEXT, "" + vmName(vmindex) + ".isexterned");
-			isexterneds[vmindex] = ret;
+			isRunExt[vmindex] = ret;
 		}
 		return ret;
 	}
 
-	BoolVar[] iswaitings = null;
+	BoolVar[] isWaitings = null;
 
 	@Override
 	public BoolVar isWaiting(int vmindex) {
 		if (vmindex < 0 || vmindex >= c.nbVMs()) {
 			return null;
 		}
-		if (iswaitings == null) {
-			iswaitings = new BoolVar[c.nbVMs()];
+		if (isWaitings == null) {
+			isWaitings = new BoolVar[c.nbVMs()];
 		}
-		BoolVar ret = iswaitings[vmindex];
+		BoolVar ret = isWaitings[vmindex];
 		if (ret == null) {
 			ret = v.isSame(getState(vmindex), CoreView.VM_WAITING, "" + vmName(vmindex) + ".iswaiting");
-			iswaitings[vmindex] = ret;
+			isWaitings[vmindex] = ret;
 		}
 		return ret;
 	}
@@ -632,25 +590,17 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		});
 		c.getVMs().forEach(v -> {
 			VM vm = ret.addVM(v.getName(), null);
-			// if the VM was already migrating, we keep migrating.
 			VMLocation oldtarget = c.getMigTarget(vm);
 			if (oldtarget != null) {
+				// the VM was already migrating, we keep migrating.
 				ret.setHost(vm, c.getLocation(vm));
 				ret.setMigTarget(vm, oldtarget);
 				return;
-			}
-			VMLocation sourceHost = c.getLocation(v);
-			VMLocation destHost = null;
-			if (getState(vm).isInstantiatedTo(VM_RUNNODE)) {
-				destHost = b.location(getLocation(vm).getValue());
-			} else if (getState(vm).isInstantiatedTo(VM_RUNEXT)) {
-				destHost = b.location(getExtern(vm).getValue());
-			}
-			// else VM is still waiting.
-			if (sourceHost == null) {
-				ret.setHost(vm, destHost);
 			} else {
-				ret.setHost(vm, destHost);
+				if (!getState(vm).isInstantiatedTo(VM_WAITING)) {
+					// the VM is no more waiting : we instantiate in on the location
+					ret.setHost(vm, b.location(getVMLocation(vm).getValue()));
+				}
 			}
 		});
 		c.resources().forEach(ret.resources()::put);

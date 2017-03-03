@@ -227,11 +227,11 @@ public interface CoreView {
 	IntVar[] nbVMsOn();
 
 	/**
-	 * @param n
-	 *            a node of the problem
+	 * @param loation
+	 *          a location of the problem
 	 * @return the set of all VMs hosted on this node in the dest configuration
 	 */
-	public SetVar hosted(VMLocation n);
+	public SetVar getHostedOn(VMLocation location);
 
 	/**
 	 * @param n

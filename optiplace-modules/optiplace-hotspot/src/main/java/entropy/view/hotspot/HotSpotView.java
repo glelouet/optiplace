@@ -98,7 +98,7 @@ public class HotSpotView extends EmptyView {
 	/**
 	 * ensure we have cached all the rear temperatures, then return the cached
 	 * array.
-	 * 
+	 *
 	 * @return the internal array of all the cached rear temperatures.
 	 */
 	public IntVar[] getAllRearTemps() {
@@ -135,7 +135,7 @@ public class HotSpotView extends EmptyView {
 		if (ret == null) {
 			IntVar[] increases = new IntVar[b.nodes().length];
 			for (int i = 0; i < increases.length; i++) {
-				increases[i] = makeRear(b.location(i));
+				increases[i] = makeRear((Node) b.location(i));
 			}
 			ret = v.max(increases);
 			cachedMaxRear = ret;

@@ -1,12 +1,11 @@
-/* Copyright (c) Fabien Hermenier This file is part of Entropy. Entropy is free
- * software: you can redistribute it and/or modify it under the terms of the GNU
- * Lesser General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * Entropy is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details. You should have received a copy of the GNU Lesser General Public
- * License along with Entropy. If not, see <http://www.gnu.org/licenses/>. */
+/*
+ * Copyright (c) Fabien Hermenier This file is part of Entropy. Entropy is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version. Entropy is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of
+ * the GNU Lesser General Public License along with Entropy. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package fr.emn.optiplace.ha.rules;
 
@@ -24,18 +23,15 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
 /**
- * Place a set of nodes/site/extern under quarantine. In this settings, no new
- * VMs can be hosted on those. Hosted VMs can not leave their nodes/extern. The
- * only solution will be to terminate them. TODO: What if these nodes become
+ * Place a set of nodes/site/extern under quarantine. In this settings, no new VMs can be hosted on those. Hosted VMs
+ * can not leave their nodes/extern. The only solution will be to terminate them. TODO: What if these nodes become
  * saturated ? set the VM consumption to 1 on these nodes ?
  *
  * @author Fabien Hermenier
@@ -55,13 +51,7 @@ public class Quarantine implements Rule {
 		return new Quarantine(hosters);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Quarantine parse(String def) {
-			return Quarantine.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Quarantine.parse(def);
 
 	protected Set<String> locations;
 
@@ -78,15 +68,13 @@ public class Quarantine implements Rule {
 		// root for the VMs already hosted on the specified hosts
 		// ban the other VMs
 		IConfiguration cfg = core.getSourceConfiguration();
-		List<Integer> nodeIdx = new ArrayList<>();
+
+		List<Integer> locationIdx = new ArrayList<>();
 		List<Integer> siteIdx = new ArrayList<>();
-		List<Integer> externIdx = new ArrayList<>();
 		for (String name : locations) {
 			ManagedElement e = cfg.getElementByName(name);
-			if (e instanceof Node) {
-				nodeIdx.add(core.b().location((Node) e));
-			} else if (e instanceof Extern) {
-				externIdx.add(core.b().location((Extern) e));
+			if (e instanceof VMLocation) {
+				locationIdx.add(core.b().location((VMLocation) e));
 			} else if (e instanceof Site) {
 				siteIdx.add(core.b().site((Site) e));
 			} else {
@@ -97,20 +85,18 @@ public class Quarantine implements Rule {
 			VMLocation h = cfg.getFutureLocation(vm);
 			Site site = cfg.getSite(h);
 			try {
-				if (h != null && (locations.contains(h.getName()) || site != null && locations.contains(site.getName()))) {
-					core.isMigrated(vm).instantiateTo(0, Cause.Null);
+				if (h != null && locations.contains(h.getName())) {
+					// VM is already on a quarantined location
+					core.getVMLocation(vm).instantiateTo(core.b().location(h), Cause.Null);
+				} else if (site != null && locations.contains(site.getName())) {
+					// VM is already on a quarantined site.
+					core.getVMSite(vm).instantiateTo(core.b().site(site), Cause.Null);
 				} else {
 					int idx = core.b().vm(vm);
-					if (!nodeIdx.isEmpty()) {
-						IntVar nv = core.getLocation(idx);
-						for (int ni : nodeIdx) {
-							nv.removeValue(ni, Cause.Null);
-						}
-					}
-					if (!externIdx.isEmpty()) {
-						IntVar ev = core.getExtern(idx);
-						for (int ei : externIdx) {
-							ev.removeValue(ei, Cause.Null);
+					if (!locationIdx.isEmpty()) {
+						IntVar loc = core.getVMLocation(idx);
+						for (int ni : locationIdx) {
+							loc.removeValue(ni, Cause.Null);
 						}
 					}
 					if (!siteIdx.isEmpty()) {

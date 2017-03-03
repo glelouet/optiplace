@@ -11,7 +11,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.access.CoreView;
 
 
@@ -41,25 +45,25 @@ public class ReconfigurationProblemTest {
 		vm1_0 = src.addVM("vm1_0", n1);
 		vm1_1 = src.addVM("vm1_1", n1);
 		nodes = new Node[] {
-		    n0, n1
+					n0, n1
 		};
 		vms = new VM[] {
-		    vm0_0, vm0_1, vm1_0, vm1_1
+					vm0_0, vm0_1, vm1_0, vm1_1
 		};
 		pb = new ReconfigurationProblem(src);
 	}
 
 	@Test
 	public void checkHosters() throws ContradictionException {
-		pb.getLocation(vm1_0).removeValue(pb.b().location(n0), Cause.Null);
-		pb.getLocation(vm1_1).removeValue(pb.b().location(n0), Cause.Null);
+		pb.getVMLocation(vm1_0).removeValue(pb.b().location(n0), Cause.Null);
+		pb.getVMLocation(vm1_1).removeValue(pb.b().location(n0), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
 	@Test(dependsOnMethods = "checkHosters")
 	public void checkHosted() throws ContradictionException {
-		pb.hosted(n0).removeFromEnvelope(pb.b().vm(vm1_0), Cause.Null);
-		pb.hosted(n0).removeFromEnvelope(pb.b().vm(vm1_1), Cause.Null);
+		pb.getHostedOn(n0).removeFromEnvelope(pb.b().vm(vm1_0), Cause.Null);
+		pb.getHostedOn(n0).removeFromEnvelope(pb.b().vm(vm1_1), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
@@ -72,9 +76,8 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void checkNoWaitingNoExternVMVariables() {
 		for (VM vm : vms) {
-			Assert.assertTrue(pb.getExtern(vm).isInstantiatedTo(-1), "" + vm + " extern is not -1 : " + pb.getExtern(vm));
 			Assert.assertTrue(pb.getState(vm).isInstantiatedTo(CoreView.VM_RUNNODE),
-			    "" + vm + " state is not running : " + pb.getState(vm));
+					"" + vm + " state is not running : " + pb.getState(vm));
 		}
 	}
 
@@ -85,7 +88,7 @@ public class ReconfigurationProblemTest {
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
-		rp.hosted(n).instantiateTo(new int[] {}, Cause.Null);
+		rp.getHostedOn(n).instantiateTo(new int[] {}, Cause.Null);
 		Assert.assertTrue(rp.findSolution());
 	}
 

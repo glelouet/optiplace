@@ -82,7 +82,7 @@ public class ResourceHandler {
 		}
 		nodesCapacities = new int[pb.c().nbNodes()];
 		for (int i = 0; i < pb.c().nbNodes(); i++) {
-			Node n = pb.b().location(i);
+			VMLocation n = pb.b().location(i);
 			int capa = specs.getCapacity(n);
 			nodesCapacities[i] = capa;
 			maxNodeCapa = Math.max(maxNodeCapa, capa);
@@ -93,7 +93,7 @@ public class ResourceHandler {
 		for(VM v : pb.c().getMigratingVMs()) {
 			VMLocation host = pb.c().getLocation(v);
 			if (host instanceof Node) {
-				resourceLoad.addUse(pb.b().location((Node) host), pb.b().vm(v));
+				resourceLoad.addUse(pb.b().location(host), pb.b().vm(v));
 			}
 		}
 	}

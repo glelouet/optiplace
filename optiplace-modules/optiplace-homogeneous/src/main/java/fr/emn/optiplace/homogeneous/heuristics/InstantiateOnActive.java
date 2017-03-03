@@ -39,7 +39,8 @@ public class InstantiateOnActive extends ActivatedHeuristic<IntVar> {
 	 */
 	public InstantiateOnActive(IReconfigurationProblem pb) {
 		super(
-				pb.getSourceConfiguration().getWaitings().map(pb::getLocation).collect(Collectors.toList()).toArray(new IntVar[0]),
+				pb.getSourceConfiguration().getWaitings().map(pb::getVMLocation).collect(Collectors.toList())
+						.toArray(new IntVar[0]),
 				pb.isHosts());
 		isHosters = pb.isHosts();
 		activateds = new boolean[isHosters.length];

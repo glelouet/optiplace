@@ -151,7 +151,7 @@ public class Among implements Rule {
 			groups = Stream
 					.concat(core.getSourceConfiguration().getOnlines(),
 							core.getSourceConfiguration().getExterns()
-							.filter(ext -> core.getSourceConfiguration().isHosterTagged(ext, SUPPORT_TAG)))
+									.filter(ext -> core.getSourceConfiguration().isLocationTagged(ext, SUPPORT_TAG)))
 					.map(n -> Collections.singleton(n.getName()))
 					.collect(Collectors.toSet());
 			System.err.println("deduced group of among is : ");
