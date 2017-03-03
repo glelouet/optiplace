@@ -103,7 +103,7 @@ public class Optiplace extends IOptiplace {
 			}
 			// all the resources should be added now, we pack them using the packing
 			// constraint.
-			for (Constraint c : packer.pack(problem.getNodes(), problem.getUses())) {
+			for (Constraint c : packer.pack(problem.getLocations(), problem.getUses())) {
 				problem.getSolver().post(c);
 			}
 		}
@@ -112,7 +112,7 @@ public class Optiplace extends IOptiplace {
 			for (String resName : problem.knownResources()) {
 				ResourceSpecification spec = problem.getResourceSpecification(resName);
 				for (int externIdx = 0; externIdx < problem.b.externs().length; externIdx++) {
-					Extern e = problem.b.extern(externIdx);
+					Extern e = problem.b.location(externIdx);
 					SetVar vms = problem.externVMs(externIdx);
 					int cap = spec.getCapacity(e);
 					for (int vmIdx = 0; vmIdx < problem.b.vms().length; vmIdx++) {

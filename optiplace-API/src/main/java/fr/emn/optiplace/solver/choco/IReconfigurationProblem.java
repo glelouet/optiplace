@@ -70,11 +70,11 @@ public interface IReconfigurationProblem extends CoreView {
 	/******************** variables linked to resources ***********************/
 
 	default IntVar getNodeUse(String resource, Node n) {
-		return getUse(resource).getNodesLoad()[b().node(n)];
+		return getUse(resource).getNodesLoad()[b().location(n)];
 	}
 
 	default int getNodeCap(String resource, Node n) {
-		return getResourceSpecification(resource).getCapacities()[b().node(n)];
+		return getResourceSpecification(resource).getCapacities()[b().location(n)];
 	}
 
 	default IntVar getUsedCPU(Node n) {
@@ -130,7 +130,7 @@ public interface IReconfigurationProblem extends CoreView {
 		case 1:
 			post(ICF.arithm(var, "=", onRunning != null ? onRunning : onExtern != null ? onExtern : onWaiting));
 			try {
-				state.instantiateTo(onRunning != null ? VM_RUNNING : onExtern != null ? VM_EXTERNED : VM_WAITING, Cause.Null);
+				state.instantiateTo(onRunning != null ? VM_RUNNODE : onExtern != null ? VM_RUNEXT : VM_WAITING, Cause.Null);
 			} catch (ContradictionException e) {
 				throw new UnsupportedOperationException(e);
 			}
@@ -138,10 +138,10 @@ public interface IReconfigurationProblem extends CoreView {
 		case 2:
 			try {
 				if (onRunning == null) {
-					state.removeValue(VM_RUNNING, Cause.Null);
+					state.removeValue(VM_RUNNODE, Cause.Null);
 				}
 				if (onExtern == null) {
-					state.removeValue(VM_EXTERNED, Cause.Null);
+					state.removeValue(VM_RUNEXT, Cause.Null);
 				}
 				if (onWaiting == null) {
 					state.removeValue(VM_WAITING, Cause.Null);

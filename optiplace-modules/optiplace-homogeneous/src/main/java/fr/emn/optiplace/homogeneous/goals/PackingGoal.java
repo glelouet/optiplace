@@ -9,7 +9,7 @@ import org.chocosolver.solver.variables.Variable;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.homogeneous.goals.PackingGoal.ElemWeighter.ResourceWeighter;
 import fr.emn.optiplace.homogeneous.goals.PackingGoal.ElemWeighter.ValueWeighter;
@@ -44,7 +44,7 @@ public class PackingGoal implements SearchGoal {
 
 		int weight(VM vm, IReconfigurationProblem pb);
 
-		int weight(VMHoster n, IReconfigurationProblem pb);
+		int weight(VMLocation n, IReconfigurationProblem pb);
 
 		public ElemWeighter opposite();
 
@@ -63,7 +63,7 @@ public class PackingGoal implements SearchGoal {
 			}
 
 			@Override
-			public int weight(VMHoster n, IReconfigurationProblem pb) {
+			public int weight(VMLocation n, IReconfigurationProblem pb) {
 				return hosterval;
 			}
 
@@ -91,7 +91,7 @@ public class PackingGoal implements SearchGoal {
 			}
 
 			@Override
-			public int weight(VMHoster n, IReconfigurationProblem pb) {
+			public int weight(VMLocation n, IReconfigurationProblem pb) {
 				return res.getCapacity(n);
 			}
 
@@ -108,7 +108,7 @@ public class PackingGoal implements SearchGoal {
 					opposite = new ElemWeighter() {
 
 						@Override
-						public int weight(VMHoster n, IReconfigurationProblem pb) {
+						public int weight(VMLocation n, IReconfigurationProblem pb) {
 							return -ResourceWeighter.this.weight(n, pb);
 						}
 
@@ -191,8 +191,8 @@ public class PackingGoal implements SearchGoal {
 		IntVar[] hosteds = new IntVar[rp.c().nbNodes()];
 		int[] nodeCosts_a = new int[hosteds.length];
 		for (int i = 0; i < hosteds.length; i++) {
-			Node n = rp.b().node(i);
-			hosteds[i] = rp.isHoster(i);
+			Node n = rp.b().location(i);
+			hosteds[i] = rp.isHost(i);
 			nodeCosts_a[i] = getWeighter().weight(n, rp);
 		}
 		// cost of node = 0 if switched off, or its weight if switched on

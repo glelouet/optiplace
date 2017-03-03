@@ -131,7 +131,7 @@ public class LinearPowerModel {
 		IntVar[] uses = new IntVar[resources.length + 1];
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
-		int nodeidx = parent.b.node(n);
+		int nodeidx = parent.b.location(n);
 		for (int i = 0; i < resources.length; i++) {
 			ResourceLoad load = pb.getUse(resources[i]);
 			if (load == null) {

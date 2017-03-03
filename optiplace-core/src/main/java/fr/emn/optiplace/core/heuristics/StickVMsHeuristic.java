@@ -34,8 +34,8 @@ public class StickVMsHeuristic {
 		int[] srcLoc = new int[vms.length];
 		IntVar[] hosters = new IntVar[vms.length];
 		for (int i = 0; i < vms.length; i++) {
-			srcLoc[i] = p.b().node(p.getSourceConfiguration().getNodeHost(vms[i]));
-			hosters[i] = p.getNode(vms[i]);
+			srcLoc[i] = p.b().location(p.getSourceConfiguration().getNodeHost(vms[i]));
+			hosters[i] = p.getLocation(vms[i]);
 		}
 		Var2ValSelector heuristic = new Var2ValSelector(hosters, srcLoc) {
 

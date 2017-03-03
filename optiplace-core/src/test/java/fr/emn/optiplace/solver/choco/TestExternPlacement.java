@@ -37,12 +37,12 @@ public class TestExternPlacement extends SolvingExample {
 		ReconfigurationProblem p = new ReconfigurationProblem(cfg);
 		// p.getSolver().plugMonitor((IMonitorContradiction) cex ->
 		// System.err.println(cex));
-		p.getState(vm1).instantiateTo(CoreView.VM_EXTERNED, Cause.Null);
+		p.getState(vm1).instantiateTo(CoreView.VM_RUNEXT, Cause.Null);
 		p.getState(vm2).removeValue(CoreView.VM_WAITING, Cause.Null);
 
 		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getExtern(vm1).getValue(), p.b().extern(e));
-		Assert.assertEquals(p.getExtern(vm2).getValue(), p.b().extern(e));
+		Assert.assertEquals(p.getExtern(vm1).getValue(), p.b().location(e));
+		Assert.assertEquals(p.getExtern(vm2).getValue(), p.b().location(e));
 	}
 
 }

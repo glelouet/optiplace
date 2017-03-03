@@ -11,7 +11,7 @@ import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
@@ -88,7 +88,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          an hoster
 	 * @return the capacity is set, 0 if not set.
 	 */
-	int getCapacity(VMHoster h);
+	int getCapacity(VMLocation h);
 
 	/**
 	 * @param nodes
@@ -112,7 +112,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @param capacity
 	 *          the capacity value of the hoster
 	 */
-	void capacity(VMHoster h, int capacity);
+	void capacity(VMLocation h, int capacity);
 
 	/**
 	 * set the capacity of an hoster
@@ -123,7 +123,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the hoster capacity value
 	 * @return this
 	 */
-	default ResourceSpecification with(VMHoster h, int capa) {
+	default ResourceSpecification with(VMLocation h, int capa) {
 		capacity(h, capa);
 		return this;
 	}
@@ -160,7 +160,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the vm
 	 * @return true if there is enough resource on n to host vm.
 	 */
-	default boolean canHost(IConfiguration cfg, VMHoster n, VM vm) {
+	default boolean canHost(IConfiguration cfg, VMLocation n, VM vm) {
 		if (n instanceof Node) {
 			return getUse(cfg, (Node) n) + getUse(vm) <= getCapacity(n);
 		} else if (n instanceof Extern) {
@@ -259,7 +259,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the predicate on the hosters capacities
 	 * @return a new stream of the Hosters
 	 */
-	public default Stream<VMHoster> findHosters(IConfiguration c, Predicate<Integer> filter) {
+	public default Stream<VMLocation> findHosters(IConfiguration c, Predicate<Integer> filter) {
 		return c.getHosters(null).filter(h -> filter.test(getCapacity(h)));
 	}
 

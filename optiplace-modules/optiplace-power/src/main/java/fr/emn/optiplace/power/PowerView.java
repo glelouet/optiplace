@@ -127,7 +127,7 @@ public class PowerView extends EmptyView {
 	 *         created ot retrieved if cached.
 	 */
 	public IntVar getPower(Node n) {
-		int nidx = pb.b().node(n);
+		int nidx = pb.b().location(n);
 		if (nidx == -1) {
 			return null;
 		}
@@ -226,7 +226,7 @@ public class PowerView extends EmptyView {
 	protected IntVar makeTotalPower() {
 		IntVar[] pmPower = new IntVar[c.nbNodes()];
 		for (int i = 0; i < pmPower.length; i++) {
-			pmPower[i] = getPower(b.node(i));
+			pmPower[i] = getPower(b.location(i));
 		}
 		IntVar ret = pb.v().createBoundIntVar("dcPower", evalMinVMsCons(), evaluateMaxCons());
 		onNewVar(ret);

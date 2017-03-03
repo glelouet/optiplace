@@ -7,7 +7,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.hostcost.goals.TotalHostCostEvaluator;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.EmptyView;
@@ -61,8 +61,8 @@ public class HostCostView extends EmptyView {
 	public IntVar getNodeCost(int nodeidx) {
 		IntVar ret = nodesCosts[nodeidx];
 		if (ret == null) {
-			Node n = b.node(nodeidx);
-			ret = v.mult(pb.nbVMsOnNode(nodeidx), data.getCost(n, c.getSite(n)));
+			Node n = b.location(nodeidx);
+			ret = v.mult(pb.nbVMsOn(nodeidx), data.getCost(n, c.getSite(n)));
 			nodesCosts[nodeidx] = ret;
 		}
 		return ret;
@@ -71,18 +71,18 @@ public class HostCostView extends EmptyView {
 	public IntVar getExternCost(int externidx) {
 		IntVar ret = externsCosts[externidx];
 		if (ret == null) {
-			Extern e = b.extern(externidx);
+			Extern e = b.location(externidx);
 			ret = v.mult(pb.nbVMsOnExtern(externidx), data.getCost(e, c.getSite(e)));
 			externsCosts[externidx] = ret;
 		}
 		return ret;
 	}
 
-	public IntVar getCost(VMHoster h) {
+	public IntVar getCost(VMLocation h) {
 		if (h instanceof Node) {
-			return getNodeCost(b.node((Node) h));
+			return getNodeCost(b.location((Node) h));
 		} else if (h instanceof Extern) {
-			return getExternCost(b.extern((Extern) h));
+			return getExternCost(b.location((Extern) h));
 		}
 		throw new UnsupportedOperationException("can't handle the class : " + h.getClass());
 	}

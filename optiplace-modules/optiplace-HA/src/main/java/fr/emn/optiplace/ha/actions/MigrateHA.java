@@ -2,11 +2,11 @@ package fr.emn.optiplace.ha.actions;
 
 import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 
 public class MigrateHA extends Migrate {
 
-	public MigrateHA(VM vm, VMHoster from, VMHoster to) {
+	public MigrateHA(VM vm, VMLocation from, VMLocation to) {
 		super(vm, from, to);
 	}
 

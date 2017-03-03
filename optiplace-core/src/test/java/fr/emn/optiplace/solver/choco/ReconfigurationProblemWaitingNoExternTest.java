@@ -57,8 +57,8 @@ public class ReconfigurationProblemWaitingNoExternTest {
 		for (VM vm : vms) {
 			Assert.assertTrue(pb.getExtern(vm).isInstantiatedTo(-1), "" + vm + " extern is not -1 : " + pb.getExtern(vm));
 			Assert.assertTrue(
-			    pb.getState(vm).contains(CoreView.VM_RUNNING) && pb.getState(vm).contains(CoreView.VM_WAITING)
-			        && !pb.getState(vm).contains(CoreView.VM_EXTERNED),
+			    pb.getState(vm).contains(CoreView.VM_RUNNODE) && pb.getState(vm).contains(CoreView.VM_WAITING)
+			        && !pb.getState(vm).contains(CoreView.VM_RUNEXT),
 			    "" + vm + " state is not running|waiting : " + pb.getState(vm));
 		}
 	}
@@ -76,17 +76,17 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	public void testStatePropagation() {
 		try {
 			// System.err.println("instantiating " + pb.getHost(vm0) + " to -1");
-			pb.getNode(vm0).instantiateTo(-1, Cause.Null);
+			pb.getLocation(vm0).instantiateTo(-1, Cause.Null);
 			// System.err.println("instantiating " + pb.getHost(vm1) + " to " +
-			// pb.node(n0));
-			pb.getNode(vm1).instantiateTo(pb.b().node(n0), Cause.Null);
+			// pb.location(n0));
+			pb.getLocation(vm1).instantiateTo(pb.b().location(n0), Cause.Null);
 			pb.getState(vm2).instantiateTo(CoreView.VM_WAITING, Cause.Null);
 			pb.propagate();
 			Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_WAITING),
 			    "" + pb.getState(vm0) + " should be " + CoreView.VM_WAITING);
-			Assert.assertTrue(pb.getState(vm1).isInstantiatedTo(CoreView.VM_RUNNING),
-			    "" + pb.getState(vm1) + " should be " + CoreView.VM_RUNNING);
-			Assert.assertTrue(pb.getNode(vm2).isInstantiatedTo(-1), "" + pb.getNode(vm2) + " should be -1");
+			Assert.assertTrue(pb.getState(vm1).isInstantiatedTo(CoreView.VM_RUNNODE),
+			    "" + pb.getState(vm1) + " should be " + CoreView.VM_RUNNODE);
+			Assert.assertTrue(pb.getLocation(vm2).isInstantiatedTo(-1), "" + pb.getLocation(vm2) + " should be -1");
 		}
 		catch (ContradictionException e) {
 			e.printStackTrace(System.err);

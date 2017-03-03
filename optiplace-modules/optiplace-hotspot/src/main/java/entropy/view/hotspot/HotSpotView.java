@@ -83,7 +83,7 @@ public class HotSpotView extends EmptyView {
 	 *         created ot retrieved if cached.
 	 */
 	public IntVar getRearTemp(Node n) {
-		int nidx = b.node(n);
+		int nidx = b.location(n);
 		if (nidx == -1) {
 			return null;
 		}
@@ -135,7 +135,7 @@ public class HotSpotView extends EmptyView {
 		if (ret == null) {
 			IntVar[] increases = new IntVar[b.nodes().length];
 			for (int i = 0; i < increases.length; i++) {
-				increases[i] = makeRear(b.node(i));
+				increases[i] = makeRear(b.location(i));
 			}
 			ret = v.max(increases);
 			cachedMaxRear = ret;

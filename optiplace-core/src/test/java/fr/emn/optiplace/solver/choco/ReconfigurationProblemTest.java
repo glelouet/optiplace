@@ -29,7 +29,7 @@ public class ReconfigurationProblemTest {
 
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);
 		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_RUNNING);
+		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_RUNNODE);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class ReconfigurationProblemTest {
 		// p.getSolver().plugMonitor((IMonitorContradiction) cex ->
 		// System.err.println(cex));
 		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_EXTERNED);
+		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_RUNEXT);
 	}
 
 }

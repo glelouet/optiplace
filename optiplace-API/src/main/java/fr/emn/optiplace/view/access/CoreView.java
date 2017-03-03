@@ -9,10 +9,10 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.Bridge;
@@ -56,15 +56,15 @@ public interface CoreView {
 	///////////////////////////////////////////////////
 	// state of the VM, and corresponding location
 
-	public static final int VM_RUNNING = 0, VM_EXTERNED = 1, VM_WAITING = 2;
+	public static final int VM_RUNNODE = 0, VM_RUNEXT = 1, VM_WAITING = 2;
 
 	/**
 	 *
 	 * @param vmindex
 	 *          a VM of the source problem
-	 * @return a Variable constrained to 0: VM is hosted, 1:VM is externed, 2: VM
-	 *         is waiting {@link #VM_EXTERNED}{@link #VM_RUNNING}
-	 *         {@link #VM_WAITING}
+	 * @return a Variable constrained to 0: VM is running on a node, 1:VM is
+	 *         running on an extern, 2: VM is waiting
+	 *         {@link #VM_RUNEXT}{@link #VM_RUNNODE} {@link #VM_WAITING}
 	 */
 	public IntVar getState(int vmindex);
 
@@ -76,59 +76,12 @@ public interface CoreView {
 	}
 
 	/**
-	 * get the host variable of the specified vm
-	 *
-	 * @param vmindex
-	 *          the index of the vm in the
-	 * @return the intvar constrained to the Node index hosting the VM, or -1 if
-	 *         vm not running.
-	 */
-	public IntVar getNode(int vmindex);
-
-	/**
-	 * shortcut for {@link #getNode(int) getHost(vm(vm))}
-	 */
-	public default IntVar getNode(VM vm) {
-		return getNode(b().vm(vm));
-	}
-
-	/**
-	 * @return the internal array of IntVar, each corresponding to the hoster of
-	 *         the vm at this indexif this vm is in state {@link #VM_RUNNING}.
-	 *         eg hosts()[5] correspond to host(vm(5))
-	 */
-	public IntVar[] getNodes();
-
-	/**
-	 * @param vmindex
-	 *          the index of a vm
-	 * @return the variable constrained to the index of the extern hosting this VM
-	 *         if the VM state is {@link #VM_EXTERNED}
-	 */
-	public IntVar getExtern(int vmindex);
-
-	/**
-	 * shortcut to {@link #getExtern(int) getExtern(vm(vm))}
-	 */
-	public default IntVar getExtern(VM vm) {
-		return getExtern(b().vm(vm));
-	}
-
-	/**
-	 * get the array of extern position.
-	 * 
-	 * @return the internal array of extern position, where ret[i] =
-	 *         getExtern(vm(i))
-	 */
-	public IntVar[] getExterns();
-
-	/**
 	 *
 	 * @param vm
 	 *            a virtual machine of the problem
 	 * @return the site index of the node hosting this VM
 	 */
-	public default IntVar getSite(VM vm) {
+	public default IntVar getVMSite(VM vm) {
 		return getVMSite(b().vm(vm));
 	}
 
@@ -142,16 +95,33 @@ public interface CoreView {
 	 *         the VM is executed on the node n, extern(e)+nodes.length if the
 	 *         extern e is executing the vm.
 	 */
-	public default IntVar getHoster(VM vm) {
-		return getHoster(b().vm(vm));
+	public default IntVar getVMLocation(VM vm) {
+		return getVMLocation(b().vm(vm));
 	}
 
-	public IntVar getHoster(int vmidx);
+	/**
+	 * get the Variable constrained to the location of a VM index
+	 *
+	 * @param vmidx
+	 *          the index of a VM.
+	 * @return null if unknown VM, the variable constrained to the location of the
+	 *         VM otherwise
+	 */
+	public IntVar getVMLocation(int vmidx);
+
+	/**
+	 * get the variables constrained to all VM locations
+	 *
+	 * @return the internal array of VM location variables, so that ret[i] is
+	 *         constrained to the location of the VM i
+	 */
+	public IntVar[] getVMLocations();
 
 	/**
 	 * @param vm
-	 *            a vm of the problem
-	 * @return true if the vm change host from source to target
+	 *          a vm of the problem
+	 * @return a variable constrained to true if the vm change location from
+	 *         source to target
 	 */
 	public BoolVar isMigrated(VM vm);
 
@@ -170,14 +140,14 @@ public interface CoreView {
 	public IntVar nbMigrations();
 
 	/**
-	 * is the VM running in dest config ?
+	 * is the VM running on a Node in dest config ?
 	 *
 	 * @param vmindex
 	 *          the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
-	 *         running
+	 *         running on node
 	 */
-	public BoolVar isRunning(int vmindex);
+	public BoolVar isRunNode(int vmindex);
 
 	/**
 	 * is the VM running in dest config ?
@@ -185,10 +155,10 @@ public interface CoreView {
 	 * @param vm
 	 *          the vm the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
-	 *         running
+	 *         running on Node
 	 */
-	public default BoolVar isRunning(VM vm) {
-		return isRunning(b().vm(vm));
+	public default BoolVar isRunNode(VM vm) {
+		return isRunNode(b().vm(vm));
 	}
 
 	/**
@@ -197,9 +167,9 @@ public interface CoreView {
 	 * @param vmindex
 	 *          the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
-	 *         externed
+	 *         running on extern
 	 */
-	public BoolVar isExterned(int vmindex);
+	public BoolVar isRunExt(int vmindex);
 
 	/**
 	 * is the VM externed in dest config ?
@@ -207,10 +177,10 @@ public interface CoreView {
 	 * @param vm
 	 *          the vm the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
-	 *         externed
+	 *         running on extern
 	 */
-	public default BoolVar isExterned(VM vm) {
-		return isExterned(b().vm(vm));
+	public default BoolVar isRunExt(VM vm) {
+		return isRunExt(b().vm(vm));
 	}
 
 	/**
@@ -239,57 +209,52 @@ public interface CoreView {
 	// Node hosting of VM
 
 	/**
-	 * @param n
-	 *            a node of the problem
+	 * @param location
+	 *          a location of the problem
 	 * @return the number of vms hosted on this node
 	 */
-	public IntVar nbVMs(Node n);
+	public default IntVar nbVMsOn(VMLocation location) {
+		return nbVMsOn(b().location(location));
+	}
 
-	public IntVar nbVMsOnNode(int nodeIdx);
+	public IntVar nbVMsOn(int locIdx);
 
 	/**
-	 * get the table {@link #nbVMs(Node)} , indexed by the nodes index (
-	 * {@link #getNode(int)} )
+	 * get the table of number of VM running on every location index
 	 *
 	 * @return
 	 */
-	IntVar[] nbVMsNodes();
+	IntVar[] nbVMsOn();
 
 	/**
 	 * @param n
 	 *            a node of the problem
 	 * @return the set of all VMs hosted on this node in the dest configuration
 	 */
-	public SetVar hosted(Node n);
-
-	SetVar hosted(Extern e);
-
-	public IntVar nbVMs(Extern e);
-
-	public IntVar nbVMsOnExtern(int externIdx);
+	public SetVar hosted(VMLocation n);
 
 	/**
 	 * @param n
 	 *            a node of the problem
 	 * @return the boolean presence of a vm to host on the node
 	 */
-	public default BoolVar isHoster(Node n) {
-		return isHoster(b().node(n));
+	public default BoolVar isHost(VMLocation n) {
+		return isHost(b().location(n));
 	}
 
-	public BoolVar isHoster(int idx);
+	public BoolVar isHost(int locIdx);
 
 	/**
 	 *
 	 * @return The array of {@link BoolVar} bv, so that bv[i] is constrained to
-	 *         true when {@link #nodes()}[i] has at least one VM
+	 *         true when {@link #locations()}[i] has at least one VM
 	 */
-	public BoolVar[] isHosters();
+	public BoolVar[] isHosts();
 
 	/**
-	 * @return a Variable constrained to the number of Nodes running VMs
+	 * @return a Variable constrained to the number of locations running VMs
 	 */
-	public IntVar nbHosters();
+	public IntVar nbHosts();
 
 	/**
 	 * get the variable representing the power state of a node in the resulting

@@ -110,7 +110,7 @@ public class Lazy implements Rule {
 		ResourceLoad uses = core.getUse(spec.getType());
 		for (Node n : nodes) {
 			int capa = spec.getCapacity(n) * maxPCLoad / 100;
-			IntVar use = uses.getNodesLoad()[core.b().node(n)];
+			IntVar use = uses.getNodesLoad()[core.b().location(n)];
 			core.getSolver().post(ICF.arithm(use, "<=", capa));
 		}
 	}

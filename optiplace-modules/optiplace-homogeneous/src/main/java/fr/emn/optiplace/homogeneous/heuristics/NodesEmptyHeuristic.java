@@ -74,7 +74,7 @@ public class NodesEmptyHeuristic extends IntStrategy {
 	protected ElemWeighter weight = null;
 
 	protected NodesEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight, DecisionOperator<IntVar> dec) {
-		this(makeSelector(rp, weight), rp.nbVMsNodes(), dec);
+		this(makeSelector(rp, weight), rp.nbVMsOn(), dec);
 		this.weight = weight;
 	}
 
@@ -109,7 +109,7 @@ public class NodesEmptyHeuristic extends IntStrategy {
 		for (int i = 0; i < nodes.length; i++) {
 			Node n = nodes[i];
 			int weight = rp.getSourceConfiguration().getHosted(n).mapToInt(v -> weighter.weight(v, rp)).sum();
-			maxNodeCost[i] = new IntVarRanked(rp.nbVMs(n), weight);
+			maxNodeCost[i] = new IntVarRanked(rp.nbVMsOn(n), weight);
 		}
 		Arrays.sort(maxNodeCost);
 		for (int i = 1; i < maxNodeCost.length; i++) {

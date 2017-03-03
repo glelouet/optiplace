@@ -7,7 +7,7 @@ package fr.emn.optiplace.actions;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 
@@ -26,15 +26,15 @@ public class Migrate implements Action {
 	}
 
 	VM vm;
-	VMHoster from;
-	VMHoster to;
+	VMLocation from;
+	VMLocation to;
 
 	/**
 	 * @param vm
 	 * @param from
 	 * @param to
 	 */
-	public Migrate(VM vm, VMHoster from, VMHoster to) {
+	public Migrate(VM vm, VMLocation from, VMLocation to) {
 		super();
 		this.vm = vm;
 		this.from = from;
@@ -45,11 +45,11 @@ public class Migrate implements Action {
 		return vm;
 	}
 
-	public VMHoster getFrom() {
+	public VMLocation getFrom() {
 		return from;
 	}
 
-	public VMHoster getTo() {
+	public VMLocation getTo() {
 		return to;
 	}
 

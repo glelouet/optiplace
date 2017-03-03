@@ -58,10 +58,10 @@ public class Configuration implements IConfiguration {
 	private final HashMap<String, ManagedElement> nameToElement = new HashMap<>();
 
 	/** VM to the host/extern it is hosted on. */
-	private final Map<VM, VMHoster> vmHoster = new LinkedHashMap<>();
+	private final Map<VM, VMLocation> vmHoster = new LinkedHashMap<>();
 
 	/** VM to the target is is migrating to. */
-	private final Map<VM, VMHoster> vmMigration = new LinkedHashMap<>();
+	private final Map<VM, VMLocation> vmMigration = new LinkedHashMap<>();
 
 	protected LinkedHashMap<String, ResourceSpecification> resources = new LinkedHashMap<>();
 
@@ -193,7 +193,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean setHost(VM vm, VMHoster hoster) {
+	public boolean setHost(VM vm, VMLocation hoster) {
 		if (vm == null || hoster != null && hoster.equals(vmHoster.get(vm))) {
 			return false;
 		}
@@ -222,7 +222,7 @@ public class Configuration implements IConfiguration {
 		if (isWaiting(vm)) {
 			return false;
 		}
-		VMHoster hoster = vmHoster.remove(vm);
+		VMLocation hoster = vmHoster.remove(vm);
 		if (hoster != null) {
 			if (hoster instanceof Node) {
 				nodesVM.get(hoster).remove(vm);
@@ -239,8 +239,8 @@ public class Configuration implements IConfiguration {
 	 *
 	 */
 	@Override
-	public VMHoster getMigTarget(VM v) {
-		VMHoster ret = vmMigration.get(v);
+	public VMLocation getMigTarget(VM v) {
+		VMLocation ret = vmMigration.get(v);
 		if (ret == getLocation(v)) {
 			ret = null;
 		}
@@ -253,7 +253,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public void setMigTarget(VM vm, VMHoster h) {
+	public void setMigTarget(VM vm, VMLocation h) {
 		if (vm == null || !vmHoster.containsKey(vm)) {
 			return;
 		}
@@ -265,7 +265,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public VM addVM(String vmName, VMHoster host, int... resources) {
+	public VM addVM(String vmName, VMLocation host, int... resources) {
 		if (vmName == null) {
 			return null;
 		}
@@ -406,7 +406,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<VM> getHosted(VMHoster n) {
+	public Stream<VM> getHosted(VMLocation n) {
 		Set<VM> s = nodesVM.get(n);
 		if (s == null) {
 			s = externVM.get(n);
@@ -415,7 +415,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public VMHoster getLocation(VM vm) {
+	public VMLocation getLocation(VM vm) {
 		return vmHoster.get(vm);
 	}
 
@@ -425,23 +425,23 @@ public class Configuration implements IConfiguration {
 				.map(Entry<Node, Set<VM>>::getKey);
 	}
 
-	LinkedHashMap<Site, Set<VMHoster>> sitesToHosters = new LinkedHashMap<>();
+	LinkedHashMap<Site, Set<VMLocation>> sitesToHosters = new LinkedHashMap<>();
 
-	protected void removeHostersFromSites(Collection<VMHoster> c) {
-		for (Set<VMHoster> set : sitesToHosters.values()) {
+	protected void removeHostersFromSites(Collection<VMLocation> c) {
+		for (Set<VMLocation> set : sitesToHosters.values()) {
 			set.removeAll(c);
 		}
 	}
 
 	@Override
-	public Site addSite(String siteName, VMHoster... hosters) {
-		List<VMHoster> l = hosters == null ? Collections.emptyList() : Arrays.asList(hosters);
+	public Site addSite(String siteName, VMLocation... hosters) {
+		List<VMLocation> l = hosters == null ? Collections.emptyList() : Arrays.asList(hosters);
 		removeHostersFromSites(l);
 		if (siteName == null) {
 			return null;
 		}
 		Site ret;
-		Set<VMHoster> set = null;
+		Set<VMLocation> set = null;
 		try {
 			ret = getElementByName(siteName, Site.class);
 			if (ret == null) {
@@ -465,11 +465,11 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Site getSite(VMHoster h) {
+	public Site getSite(VMLocation h) {
 		if (h == null) {
 			return null;
 		}
-		for (Entry<Site, Set<VMHoster>> e : sitesToHosters.entrySet()) {
+		for (Entry<Site, Set<VMLocation>> e : sitesToHosters.entrySet()) {
 			if (e.getValue().contains(h)) {
 				return e.getKey();
 			}
@@ -504,11 +504,11 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<VMHoster> getHosters(Site site) {
+	public Stream<VMLocation> getHosters(Site site) {
 		if (site == null) {
 			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}
-		Set<VMHoster> set = sitesToHosters.get(site);
+		Set<VMLocation> set = sitesToHosters.get(site);
 		if (set == null) {
 			return Stream.empty();
 		}

@@ -49,7 +49,7 @@ public class MultiLinearConsHeuristic {
 			for (int j = 0; j < nodes.length; j++) {
 				Node n = nodes[j];
 				// vm i, node j
-				if (rp.getNode(vm).contains(j)) {
+				if (rp.getLocation(vm).contains(j)) {
 					double eff = cons.getPowerData().get(n).getBestEfficiency(rp.c().resources(), n, vm);
 					if (eff > maxVMEff[i]) {
 						maxVMEff[i] = eff;

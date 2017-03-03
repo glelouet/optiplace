@@ -63,7 +63,7 @@ public class Near implements Rule {
 		ArrayList<IntVar> vmSites = new ArrayList<>();
 		for (VM v : vms) {
 			if (core.getSourceConfiguration().hasVM(v)) {
-				vmSites.add(core.getSite(v));
+				vmSites.add(core.getVMSite(v));
 			}
 		}
 		for (int i = 1; i < vmSites.size(); i++) {

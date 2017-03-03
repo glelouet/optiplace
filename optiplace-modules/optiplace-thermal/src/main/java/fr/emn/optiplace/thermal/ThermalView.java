@@ -64,7 +64,7 @@ public class ThermalView extends EmptyView {
 			}
 			// T°in (j) = Tmax(j)-impact(j)=-(impact(j)-Tmax(j))
 			cachedNodeThermostats[j] = pb.v().minus(
-					pb.v().plus(pb.v().scalar(powers, weights, granularity), -(int) data.getMaxTemp(pb.b().node(j).getName())));
+					pb.v().plus(pb.v().scalar(powers, weights, granularity), -(int) data.getMaxTemp(pb.b().location(j).getName())));
 		}
 	}
 

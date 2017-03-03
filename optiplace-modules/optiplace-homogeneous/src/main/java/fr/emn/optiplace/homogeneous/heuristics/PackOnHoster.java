@@ -38,13 +38,13 @@ public class PackOnHoster extends ActivatedHeuristic<IntVar> {
 	 * @param observed
 	 */
 	public PackOnHoster(IReconfigurationProblem rp) {
-		super(rp.getNodes(), rp.isHosters());
-		nbVMs = rp.nbVMsNodes();
+		super(rp.getLocations(), rp.isHosts());
+		nbVMs = rp.nbVMsOn();
 		activateds = new boolean[nbVMs.length];
 		Arrays.fill(activateds, false);
 		vmsToHost = new IntVar[nbVMs.length][];
 		for (int i = 0; i < nbVMs.length; i++) {
-			vmsToHost[i] = rp.getSourceConfiguration().getHosted(rp.b().node(i)).map(rp::getNode).collect(Collectors.toList())
+			vmsToHost[i] = rp.getSourceConfiguration().getHosted(rp.b().location(i)).map(rp::getLocation).collect(Collectors.toList())
 					.toArray(new IntVar[0]);
 		}
 	}

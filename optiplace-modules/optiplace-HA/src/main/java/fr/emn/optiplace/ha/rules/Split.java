@@ -27,7 +27,7 @@ import org.chocosolver.solver.variables.SetVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -125,7 +125,7 @@ public class Split implements Rule {
 	 */
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		Set<VMHoster> nodes1, nodes2;
+		Set<VMLocation> nodes1, nodes2;
 		nodes1 = getStream1(cfg).map(cfg::getFutureLocation).collect(Collectors.toSet());
 		nodes2 = getStream2(cfg).map(cfg::getFutureLocation).collect(Collectors.toSet());
 		nodes1.retainAll(nodes2);
@@ -140,12 +140,12 @@ public class Split implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		SetVar minusOneSet = core.v().createEnumSetVar("{-1}", -1);
-		List<IntVar> l1 = getStream1(core.getSourceConfiguration()).map(core::getHoster).collect(Collectors.toList());
+		List<IntVar> l1 = getStream1(core.getSourceConfiguration()).map(core::getVMLocation).collect(Collectors.toList());
 		SetVar s1 = core.v().toSet(l1.toArray(new IntVar[] {}));
 		// s1b = s1 \ {-1}
 		SetVar s1b = s1.duplicate();
 		core.post(SetConstraintsFactory.partition(new SetVar[] { minusOneSet, s1b }, s1));
-		List<IntVar> l2 = getStream2(core.getSourceConfiguration()).map(core::getHoster).collect(Collectors.toList());
+		List<IntVar> l2 = getStream2(core.getSourceConfiguration()).map(core::getVMLocation).collect(Collectors.toList());
 		SetVar s2 = core.v().toSet(l2.toArray(new IntVar[] {}));
 		// s2b = s2 \ {-1}
 		SetVar s2b = s2.duplicate();

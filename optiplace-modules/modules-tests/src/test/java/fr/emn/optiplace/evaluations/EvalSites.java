@@ -12,7 +12,7 @@ import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.ha.rules.Far;
 import fr.emn.optiplace.ha.rules.Near;
@@ -26,6 +26,10 @@ public class EvalSites {
 	///////////////////////////////////////////////////////////////
 	// Eval parameters
 
+	/**
+	 * we redo the same benches this number of times
+	 */
+	static int nbiterations = 2;
 	/**
 	 * number of physical nodes in the local site.
 	 *
@@ -53,7 +57,7 @@ public class EvalSites {
 	/**
 	 * maximum size of the problem, with regard to memory constraints
 	 */
-	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem);
+	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem) / 2;
 
 	///////////////////////////////////////////////////////////////////
 
@@ -99,7 +103,7 @@ public class EvalSites {
 				ha.addRule(new Spread(vms[0], vms[1]));
 			}
 			vms[2] = src.addVM("webservice_" + clusteri, null, webserviceMem);
-			ha.addRule(new SiteOn(src.addSite("local", (VMHoster[]) null), vms[0], vms[1], vms[2]));
+			ha.addRule(new SiteOn(src.addSite("local", (VMLocation[]) null), vms[0], vms[1], vms[2]));
 			for (int i = 0; i < 3; i++) {
 				vms[3 + i * 2] = src.addVM("ftp_" + clusteri + "_" + i + "a", null, ftpMem);
 				vms[3 + i * 2 + 1] = src.addVM("ftp_" + clusteri + "_" + i + "b", null, ftpMem);
@@ -184,12 +188,10 @@ public class EvalSites {
 		@SuppressWarnings("unchecked")
 		List<DeducedTarget>[] evals = new List[maxSize];
 		Arrays.setAll(evals, i -> new ArrayList<>());
-		// we redo the same benches 33 times
-		int nbiterations = 33;
 
 		for (int iteration = 0; iteration < nbiterations; iteration++) {
 			for (int size = 1; size <= maxSize; size++) {
-				Optiplace opl = makeProblem(size, true, false, true, false);
+				Optiplace opl = makeProblem(size, false, true, false, false);
 				DeducedTarget res = opl.solve();
 				if (res.getDestination() != null) {
 					evals[size - 1].add(res);

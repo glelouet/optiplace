@@ -28,7 +28,7 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -84,9 +84,9 @@ public class Quarantine implements Rule {
 		for (String name : locations) {
 			ManagedElement e = cfg.getElementByName(name);
 			if (e instanceof Node) {
-				nodeIdx.add(core.b().node((Node) e));
+				nodeIdx.add(core.b().location((Node) e));
 			} else if (e instanceof Extern) {
-				externIdx.add(core.b().extern((Extern) e));
+				externIdx.add(core.b().location((Extern) e));
 			} else if (e instanceof Site) {
 				siteIdx.add(core.b().site((Site) e));
 			} else {
@@ -94,7 +94,7 @@ public class Quarantine implements Rule {
 			}
 		}
 		cfg.getVMs().forEach(vm -> {
-			VMHoster h = cfg.getFutureLocation(vm);
+			VMLocation h = cfg.getFutureLocation(vm);
 			Site site = cfg.getSite(h);
 			try {
 				if (h != null && (locations.contains(h.getName()) || site != null && locations.contains(site.getName()))) {
@@ -102,7 +102,7 @@ public class Quarantine implements Rule {
 				} else {
 					int idx = core.b().vm(vm);
 					if (!nodeIdx.isEmpty()) {
-						IntVar nv = core.getNode(idx);
+						IntVar nv = core.getLocation(idx);
 						for (int ni : nodeIdx) {
 							nv.removeValue(ni, Cause.Null);
 						}

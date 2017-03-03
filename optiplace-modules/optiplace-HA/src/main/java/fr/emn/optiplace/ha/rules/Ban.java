@@ -134,7 +134,7 @@ public class Ban implements Rule {
 
 		for (VM vm : vms) {
 			if (core.getSourceConfiguration().hasVM(vm)) {
-				IntVar node = core.getNode(core.b().vm(vm));
+				IntVar node = core.getLocation(core.b().vm(vm));
 				IntVar extern = core.getExtern(core.b().vm(vm));
 				try {
 					for (int i : nodesidx) {

@@ -27,7 +27,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -80,9 +80,9 @@ public class Spread implements Rule {
 	 */
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		Set<VMHoster> hosters = new HashSet<>();
+		Set<VMLocation> hosters = new HashSet<>();
 		for (VM vm : vms) {
-			VMHoster h = cfg.getFutureLocation(vm);
+			VMLocation h = cfg.getFutureLocation(vm);
 			if (h != null) {
 				if (!hosters.add(h)) {
 					return false;
@@ -106,7 +106,7 @@ public class Spread implements Rule {
 
 		// Get only the future running VMS
 		IConfiguration cfg = core.getSourceConfiguration();
-		List<IntVar> nodeHosts = vms.stream().filter(cfg::hasVM).map(core::getNode).collect(Collectors.toList());
+		List<IntVar> nodeHosts = vms.stream().filter(cfg::hasVM).map(core::getLocation).collect(Collectors.toList());
 		List<IntVar> extHosts = vms.stream().filter(cfg::hasVM).map(core::getExtern).collect(Collectors.toList());
 		if (nodeHosts.isEmpty() && extHosts.isEmpty()) {
 			logger.debug(this + " is entailed. No VMs are running");
@@ -118,7 +118,7 @@ public class Spread implements Rule {
 			}
 			if (!extHosts.isEmpty()) {
 				int[] withSupportTags = IntStream.concat(IntStream.of(-1),
-						cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().extern(e))).toArray();
+						cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().location(e))).toArray();
 				Condition noNegAndNoSupport = a -> {
 					for (int i : withSupportTags) {
 						if(a.contains(i)) {

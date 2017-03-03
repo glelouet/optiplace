@@ -28,7 +28,7 @@ import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -158,13 +158,13 @@ public class Among implements Rule {
 		}
 		// Get the nodes of the VMs
 		IConfiguration cfg = core.getSourceConfiguration();
-		List<IntVar> hostersl = vms.stream().filter(cfg::hasVM).map(core::getHoster).collect(Collectors.toList());
+		List<IntVar> hostersl = vms.stream().filter(cfg::hasVM).map(core::getVMLocation).collect(Collectors.toList());
 		// we transform them to a SetVar
 		SetVar hosters = core.v().toSet(hostersl.toArray(new IntVar[] {}));
 		SetVar[] possibleLocations = new SetVar[groups.size()];
 		int i = 0;
 		for (Set<String> s : groups) {
-			List<Integer> l = s.stream().map(n -> core.b().vmHoster((VMHoster) cfg.getElementByName(n)))
+			List<Integer> l = s.stream().map(n -> core.b().location((VMLocation) cfg.getElementByName(n)))
 					.collect(Collectors.toList());
 			int[] env = new int[l.size()];
 			for (int j = 0; j < l.size(); j++) {
@@ -185,7 +185,7 @@ public class Among implements Rule {
 	 */
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		Set<String> locations = vms.stream().filter(cfg::isRunning).map(cfg::getLocation).map(VMHoster::getName)
+		Set<String> locations = vms.stream().filter(cfg::isRunning).map(cfg::getLocation).map(VMLocation::getName)
 				.collect(Collectors.toSet());
 		if (groups.isEmpty() && locations.size() != vms.stream().filter(cfg::isRunning).count()) {
 			return false;

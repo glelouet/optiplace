@@ -39,7 +39,7 @@ public class DistanceView extends EmptyView {
 		super.associate(rp);
 		String[] hosterNames = new String[rp.b().nbHosters()];
 		for (int i = 0; i < hosterNames.length; i++) {
-			hosterNames[i] = rp.b().vmHoster(i).getName();
+			hosterNames[i] = rp.b().location(i).getName();
 		}
 		int[][] distances = data.makeDistancesTable(hosterNames);
 		int[] flatDistances = new int[distances.length * distances.length];
@@ -52,13 +52,13 @@ public class DistanceView extends EmptyView {
 			Set<VM> vms = s.collect(Collectors.toSet());
 
 			for (VM from : vms) {
-				IntVar posFrom = pb.getHoster(from);
+				IntVar posFrom = pb.getVMLocation(from);
 				IntVar posFromMult = pb.v().mult(posFrom, distances.length);
 				for (VM to : vms) {
 					if (from == to || from.getName().compareTo(to.getName()) < 1) {
 						continue;
 					}
-					IntVar posTo = pb.getHoster(to);
+					IntVar posTo = pb.getVMLocation(to);
 					IntVar coupleDistance = pb.v().createBoundIntVar("distance_" + from + "-" + to, 0, limit);
 					pb.h().nth(pb.v().plus(posTo, posFromMult), flatDistances, coupleDistance);
 				}

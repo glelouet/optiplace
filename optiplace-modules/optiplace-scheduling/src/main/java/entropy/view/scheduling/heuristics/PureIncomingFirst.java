@@ -96,8 +96,8 @@ public class PureIncomingFirst extends AbstractIntVarSelector {
 				if (n == null) {
 					oldPos[i] = -1;
 				} else {
-					oldPos[i] = pb.node(n);
-					outs[pb.node(n)].set(i); // VM i was on node n
+					oldPos[i] = pb.location(n);
+					outs[pb.location(n)].set(i); // VM i was on node n
 				}
 			}
 		}

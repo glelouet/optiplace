@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.network.data.Link;
 import fr.emn.optiplace.network.data.Router;
@@ -306,7 +306,7 @@ public class NetworkData implements ProvidedDataReader {
 		return link;
 	}
 
-	public Link addLink(VMHoster h1, VMHoster h2, int capa) {
+	public Link addLink(VMLocation h1, VMLocation h2, int capa) {
 		if (h2 == null | h1 == null) {
 			return null;
 		}
@@ -387,7 +387,7 @@ public class NetworkData implements ProvidedDataReader {
 		return ret;
 	}
 
-	public Link setLink(VMHoster h1, VMHoster h2, int capa) {
+	public Link setLink(VMLocation h1, VMLocation h2, int capa) {
 		if (h2 == null | h1 == null) {
 			return null;
 		}
@@ -419,7 +419,7 @@ public class NetworkData implements ProvidedDataReader {
 		return findPath(from, to, new HashSet<>(Arrays.asList(from)));
 	}
 
-	public List<Link> findPath(VMHoster fromhost, VMHoster tohost) {
+	public List<Link> findPath(VMLocation fromhost, VMLocation tohost) {
 		if (fromhost == null || tohost == null) {
 			return null;
 		}
@@ -529,11 +529,11 @@ public class NetworkData implements ProvidedDataReader {
 			hoster2hoster2links = new int[b.nbHosters()][b.nbHosters()][];
 			// first lower left diag : i<j
 			for (int i = 0; i < b.nbHosters(); i++) {
-				VMHoster from = b.vmHoster(i);
+				VMLocation from = b.location(i);
 				if (hoster2links.containsKey(from.getName())) {
 					hoster2hoster2links[i] = new int[b.nbHosters()][];
 					for (int j = 0; j < i; j++) {
-						VMHoster to = b.vmHoster(j);
+						VMLocation to = b.location(j);
 						if (hoster2links.containsKey(to.getName())) {
 							List<Integer> l = findPath(from.getName(), to.getName()).stream().map(this::addLink)
 									.collect(Collectors.toList());
@@ -602,8 +602,8 @@ public class NetworkData implements ProvidedDataReader {
 		 * get the indexes of the links required to go from one hoster to another
 		 * link to {@link #links(int, int)}
 		 */
-		public int[] links(VMHoster h1, VMHoster h2) {
-			return links(b.vmHoster(h1), b.vmHoster(h2));
+		public int[] links(VMLocation h1, VMLocation h2) {
+			return links(b.location(h1), b.location(h2));
 		}
 
 		/**

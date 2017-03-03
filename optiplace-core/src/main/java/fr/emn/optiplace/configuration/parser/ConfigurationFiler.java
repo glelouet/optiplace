@@ -19,7 +19,7 @@ import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 /**
@@ -168,10 +168,10 @@ public class ConfigurationFiler {
 				for (String r : nodes) {
 					String[] rs = r.split("=");
 					ManagedElement me = cfg.getElementByName(rs[0]);
-					if (me == null || !(me instanceof VMHoster)) {
+					if (me == null || !(me instanceof VMLocation)) {
 						throw new UnsupportedOperationException();
 					}
-					res.capacity((VMHoster) me, Integer.parseInt(rs[1]));
+					res.capacity((VMLocation) me, Integer.parseInt(rs[1]));
 				}
 			}
 			if (l2s[2].length() > 1) {

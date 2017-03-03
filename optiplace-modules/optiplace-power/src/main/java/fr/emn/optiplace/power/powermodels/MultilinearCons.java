@@ -127,7 +127,7 @@ public class MultilinearCons implements PowerModel {
 		IntVar[] uses = new IntVar[resources.length + 1];
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
-		int nodeidx = parent.b.node(n);
+		int nodeidx = parent.b.location(n);
 		for (int i = 0; i < resources.length; i++) {
 			ResourceLoad handler = pb.getUse(resources[i]);
 			if (handler == null) {
@@ -143,7 +143,7 @@ public class MultilinearCons implements PowerModel {
 
 	public IntVar makeSumConsumption(Node n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
-		int nodeidx = parent.b.node(n);
+		int nodeidx = parent.b.location(n);
 		IntVar[] resourceAdd = new IntVar[resources.length + 1];
 		for (int i = 0; i < resources.length; i++) {
 			ResourceLoad handler = pb.getUse(resources[i]);

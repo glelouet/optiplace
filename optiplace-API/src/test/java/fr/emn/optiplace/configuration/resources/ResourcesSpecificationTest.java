@@ -21,7 +21,7 @@ import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 
 
 /**
@@ -36,7 +36,7 @@ public class ResourcesSpecificationTest {
 	@Test
 	public void testComparatorNodeSort() {
 		Node[] nodes = new Node[10];
-		Map<VMHoster, Integer> capacities = new HashMap<>();
+		Map<VMLocation, Integer> capacities = new HashMap<>();
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = new Node("n" + i);
 			capacities.put(nodes[i], i + i % 2 * 10);
@@ -54,12 +54,12 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public int getCapacity(VMHoster n) {
+			public int getCapacity(VMLocation n) {
 				return capacities.get(n);
 			}
 
 			@Override
-			public Stream<VMHoster> findHosters(IConfiguration c, Predicate<Integer> filter) {
+			public Stream<VMLocation> findHosters(IConfiguration c, Predicate<Integer> filter) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -74,7 +74,7 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public void capacity(VMHoster h, int capacity) {
+			public void capacity(VMLocation h, int capacity) {
 				capacities.put(h, capacity);
 			}
 
@@ -122,12 +122,12 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public int getCapacity(VMHoster n) {
+			public int getCapacity(VMLocation n) {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public Stream<VMHoster> findHosters(IConfiguration c, Predicate<Integer> val) {
+			public Stream<VMLocation> findHosters(IConfiguration c, Predicate<Integer> val) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -143,7 +143,7 @@ public class ResourcesSpecificationTest {
 			}
 
 			@Override
-			public void capacity(VMHoster h, int capacity) {
+			public void capacity(VMLocation h, int capacity) {
 				throw new UnsupportedOperationException("implement this !");
 			}
 

@@ -51,8 +51,8 @@ public class ReconfigurationProblemTest {
 
 	@Test
 	public void checkHosters() throws ContradictionException {
-		pb.getNode(vm1_0).removeValue(pb.b().node(n0), Cause.Null);
-		pb.getNode(vm1_1).removeValue(pb.b().node(n0), Cause.Null);
+		pb.getLocation(vm1_0).removeValue(pb.b().location(n0), Cause.Null);
+		pb.getLocation(vm1_1).removeValue(pb.b().location(n0), Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
@@ -65,7 +65,7 @@ public class ReconfigurationProblemTest {
 
 	@Test(dependsOnMethods = "checkHosted")
 	public void checknbVM() throws ContradictionException {
-		pb.nbVMs(n0).updateUpperBound(2, Cause.Null);
+		pb.nbVMsOn(n0).updateUpperBound(2, Cause.Null);
 		Assert.assertTrue(pb.findSolution());
 	}
 
@@ -73,7 +73,7 @@ public class ReconfigurationProblemTest {
 	public void checkNoWaitingNoExternVMVariables() {
 		for (VM vm : vms) {
 			Assert.assertTrue(pb.getExtern(vm).isInstantiatedTo(-1), "" + vm + " extern is not -1 : " + pb.getExtern(vm));
-			Assert.assertTrue(pb.getState(vm).isInstantiatedTo(CoreView.VM_RUNNING),
+			Assert.assertTrue(pb.getState(vm).isInstantiatedTo(CoreView.VM_RUNNODE),
 			    "" + vm + " state is not running : " + pb.getState(vm));
 		}
 	}
@@ -96,7 +96,7 @@ public class ReconfigurationProblemTest {
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
-		rp.isHoster(n).setToFalse(Cause.Null);
+		rp.isHost(n).setToFalse(Cause.Null);
 		Assert.assertTrue(rp.findSolution());
 	}
 
@@ -129,13 +129,13 @@ public class ReconfigurationProblemTest {
 		VM vw2 = c.addVM("vw2", null);
 
 		ReconfigurationProblem rp = new ReconfigurationProblem(c);
-		rp.isRunning(vn0).setToTrue(Cause.Null);
-		rp.isExterned(vn1).setToTrue(Cause.Null);
-		rp.isExterned(ve0).setToTrue(Cause.Null);
-		rp.isRunning(ve1).setToTrue(Cause.Null);
+		rp.isRunNode(vn0).setToTrue(Cause.Null);
+		rp.isRunExt(vn1).setToTrue(Cause.Null);
+		rp.isRunExt(ve0).setToTrue(Cause.Null);
+		rp.isRunNode(ve1).setToTrue(Cause.Null);
 		rp.isWaiting(vw0).setToTrue(Cause.Null);
-		rp.isRunning(vw1).setToTrue(Cause.Null);
-		rp.isExterned(vw2).setToTrue(Cause.Null);
+		rp.isRunNode(vw1).setToTrue(Cause.Null);
+		rp.isRunExt(vw2).setToTrue(Cause.Null);
 
 		rp.getSolver().findSolution();
 		IConfiguration dest = rp.extractConfiguration();

@@ -113,7 +113,7 @@ public class Fence implements Rule {
 		TIntArrayList iExclude = new TIntArrayList();
 		TIntHashSet toKeep = new TIntHashSet(nodes.size());
 		for (Node n : nodes) {
-			int idx = core.b().node(n);
+			int idx = core.b().location(n);
 			if (idx != -1) {
 				toKeep.add(idx);
 			}
@@ -123,7 +123,7 @@ public class Fence implements Rule {
 
 		// Domain restriction. Remove all the non-involved nodes
 		for (VM vm : runnings) {
-			IntVar hoster = core.getNode(vm);
+			IntVar hoster = core.getLocation(vm);
 			iExclude.forEach(ni -> {
 				try {
 					hoster.removeValue(ni, Cause.Null);

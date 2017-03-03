@@ -66,7 +66,7 @@ public class EfficiencyMaxFirstNodes {
 
 		for (Node n : sortedNodes) {
 			// System.err.println("pack on node " + n);
-			final int idx = rp.b().node(n);
+			final int idx = rp.b().location(n);
 			// first we pack the vms already assigned
 			ArrayList<VM> vms = new ArrayList<VM>();
 			rp.getSourceConfiguration().getHosted(n).forEach(vms::add);
@@ -76,7 +76,7 @@ public class EfficiencyMaxFirstNodes {
 			Collections.sort(vms, inNodeComparator);
 			ArrayList<IntVar> vars = new ArrayList<IntVar>();
 			for (VM vm : vms) {
-				IntVar var = rp.getNode(vm);
+				IntVar var = rp.getLocation(vm);
 				if (!var.isInstantiated() && var.contains(idx)) {
 					vars.add(var);
 				}
@@ -142,7 +142,7 @@ public class EfficiencyMaxFirstNodes {
 			ArrayList<VM> vms = new ArrayList<VM>(rp.getSourceConfiguration().getHosted(n).collect(Collectors.toList()));
 			Collections.sort(vms, comp);
 			for (VM vm : vms) {
-				vmsHosters.add(rp.getNode(vm));
+				vmsHosters.add(rp.getLocation(vm));
 			}
 		}
 		return vmsHosters;

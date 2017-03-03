@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import fr.emn.optiplace.configuration.ManagedElement;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 
@@ -58,13 +58,13 @@ public class MappedResourceSpecification implements ResourceSpecification {
 		return ret;
 	}
 
-	private HashMap<VMHoster, Integer> hostersCapacities = new HashMap<>();
+	private HashMap<VMLocation, Integer> hostersCapacities = new HashMap<>();
 
 	/**
 	 * @param nodesCapacities
 	 *          the nodesCapacities to set
 	 */
-	public void setNodesCapacities(HashMap<VMHoster, Integer> nodesCapacities) {
+	public void setNodesCapacities(HashMap<VMLocation, Integer> nodesCapacities) {
 		hostersCapacities = nodesCapacities;
 	}
 
@@ -85,7 +85,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public int getCapacity(VMHoster h) {
+	public int getCapacity(VMLocation h) {
 		Integer ret = hostersCapacities.get(h);
 		return ret == null ? 0 : ret;
 	}
@@ -150,7 +150,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	}
 
 	@Override
-	public void capacity(VMHoster h, int capacity) {
+	public void capacity(VMLocation h, int capacity) {
 		if (capacity == 0) {
 			hostersCapacities.remove(h);
 		} else {

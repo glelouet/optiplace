@@ -50,7 +50,7 @@ public class QuadraticCPUCons implements PowerModel {
 		double beta = (max - min) * lcoef / capa;
 		double gamma = min;
 
-		IntVar use = pb.getUse("cpu").getNodesLoad()[parent.b.node(n)];
+		IntVar use = pb.getUse("cpu").getNodesLoad()[parent.b.location(n)];
 		IntVar sqr = pb.v().mult(use, use);
 		IntVar sum = pb.v().scalar(new IntVar[] { sqr, use, parent.v.createIntegerConstant(1) },
 				new double[] { alpha, beta, gamma });

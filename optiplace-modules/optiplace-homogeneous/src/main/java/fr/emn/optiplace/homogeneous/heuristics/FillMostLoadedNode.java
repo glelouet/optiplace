@@ -31,7 +31,7 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 public class FillMostLoadedNode extends ActivatedHeuristic<IntVar> {
 
 	protected FillMostLoadedNode(IReconfigurationProblem pb) {
-		super(pb.nbVMsNodes());
+		super(pb.nbVMsOn());
 	}
 
 	@SuppressWarnings("unused")

@@ -5,7 +5,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
@@ -82,7 +82,7 @@ public class ResourceHandler {
 		}
 		nodesCapacities = new int[pb.c().nbNodes()];
 		for (int i = 0; i < pb.c().nbNodes(); i++) {
-			Node n = pb.b().node(i);
+			Node n = pb.b().location(i);
 			int capa = specs.getCapacity(n);
 			nodesCapacities[i] = capa;
 			maxNodeCapa = Math.max(maxNodeCapa, capa);
@@ -91,9 +91,9 @@ public class ResourceHandler {
 		}
 		resourceLoad = new ResourceLoad(vmsLoads, nodesLoadsByIndex, nodesCapacities);
 		for(VM v : pb.c().getMigratingVMs()) {
-			VMHoster host = pb.c().getLocation(v);
+			VMLocation host = pb.c().getLocation(v);
 			if (host instanceof Node) {
-				resourceLoad.addUse(pb.b().node((Node) host), pb.b().vm(v));
+				resourceLoad.addUse(pb.b().location((Node) host), pb.b().vm(v));
 			}
 		}
 	}
@@ -111,7 +111,7 @@ public class ResourceHandler {
 	}
 
 	public IntVar getNodeLoad(Node n) {
-		return nodesLoadsByIndex[associatedPb.b().node(n)];
+		return nodesLoadsByIndex[associatedPb.b().location(n)];
 	}
 
 	/**

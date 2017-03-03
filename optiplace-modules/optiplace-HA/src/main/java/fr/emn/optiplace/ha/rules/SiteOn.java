@@ -15,7 +15,7 @@ import org.chocosolver.solver.variables.IntVar;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -69,7 +69,7 @@ public class SiteOn implements Rule {
 			if (!cfg.hasVM(v)) {
 				continue;
 			}
-			VMHoster location = cfg.getFutureLocation(v);
+			VMLocation location = cfg.getFutureLocation(v);
 			if (site == null && cfg.getSite(location) != null) {
 				return false;
 			}
@@ -89,7 +89,7 @@ public class SiteOn implements Rule {
 				continue;
 			}
 			try {
-				IntVar site = core.getSite(v);
+				IntVar site = core.getVMSite(v);
 				site.instantiateTo(siteIdx, Cause.Null);
 			}
 			catch (ContradictionException e) {

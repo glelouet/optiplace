@@ -1,6 +1,7 @@
 package fr.emn.optiplace.solver.choco;
 
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +11,22 @@ import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
+/**
+ * bridge between the elements and their corresponding arrays
+ *
+ * <p>
+ * nodes and externs are merged in the same "locations" array. also the index of
+ * location given as locations.size is return for null, that is if a VM is
+ * hosted on a location of index 'location.size()' then it is hosted nowhere
+ * </p>
+ *
+ * @author Guillaume Le Louët
+ *
+ */
 public class Bridge {
 
 	public static final Logger logger = LoggerFactory.getLogger(Bridge.class);
@@ -23,17 +36,17 @@ public class Bridge {
 	private VM[] vms;
 	private TObjectIntHashMap<VM> revVMs;
 	private Node[] nodes;
-	private TObjectIntHashMap<Node> revNodes;
 	private Extern[] externs;
-	private TObjectIntHashMap<Extern> revExterns;
+	private VMLocation[] locations;
+	private TObjectIntHashMap<VMLocation> revLocations;
 	private Site[] sites;
 	private TObjectIntHashMap<Site> revSites;
 
 	/** The current location of the placed VMs. */
-	private int[] vmsSourceNode;
+	private int[] vmSourceLoc;
 
 	/** node i is in site nodeSites[i] */
-	protected int[] nodeSites;
+	protected int[] locationSites;
 
 	/**
 	 * Bridge between the base configuration and the reconfiguration problem.
@@ -47,17 +60,13 @@ public class Bridge {
 			revVMs.put(vms[i], i);
 		}
 
-		nodes = source.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
-		revNodes = new TObjectIntHashMap<>(nodes.length, Constants.DEFAULT_LOAD_FACTOR, -1);
-		for (int i = 0; i < nodes.length; i++) {
-			revNodes.put(nodes[i], i);
+		locations = Stream.concat(source.getNodes(), source.getExterns()).toArray(VMLocation[]::new);
+		revLocations = new TObjectIntHashMap<>(locations.length, Constants.DEFAULT_LOAD_FACTOR, locations.length);
+		for (int i = 0; i < locations.length; i++) {
+			revLocations.put(locations[i], i);
 		}
-
-		externs = source.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
-		revExterns = new TObjectIntHashMap<>(externs.length, Constants.DEFAULT_LOAD_FACTOR, -1);
-		for (int i = 0; i < externs.length; i++) {
-			revExterns.put(externs[i], i);
-		}
+		nodes = source.getNodes().toArray(Node[]::new);
+		externs = source.getExterns().toArray(Extern[]::new);
 
 		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
 		revSites = new TObjectIntHashMap<>(sites.length, Constants.DEFAULT_LOAD_FACTOR, -1);
@@ -65,15 +74,15 @@ public class Bridge {
 			revSites.put(sites[i], i);
 		}
 
-		vmsSourceNode = new int[vms.length];
+		vmSourceLoc = new int[vms.length];
 		for (VM vm : vms) {
-			vmsSourceNode[vm(vm)] = !source.isRunning(vm) ? -1 : node(source.getNodeHost(vm));
+			vmSourceLoc[vm(vm)] = !source.isRunning(vm) ? -1 : location(source.getLocation(vm));
 		}
 
-		nodeSites = new int[nodes().length];
-		for (int i = 0; i < nodeSites.length; i++) {
-			Site nodeSite = source.getSite(nodes[i]);
-			nodeSites[i] = nodeSite == null ? -1 : site(nodeSite);
+		locationSites = new int[locations.length];
+		for (int i = 0; i < locationSites.length; i++) {
+			Site nodeSite = source.getSite(locations[i]);
+			locationSites[i] = nodeSite == null ? -1 : site(nodeSite);
 		}
 	}
 
@@ -84,8 +93,31 @@ public class Bridge {
 	/**
 	 * @return an array of the nodes of the problem, each at its index position
 	 */
+	public VMLocation[] locations() {
+		return locations;
+	}
+
 	public Node[] nodes() {
 		return nodes;
+	}
+
+	/**
+	 *
+	 * @return an internal array of the externs of the problem. Node that this
+	 *         array does not correspond to the indexes of the externs
+	 */
+	public Extern[] externs() {
+		return externs;
+	}
+
+	/**
+	 *
+	 * @param locationIndex
+	 *          an index of a location
+	 * @return true iff this index stands for a node
+	 */
+	public boolean isNode(int locationIndex) {
+		return locationIndex < nodes.length;
 	}
 
 	/**
@@ -93,20 +125,19 @@ public class Bridge {
 	 *          a node of the problem
 	 * @return the index of the node in the problem, or -1
 	 */
-	public int node(Node n) {
-		return revNodes.get(n);
+	public int location(VMLocation l) {
+		return revLocations.get(l);
 	}
 
 	/**
 	 * @param idx
 	 * @return the node at given position, or null
 	 */
-	public Node node(int idx) {
+	public VMLocation location(int idx) {
 		if (idx < 0) {
 			return null;
 		}
-		Node[] t = nodes();
-		return idx >= t.length ? null : t[idx];
+		return idx >= locations.length ? null : locations[idx];
 	}
 
 	/**
@@ -156,75 +187,6 @@ public class Bridge {
 		return idx >= t.length ? null : t[idx];
 	}
 
-	/**
-	 *
-	 * @return the array of known externs
-	 */
-	public Extern[] externs() {
-		return externs;
-	}
-
-	/**
-	 *
-	 * @param e
-	 *          the extern
-	 * @return the index of the extern in {@link #externs()} array or -1
-	 */
-	public int extern(Extern e) {
-		return revExterns.get(e);
-	}
-
-	/**
-	 *
-	 * @param idx
-	 *          the index of the extern in the {@link #externs()} array
-	 * @return the corresponding extern
-	 */
-	public Extern extern(int idx) {
-		if (idx < 0) {
-			return null;
-		}
-		Extern[] t = externs();
-		return idx >= t.length ? null : t[idx];
-	}
-
-	/**
-	 *
-	 * @param h
-	 *          an hoster of the configuration
-	 * @return the index of the node if a node is given in parameters, the index
-	 *         of the extern+#nodes if an exetern is given in parameter, or -1 if
-	 *         h not known.
-	 */
-	public int vmHoster(VMHoster h) {
-		if (h == null) {
-			return -1;
-		}
-		if (h instanceof Node) {
-			return node((Node) h);
-		} else if (h instanceof Extern) {
-			return extern((Extern) h) + nodes.length;
-		} else {
-			Bridge.logger.warn("incorrect class " + h.getClass());
-			return -1;
-		}
-	}
-
-	public VMHoster vmHoster(int i) {
-		if (i < 0 || i >= nodes.length + externs.length) {
-			return null;
-		}
-		return i < nodes.length ? node(i) : extern(i - nodes.length);
-	}
-
-	/**
-	 *
-	 * @return the number of hosters (extern + node) in the configuration
-	 */
-	public int nbHosters() {
-		return nodes.length + externs.length;
-	}
-
 	public Site[] sites() {
 		return sites;
 	}
@@ -250,13 +212,13 @@ public class Bridge {
 	 */
 	public int getCurrentLocation(int vmIdx) {
 		if (vmIdx >= 0 && vmIdx < vms.length) {
-			return vmsSourceNode[vmIdx];
+			return vmSourceLoc[vmIdx];
 		}
 		return -1;
 	}
 
-	public int[] nodesSites() {
-		return nodeSites;
+	public int[] locationSites() {
+		return locationSites;
 	}
 
 }

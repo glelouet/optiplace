@@ -49,7 +49,7 @@ public class DummyPlacementHeuristic {
 		for (VM v : m.b().vms()) {
 			vars.add(m.getState(v));
 		}
-		for (IntVar v : m.getNodes()) {
+		for (IntVar v : m.getLocations()) {
 			vars.add(v);
 		}
 		IntVar[] exts = m.getExterns();

@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.emn.optiplace.configuration.Site;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.view.ProvidedDataReader;
 
 /**
@@ -102,7 +102,7 @@ public class CostData implements ProvidedDataReader {
 		return ret + 1;
 	}
 
-	public int getCost(VMHoster h, Site site) {
+	public int getCost(VMLocation h, Site site) {
 		return getCost(h.getName(), site != null ? site.getName() : null);
 	}
 
@@ -110,7 +110,7 @@ public class CostData implements ProvidedDataReader {
 		byHosterName.put(hostname, val);
 	}
 
-	public void setHostCost(VMHoster hoster, int val) {
+	public void setHostCost(VMLocation hoster, int val) {
 		setHostCost(hoster.getName(), val);
 	}
 

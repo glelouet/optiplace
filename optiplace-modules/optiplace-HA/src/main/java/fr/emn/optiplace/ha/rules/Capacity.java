@@ -84,7 +84,7 @@ public class Capacity implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 
-		IntVar[] hosteds = nodes.stream().filter(core.getSourceConfiguration()::hasNode).map(core::nbVMs)
+		IntVar[] hosteds = nodes.stream().filter(core.getSourceConfiguration()::hasNode).map(core::nbVMsOn)
 				.collect(Collectors.toList()).toArray(new IntVar[] {});
 		switch (hosteds.length) {
 		case 0:

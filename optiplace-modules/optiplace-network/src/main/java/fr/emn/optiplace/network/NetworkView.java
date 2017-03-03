@@ -8,7 +8,7 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.network.NetworkData.NetworkDataBridge;
 import fr.emn.optiplace.network.NetworkData.VMCouple;
 import fr.emn.optiplace.network.data.Link;
@@ -127,7 +127,7 @@ public class NetworkView extends EmptyView {
 			h.equality(pb.isWaiting(c.v0), pb.isWaiting(c.v1));
 			vmCouple2Links[i] = v.createRangeSetVar(c.toString + ".links", 0, bridge.nbLinks() - 1);
 			// idx on the array (when both VM are running)
-			IntVar idxNonWaiting = v.plus(v.plus(v.mult(pb.getHoster(c.v0), nbcols), pb.getHoster(c.v1)), 1);
+			IntVar idxNonWaiting = v.plus(v.plus(v.mult(pb.getVMLocation(c.v0), nbcols), pb.getVMLocation(c.v1)), 1);
 			// we check the state of
 			IntVar flatMatIdx = v.createEnumIntVar(c.toString() + ".flatMatIdx", 0, flatMat.length);
 			pb.switchState(c.v0, flatMatIdx, idxNonWaiting, idxNonWaiting, v.createIntegerConstant(0));
@@ -151,10 +151,10 @@ public class NetworkView extends EmptyView {
 			hoster2hoster2links[i] = new SetVar[b.nbHosters()];
 		}
 		for (int i = 0; i < b.nbHosters(); i++) {
-			VMHoster hi = b.vmHoster(i);
+			VMLocation hi = b.location(i);
 			hoster2hoster2links[i][i] = v.createFixedSet("path(" + hi.getName() + ").links", empty);
 			for (int j = 0; j < i; j++) {
-				VMHoster hj = b.vmHoster(j);
+				VMLocation hj = b.location(j);
 				int[] h2hLinks = bridge.links(i, j);
 				SetVar links = v.createFixedSet("path(" + hi.getName() + "-" + hj.getName() + ").links", h2hLinks);
 				hoster2hoster2links[i][j] = hoster2hoster2links[j][i] = links;

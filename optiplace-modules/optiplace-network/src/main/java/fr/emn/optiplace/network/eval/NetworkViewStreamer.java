@@ -25,7 +25,7 @@ import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.eval.ConfigurationStreamer;
 import fr.emn.optiplace.network.NetworkData;
@@ -92,7 +92,7 @@ public class NetworkViewStreamer extends Solver {
 	Extern[] externs;
 	int maxNbRouters;
 	Router[] routers;
-	VMHoster[] vertices;
+	VMLocation[] vertices;
 	VM[] vms;
 
 	int minLinkCapa;
@@ -159,7 +159,7 @@ public class NetworkViewStreamer extends Solver {
 			maxNbRouters = 0;
 		}
 		routers = new Router[maxNbRouters];
-		vertices = new VMHoster[externs.length + nodes.length + maxNbRouters];
+		vertices = new VMLocation[externs.length + nodes.length + maxNbRouters];
 		for (int i = 0; i < nodes.length; i++) {
 			vertices[i] = nodes[i];
 		}

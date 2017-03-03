@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import fr.emn.optiplace.actions.ActionGraph;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
-import fr.emn.optiplace.configuration.VMHoster;
+import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.ha.actions.MigrateHA;
 import fr.emn.optiplace.ha.goals.MigrationReducerGoal;
@@ -119,7 +119,7 @@ public class HAView extends EmptyView {
 		for (Entry<VM, VM> e : tempReplicateVMs.entrySet()) {
 			VM v = e.getKey();
 			VM cloned = e.getValue();
-			VMHoster target = config.getLocation(v);
+			VMLocation target = config.getLocation(v);
 			config.setHost(v, config.getLocation(cloned));
 			config.remove(cloned);
 			src.remove(cloned);

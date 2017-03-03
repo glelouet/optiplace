@@ -204,7 +204,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return the number of vms which are specified running on the node ; null if
 	 *         the node is not known
 	 */
-	default long nbHosted(VMHoster host) {
+	default long nbHosted(VMLocation host) {
 		return getHosted(host).count();
 	}
 
@@ -321,7 +321,7 @@ public interface IConfiguration extends Cloneable {
 	 *          the managedelement that will host the virtual machine.
 	 * @return true if the vm is assigned to the node and was not before
 	 */
-	boolean setHost(VM vm, VMHoster hoster);
+	boolean setHost(VM vm, VMLocation hoster);
 
 	/**
 	 * Set a virtual machine waiting. If the virtual machine is already in a other
@@ -342,19 +342,19 @@ public interface IConfiguration extends Cloneable {
 	 *          null to set no migration, a Node to specify where the VM is
 	 *          migrating
 	 */
-	void setMigTarget(VM vm, VMHoster n);
+	void setMigTarget(VM vm, VMLocation n);
 
 	/**
 	 * @param vm
 	 *          a VM of the center
 	 * @return a Node if that vm is migrating to this node, or null.
 	 */
-	VMHoster getMigTarget(VM vm);
+	VMLocation getMigTarget(VM vm);
 
 	Set<VM> getMigratingVMs();
 
 	default Node getNodeMig(VM vm) {
-		VMHoster h = getMigTarget(vm);
+		VMLocation h = getMigTarget(vm);
 		if (h instanceof Node) {
 			return (Node) h;
 		} else {
@@ -363,7 +363,7 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	default Extern getExternMig(VM vm) {
-		VMHoster h = getMigTarget(vm);
+		VMLocation h = getMigTarget(vm);
 		if (h instanceof Extern) {
 			return (Extern) h;
 		} else {
@@ -378,7 +378,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return true if the VM is migrating to another node
 	 */
 	default boolean isMigrating(VM vm) {
-		VMHoster target = getMigTarget(vm);
+		VMLocation target = getMigTarget(vm);
 		return target != null && !target.equals(getLocation(vm));
 	}
 
@@ -403,7 +403,7 @@ public interface IConfiguration extends Cloneable {
 	 *         if exist and not a VM returns null ; if not exist then a new VM is
 	 *         creatd and returned
 	 */
-	VM addVM(String vmName, VMHoster host, int... resources);
+	VM addVM(String vmName, VMLocation host, int... resources);
 
 	/**
 	 * Ensure we don't have a VM with given name
@@ -483,7 +483,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return a set of virtual machines, may be empty, eg if the Node is not
 	 *         present or is offline
 	 */
-	Stream<VM> getHosted(VMHoster n);
+	Stream<VM> getHosted(VMLocation n);
 
 	/**
 	 * get the number of VM executed on given hoster
@@ -492,7 +492,7 @@ public interface IConfiguration extends Cloneable {
 	 *          an hoster of the configuration
 	 * @return the number of VM that are specified running on given hoster
 	 */
-	default Stream<VM> getFutureHosted(VMHoster host) {
+	default Stream<VM> getFutureHosted(VMLocation host) {
 		return getVMs().filter(v -> host.equals(getFutureLocation(v)));
 	}
 
@@ -503,7 +503,7 @@ public interface IConfiguration extends Cloneable {
 	 *          the set of nodes
 	 * @return a set of virtual machines, may be empty
 	 */
-	default Stream<VM> getHosted(Set<VMHoster> ns) {
+	default Stream<VM> getHosted(Set<VMLocation> ns) {
 		return ns.stream().map(this::getHosted).reduce(Stream::concat).get();
 	}
 
@@ -516,7 +516,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return the node or extern hosting the virtual machine or {@code null} is
 	 *         the virtual machine is waiting
 	 */
-	VMHoster getLocation(VM vm);
+	VMLocation getLocation(VM vm);
 
 	/**
 	 * get the future location of a VM once the migrations are done.
@@ -526,8 +526,8 @@ public interface IConfiguration extends Cloneable {
 	 * @return the migration target of the VM or the location if no migration
 	 *         present
 	 */
-	default VMHoster getFutureLocation(VM vm) {
-		VMHoster ret = getMigTarget(vm);
+	default VMLocation getFutureLocation(VM vm) {
+		VMLocation ret = getMigTarget(vm);
 		return ret == null ? getLocation(vm) : ret;
 	}
 
@@ -667,7 +667,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return The corresponding site, or null if sitename was null or already in
 	 *         use by a non-site element.
 	 */
-	public Site addSite(String siteName, VMHoster... hosters);
+	public Site addSite(String siteName, VMLocation... hosters);
 
 	/**
 	 *
@@ -681,7 +681,7 @@ public interface IConfiguration extends Cloneable {
 	 *          a Hoster of the configuration
 	 * @return the index of the site this hoster belongs to
 	 */
-	public Site getSite(VMHoster n);
+	public Site getSite(VMLocation n);
 
 	public Stream<Site> getSites();
 
@@ -703,11 +703,11 @@ public interface IConfiguration extends Cloneable {
 	 *         not present, return an empty stream ; if this site is null, return
 	 *         the stream of the hosters with no site.
 	 */
-	public Stream<VMHoster> getHosters(Site site);
+	public Stream<VMLocation> getHosters(Site site);
 
 	/**
 	 * stream over all the managed elements
-	 * 
+	 *
 	 * @return
 	 */
 	public default Stream<ManagedElement> getManagedElements() {
@@ -801,7 +801,7 @@ public interface IConfiguration extends Cloneable {
 	 *          the tag to check
 	 * @return true if h or its site is tagged with tag
 	 */
-	public default boolean isHosterTagged(VMHoster h, String tag) {
+	public default boolean isLocationTagged(VMLocation h, String tag) {
 		return isTagged(h, tag) || isTagged(getSite(h), tag);
 	}
 

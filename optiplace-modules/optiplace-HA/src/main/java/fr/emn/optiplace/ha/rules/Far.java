@@ -63,10 +63,9 @@ public class Far implements Rule {
 		ArrayList<IntVar> sites = new ArrayList<>();
 		for (VM v : vms) {
 			if (core.getSourceConfiguration().hasVM(v)) {
-				sites.add(core.getSite(v));
+				sites.add(core.getVMSite(v));
 			}
 		}
-		// TODO check for the support_tag
 		core.post(ICF.alldifferent(sites.toArray(new IntVar[] {})));
 	}
 
