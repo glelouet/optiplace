@@ -46,6 +46,7 @@ public class FarTest extends SolvingExample {
 				+ "->" + d.getSite(d.getNodeHost(vm0)) + ", " + vm1 + "->" + d.getSite(d.getNodeHost(vm1)));
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testFarOnExterns() {
 		Configuration src = new Configuration("mem");

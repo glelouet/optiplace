@@ -48,7 +48,7 @@ public class HostCostViewTest {
 		VM vm1 = c.addVM("vm1", n1, 1);
 		VM vm2 = c.addVM("vm2", null, 2);
 		IConfiguration d1 = new Optiplace(c).solve().getDestination();
-		Assert.assertEquals(d1.getLocation(vm2), null, "found cfg : " + d1);
+		Assert.assertEquals(d1.getLocation(vm0), d1.getLocation(vm1), "found cfg : " + d1);
 
 		IOptiplace o = new Optiplace(c).with(new HostCostView()).withGoal("hostcost");
 		IConfiguration d2 = o.solve().getDestination();
