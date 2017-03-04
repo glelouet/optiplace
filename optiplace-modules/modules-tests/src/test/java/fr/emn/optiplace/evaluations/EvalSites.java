@@ -29,7 +29,7 @@ public class EvalSites {
 	/**
 	 * we redo the same benches this number of times
 	 */
-	static int nbiterations = 2;
+	static int nbiterations = 33;
 	/**
 	 * number of physical nodes in the local site.
 	 *
@@ -57,7 +57,7 @@ public class EvalSites {
 	/**
 	 * maximum size of the problem, with regard to memory constraints
 	 */
-	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem) / 2;
+	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem);
 
 	///////////////////////////////////////////////////////////////////
 
@@ -122,6 +122,8 @@ public class EvalSites {
 		if (hostcost) {
 			ret.with(hc).withGoal("hostcost");
 		}
+		// ret.getStrat().setLogContradictions(true);
+		// ret.getStrat().setLogHeuristicsSelection(true);
 		return ret;
 	}
 
@@ -191,7 +193,7 @@ public class EvalSites {
 
 		for (int iteration = 0; iteration < nbiterations; iteration++) {
 			for (int size = 1; size <= maxSize; size++) {
-				Optiplace opl = makeProblem(size, false, true, false, false);
+				Optiplace opl = makeProblem(size, true, true, true, false);
 				DeducedTarget res = opl.solve();
 				if (res.getDestination() != null) {
 					evals[size - 1].add(res);

@@ -169,10 +169,13 @@ public class VariablesManager {
 		if (name == null) {
 			name = "sum(" + Arrays.asList(vars) + ")";
 		}
-		int[] minmax = getMinMax(vars);
+		int min = 0, max = 0;
+		for (IntVar i : vars) {
+			min += i.getLB();
+			max += i.getUB();
+		}
 		boolean enumerated = Stream.of(vars).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
-		IntVar ret = enumerated ? createEnumIntVar(name, minmax[0], minmax[1])
-				: createBoundIntVar(name, minmax[0], minmax[1]);
+		IntVar ret = enumerated ? createEnumIntVar(name, min, max) : createBoundIntVar(name, min, max);
 		getSolver().post(ICF.sum(vars, ret));
 		return ret;
 	}
@@ -471,7 +474,7 @@ public class VariablesManager {
 		if (values.length == 1) {
 			return values[0];
 		}
-		int[] minmax = getMinMax(values);
+		int[] minmax = sumMinMax(values);
 		boolean enumerated = Stream.of(values).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1])
 				: createBoundIntVar("max(" + foldSetNames(values) + ")", minmax[0], minmax[1]);
@@ -502,6 +505,17 @@ public class VariablesManager {
 		return new int[] {
 				min, max
 		};
+	}
+
+	public int[] sumMinMax(IntVar[] vars) {
+		int min = 0, max = 0;
+		if (vars != null) {
+			for (IntVar i : vars) {
+				min += i.getLB();
+				max += i.getUB();
+			}
+		}
+		return new int[] { min, max };
 	}
 
 	/**
