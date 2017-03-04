@@ -504,7 +504,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<VMLocation> getHosters(Site site) {
+	public Stream<VMLocation> getSiteLocations(Site site) {
 		if (site == null) {
 			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
 		}

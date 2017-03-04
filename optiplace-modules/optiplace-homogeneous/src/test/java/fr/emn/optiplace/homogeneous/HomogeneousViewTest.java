@@ -37,9 +37,6 @@ public class HomogeneousViewTest {
 
 		p.getStrat().setMaxSearchTime(3000);
 		p.getStrat().setGoalId("packinggoal");
-		// p.getStrat().setLogChoices(true);
-		// p.getStrat().setLogSolutions(true);
-		// p.getStrat().setLogHeuristicsSelection(true);
 	}
 
 	@Test
@@ -73,9 +70,6 @@ public class HomogeneousViewTest {
 		// in this test, we made 5 servers
 		// the first two have more VMs than the others
 		// so they should contain all the VMs.
-		// p.getStrat().setLogChoices(true);
-		// p.getStrat().setLogSolutions(true);
-		// p.getStrat().setLogHeuristicsSelection(true);
 		Node n4 = cfg.addOnline("n4", 10000, 10000);
 		Node n3 = cfg.addOnline("n3", 10000, 10000);
 		Node n2 = cfg.addOnline("n2", 10000, 10000);
@@ -118,9 +112,6 @@ public class HomogeneousViewTest {
 	 */
 	@Test(dependsOnMethods = "testMediumCenter")
 	public void testLargeCenter() {
-		// p.getStrat().setLogChoices(true);
-		// p.getStrat().setLogSolutions(true);
-		// p.getStrat().setLogHeuristicsSelection(true);
 		int maxVMsPerNode = 12;
 		int nodesPerGroup = 2;
 		int nbNodeGroups = 4;

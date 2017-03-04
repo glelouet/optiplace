@@ -41,7 +41,6 @@ public class ReplicateTest extends SolvingExample {
 	public void testHAVMMigrating() {
 		prepare();
 		src.setMigTarget(placed[0][0], nodes[1]);
-		strat.setLogHeuristicsSelection(true);
 		IConfiguration dest = solve(src).getDestination();
 		Assert.assertEquals(dest, src);
 	}

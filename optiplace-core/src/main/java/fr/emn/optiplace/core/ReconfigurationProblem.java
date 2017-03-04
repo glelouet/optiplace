@@ -330,13 +330,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		if (ret == null) {
 			if (locationSite == null) {
 				locationSite = new int[b.locations().length + 1];
+				// VM waiting is on site -1
 				locationSite[locationSite.length - 1] = -1;
 				for (int i = 0; i < locationSite.length - 1; i++) {
 					locationSite[i] = b.site(c.getSite(b.location(i)));
 				}
 			}
-			ret = v.createEnumIntVar(vmName(vmidx) + "_site", -1, getSourceConfiguration().nbSites() - 1);
-			post(ICF.element(ret, locationSite, getVMLocation(vmidx), -1, "detect"));
+			ret = v.createEnumIntVar(vmName(vmidx) + "_site", -1, b.sites().length - 1);
+			post(ICF.element(ret, locationSite, getVMLocation(vmidx), 0, "detect"));
 			vmSites[vmidx] = ret;
 		}
 		return ret;
@@ -345,6 +346,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public IntVar getState(int vmindex) {
 		if (vmindex < 0 || vmindex >= vmsState.length) {
+			System.err.println("which is null");
 			return null;
 		} else {
 			return vmsState[vmindex];
@@ -594,7 +596,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			ret.addExtern(e.getName());
 		}
 		c.getSites().forEach(s -> {
-			ret.addSite(s.getName(), c.getHosters(s).collect(Collectors.toList()).toArray(new VMLocation[] {}));
+			ret.addSite(s.getName(), c.getSiteLocations(s).collect(Collectors.toList()).toArray(new VMLocation[] {}));
 		});
 		c.getVMs().forEach(v -> {
 			VM vm = ret.addVM(v.getName(), null);

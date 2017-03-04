@@ -45,9 +45,6 @@ public class SpreadTest extends SolvingExample {
 		ha.addRule(new Spread(vm0, vm1));
 
 		Optiplace sp = new Optiplace(cfg);
-		// sp.getStrat().setLogChoices(true);
-		// sp.getStrat().setLogHeuristicsSelection(true);
-		// sp.getStrat().setLogContradictions(true);
 		sp.views(ha);
 		sp.solve();
 		IConfiguration dest = sp.getTarget().getDestination();

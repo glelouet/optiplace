@@ -260,7 +260,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return a new stream of the Hosters
 	 */
 	public default Stream<VMLocation> findHosters(IConfiguration c, Predicate<Integer> filter) {
-		return c.getHosters(null).filter(h -> filter.test(getCapacity(h)));
+		return c.getSiteLocations(null).filter(h -> filter.test(getCapacity(h)));
 	}
 
 	/**

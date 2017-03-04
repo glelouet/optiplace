@@ -39,7 +39,7 @@ public class FarTest extends SolvingExample {
 		VM vm0 = placed[0][0], vm1 = placed[0][1];
 		Far test = new Far(vm0, vm1);
 		IConfiguration d = solve(src, test).getDestination();
-		Assert.assertTrue(test.isSatisfied(d), "rule is not satisfied");
+		Assert.assertTrue(test.isSatisfied(d), "rule " + test + "is not satisfied in " + d);
 		Assert.assertTrue(d.getLocation(vm0).equals(node) || d.getLocation(vm1).equals(node), "no VM placed on the node "
 				+ node + ", " + vm0 + " on " + d.getLocation(vm0) + ", " + vm1 + " on " + d.getLocation(vm1));
 		Assert.assertTrue(d.getSite(d.getNodeHost(vm0)) != d.getSite(d.getNodeHost(vm1)), "vms are on same site : " + vm0

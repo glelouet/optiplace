@@ -24,9 +24,6 @@ public class BugNoExternResourceTest {
 		Extern e = sc.addExtern("e");
 
 		Optiplace sp = new Optiplace();
-		sp.getStrat().setLogChoices(true);
-		sp.getStrat().setLogContradictions(true);
-		sp.getStrat().setLogSolutions(true);
 		sp.source(sc);
 		sp.solve();
 

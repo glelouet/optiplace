@@ -5,7 +5,11 @@ import org.testng.annotations.Test;
 
 import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.*;
+import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.Extern;
+import fr.emn.optiplace.configuration.IConfiguration;
+import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.VM;
 
 public class HostCostViewTest {
 
@@ -47,7 +51,6 @@ public class HostCostViewTest {
 		Assert.assertEquals(d1.getLocation(vm2), null, "found cfg : " + d1);
 
 		IOptiplace o = new Optiplace(c).with(new HostCostView()).withGoal("hostcost");
-		// o.getStrat().setLogSolutions(true);
 		IConfiguration d2 = o.solve().getDestination();
 		Assert.assertEquals(d2.getLocation(vm0), d2.getLocation(vm1), "found cfg : " + d2);
 		Assert.assertNotNull(d2.getLocation(vm2), "found cfg : " + d2);

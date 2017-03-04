@@ -1,6 +1,5 @@
 package fr.emn.optiplace.ha.rules;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,13 +59,9 @@ public class Far implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		ArrayList<IntVar> sites = new ArrayList<>();
-		for (VM v : vms) {
-			if (core.getSourceConfiguration().hasVM(v)) {
-				sites.add(core.getVMSite(v));
-			}
-		}
-		core.post(ICF.alldifferent(sites.toArray(new IntVar[] {})));
+		IntVar[] sites = vms.stream().filter(core.getSourceConfiguration()::hasVM).map(core::getVMSite)
+				.toArray(IntVar[]::new);
+		core.post(ICF.alldifferent_conditionnal(sites, iv -> iv.getLB() > -1));
 	}
 
 	@Override

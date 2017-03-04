@@ -110,7 +110,6 @@ public class NetworkViewTest {
 
 		nv.getData().setLink(n0, n1, 5);
 		IOptiplace o = new Optiplace(c).with(nv);
-		o.getStrat().setLogContradictions(true);
 		IConfiguration dest = o.solve().getDestination();
 		Assert.assertEquals(dest.getLocation(v0), null);
 		Assert.assertEquals(dest.getLocation(v1), null);

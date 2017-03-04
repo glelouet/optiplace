@@ -1,6 +1,5 @@
 package fr.emn.optiplace.solver.choco;
 
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -51,32 +50,35 @@ public class Bridge {
 	public Bridge(IConfiguration source) {
 
 		this.source = source;
-		vms = source.getVMs().collect(Collectors.toSet()).toArray(new VM[] {});
-		vmSourceLoc = new int[vms.length];
+		vms = source.getVMs().toArray(VM[]::new);
 		nodes = source.getNodes().toArray(Node[]::new);
 		externs = source.getExterns().toArray(Extern[]::new);
 		locations = Stream.concat(source.getNodes(), source.getExterns()).toArray(VMLocation[]::new);
-		sites = source.getSites().collect(Collectors.toList()).toArray(new Site[] {});
-		locationSites = new int[locations.length];
+		sites = Stream.concat(Stream.of((Site) null), source.getSites()).toArray(Site[]::new);
 
 		revVMs = new TObjectIntHashMap<>(vms.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < vms.length; i++) {
 			revVMs.put(vms[i], i);
 		}
+
 		revLocations = new TObjectIntHashMap<>(locations.length, Constants.DEFAULT_LOAD_FACTOR, -1);
 		for (int i = 0; i < locations.length; i++) {
 			revLocations.put(locations[i], i);
 		}
+
+		vmSourceLoc = new int[vms.length];
 		for (VM vm : vms) {
 			vmSourceLoc[vm(vm)] = !source.isRunning(vm) ? -1 : location(source.getLocation(vm));
 		}
-		revSites = new TObjectIntHashMap<>(sites.length, Constants.DEFAULT_LOAD_FACTOR, -1);
+
+		revSites = new TObjectIntHashMap<>(sites.length, Constants.DEFAULT_LOAD_FACTOR, 0);
 		for (int i = 0; i < sites.length; i++) {
 			revSites.put(sites[i], i);
 		}
+
+		locationSites = new int[locations.length];
 		for (int i = 0; i < locationSites.length; i++) {
-			Site nodeSite = source.getSite(locations[i]);
-			locationSites[i] = nodeSite == null ? -1 : site(nodeSite);
+			locationSites[i] = site(source.getSite(locations[i]));
 		}
 	}
 

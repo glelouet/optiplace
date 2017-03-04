@@ -179,7 +179,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return a Stream, may be empty
 	 */
 	default Stream<VM> getVMs() {
-		return Stream.concat(getRunnings(), Stream.concat(getWaitings(), getExterned()));
+		return Stream.concat(getRunnings(), getWaitings());
 	}
 
 	/**
@@ -707,7 +707,7 @@ public interface IConfiguration extends Cloneable {
 	 *         not present, return an empty stream ; if this site is null, return
 	 *         the stream of the hosters with no site.
 	 */
-	public Stream<VMLocation> getHosters(Site site);
+	public Stream<VMLocation> getSiteLocations(Site site);
 
 	/**
 	 * stream over all the managed elements

@@ -38,7 +38,6 @@ public class OptiplaceTest {
 		c.addVM("v2", n2, 1);
 		Optiplace sp = new Optiplace();
 		sp.source(c);
-		// sp.getStrat().setLogChoices(true);
 		sp.solve();
 		Assert.assertEquals(sp.getTarget().getDestination(), c);
 	}
@@ -62,10 +61,7 @@ public class OptiplaceTest {
 		num_cpus.with(a1, 1).with(a1v2, 2).with(a2, 1).with(n1, 1).with(n2, 2).with(n3, 1);
 
 		Optiplace opl = new Optiplace(cfg);
-		// opl.getStrat().setLogChoices(true);
-		// opl.getStrat().setLogContradictions(true);
 		IConfiguration dest = opl.solve().getDestination();
-		// System.err.println(dest);
 		Assert.assertEquals(dest.getLocation(n1), a1);
 		Assert.assertEquals(dest.getLocation(n2), a1v2);
 		Assert.assertEquals(dest.getLocation(n3), a2);
@@ -86,8 +82,6 @@ public class OptiplaceTest {
 		mem_size.with(e1, 10000).with(e2, 20000).with(v1, 10000).with(v2, 20000);
 
 		Optiplace opl = new Optiplace(cfg);
-		// opl.getStrat().setLogChoices(true);
-		// opl.getStrat().setLogContradictions(true);
 		IConfiguration dest = opl.solve().getDestination();
 		Assert.assertEquals(dest.getLocation(v2), e2);
 	}

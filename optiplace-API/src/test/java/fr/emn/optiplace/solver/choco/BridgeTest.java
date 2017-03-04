@@ -28,7 +28,7 @@ public class BridgeTest {
 		Bridge test = new Bridge(cfg);
 		Assert.assertEquals(test.location(new Node("n0")), -1);
 		Assert.assertEquals(test.vm(new VM("v0")), -1);
-		Assert.assertEquals(test.site(new Site("s0")), -1);
+		Assert.assertEquals(test.site(new Site("s0")), 0);
 		Assert.assertEquals(test.location(new Extern("e0")), -1);
 		Assert.assertEquals(test.vm(0), null);
 		Assert.assertEquals(test.location(0), null);
