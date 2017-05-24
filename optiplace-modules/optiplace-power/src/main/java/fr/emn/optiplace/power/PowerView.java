@@ -242,7 +242,7 @@ public class PowerView extends EmptyView {
 		for (VM vm : b.vms()) {
 			double min = Double.POSITIVE_INFINITY;
 			for (Node n : b.nodes()) {
-				PowerModel model = powerData.get(n.getName());
+				PowerModel model = powerData.get(n);
 				double mincons = model.getMinPowerIncrease(n, pb.c().resources(), vm);
 				if (mincons < min) {
 					min = mincons;
@@ -261,7 +261,7 @@ public class PowerView extends EmptyView {
 	public int evaluateMaxCons() {
 		int maxNodeCons = 0;
 		for (Node n : b.nodes()) {
-			PowerModel model = powerData.get(n.getName());
+			PowerModel model = powerData.get(n);
 			maxNodeCons += model.maxCons(n);
 		}
 		return maxNodeCons;

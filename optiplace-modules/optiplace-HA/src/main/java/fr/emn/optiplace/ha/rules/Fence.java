@@ -149,7 +149,7 @@ public class Fence implements Rule {
 			return false;
 		}
 		for (VM vm : vms) {
-			if (cfg.isRunning(vm) && !locations.contains(cfg.getLocation(vm))) {
+			if (cfg.isRunning(vm) && !locations.contains(cfg.getLocation(vm).getName())) {
 				return false;
 			}
 		}

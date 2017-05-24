@@ -323,7 +323,7 @@ public class Configuration implements IConfiguration {
 		if (isOnline(node2)) {
 			return false;
 		}
-		offlines.remove(node2.getName());
+		offlines.remove(node2);
 		nodesVM.put(node2, new LinkedHashSet<>());
 		return true;
 	}

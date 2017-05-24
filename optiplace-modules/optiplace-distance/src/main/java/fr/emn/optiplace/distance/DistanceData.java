@@ -189,7 +189,8 @@ public class DistanceData implements ProvidedDataReader {
 	 */
 	public void applyGroups(BiConsumer<Stream<VM>, Integer> apply, IConfiguration source) {
 		patLimits.entrySet().stream().forEach(e -> {
-			apply.accept(source.getVMs().filter(v -> !groups.containsKey(v.getName()))
+			apply.accept(
+					source.getVMs().filter(v -> !groups.containsKey(v))
 					.filter(v -> e.getKey().matcher(v.getName()).matches()), e.getValue());
 		});
 		limits.entrySet().stream().forEach(e -> {

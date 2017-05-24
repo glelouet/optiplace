@@ -15,7 +15,7 @@ import java.util.Map.Entry;
  * server's entering air temperature increase.<br />
  * The default value for the impact of two servers is 0. This allows to have
  * holed map inside.
- * 
+ *
  * @author guillaume
  */
 public class ImpactMap {
@@ -62,12 +62,12 @@ public class ImpactMap {
 		return ret;
 	}
 
-	private HashMap<String, HashMap<String, Double>> impacts = new HashMap<String, HashMap<String, Double>>();
+	private HashMap<String, HashMap<String, Double>> impacts = new HashMap<>();
 
 	/**
 	 * get the impact of the consumption from one server to the entering air's
 	 * temperature increase in another server.
-	 * 
+	 *
 	 * @param server1
 	 *            the server that consumes energy
 	 * @param server2
@@ -89,7 +89,7 @@ public class ImpactMap {
 	/**
 	 * set the impact from one server to another. if set to 0, remove the data
 	 * to maintain the map hollow
-	 * 
+	 *
 	 * @param server1
 	 *            the server impacting
 	 * @param server2
@@ -105,20 +105,20 @@ public class ImpactMap {
 		}
 		HashMap<String, Double> map = impacts.get(server1);
 		if (map == null) {
-			map = new HashMap<String, Double>();
+			map = new HashMap<>();
 			impacts.put(server1, map);
 		}
 		map.put(server2, impact);
 	}
 
 	/**
-	 * remove the impact data from one server to another. Effectiveley remove
-	 * the data, meaning the impact becomes 0.
-	 * 
+	 * remove the impact data from one server to another. Effectively remove the
+	 * data, meaning the impact becomes 0.
+	 *
 	 * @param server1
-	 *            the impacting server
+	 *          the impacting server
 	 * @param server2
-	 *            the impacetd server
+	 *          the impacetd server
 	 */
 	public void remove(String server1, String server2) {
 		HashMap<String, Double> map = impacts.get(server1);
@@ -127,7 +127,7 @@ public class ImpactMap {
 		}
 		map.remove(server2);
 		if (map.isEmpty()) {
-			impacts.remove(map);
+			impacts.remove(server1);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class ImpactMap {
 	protected void parseLine(String line) {
 		String from = null;
 		String eaten = "";
-		HashMap<String, Double> vals = new HashMap<String, Double>();
+		HashMap<String, Double> vals = new HashMap<>();
 		boolean escaping = false;
 		for (int i = 0; i <= line.length(); i++) {
 			char c = i < line.length() ? line.charAt(i) : ' ';
@@ -231,7 +231,7 @@ public class ImpactMap {
 		ImpactMap ret = new ImpactMap();
 		for (Entry<String, HashMap<String, Double>> entry : impacts.entrySet()) {
 			ret.impacts.put(entry.getKey(),
-					new HashMap<String, Double>(entry.getValue()));
+					new HashMap<>(entry.getValue()));
 		}
 		return ret;
 	}
@@ -268,7 +268,7 @@ public class ImpactMap {
 	 * {@link #toPlainMatrix(String[])}
 	 */
 	public String[] getAllServerNames() {
-		HashSet<String> res = new HashSet<String>();
+		HashSet<String> res = new HashSet<>();
 		res.addAll(impacts.keySet());
 		for (HashMap<String, Double> m : impacts.values()) {
 			res.addAll(m.keySet());
@@ -296,14 +296,14 @@ public class ImpactMap {
 
 	/**
 	 * apply this impact map to get the temperature increases of the servers
-	 * 
+	 *
 	 * @param serverConsumptions
 	 * @param serverMinTemps
 	 * @return
 	 */
 	public HashMap<String, Double> getTempIncreases(
 			HashMap<String, Double> serverConsumptions) {
-		HashMap<String, Double> ret = new HashMap<String, Double>();
+		HashMap<String, Double> ret = new HashMap<>();
 		String[] servers = getAllServerNames();
 		for (String target : servers) {
 			double increase = 0;

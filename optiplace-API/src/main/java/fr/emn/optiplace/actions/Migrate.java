@@ -22,7 +22,7 @@ public class Migrate implements Action {
 
 	public static void extractMigrations(IConfiguration from, IConfiguration to, ActionGraph actions) {
 		from.getRunnings().filter(to::isRunning).filter(e -> !from.getLocation(e).equals(to.getLocation(e)))
-		    .forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
+		.forEach(vm -> actions.add(new Migrate(vm, from.getLocation(vm), to.getLocation(vm))));
 	}
 
 	VM vm;
@@ -90,7 +90,7 @@ public class Migrate implements Action {
 	}
 
 	public boolean equalsMigrate(Migrate other) {
-		return vm.equals(other.vm) && from.equals(other.vm) && to.equals(other.to);
+		return vm.equals(other.vm) && from.equals(other.from) && to.equals(other.to);
 	}
 
 	@Override
