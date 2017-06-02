@@ -71,6 +71,10 @@ public class Optiplace extends IOptiplace {
 	/** the core problem, modified by the views */
 	protected ReconfigurationProblem problem;
 
+	public ReconfigurationProblem getPRoblem() {
+		return problem;
+	}
+
 	public Optiplace() {
 		this(new Configuration());
 	}

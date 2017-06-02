@@ -21,18 +21,6 @@ public class PowerBalanceEvaluator implements SearchGoal {
 
 	PowerView consumptionView;
 
-	/** @return the consumptionView */
-	public PowerView getConsumptionView() {
-		return consumptionView;
-	}
-
-	/**
-	 * @param consumptionView
-	 *            the consumptionView to set
-	 */
-	public void setConsumptionView(PowerView consumptionView) {
-		this.consumptionView = consumptionView;
-	}
 
 	public PowerBalanceEvaluator(PowerView consumptionView) {
 		super();
