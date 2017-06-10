@@ -91,9 +91,9 @@ public interface CoreView {
 	 *
 	 * @param vm
 	 *          a vm of the problem
-	 * @return a variable constrained to be -1 if the VM is waiting, node(n) if
-	 *         the VM is executed on the node n, extern(e)+nodes.length if the
-	 *         extern e is executing the vm.
+	 * @return a variable constrained to be b().waitidx() if the VM is waiting,
+	 *         node(n) if the VM is executed on the node n, extern(e)+nodes.length
+	 *         if the extern e is executing the vm.
 	 */
 	public default IntVar getVMLocation(VM vm) {
 		return getVMLocation(b().vm(vm));
@@ -217,6 +217,12 @@ public interface CoreView {
 		return nbVMsOn(b().location(location));
 	}
 
+	/**
+	 *
+	 * @param locIdx
+	 *          the index of the location.
+	 * @return a variable constrained to the number of vm with given location.
+	 */
 	public IntVar nbVMsOn(int locIdx);
 
 	/**

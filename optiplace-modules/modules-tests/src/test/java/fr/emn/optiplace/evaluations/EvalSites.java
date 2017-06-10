@@ -29,7 +29,7 @@ public class EvalSites {
 	/**
 	 * we redo the same benches this number of times
 	 */
-	static int nbiterations = 33;
+	static int nbiterations = 10;
 	/**
 	 * number of physical nodes in the local site.
 	 *
@@ -89,9 +89,6 @@ public class EvalSites {
 	static Optiplace makeProblem(int size, boolean spread, boolean far, boolean near, boolean hostcost) {
 		Configuration src = physical.clone();
 		HAView ha = new HAView();
-		HostCostView hc = new HostCostView();
-		hc.getCostData().setHostCost("site4", 3);
-		hc.getCostData().addHostFilter(".*", 1);
 		VM[][] clusters = new VM[size][];
 		// for each cluster (1 to size) of webapp+trusty app
 		for (int clusteri = 1; clusteri <= size; clusteri++) {
@@ -120,10 +117,14 @@ public class EvalSites {
 			ret.with(ha);
 		}
 		if (hostcost) {
+			HostCostView hc = new HostCostView();
+			hc.getCostData().setHostCost("site4", 3);
+			hc.getCostData().addHostFilter(".*", 1);
 			ret.with(hc).withGoal("hostcost");
 		}
 		// ret.getStrat().setLogContradictions(true);
 		// ret.getStrat().setLogHeuristicsSelection(true);
+		// ret.getStrat().setLogSolutions(true);
 		return ret;
 	}
 
@@ -184,45 +185,56 @@ public class EvalSites {
 			nodes[in] = physical.addOnline("n" + in, nodeMem);
 			physical.addSite("local", nodes[in]);
 		}
-		/////////////////
-		// for each size of problem, we launch several tests we collect the results
-		// of those tests in this list.
-		@SuppressWarnings("unchecked")
-		List<DeducedTarget>[] evals = new List[maxSize];
-		Arrays.setAll(evals, i -> new ArrayList<>());
 
-		for (int iteration = 0; iteration < nbiterations; iteration++) {
-			for (int size = 1; size <= maxSize; size++) {
-				Optiplace opl = makeProblem(size, true, true, true, false);
-				DeducedTarget res = opl.solve();
-				if (res.getDestination() != null) {
-					evals[size - 1].add(res);
-				} else {
-					System.err.println("error : can't solve");
-					System.err.println(opl.source());
-					for (View v : opl.views()) {
-						System.err.println(v.rulesStream());
+		for (boolean spread : new boolean[] { true, false }) {
+			for (boolean far : new boolean[] { true, false }) {
+				for (boolean near : new boolean[] { true }) {
+					for (boolean hostcost : new boolean[] { true, false }) {
+						System.out.println("spread:" + spread + " far:" + far + " near:" + near + " hostcost:" + hostcost);
+						/////////////////
+						// for each size of problem, we launch several tests we collect
+						///////////////// the results
+						// of those tests in this list.
+						@SuppressWarnings("unchecked")
+						List<DeducedTarget>[] evals = new List[maxSize];
+						Arrays.setAll(evals, i -> new ArrayList<>());
+
+						for (int iteration = 0; iteration < nbiterations; iteration++) {
+							for (int size = 1; size <= maxSize; size++) {
+								Optiplace opl = makeProblem(size, spread, far, near, hostcost);
+								DeducedTarget res = opl.solve();
+								if (res.getDestination() != null) {
+									evals[size - 1].add(res);
+								} else {
+									System.err.println("error : can't solve");
+									System.err.println(opl.source());
+									for (View v : opl.views()) {
+										System.err.println(v.rulesStream());
+									}
+									System.exit(42);
+								}
+
+							}
+						}
+						System.out.print("size");
+						for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
+							System.out.print("\t" + e);
+						}
+						System.out.println();
+						for (int size = 1; size <= maxSize; size++) {
+
+							System.out.print(size);
+							List<DeducedTarget> list = evals[size - 1];
+							for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
+								System.out.print("\t" + e.applyAsLong(list.stream()));
+							}
+							System.out.println();
+						}
+						System.out.println();
 					}
-					System.exit(42);
+
 				}
-
 			}
-			System.err.println("iteration " + iteration + " performed");
-		}
-
-		System.err.print("size");
-		for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
-			System.err.print("\t" + e);
-		}
-		System.err.println();
-		for (int size = 1; size <= maxSize; size++) {
-
-			System.err.print(size);
-			List<DeducedTarget> list = evals[size - 1];
-			for (ToLongFunction<Stream<DeducedTarget>> e : evalMetrics) {
-				System.err.print("\t" + e.applyAsLong(list.stream()));
-			}
-			System.err.println();
 		}
 	}
 

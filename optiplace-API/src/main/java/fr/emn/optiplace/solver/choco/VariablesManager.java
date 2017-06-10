@@ -2,6 +2,7 @@
 package fr.emn.optiplace.solver.choco;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.Solver;
@@ -547,6 +548,29 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(array).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(foldSetNames(array), minmax[0], minmax[1])
 				: createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
+		helper.nth(index, array, ret);
+		return ret;
+	}
+
+	/**
+	 * @param index
+	 * @param array
+	 * @return a new variable constrained by ret=array[index]
+	 */
+	public IntVar nth(IntVar index, int[] array) {
+		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+		for (int i : array) {
+			if (i < min) {
+				min = i;
+			}
+			if (i > max) {
+				max = i;
+			}
+		}
+		IntVar ret = createBoundIntVar(
+				IntStream.of(array).collect(StringBuilder::new, (b, i) -> b.append(' ').append(i), StringBuilder::append)
+						.toString() + "[" + index.getName() + "]",
+				min, max);
 		helper.nth(index, array, ret);
 		return ret;
 	}
