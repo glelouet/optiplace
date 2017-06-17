@@ -22,7 +22,8 @@ public class NoWaitingHeuristic {
 		IntVar[] vars = rp.c().getWaitings().map(rp::isWaiting).toArray(IntVar[]::new);
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 		if (vars != null && vars.length > 0) {
-			ret.add(SearchGoal.makeAssignHeuristic(NoWaitingHeuristic.class.getSimpleName() + ".IntVar", new InputOrder<>(),
+			ret.add(SearchGoal.makeAssignHeuristic(NoWaitingHeuristic.class.getSimpleName() + ".IntVar",
+					new InputOrder<>(rp.getModel()),
 					new IntDomainMin(), vars));
 		} else {
 			logger.debug("no VM waiting, can't make heuristic ");

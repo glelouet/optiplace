@@ -7,7 +7,7 @@ package fr.emn.optiplace.solver;
 import java.util.Arrays;
 import java.util.List;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
@@ -31,8 +31,6 @@ import org.chocosolver.solver.variables.Variable;
  *
  */
 public class HeuristicsList extends AbstractStrategy<Variable> {
-
-	private static final long serialVersionUID = 1L;
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HeuristicsList.class);
 
@@ -62,7 +60,7 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 	}
 
 	@SafeVarargs
-	public HeuristicsList(Solver s, ActivatedHeuristic<?>... leaders) {
+	public HeuristicsList(Model s, ActivatedHeuristic<?>... leaders) {
 		super(concatVars(leaders));
 		solver = s;
 		this.leaders = leaders;
@@ -70,13 +68,15 @@ public class HeuristicsList extends AbstractStrategy<Variable> {
 
 	@Override
 	public boolean init() {
-		for (ActivatedHeuristic<?> a : leaders)
-			if (!a.init())
+		for (ActivatedHeuristic<?> a : leaders) {
+			if (!a.init()) {
 				return false;
+			}
+		}
 		return true;
 	}
 
-	Solver solver;
+	Model solver;
 
 	@SuppressWarnings("unchecked")
 	@Override

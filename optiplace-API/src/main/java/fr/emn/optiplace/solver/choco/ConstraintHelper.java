@@ -1,10 +1,8 @@
 
 package fr.emn.optiplace.solver.choco;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.LCF;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -17,65 +15,64 @@ public class ConstraintHelper {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConstraintHelper.class);
-	Solver solver;
 
-	public Solver getSolver() {
-		return solver;
-	}
+	final Model model;
 
-	protected void post(Constraint c) {
-		solver.post(c);
-	}
-
-	public ConstraintHelper(Solver s) {
-		solver = s;
+	public ConstraintHelper(Model s) {
+		model = s;
 	}
 
 	/**
 	 * post equality of variables
-	 * 
+	 *
 	 * @param vars
 	 *          the variables to post equality on
 	 */
 	public void equality(IntVar... vars) {
-		if (vars == null || vars.length < 2)
+		if (vars == null || vars.length < 2) {
 			return;
+		}
 		for (int i = 1; i < vars.length; i++) {
-			solver.post(ICF.arithm(vars[i - 1], "=", vars[i]));
+			model.post(model.arithm(vars[i - 1], "=", vars[i]));
 		}
 	}
 
 	/**
-	 * post a constraint IF a series of bool var are ALL true
-	 * 
+	 * post a constraint IF a series of bool var are ALL true<br />
+	 * basically a "and(condition) implies result"
+	 *
 	 * @param result
 	 *          the constraint we want posted
-	 * @param vars
+	 * @param conditions
 	 *          the conditions for the constraint to apply
 	 */
-	public void onCondition(Constraint result, BoolVar... vars) {
-		if (result == null || vars == null || vars.length == 0)
+	public void postIf(Constraint result, BoolVar... conditions) {
+		if (result == null || conditions == null || conditions.length == 0) {
 			return;
-		if (vars.length == 1)
-			LCF.ifThen(vars[0], result);
+		}
+		if (conditions.length == 1) {
+			model.ifThen(conditions[0], result);
+			return;
+		}
 		// and(vars) implies result.reif :
 		// result.reif or !(and(vars))
 		// result.reif | !vars0 | !vars1 ...
-		BoolVar[] orVars = new BoolVar[vars.length + 1];
-		for (int i = 0; i < vars.length; i++)
-			orVars[i] = vars[i].not();
-		orVars[vars.length] = result.reif();
-		LCF.or(orVars);
+		BoolVar[] orVars = new BoolVar[conditions.length + 1];
+		for (int i = 0; i < conditions.length; i++) {
+			orVars[i] = conditions[i].not();
+		}
+		orVars[conditions.length] = result.reify();
+		model.post(model.or(orVars));
 	}
 
 	/** add a constraint, such as max = max(values) */
 	public void maxOfList(IntVar max, IntVar... values) {
-		getSolver().post(ICF.maximum(max, values));
+		model.post(model.max(max, values));
 	}
 
 	/** add a constraint, such as min = min(values) */
 	public void minOfList(IntVar min, IntVar... values) {
-		getSolver().post(ICF.minimum(min, values));
+		model.post(model.min(min, values));
 	}
 
 	/**
@@ -89,8 +86,8 @@ public class ConstraintHelper {
 	 * @param var
 	 *          variable
 	 */
-	public void nth(IntVar index, IntVar[] array, IntVar var) {
-		getSolver().post(ICF.element(var, array, index, 0));
+	public void element(IntVar index, IntVar[] array, IntVar var) {
+		model.post(model.element(var, array, index, 0));
 	}
 
 	/**
@@ -104,12 +101,12 @@ public class ConstraintHelper {
 	 * @param var
 	 *          variable
 	 */
-	public void nth(IntVar index, int[] array, IntVar var) {
-		getSolver().post(ICF.element(var, array, index));
+	public void element(IntVar index, int[] array, IntVar var) {
+		model.post(model.element(var, array, index));
 	}
 
 	/** add a constraint, left*right==product */
 	public void mult(IntVar left, IntVar right, IntVar product) {
-		getSolver().post(ICF.times(left, right, product));
+		model.post(model.times(left, right, product));
 	}
 }

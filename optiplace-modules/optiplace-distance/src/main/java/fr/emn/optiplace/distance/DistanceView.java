@@ -60,7 +60,7 @@ public class DistanceView extends EmptyView {
 					}
 					IntVar posTo = pb.getVMLocation(to);
 					IntVar coupleDistance = pb.v().createBoundIntVar("distance_" + from + "-" + to, 0, limit);
-					pb.h().nth(pb.v().plus(posTo, posFromMult), flatDistances, coupleDistance);
+					pb.h().element(pb.v().plus(posTo, posFromMult), flatDistances, coupleDistance);
 				}
 			}
 		}, rp.getSourceConfiguration());

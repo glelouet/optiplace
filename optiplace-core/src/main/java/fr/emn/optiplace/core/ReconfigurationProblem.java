@@ -17,17 +17,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.LCF;
-import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,14 +55,15 @@ import fr.emn.optiplace.view.annotations.Goal;
  * @author Guillaume Le Louët
  * @author Fabien Hermenier
  */
-@SuppressWarnings("serial")
-public class ReconfigurationProblem extends Solver implements IReconfigurationProblem {
+public class ReconfigurationProblem implements IReconfigurationProblem {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReconfigurationProblem.class);
 
+	private final Model m = new Model();
+
 	@Override
-	public Solver getSolver() {
-		return this;
+	public Model getModel() {
+		return m;
 	}
 
 	// static objects of the problem
@@ -154,12 +151,12 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				vmsLocation[i] = v.createEnumIntVar("" + vmName(i) + "_location", 0, iswaiting ? b.waitIdx() : b.waitIdx() - 1);
 				// constrain the state of the VM
 				// if VM location is node : state is running on node
-				LCF.ifThenElse(ICF.arithm(vmsLocation[i], "<", b.nodes().length), ICF.arithm(vmsState[i], "=", VM_RUNNODE),
-						ICF.arithm(vmsState[i], "!=", VM_RUNNODE));
+				m.ifThenElse(m.arithm(vmsLocation[i], "<", b.nodes().length), m.arithm(vmsState[i], "=", VM_RUNNODE),
+						m.arithm(vmsState[i], "!=", VM_RUNNODE));
 				// if VM was waiting, and location> max location then it is waiting
 				if (iswaiting) {
-					LCF.ifThenElse(ICF.arithm(vmsLocation[i], ">=", b.waitIdx()),
-							ICF.arithm(vmsState[i], "=", VM_WAITING), ICF.arithm(vmsState[i], "!=", VM_WAITING));
+					m.ifThenElse(m.arithm(vmsLocation[i], ">=", b.waitIdx()), m.arithm(vmsState[i], "=", VM_WAITING),
+							m.arithm(vmsState[i], "!=", VM_WAITING));
 				} else {
 					try {
 						vmsState[i].removeValue(VM_WAITING, Cause.Null);
@@ -226,8 +223,8 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public ReconfigurationProblem(IConfiguration src) {
 		c = src;
 		b = new Bridge(src);
-		h = new ConstraintHelper(this);
-		v = new VariablesManager(this, h);
+		h = new ConstraintHelper(m);
+		v = new VariablesManager(m, h);
 		makeDynamicConfig();
 		removeHostTags();
 	}
@@ -235,7 +232,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	@Override
 	public void post(Constraint cc) {
 		// System.err.println("posted " + cc);
-		super.post(cc);
+		m.post(cc);
 	}
 
 	@Override
@@ -283,14 +280,14 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 			// A set variable for each future online nodes
 			locationVMsSets = new SetVar[b.locations().length + 1];
 			for (int i = 0; i < locationVMsSets.length - 1; i++) {
-				SetVar s = VF.set(locationName(i) + ".hosted", 0, c.nbVMs() - 1, getSolver());
+				SetVar s = m.setVar(locationName(i) + ".hosted", 0, c.nbVMs() - 1);
 				locationVMsSets[i] = s;
 			}
-			locationVMsSets[locationVMsSets.length - 1] = VF.set("nonNodeVMs", 0, c.nbVMs() - 1, this);
+			locationVMsSets[locationVMsSets.length - 1] = m.setVar("nonNodeVMs", 0, c.nbVMs() - 1);
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
-			Constraint c = SetConstraintsFactory.int_channel(locationVMsSets, getVMLocations(), 0, 0);
+			Constraint c = m.setsIntsChanneling(locationVMsSets, getVMLocations());
 			post(c);
 		}
 	}
@@ -337,7 +334,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 				}
 			}
 			ret = v.createEnumIntVar(vmName(vmidx) + "_site", -1, b.sites().length - 1);
-			post(ICF.element(ret, locationSite, getVMLocation(vmidx), 0, "detect"));
+			post(m.element(ret, locationSite, getVMLocation(vmidx)));
 			vmSites[vmidx] = ret;
 		}
 		return ret;
@@ -360,8 +357,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = locationVMCards[idx];
 		if (ret == null) {
-			ret = v.createEnumIntVar(locationName(idx) + ".#VMs", 0, c.nbVMs());
-			post(SetConstraintsFactory.cardinality(getHostedOn(idx), ret));
+			ret = getHostedOn(idx).getCard();
 			locationVMCards[idx] = ret;
 		}
 		return ret;
@@ -422,7 +418,7 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 	public IntVar nbHosts() {
 		if (nbHosters == null) {
 			nbHosters = v.createEnumIntVar("nbHosters", 0, c.nbNodes());
-			post(ICF.sum(isHosts(), nbHosters));
+			post(m.sum(isHosts(), "=", nbHosters));
 		}
 		return nbHosters;
 	}
@@ -443,9 +439,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = hostedArray[vmIndex];
 		if (ret == null) {
-			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, VF.MAX_INT_BOUND);
+			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, IntVar.MAX_INT_BOUND);
 			onNewVar(ret);
-			h.nth(getVMLocation(vmIndex), getUse(resource).getNodesLoad(), ret);
+			h.element(getVMLocation(vmIndex), getUse(resource).getNodesLoad(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -468,9 +464,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		}
 		IntVar ret = hostedArray[vmIndex];
 		if (ret == null) {
-			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterMax_" + resource, 0, VF.MAX_INT_BOUND);
+			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterMax_" + resource, 0, IntVar.MAX_INT_BOUND);
 			onNewVar(ret);
-			h.nth(getVMLocation(vmIndex), resources.get(resource).getCapacities(), ret);
+			h.element(getVMLocation(vmIndex), resources.get(resource).getCapacities(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -622,9 +618,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 
 	@Override
 	public SolvingStatistics getSolvingStatistics() {
-		IMeasures mes = getMeasures();
+		IMeasures mes = m.getSolver().getMeasures();
 		return new SolvingStatistics(mes.getNodeCount(), mes.getBackTrackCount(), (long) (mes.getTimeCount() * 1000),
-				super.hasReachedLimit());
+				!m.getSolver().isSearchCompleted());
 	}
 
 	/** each resource added is associated to this and stored in this map. */
@@ -666,13 +662,9 @@ public class ReconfigurationProblem extends Solver implements IReconfigurationPr
 		// System.err.println("added var " + var);
 	}
 
-	@Override
-	public BoolVar isOnline(Node n) {
-		return VF.one(getSolver());
-	}
-
 	/**
 	 * @param objective
+	 *          to reduce
 	 */
 	IntVar objective = null;
 

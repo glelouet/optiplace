@@ -1,11 +1,14 @@
 package fr.emn.optiplace.ha.rules;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -22,29 +25,20 @@ import fr.emn.optiplace.view.Rule;
  */
 public class Lazy implements Rule {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(Lazy.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Lazy.class);
 
-	public static final Pattern pat = Pattern
-.compile("lazy\\[(.*)\\]\\((.*)\\)\\((.*)\\)");
+	public static final Pattern pat = Pattern.compile("lazy\\[(.*)\\]\\((.*)\\)\\((.*)\\)");
 
 	public static Lazy parse(String s) {
 		Matcher m = pat.matcher(s);
 		if (!m.matches()) {
 			return null;
 		}
-		Set<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream()
-				.map(n -> new Node(n)).collect(Collectors.toSet());
+		Set<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Node(n)).collect(Collectors.toSet());
 		return new Lazy(m.group(2), Integer.parseInt(m.group(3)), nodes);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Lazy parse(String def) {
-			return Lazy.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Lazy.parse(def);
 
 	protected Set<Node> nodes;
 
@@ -57,9 +51,9 @@ public class Lazy implements Rule {
 	 * construct a constraint with internal parameters
 	 *
 	 * @param maxPCLoad
-	 * the max percentage load (integer) of the host's CPU.
+	 *          the max percentage load (integer) of the host's CPU.
 	 * @param nodes
-	 * the set of nodes to apply this constraint on
+	 *          the set of nodes to apply this constraint on
 	 */
 	public Lazy(String resName, int maxPCLoad, Set<Node> nodes) {
 		this.nodes = nodes;
@@ -71,7 +65,7 @@ public class Lazy implements Rule {
 	 * easier to use constructor that produces an internal vjobset
 	 *
 	 * @param nodes
-	 * the array of nodes to convert to a {@link VJobSet}
+	 *          the array of nodes to convert to a {@link VJobSet}
 	 * @see #LazyNode(int, VJobSet)
 	 */
 	public Lazy(String resName, int maxPCLoad, Node... nodes) {
@@ -85,7 +79,7 @@ public class Lazy implements Rule {
 
 	/**
 	 * @param maxPCLoad
-	 * the maxPCLoad to set
+	 *          the maxPCLoad to set
 	 */
 	public void setMaxPCLoad(int maxPCLoad) {
 		this.maxPCLoad = maxPCLoad;
@@ -111,7 +105,7 @@ public class Lazy implements Rule {
 		for (Node n : nodes) {
 			int capa = spec.getCapacity(n) * maxPCLoad / 100;
 			IntVar use = uses.getNodesLoad()[core.b().location(n)];
-			core.getSolver().post(ICF.arithm(use, "<=", capa));
+			core.post(core.getModel().arithm(use, "<=", capa));
 		}
 	}
 
@@ -124,8 +118,7 @@ public class Lazy implements Rule {
 
 	@Override
 	public String toString() {
-		return "lazy" + nodes + "(" + resName + ")(" + getMaxPCLoad()
-				+ ")";
+		return "lazy" + nodes + "(" + resName + ")(" + getMaxPCLoad() + ")";
 	}
 
 	@Override
@@ -134,7 +127,6 @@ public class Lazy implements Rule {
 			return false;
 		}
 		Lazy other = (Lazy) obj;
-		return other.maxPCLoad == maxPCLoad && other.resName.equals(resName)
-				&& other.nodes.equals(nodes);
+		return other.maxPCLoad == maxPCLoad && other.resName.equals(resName) && other.nodes.equals(nodes);
 	}
 }

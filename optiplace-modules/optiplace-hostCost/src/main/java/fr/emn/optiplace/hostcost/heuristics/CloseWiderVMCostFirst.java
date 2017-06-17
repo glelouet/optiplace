@@ -2,9 +2,10 @@ package fr.emn.optiplace.hostcost.heuristics;
 
 import java.util.stream.IntStream;
 
-import org.chocosolver.solver.search.strategy.ISF;
-import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.variables.Largest;
+import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -26,9 +27,9 @@ public class CloseWiderVMCostFirst {
 		// view::getCost)
 		IntVar[] scope = IntStream.range(0, view.b.vms().length).mapToObj(view::getCost).toArray(IntVar[]::new);
 		// we select the variable with max domain size
-		VariableSelector<IntVar> varSelector = ISF.maxDomainSize_var_selector();
+		VariableSelector<IntVar> varSelector = new Largest();
 		// we attribute the lowest value to this variable.
-		IntValueSelector valSelector = ISF.min_value_selector();
+		IntValueSelector valSelector = new IntDomainMin();
 		return new IntStrategy(scope, varSelector, valSelector);
 	}
 }

@@ -15,9 +15,9 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.Cause;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.slf4j.Logger;
@@ -43,11 +43,15 @@ public interface IReconfigurationProblem extends CoreView {
 
 	public static final Logger logger = LoggerFactory.getLogger(IReconfigurationProblem.class);
 
-	public Solver getSolver();
+	public Model getModel();
+
+	public default Solver getSolver() {
+		return getModel().getSolver();
+	}
 
 	/** shortcut for getSolver().post(c) */
 	default void post(Constraint c) {
-		getSolver().post(c);
+		getModel().post(c);
 	}
 
 	/**
@@ -128,7 +132,7 @@ public interface IReconfigurationProblem extends CoreView {
 		case 0:
 			throw new UnsupportedOperationException("can't assign an IntVar( " + var + ")to null value");
 		case 1:
-			post(ICF.arithm(var, "=", onRunning != null ? onRunning : onExtern != null ? onExtern : onWaiting));
+			post(getModel().arithm(var, "=", onRunning != null ? onRunning : onExtern != null ? onExtern : onWaiting));
 			try {
 				state.instantiateTo(onRunning != null ? VM_RUNNODE : onExtern != null ? VM_RUNEXT : VM_WAITING, Cause.Null);
 			} catch (ContradictionException e) {
@@ -151,7 +155,7 @@ public interface IReconfigurationProblem extends CoreView {
 			}
 			break;
 		case 3:
-			post(ICF.arithm(var, "=", v().nth(getState(v), vars)));
+			post(getModel().arithm(var, "=", v().nth(getState(v), vars)));
 			break;
 		default:
 			throw new UnsupportedOperationException(

@@ -1,6 +1,5 @@
 package fr.emn.optiplace.hostcost;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.VMLocation;
@@ -85,7 +84,7 @@ public class HostCostView extends EmptyView {
 		if (totalCost == null) {
 			IntVar[] costsl = getLocationCosts();
 			totalCost = v.sum("hostcost.totalCost", costsl);
-			pb.post(ICF.sum(getVMCosts(), totalCost));
+			post(pb.getModel().sum(getVMCosts(), "=", totalCost));
 		}
 		return totalCost;
 	}
@@ -120,7 +119,7 @@ public class HostCostView extends EmptyView {
 			maxCost++;
 			for (int i = 0; i < b.vms().length; i++) {
 				vmCosts[i] = v.createEnumIntVar("vm_" + i + "_cost", minCost, maxCost);
-				pb.post(ICF.element(vmCosts[i], hostCostByIdx, pb.getVMLocation(i)));
+				pb.post(pb.getModel().element(vmCosts[i], hostCostByIdx, pb.getVMLocation(i)));
 			}
 		}
 		return vmCosts;

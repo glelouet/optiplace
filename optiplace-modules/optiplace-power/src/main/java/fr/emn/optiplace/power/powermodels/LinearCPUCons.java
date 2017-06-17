@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -76,7 +75,8 @@ public class LinearCPUCons implements PowerModel {
 		IntVar use = pb.getUsedCPU(n);
 		IntVar ret = pb.v().createBoundIntVar(n.getName() + ".power", (int) min, (int) max);
 		parent.onNewVar(ret);
-		Constraint eq = ICF.arithm(pb.v().mult(ret, capa), "=", pb.v().mult(use, (int) delta), "+", (int) (min * capa));
+		Constraint eq = parent.pb.getModel().arithm(pb.v().mult(ret, capa), "=", pb.v().mult(use, (int) delta), "+",
+				(int) (min * capa));
 		parent.post(eq);
 		return ret;
 	}

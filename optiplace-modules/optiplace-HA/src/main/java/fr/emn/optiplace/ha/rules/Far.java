@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -61,7 +60,7 @@ public class Far implements Rule {
 	public void inject(IReconfigurationProblem core) {
 		IntVar[] sites = vms.stream().filter(core.getSourceConfiguration()::hasVM).map(core::getVMSite)
 				.toArray(IntVar[]::new);
-		core.post(ICF.alldifferent_conditionnal(sites, iv -> iv.getLB() > -1));
+		core.post(core.getModel().allDifferentUnderCondition(sites, iv -> iv.getLB() > -1, false));
 	}
 
 	@Override

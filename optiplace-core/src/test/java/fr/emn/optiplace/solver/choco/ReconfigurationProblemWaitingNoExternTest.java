@@ -77,7 +77,7 @@ public class ReconfigurationProblemWaitingNoExternTest {
 			pb.getVMLocation(vm0).instantiateTo(pb.b().waitIdx(), Cause.Null);
 			pb.getVMLocation(vm1).instantiateTo(pb.b().location(n0), Cause.Null);
 			pb.getState(vm2).instantiateTo(CoreView.VM_WAITING, Cause.Null);
-			pb.propagate();
+			pb.getSolver().propagate();
 			Assert.assertTrue(pb.getState(vm0).isInstantiatedTo(CoreView.VM_WAITING),
 					"" + pb.getState(vm0) + " should be " + CoreView.VM_WAITING);
 			Assert.assertTrue(pb.getState(vm1).isInstantiatedTo(CoreView.VM_RUNNODE),

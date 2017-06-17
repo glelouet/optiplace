@@ -1,11 +1,12 @@
 package fr.emn.optiplace.solver.choco;
 
+import org.chocosolver.solver.Solution;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.Node;
-import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
@@ -17,8 +18,9 @@ public class ReconfigurationProblemTest {
 		Configuration sc = new Configuration();
 		VM vm = sc.addVM("vm", null);
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);
-		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_WAITING);
+		Solution sol = p.getSolver().findSolution();
+		Assert.assertNotNull(sol);
+		Assert.assertEquals(sol.getIntVal(p.getState(vm)), CoreView.VM_WAITING);
 	}
 
 	@Test
@@ -28,8 +30,9 @@ public class ReconfigurationProblemTest {
 		VM vm = sc.addVM("vm", n);
 
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);
-		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_RUNNODE);
+		Solution sol = p.getSolver().findSolution();
+		Assert.assertNotNull(sol);
+		Assert.assertEquals(sol.getIntVal(p.getState(vm)), CoreView.VM_RUNNODE);
 	}
 
 	@Test
@@ -41,8 +44,9 @@ public class ReconfigurationProblemTest {
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);
 		// p.getSolver().plugMonitor((IMonitorContradiction) cex ->
 		// System.err.println(cex));
-		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getState(vm).getValue(), CoreView.VM_RUNEXT);
+		Solution sol = p.getSolver().findSolution();
+		Assert.assertNotNull(sol);
+		Assert.assertEquals(sol.getIntVal(p.getState(vm)), CoreView.VM_RUNEXT);
 	}
 
 }

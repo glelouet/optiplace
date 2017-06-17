@@ -32,8 +32,6 @@ public class SimpleBinPacking extends Propagator<IntVar> {
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(SimpleBinPacking.class);
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void propagate(int evtmask) throws ContradictionException {
 	// TODO Auto-generated method stub

@@ -1,6 +1,7 @@
 package fr.emn.optiplace.solver.choco;
 
 import org.chocosolver.solver.Cause;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,9 +41,10 @@ public class TestExternPlacement extends SolvingExample {
 		p.getState(vm1).instantiateTo(CoreView.VM_RUNEXT, Cause.Null);
 		p.getState(vm2).removeValue(CoreView.VM_WAITING, Cause.Null);
 
-		Assert.assertTrue(p.findSolution());
-		Assert.assertEquals(p.getVMLocation(vm1).getValue(), p.b().location(e));
-		Assert.assertEquals(p.getVMLocation(vm2).getValue(), p.b().location(e));
+		Solution sol = p.getSolver().findSolution();
+		Assert.assertNotNull(sol);
+		Assert.assertEquals(sol.getIntVal(p.getVMLocation(vm1)), p.b().location(e));
+		Assert.assertEquals(sol.getIntVal(p.getVMLocation(vm2)), p.b().location(e));
 	}
 
 }

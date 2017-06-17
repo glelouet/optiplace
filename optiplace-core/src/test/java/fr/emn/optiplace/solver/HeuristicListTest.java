@@ -4,16 +4,15 @@
 
 package fr.emn.optiplace.solver;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.search.strategy.IntStrategyFactory;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,7 +30,6 @@ import fr.emn.optiplace.solver.heuristics.Static2Activated;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
  *
  */
-@SuppressWarnings("serial")
 public class HeuristicListTest {
 
 	@SuppressWarnings("unused")
@@ -81,7 +79,7 @@ public class HeuristicListTest {
 		public Decision getDecision() {
 			if (toAdd != null) {
 				try {
-					vars[0].getSolver().post(toAdd);
+					vars[0].getModel().post(toAdd);
 					// vars[0].getSolver().propagate();
 					// leads to fail, as well as
 					// vars[0].getSolver().postTemp(toAdd);
@@ -96,7 +94,7 @@ public class HeuristicListTest {
 
 		public IterateOverVar(IntVar var) {
 			super(new IntVar[] {
-			    var
+					var
 			}, new VarSelUnique(var), new ValSelLB());
 		}
 
@@ -116,19 +114,19 @@ public class HeuristicListTest {
 
 	@Test
 	public void testpostTemp() {
-		Solver s = new Solver();
+		Model s = new Model();
 
-		IntVar a = VF.bool("a", s);
+		IntVar a = s.boolVar("a");
 		IterateOverVar ia = new IterateOverVar(a);
 
-		IntVar b = VF.bool("b", s);
-		IterateOverVar ib = new IterateOverVar(b).withConstraint(ICF.arithm(a, "!=", 0));
+		IntVar b = s.boolVar("b");
+		IterateOverVar ib = new IterateOverVar(b).withConstraint(s.arithm(a, "!=", 0));
 
-		IntVar c = VF.bool("c", s);
+		IntVar c = s.boolVar("c");
 		IterateOverVar ic = new IterateOverVar(c);
-		s.set(IntStrategyFactory.sequencer(ia, ib, ic));
+		s.getSolver().setSearch(Search.sequencer(ia, ib, ic));
 		// SearchMonitorFactory.log(s, true, true);
-		s.findSolution();
+		s.getSolver().findSolution();
 	}
 
 	/**
@@ -141,27 +139,27 @@ public class HeuristicListTest {
 	 */
 	@Test(dependsOnMethods = "testpostTemp")
 	public void testFirstOptimizeFalse() {
-		Solver s = new Solver();
+		Model s = new Model();
 
-		IntVar a = VF.bool("a", s);
+		IntVar a = s.boolVar("a");
 		IterateOverVar ia = new IterateOverVar(a);
 
-		IntVar b = VF.bool("b", s);
+		IntVar b = s.boolVar("b");
 		IterateOverVar ib = new IterateOverVar(b);
 
-		IntVar c = VF.bool("c", s);
-		IterateOverVar ic = new IterateOverVar(c).withConstraint(ICF.arithm(a, "!=", b));
+		IntVar c = s.boolVar("c");
+		IterateOverVar ic = new IterateOverVar(c).withConstraint(s.arithm(a, "!=", b));
 
-		IntVar d = VF.bool("d", s);
+		IntVar d = s.boolVar("d");
 		IterateOverVar id = new IterateOverVar(d);
 
-		HeuristicsList hl = new HeuristicsList(s, new Static2Activated<IntVar>(ia), new Static2Activated<IntVar>(ib));
-		s.set(IntStrategyFactory.sequencer(hl, ic, id));
+		HeuristicsList hl = new HeuristicsList(s, new Static2Activated<>(ia), new Static2Activated<>(ib));
+		s.getSolver().setSearch(Search.sequencer(hl, ic, id));
 		// SearchMonitorFactory.log(s, true, true);
-		s.findSolution();
-		Assert.assertEquals(a.getValue(), 0);
-		Assert.assertEquals(b.getValue(), 1);
-		Assert.assertEquals(c.getValue(), 0);
-		Assert.assertEquals(d.getValue(), 0);
+		Solution sol = s.getSolver().findSolution();
+		Assert.assertEquals(sol.getIntVal(a), 0);
+		Assert.assertEquals(sol.getIntVal(b), 1);
+		Assert.assertEquals(sol.getIntVal(c), 0);
+		Assert.assertEquals(sol.getIntVal(d), 0);
 	}
 }

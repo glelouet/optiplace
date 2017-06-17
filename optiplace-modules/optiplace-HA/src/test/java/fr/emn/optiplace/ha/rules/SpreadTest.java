@@ -6,11 +6,6 @@ package fr.emn.optiplace.ha.rules;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.LCF;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -85,7 +80,7 @@ public class SpreadTest extends SolvingExample {
 		Extern e1 = src.addExtern("ext1");
 		Extern e2 = src.addExtern("ext2");
 
-		IConfiguration d = solve(src, new Spread(this.placed[0])).getDestination();
+		IConfiguration d = solve(src, new Spread(placed[0])).getDestination();
 		Assert.assertEquals(d.nbHosted(nodes[0]), 1, "dest is " + d);
 		Assert.assertEquals(d.nbHosted(e1), 1, "dest is" + d);
 		Assert.assertEquals(d.nbHosted(e2), 1, "dest is" + d);
@@ -101,36 +96,5 @@ public class SpreadTest extends SolvingExample {
 		String s = r.toString();
 		Spread parsed = Spread.parse(s);
 		Assert.assertEquals(parsed, r);
-	}
-
-	/**
-	 * 3 elements a b c to place, each is either in one of two bins of the 1-set
-	 * (a1,b1,c1) or in the bin of the 2-set (a2,b2,c2) ; If the var is not in a
-	 * set, its corresponding var is -1<br />
-	 * eg if the element a is in the bin 0 of the 1-set, then a1=0 and a2=-1
-	 * <br />
-	 * if b is in the bin 0 of the 2-set, then b2=0 and b1=-1
-	 */
-	@Test
-	public void testSimpleAllDiff() {
-		Solver s = new Solver();
-		IntVar a1 = VF.bounded("a1", -1, 1, s);
-		IntVar a2 = VF.bounded("a2", -1, 0, s);
-		LCF.ifThen(ICF.arithm(a1, "!=", -1), ICF.arithm(a2, "=", -1));
-		LCF.ifThen(ICF.arithm(a2, "!=", -1), ICF.arithm(a1, "=", -1));
-
-		IntVar b1 = VF.bounded("b1", -1, 1, s);
-		IntVar b2 = VF.bounded("b2", -1, 0, s);
-		LCF.ifThen(ICF.arithm(b1, "!=", -1), ICF.arithm(b2, "=", -1));
-		LCF.ifThen(ICF.arithm(b2, "!=", -1), ICF.arithm(b1, "=", -1));
-
-		IntVar c1 = VF.bounded("c1", -1, 1, s);
-		IntVar c2 = VF.bounded("c2", -1, 0, s);
-		LCF.ifThen(ICF.arithm(c1, "!=", -1), ICF.arithm(c2, "=", -1));
-		LCF.ifThen(ICF.arithm(c2, "!=", -1), ICF.arithm(c1, "=", -1));
-
-		s.post(ICF.alldifferent_conditionnal(new IntVar[] { a1, b1, c1 }, v -> v.getLB() > -1));
-		s.post(ICF.alldifferent_conditionnal(new IntVar[] { a2, b2, c2 }, v -> v.getLB() > -1));
-		Assert.assertTrue(s.findSolution());
 	}
 }

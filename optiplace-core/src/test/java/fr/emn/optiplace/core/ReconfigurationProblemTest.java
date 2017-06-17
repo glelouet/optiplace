@@ -57,20 +57,20 @@ public class ReconfigurationProblemTest {
 	public void checkHosters() throws ContradictionException {
 		pb.getVMLocation(vm1_0).removeValue(pb.b().location(n0), Cause.Null);
 		pb.getVMLocation(vm1_1).removeValue(pb.b().location(n0), Cause.Null);
-		Assert.assertTrue(pb.findSolution());
+		Assert.assertNotNull(pb.getSolver().findSolution());
 	}
 
 	@Test(dependsOnMethods = "checkHosters")
 	public void checkHosted() throws ContradictionException {
-		pb.getHostedOn(n0).removeFromEnvelope(pb.b().vm(vm1_0), Cause.Null);
-		pb.getHostedOn(n0).removeFromEnvelope(pb.b().vm(vm1_1), Cause.Null);
-		Assert.assertTrue(pb.findSolution());
+		pb.getHostedOn(n0).remove(pb.b().vm(vm1_0), Cause.Null);
+		pb.getHostedOn(n0).remove(pb.b().vm(vm1_1), Cause.Null);
+		Assert.assertNotNull(pb.getSolver().findSolution());
 	}
 
 	@Test(dependsOnMethods = "checkHosted")
 	public void checknbVM() throws ContradictionException {
 		pb.nbVMsOn(n0).updateUpperBound(2, Cause.Null);
-		Assert.assertTrue(pb.findSolution());
+		Assert.assertNotNull(pb.getSolver().findSolution());
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class ReconfigurationProblemTest {
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
 		rp.getHostedOn(n).instantiateTo(new int[] {}, Cause.Null);
-		Assert.assertTrue(rp.findSolution());
+		Assert.assertNotNull(rp.getSolver().findSolution());
 	}
 
 	@Test(dependsOnMethods = "testNbVMs")
@@ -100,7 +100,7 @@ public class ReconfigurationProblemTest {
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
 		rp.isHost(n).setToFalse(Cause.Null);
-		Assert.assertTrue(rp.findSolution());
+		Assert.assertNotNull(rp.getSolver().findSolution());
 	}
 
 	@Test

@@ -2,7 +2,6 @@ package fr.emn.optiplace.power;
 
 import java.util.ArrayList;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
@@ -172,10 +171,6 @@ public class PowerView extends EmptyView {
 	 * @return the {@link IntVar} corresponding to the server consumption
 	 */
 	protected IntVar makePower(Node n) {
-		IntVar powerstate = pb.isOnline(n);
-		if (powerstate.isInstantiatedTo(0)) {
-			return v.createIntegerConstant(0);
-		}
 		PowerModel cm = powerData.get(n);
 		if (cm == null) {
 			System.err.println("no data for node " + n + ", models are  :" + powerData);
@@ -193,11 +188,7 @@ public class PowerView extends EmptyView {
 			}
 		}
 		IntVar ret = cm.makePower(n, this);
-		if (!powerstate.contains(0)) {
-			return ret;
-		} else {
-			return v.mult(pb.isOnline(n), ret);
-		}
+		return ret;
 	}
 
 	private IntVar cachedTotalPower = null;
@@ -230,7 +221,7 @@ public class PowerView extends EmptyView {
 		}
 		IntVar ret = pb.v().createBoundIntVar("dcPower", evalMinVMsCons(), evaluateMaxCons());
 		onNewVar(ret);
-		post(ICF.sum(pmPower, ret));
+		post(pb.getModel().sum(pmPower, "=", ret));
 		return ret;
 	}
 
@@ -308,7 +299,7 @@ public class PowerView extends EmptyView {
 			IntVar maxLoad = v.max(getAllNodesPowers());
 			IntVar minLoad = v.min(getAllNodesPowers());
 			cachedMaxPowerDiff = v.createBoundIntVar("consumptionMaxDiff", 0, maxLoad.getUB() - minLoad.getLB());
-			post(ICF.arithm(v.plus(cachedMaxPowerDiff, minLoad), "=", maxLoad));
+			post(pb.getModel().arithm(v.plus(cachedMaxPowerDiff, minLoad), "=", maxLoad));
 			onNewVar(cachedMaxPowerDiff);
 		}
 		return cachedMaxPowerDiff;

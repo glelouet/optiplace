@@ -2,7 +2,6 @@
 package fr.emn.optiplace.network;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -71,7 +70,7 @@ public class NetworkView extends EmptyView {
 			for (int coupleIdx = 0; coupleIdx < coupleContainsLink.length; coupleIdx++) {
 				BoolVar var = v.createBoolVar(bridge.vmCouple(coupleIdx) + "?uses(" + l + ")");
 				coupleContainsLink[coupleIdx] = var;
-				SCF.member(v.createIntegerConstant(linkIdx), vmCouple2Links[coupleIdx]).reifyWith(var);
+				pb.getModel().member(v.createIntegerConstant(linkIdx), vmCouple2Links[coupleIdx]).reifyWith(var);
 			}
 			IntVar linkUse = v.scalar(coupleContainsLink, couple2use);
 			try {
@@ -131,7 +130,7 @@ public class NetworkView extends EmptyView {
 			// we check the state of
 			IntVar flatMatIdx = v.createEnumIntVar(c.toString() + ".flatMatIdx", 0, flatMat.length);
 			pb.switchState(c.v0, flatMatIdx, idxNonWaiting, idxNonWaiting, v.createIntegerConstant(0));
-			post(SCF.element(flatMatIdx, flatMat, 0, vmCouple2Links[i]));
+			post(pb.getModel().element(flatMatIdx, flatMat, 0, vmCouple2Links[i]));
 		}
 	}
 

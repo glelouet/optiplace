@@ -7,8 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -26,11 +24,11 @@ import fr.emn.optiplace.view.Rule;
  */
 public class Greedy implements Rule {
 
-  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-      .getLogger(Greedy.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
+			.getLogger(Greedy.class);
 
 	public static final Pattern pat = Pattern
-.compile("greedy\\[(.*)\\]\\((.*)\\)\\((.*)\\)");
+			.compile("greedy\\[(.*)\\]\\((.*)\\)\\((.*)\\)");
 
 	public static Greedy parse(String s) {
 		Matcher m = pat.matcher(s);
@@ -42,13 +40,7 @@ public class Greedy implements Rule {
 		return new Greedy(Integer.parseInt(m.group(2)), m.group(3), vms);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Greedy parse(String def) {
-			return Greedy.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Greedy.parse(def);
 
 	protected int maxHostLoad;
 
@@ -57,49 +49,48 @@ public class Greedy implements Rule {
 	protected String resource = "CPU";
 
 	public Greedy(int maxHostLoad, String resource, Set<VM> vms) {
-    this.maxHostLoad = maxHostLoad;
+		this.maxHostLoad = maxHostLoad;
 		this.resource = resource;
 		this.vms = vms;
-  }
+	}
 
 	public Greedy(int maxHostLoad, String resource, VM... vms) {
 		this(maxHostLoad, resource, new HashSet<>(Arrays.asList(vms)));
-  }
+	}
 
-  /** @return the max load allowed for the VMs' host */
-  public double getMaxHostLoad() {
-    return maxHostLoad;
-  }
+	/** @return the max load allowed for the VMs' host */
+	public double getMaxHostLoad() {
+		return maxHostLoad;
+	}
 
-  @Override
-  public void inject(IReconfigurationProblem core) {
-    Solver s = core.getSolver();
+	@Override
+	public void inject(IReconfigurationProblem core) {
 		vms.stream().filter(core.getSourceConfiguration()::hasVM).forEach(vm -> {
 			int vmi = core.b().vm(vm);
 			IntVar times100load = core.v().mult(core.getHostUse(resource, vmi), 100);
 			IntVar timesPCcapa = core.v().mult(core.getHostCapa(resource, vmi), maxHostLoad);
-      s.post(ICF.arithm(times100load, "<=", timesPCcapa));
+			core.post(core.getModel().arithm(times100load, "<=", timesPCcapa));
 		});
-  }
+	}
 
-  @Override
-  public boolean isSatisfied(IConfiguration cfg) {
+	@Override
+	public boolean isSatisfied(IConfiguration cfg) {
 		ResourceSpecification specs = cfg.resources().get(resource);
 		if (vms.size() == 0) {
-      logger.debug("No virtual machines was specified");
-      return true;
-    }
+			logger.debug("No virtual machines was specified");
+			return true;
+		}
 		for (VM vm : vms) {
-      if (cfg.isRunning(vm)) {
+			if (cfg.isRunning(vm)) {
 				Node n = cfg.getNodeHost(vm);
-        int nodeCapa = specs.getCapacity(n);
-        if (specs.getUse(cfg, n) / nodeCapa > getMaxHostLoad()) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
+				int nodeCapa = specs.getCapacity(n);
+				if (specs.getUse(cfg, n) / nodeCapa > getMaxHostLoad()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
 	@Override
 	public String toString() {

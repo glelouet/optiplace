@@ -7,19 +7,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.LCF;
-import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
 import org.chocosolver.solver.search.strategy.selectors.variables.InputOrder;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
-import org.chocosolver.solver.trace.Chatterbox;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -81,7 +78,7 @@ import fr.emn.optiplace.network.data.VMGroup;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2016
  *
  */
-public class NetworkViewStreamer extends Solver {
+public class NetworkViewStreamer extends Model {
 
 	static final long serialVersionUID = 1L;
 
@@ -144,7 +141,7 @@ public class NetworkViewStreamer extends Solver {
 	 *          max umber of cumulative values for link capas and group use
 	 */
 	public NetworkViewStreamer(IConfiguration v, int minLinksCapa, int maxLinksCapa, int maxNbVMGroups, int maxGroupSize,
-	    int maxGroupUse, int nbCumulValues) {
+			int maxGroupUse, int nbCumulValues) {
 		maxLinkCapa = maxLinksCapa;
 		minLinkCapa = minLinksCapa;
 		maxNbVMGroup = maxNbVMGroups;
@@ -175,56 +172,55 @@ public class NetworkViewStreamer extends Solver {
 	}
 
 	public NetworkViewStreamer withShowContradictions() {
-		Chatterbox.showContradiction(this);
+		getSolver().showContradiction();
 		return this;
 	}
 
 	public NetworkViewStreamer withShowDecisions() {
-		Chatterbox.showDecisions(this);
+		getSolver().showDecisions();
 		return this;
 	}
 
 
 	protected void makeVariables() {
 		routerActivateds = new BoolVar[maxNbRouters];
-		nbRouters = VF.bounded("nbrouters", 0, maxNbRouters, this);
-		nbEdges = VF.offset(nbRouters, externs.length + nodes.length - 1);
+		nbRouters = intVar("nbrouters", 0, maxNbRouters, true);
+		nbEdges = intOffsetView(nbRouters, externs.length + nodes.length - 1);
 		for (int i = 0; i < routers.length; i++) {
-			routerActivateds[i] = VF.bool("" + routers[i].getName() + ".activated", this);
-			ICF.arithm(nbRouters, ">", i).reifyWith(routerActivateds[i]);
+			routerActivateds[i] = boolVar("" + routers[i].getName() + ".activated");
+			arithm(nbRouters, ">", i).reifyWith(routerActivateds[i]);
 		}
 
 		edgePreviousIdx = new IntVar[vertices.length];
 		edgeAddedVertex = new IntVar[vertices.length];
 		edgeActivated = new BoolVar[vertices.length];
-		edgePreviousIdx[0] = edgeAddedVertex[0] = VF.fixed(0, this);
-		edgeActivated[0] = ONE();
+		edgePreviousIdx[0] = edgeAddedVertex[0] = intVar(0);
+		edgeActivated[0] = boolVar(true);
 
 		// make the edges
 		for (int i = 1; i < vertices.length; i++) {
 			String name = "edge_" + (i - 1);
-			edgePreviousIdx[i] = VF.enumerated(name + ".previousidx", -1, i - 1, this);
-			edgeAddedVertex[i] = VF.enumerated(name + ".added", -1, vertices.length - 1, this);
-			edgeActivated[i] = VF.bool(name + ".activated", this);
-			ICF.arithm(nbEdges, ">=", i).reifyWith(edgeActivated[i]);
-			post(ICF.arithm(edgeAddedVertex[i], "<=", nbEdges));
+			edgePreviousIdx[i] = intVar(name + ".previousidx", -1, i - 1, false);
+			edgeAddedVertex[i] = intVar(name + ".added", -1, vertices.length - 1, false);
+			edgeActivated[i] = boolVar(name + ".activated");
+			arithm(nbEdges, ">=", i).reifyWith(edgeActivated[i]);
+			post(arithm(edgeAddedVertex[i], "<=", nbEdges));
 			// the idx are increasing or stable ( <= )
-			Constraint idxOrdered = ICF.arithm(edgePreviousIdx[i - 1], "<=", edgePreviousIdx[i]);
+			Constraint idxOrdered = arithm(edgePreviousIdx[i - 1], "<=", edgePreviousIdx[i]);
 			// same idx => ordered added
-			Constraint addedOrdered = LCF.or(ICF.arithm(edgePreviousIdx[i - 1], "!=", edgePreviousIdx[i]),
-			    ICF.arithm(edgeAddedVertex[i - 1], "<", edgeAddedVertex[i]));
+			Constraint addedOrdered = or(arithm(edgePreviousIdx[i - 1], "!=", edgePreviousIdx[i]),
+					arithm(edgeAddedVertex[i - 1], "<", edgeAddedVertex[i]));
 			// the idx/vertices can not be -1 if activated
-			Constraint edgeAddedPositiv = ICF.arithm(edgeAddedVertex[i], ">=", 0);
-			Constraint edgeIdxPositiv = ICF.arithm(edgePreviousIdx[i], ">=", 0);
-			Constraint cActivated = LCF.and(idxOrdered, addedOrdered, edgeAddedPositiv, edgeIdxPositiv);
+			Constraint edgeAddedPositiv = arithm(edgeAddedVertex[i], ">=", 0);
+			Constraint edgeIdxPositiv = arithm(edgePreviousIdx[i], ">=", 0);
+			Constraint cActivated = and(idxOrdered, addedOrdered, edgeAddedPositiv, edgeIdxPositiv);
 			// if edge not activated then from and to = -1
-			Constraint cUnactivated = LCF.and(ICF.arithm(edgeAddedVertex[i], "=", -1),
-			    ICF.arithm(edgePreviousIdx[i], "=", -1));
-			LCF.ifThenElse(edgeActivated[i], cActivated, cUnactivated);
+			Constraint cUnactivated = and(arithm(edgeAddedVertex[i], "=", -1), arithm(edgePreviousIdx[i], "=", -1));
+			ifThenElse(edgeActivated[i], cActivated, cUnactivated);
 		}
 
 		// all the node only appear once in the added
-		post(ICF.alldifferent_conditionnal(edgeAddedVertex, v -> v.getLB() > -1));
+		post(allDifferentUnderCondition(edgeAddedVertex, v -> v.getLB() > -1, false));
 
 		if (nbCumulValues > 1) {
 			// limit number of values for sum(edgepreviousidx)
@@ -236,76 +232,75 @@ public class NetworkViewStreamer extends Solver {
 				totalPreviousIdxSumValues[i] = minPreviousIdxSum
 						+ i * (maxPreviousIdxSum - minPreviousIdxSum) / (nbCumulValues - 1);
 			}
-			IntVar totalPreviousIdx = VF.enumerated("totalpreviousidx", totalPreviousIdxSumValues, this);
-			post(ICF.sum(edgePreviousIdx, totalPreviousIdx));
+			IntVar totalPreviousIdx = intVar("totalpreviousidx", totalPreviousIdxSumValues);
+			post(sum(edgePreviousIdx, "=", totalPreviousIdx));
 		}
 
 		routerHeights = new IntVar[routers.length];
 		routerIndexes = new IntVar[routers.length];
 		for (int router = externs.length + nodes.length; router < vertices.length; router++) {
 			// the index where the router is added in edgeaddedvertex
-			IntVar routerIndex = VF.enumerated(vertices[router].name + ".index", -1, vertices.length, this);
+			IntVar routerIndex = intVar(vertices[router].name + ".index", -1, vertices.length, false);
 			routerIndexes[router - externs.length - nodes.length] = routerIndex;
-			LCF.ifThenElse(edgeActivated[router], ICF.element(VF.fixed(router, this), edgeAddedVertex, routerIndex, 0),
-			    ICF.arithm(routerIndex, "=", -1));
+			ifThenElse(edgeActivated[router], element(intVar(router), edgeAddedVertex, routerIndex, 0),
+					arithm(routerIndex, "=", -1));
 			// the height of the router
-			IntVar routerHeight = VF.bounded(vertices[router].name + ".height", 0, vertices.length, this);
+			IntVar routerHeight = intVar(vertices[router].name + ".height", 0, vertices.length, true);
 			routerHeights[router - externs.length - nodes.length] = routerHeight;
 			// equals the number of times its index is present in edgepreviousindex
-			post(ICF.count(routerIndex, edgePreviousIdx, VF.offset(routerHeight, -1)));
-			LCF.ifThen(edgeActivated[router], ICF.arithm(routerHeight, ">=", 3));
+			post(count(routerIndex, edgePreviousIdx, intOffsetView(routerHeight, -1)));
+			ifThen(edgeActivated[router], arithm(routerHeight, ">=", 3));
 		}
 
 		linkCapas = new IntVar[vertices.length - 1];
 		// the edge i has capacity at position i-1
 		// because first step is not an edge, it's a vertex alone.
 		for (int idx = 0; idx < linkCapas.length; idx++) {
-			linkCapas[idx] = VF.bounded("link." + idx, 0, maxLinkCapa, this);
-			LCF.ifThenElse(edgeActivated[idx + 1], ICF.arithm(linkCapas[idx], ">", 0), ICF.arithm(linkCapas[idx], "=", 0));
+			linkCapas[idx] = intVar("link." + idx, 0, maxLinkCapa, false);
+			ifThenElse(edgeActivated[idx + 1], arithm(linkCapas[idx], ">", 0), arithm(linkCapas[idx], "=", 0));
 		}
-		
+
 		if (nbCumulValues > 1) {
 			//limit number of values of sum(linkscapa)
 			int[] totalCapaValues = new int[nbCumulValues];
 			for (int i = 0; i < nbCumulValues; i++) {
 				totalCapaValues[i] = minLinkCapa + i * (maxLinkCapa - minLinkCapa) / (nbCumulValues - 1);
 			}
-			totalLinksCapa = VF.enumerated("totalLinkCapa", totalCapaValues, this);
+			totalLinksCapa = intVar("totalLinkCapa", totalCapaValues);
 		} else {
-			totalLinksCapa = VF.bounded("totalLinkCapa", minLinkCapa, maxLinkCapa, this);
+			totalLinksCapa = intVar("totalLinkCapa", minLinkCapa, maxLinkCapa, true);
 		}
-		post(ICF.sum(linkCapas, totalLinksCapa));
+		post(sum(linkCapas, "=", totalLinksCapa));
 
 		//
 		// vms capacities
 		//
 		vmGroup = new IntVar[vms.length];
 		for (int idx = 0; idx < vms.length; idx++) {
-			vmGroup[idx] = VF.enumerated(vms[idx].getName() + ".group", 0, maxNbVMGroup, this);
+			vmGroup[idx] = intVar(vms[idx].getName() + ".group", 0, maxNbVMGroup, false);
 		}
 		groupUse = new IntVar[maxNbVMGroup + 1];
 		groupSize = new IntVar[maxNbVMGroup + 1];
 		for (int i = 0; i < groupSize.length; i++) {
 			if (i == 0) {
-				groupUse[i] = ZERO();
-				groupSize[i] = VF.bounded("group_0.size", 0, vms.length > 1 ? vms.length - 2 : vms.length, this);
+				groupUse[i] = intVar(0);
+				groupSize[i] = intVar("group_0.size", 0, vms.length > 1 ? vms.length - 2 : vms.length, true);
 			} else {
-				groupUse[i] = VF.bounded("group_" + i + ".use", 0, maxGroupUse, this);
-				groupSize[i] = VF.bounded("group_" + i + ".size", 0, maxGroupSize, this);
-				post(ICF.arithm(groupSize[i], "!=", 1));
+				groupUse[i] = intVar("group_" + i + ".use", 0, maxGroupUse, true);
+				groupSize[i] = intVar("group_" + i + ".size", 0, maxGroupSize, true);
+				post(arithm(groupSize[i], "!=", 1));
 				// a group is activated iff its size is >1
-				Constraint activated = ICF.arithm(groupSize[i], ">", 1);
+				Constraint activated = arithm(groupSize[i], ">", 1);
 				// if a group is activated then its use is non null
-				LCF.ifThenElse(activated, ICF.arithm(groupUse[i], ">", 0), ICF.arithm(groupUse[i], "=", 0));
+				ifThenElse(activated, arithm(groupUse[i], ">", 0), arithm(groupUse[i], "=", 0));
 				if (i != 1) {
 					// group size are decreasing
-					post(ICF.arithm(groupSize[i - 1], ">=", groupSize[i]));
+					post(arithm(groupSize[i - 1], ">=", groupSize[i]));
 					// groups are strict decreasing either in use or in size
-					LCF.ifThen(activated,
-							LCF.or(ICF.arithm(groupUse[i - 1], ">", groupUse[i]), ICF.arithm(groupSize[i - 1], ">", groupSize[i])));
+					ifThen(activated, or(arithm(groupUse[i - 1], ">", groupUse[i]), arithm(groupSize[i - 1], ">", groupSize[i])));
 				}
 			}
-			post(ICF.count(i, vmGroup, groupSize[i]));
+			post(count(i, vmGroup, groupSize[i]));
 		}
 		if (nbCumulValues > 1) {
 			// limit possible values of sum(groupUse)
@@ -314,8 +309,8 @@ public class NetworkViewStreamer extends Solver {
 			for (int i = 0; i < nbCumulValues; i++) {
 				totalGroupUseValues[i] = minTotalGroupUse + i * (maxTotalGroupUse - minTotalGroupUse) / (nbCumulValues - 1);
 			}
-			IntVar totalGroupUse = VF.enumerated("totalGroupUse", totalGroupUseValues, this);
-			post(ICF.sum(groupUse, totalGroupUse));
+			IntVar totalGroupUse = intVar("totalGroupUse", totalGroupUseValues);
+			post(sum(groupUse, "=", totalGroupUse));
 		}
 	}
 
@@ -328,9 +323,9 @@ public class NetworkViewStreamer extends Solver {
 		vars.addAll(Arrays.asList(linkCapas));
 		vars.addAll(Arrays.asList(vmGroup));
 		vars.addAll(Arrays.asList(groupUse));
-		vars.addAll(Arrays.asList(retrieveIntVars()));
-		strats.add(new IntStrategy(vars.toArray(new IntVar[] {}), new InputOrder<>(), new IntDomainMin()));
-		set(strats.toArray(new AbstractStrategy[] {}));
+		vars.addAll(Arrays.asList(retrieveIntVars(true)));
+		strats.add(new IntStrategy(vars.toArray(new IntVar[] {}), new InputOrder<>(this), new IntDomainMin()));
+		getSolver().setSearch(strats.toArray(new AbstractStrategy[] {}));
 	}
 
 	public NetworkView extract(Solution s) {

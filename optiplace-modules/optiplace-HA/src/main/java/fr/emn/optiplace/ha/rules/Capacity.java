@@ -18,10 +18,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
@@ -51,13 +49,7 @@ public class Capacity implements Rule {
 		return new Capacity(nodes, max);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Capacity parse(String def) {
-			return Capacity.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Capacity.parse(def);
 
 	private final int maxvms;
 
@@ -73,7 +65,7 @@ public class Capacity implements Rule {
 	 */
 	public Capacity(Set<Node> ns, int m) {
 		maxvms = m;
-		this.nodes = ns;
+		nodes = ns;
 	}
 
 	@Override
@@ -97,8 +89,8 @@ public class Capacity implements Rule {
 			}
 			break;
 		default:
-			IntVar sum = VF.bounded("sum of " + nodes + "#nbVMs", 0, Integer.MAX_VALUE, core.getSolver());
-			core.getSolver().post(ICF.sum(hosteds, sum));
+			IntVar sum = core.v().createBoundIntVar("sum of " + nodes + "#nbVMs", 0, Integer.MAX_VALUE);
+			core.post(core.getModel().sum(hosteds, "=", sum));
 		}
 	}
 

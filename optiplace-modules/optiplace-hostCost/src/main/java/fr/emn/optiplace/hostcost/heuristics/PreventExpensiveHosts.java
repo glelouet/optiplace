@@ -3,7 +3,7 @@ package fr.emn.optiplace.hostcost.heuristics;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.search.strategy.ISF;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -39,6 +39,6 @@ public class PreventExpensiveHosts {
 
 	public static IntStrategy makeHeuristic(HostCostView view) {
 		IntVar[] nbhosteds = orderLocationsByCost(view).map(view.pb::nbVMsOn).toArray(IntVar[]::new);
-		return ISF.lexico_LB(nbhosteds);
+		return Search.inputOrderLBSearch(nbhosteds);
 	}
 }

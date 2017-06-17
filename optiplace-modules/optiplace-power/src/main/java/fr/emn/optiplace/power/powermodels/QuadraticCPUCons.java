@@ -2,7 +2,6 @@ package fr.emn.optiplace.power.powermodels;
 
 import java.util.Map;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.Node;
@@ -55,7 +54,7 @@ public class QuadraticCPUCons implements PowerModel {
 		IntVar sum = pb.v().scalar(new IntVar[] { sqr, use, parent.v.createIntegerConstant(1) },
 				new double[] { alpha, beta, gamma });
 		IntVar ret = parent.v.createBoundIntVar(n.getName() + ".consumption", (int) min, (int) max);
-		pb.getSolver().post(ICF.times(ret, capa, sum));
+		parent.post(parent.pb.getModel().times(ret, capa, sum));
 		return ret;
 	}
 

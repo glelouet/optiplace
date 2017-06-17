@@ -7,9 +7,8 @@ package fr.emn.optiplace.homogeneous.heuristics;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactory;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.solver.ActivatedHeuristic;
@@ -23,8 +22,6 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  *
  */
 public class PackOnHoster extends ActivatedHeuristic<IntVar> {
-
-	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PackOnHoster.class);
@@ -68,9 +65,7 @@ public class PackOnHoster extends ActivatedHeuristic<IntVar> {
 			if (activateds[i]) {
 				for (IntVar v : vmsToHost[i]) {
 					if (v.contains(i) && !v.isInstantiated()) {
-						IntDecision ret = getIntDecision();
-						ret.set(v, i, DecisionOperator.int_eq);
-						return ret;
+						return decisions.makeIntDecision(v, DecisionOperatorFactory.makeIntEq(), i);
 					}
 				}
 			}

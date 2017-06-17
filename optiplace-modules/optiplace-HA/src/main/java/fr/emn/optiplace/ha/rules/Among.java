@@ -21,10 +21,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
@@ -151,7 +149,7 @@ public class Among implements Rule {
 			groups = Stream
 					.concat(core.getSourceConfiguration().getOnlines(),
 							core.getSourceConfiguration().getExterns()
-									.filter(ext -> core.getSourceConfiguration().isLocationTagged(ext, SUPPORT_TAG)))
+							.filter(ext -> core.getSourceConfiguration().isLocationTagged(ext, SUPPORT_TAG)))
 					.map(n -> Collections.singleton(n.getName()))
 					.collect(Collectors.toSet());
 			System.err.println("deduced group of among is : ");
@@ -160,7 +158,7 @@ public class Among implements Rule {
 		IConfiguration cfg = core.getSourceConfiguration();
 		List<IntVar> hostersl = vms.stream().filter(cfg::hasVM).map(core::getVMLocation).collect(Collectors.toList());
 		// we transform them to a SetVar
-		SetVar hosters = core.v().toSet(hostersl.toArray(new IntVar[] {}));
+		SetVar hosters = core.v().toSet("among.hosters", hostersl.toArray(new IntVar[] {}));
 		SetVar[] possibleLocations = new SetVar[groups.size()];
 		int i = 0;
 		for (Set<String> s : groups) {
@@ -170,10 +168,10 @@ public class Among implements Rule {
 			for (int j = 0; j < l.size(); j++) {
 				env[j] = l.get(j);
 			}
-			possibleLocations[i] = VF.set("among_nodeset_" + i, env, core.getSolver());
+			possibleLocations[i] = core.v().createEnumSetVar("among_nodeset_" + i, env);
 			i++;
 		}
-		core.post(SCF.member(possibleLocations, hosters));
+		core.post(core.getModel().member(possibleLocations, hosters));
 	}
 
 	/**

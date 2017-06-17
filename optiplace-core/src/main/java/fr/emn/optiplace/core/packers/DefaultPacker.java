@@ -1,13 +1,11 @@
 package fr.emn.optiplace.core.packers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
@@ -23,8 +21,12 @@ public class DefaultPacker implements ChocoResourcePacker {
 	@Override
 	public List<Constraint> pack(IntVar[] binAssign, ResourceLoad... resourceUse) {
 		ArrayList<Constraint> res = new ArrayList<>();
+		if (binAssign == null || binAssign.length == 0) {
+			return res;
+		}
 		// at least one VM can be set to non-running ?
 		boolean hasNonRunning = false;
+		Model m = binAssign[0].getModel();
 		for (IntVar i : binAssign) {
 			if (i.getLB() < 0) {
 				hasNonRunning = true;
@@ -34,8 +36,7 @@ public class DefaultPacker implements ChocoResourcePacker {
 		for (ResourceLoad ru : resourceUse) {
 			IntVar[] nodesUses = ru.getNodesLoad();
 			if (hasNonRunning) {
-				IntVar nonRunningNode = VF.bounded("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(),
-						binAssign[0].getSolver());
+				IntVar nonRunningNode = m.intVar("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(), true);
 				IntVar[] newNodesUses = new IntVar[nodesUses.length + 1];
 				newNodesUses[0] = nonRunningNode;
 				for (int i = 1; i < newNodesUses.length; i++) {
@@ -52,18 +53,23 @@ public class DefaultPacker implements ChocoResourcePacker {
 					if (hasNonRunning && i == 0) {
 						sumElems[i] = nodesUses[i];
 					} else {
-						sumElems[i] = ru.getAdditionalUse()[hasNonRunning ? i - 1 : i] == 0 ? nodesUses[i]
-								: nodesUses[i].duplicate();
+						int additionallUse = ru.getAdditionalUse()[hasNonRunning ? i - 1 : i];
+
+						sumElems[i] = nodesUses[i];
+						if (additionallUse != 0) {
+							sumElems[i] = m.intVar(nodesUses[i].getName(), nodesUses[i].getLB(), nodesUses[i].getUB(),
+									!nodesUses[i].hasEnumeratedDomain());
+						}
 					}
 				}
-				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsLoads(), sumElems, hasNonRunning ? -1 : 0)));
+				res.add(m.binPacking(binAssign, ru.getVMsLoads(), sumElems, hasNonRunning ? -1 : 0));
 				for (int i = 0; i < nodesUses.length; i++) {
 					if (sumElems[i] != nodesUses[i]) {
-						res.add(ICF.arithm(nodesUses[i], "=", sumElems[i], "+", ru.getAdditionalUse()[i]));
+						res.add(m.arithm(nodesUses[i], "=", sumElems[i], "+", ru.getAdditionalUse()[i]));
 					}
 				}
 			} else {
-				res.addAll(Arrays.asList(ICF.bin_packing(binAssign, ru.getVMsLoads(), nodesUses, hasNonRunning ? -1 : 0)));
+				res.add(m.binPacking(binAssign, ru.getVMsLoads(), nodesUses, hasNonRunning ? -1 : 0));
 			}
 		}
 		return res;

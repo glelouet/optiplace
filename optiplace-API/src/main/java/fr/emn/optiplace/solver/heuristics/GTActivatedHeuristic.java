@@ -2,7 +2,7 @@ package fr.emn.optiplace.solver.heuristics;
 
 import java.util.Arrays;
 
-import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactory;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.variables.IntVar;
@@ -20,7 +20,6 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
  */
 public class GTActivatedHeuristic extends ActivatedHeuristic<IntVar> {
 
-	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GTActivatedHeuristic.class);
 
@@ -42,12 +41,12 @@ public class GTActivatedHeuristic extends ActivatedHeuristic<IntVar> {
 		if (!isActivated()) {
 			throw new UnsupportedOperationException();
 		}
-		IntDecision e = getIntDecision();
+		IntDecision e;
 		if (vars[0].getLB() >= vars[1].getLB()) {// a.min >= b.min : set b.min >
 			// a.min+1
-			e.set(vars[1], vars[0].getLB() + 1, DecisionOperator.int_reverse_split);
+			e = decisions.makeIntDecision(vars[1], DecisionOperatorFactory.makeIntReverseSplit(), vars[0].getLB() + 1);
 		} else { // b.max<=a.max : set a.max < b.max -1
-			e.set(vars[0], vars[1].getUB() - 1, DecisionOperator.int_split);
+			e = decisions.makeIntDecision(vars[0], DecisionOperatorFactory.makeIntSplit(), vars[1].getUB() - 1);
 		}
 		return e;
 	}

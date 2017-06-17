@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.chocosolver.solver.constraints.ICF;
-
 import entropy.view.hotspot.HotSpotView;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.Node;
@@ -64,7 +62,7 @@ public class NodeRearIncreaseLower implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		for (Node n : nodes) {
-			hotspotView.post(ICF.arithm(hotspotView.getRearTemp(n), "<=", maxIncrease));
+			hotspotView.post(core.getModel().arithm(hotspotView.getRearTemp(n), "<=", maxIncrease));
 		}
 	}
 

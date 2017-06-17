@@ -6,17 +6,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.propagation.NoPropagationEngine;
-import org.chocosolver.solver.search.solution.Solution;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
 
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
@@ -50,7 +47,7 @@ public class ConfigurationStreamer {
 	 *          the solver to stream over its solutions
 	 * @return a new sequential Stream containing the next solutions to call.
 	 */
-	public static Stream<Solution> nextSolutions(Solver s) {
+	public static Stream<Solution> nextSolutions(Model s) {
 		return StreamSupport.stream(new Spliterator<Solution>() {
 
 			@Override
@@ -70,16 +67,11 @@ public class ConfigurationStreamer {
 
 			@Override
 			public boolean tryAdvance(Consumer<? super Solution> action) {
-				boolean ret = false;
-				if (s.getEngine() == NoPropagationEngine.SINGLETON || !s.getEngine().isInitialized()) {
-					ret = s.findSolution();
-				} else {
-					ret = s.nextSolution();
+				Solution ret = s.getSolver().findSolution();
+				if (ret != null) {
+					action.accept(ret);
 				}
-				if (ret) {
-					action.accept(s.getSolutionRecorder().getLastSolution());
-				}
-				return ret;
+				return ret != null;
 			}
 
 		}, false);
@@ -96,7 +88,7 @@ public class ConfigurationStreamer {
 	 *          the function to convert the solutions of the solver to a T
 	 * @return the stream of the next solutions casted to T of the solver s
 	 */
-	public static <T> Stream<T> nextSolutions(Solver s, Function<Solution, T> mapper) {
+	public static <T> Stream<T> nextSolutions(Model s, Function<Solution, T> mapper) {
 		return nextSolutions(s).map(mapper);
 	}
 
@@ -142,7 +134,7 @@ public class ConfigurationStreamer {
 			public boolean tryAdvance(Consumer<? super IConfiguration> action) {
 				nbVMs++;
 				if (maxVMPerHost > 0 && nbVMs > nbHosters * maxVMPerHost
-		        || maxCfgSize > 0 && getSize(nbHosters, nbVMs) > maxCfgSize) {
+						|| maxCfgSize > 0 && getSize(nbHosters, nbVMs) > maxCfgSize) {
 					nbVMs = 1;
 					nbExterns++;
 					if (nbExterns > nbHosters) {
@@ -199,7 +191,7 @@ public class ConfigurationStreamer {
 		if (maxNodeRes < cfg.nbNodes() || maxNodeRes < cfg.nbVMs()) {
 			return Stream.empty();
 		}
-		Solver s = new Solver();
+		Model s = new Model();
 
 		Node[] nodes = cfg.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
 		IntVar[] nodeCaps = new IntVar[nodes.length];
@@ -211,37 +203,37 @@ public class ConfigurationStreamer {
 		Extern[] externs = cfg.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
 		IntVar[] externCaps = new IntVar[externs.length];
 		for (int i = 0; i < nodes.length; i++) {
-			nodeCaps[i] = VF.bounded("n_" + nodes[i].getName(), 1, maxNodeRes, s);
+			nodeCaps[i] = s.intVar("n_" + nodes[i].getName(), 1, maxNodeRes, true);
 			if (i != 0) {
 				// node caps are decreasing
-				s.post(ICF.arithm(nodeCaps[i - 1], ">=", nodeCaps[i]));
+				s.post(s.arithm(nodeCaps[i - 1], ">=", nodeCaps[i]));
 				// cumul Node caps
-				nodeCapCumuls[i] = VF.bounded("nc_" + nodes[i].getName(), 1, maxNodeRes, s);
-				s.post(ICF.sum(new IntVar[] {
-				    nodeCaps[i], nodeCapCumuls[i - 1]
-				}, nodeCapCumuls[i]));
+				nodeCapCumuls[i] = s.intVar("nc_" + nodes[i].getName(), 1, maxNodeRes, true);
+				s.post(s.sum(new IntVar[] {
+						nodeCaps[i], nodeCapCumuls[i - 1]
+				}, "=", nodeCapCumuls[i]));
 			} else {
 				nodeCapCumuls[0] = nodeCaps[0];
 			}
 		}
 
 		for (int i = 0; i < vms.length; i++) {
-			vmUses[i] = VF.bounded("v_" + vms[i].getName(), 1, maxNodeRes, s);
+			vmUses[i] = s.intVar("v_" + vms[i].getName(), 1, maxNodeRes, true);
 			if (i != 0) {
 				// vm uses are decreasing
-				s.post(ICF.arithm(vmUses[i - 1], ">=", vmUses[i]));
+				s.post(s.arithm(vmUses[i - 1], ">=", vmUses[i]));
 				// cumul vm uses
-				vmUseCumuls[i] = VF.bounded("vc_" + vms[i].getName(), 1, maxNodeRes, s);
-				s.post(ICF.sum(new IntVar[] {
-				    vmUses[i], vmUseCumuls[i - 1]
-				}, vmUseCumuls[i]));
+				vmUseCumuls[i] = s.intVar("vc_" + vms[i].getName(), 1, maxNodeRes, true);
+				s.post(s.sum(new IntVar[] {
+						vmUses[i], vmUseCumuls[i - 1]
+				}, "=", vmUseCumuls[i]));
 			} else {
 				vmUseCumuls[0] = vmUses[0];
 			}
-			s.post(ICF.arithm(vmUseCumuls[i], "<=", nodeCapCumuls[i < nodes.length ? i : nodes.length - 1]));
+			s.post(s.arithm(vmUseCumuls[i], "<=", nodeCapCumuls[i < nodes.length ? i : nodes.length - 1]));
 		}
-		s.post(ICF.arithm(VF.scale(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
-		    VF.scale(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
+		s.post(s.arithm(s.intScaleView(vmUseCumuls[vmUseCumuls.length - 1], 100), "<=",
+				s.intScaleView(nodeCapCumuls[nodeCapCumuls.length - 1], Math.min(Math.max(maxVmLoadPct, 0), 100))));
 
 		// do we need to have a limited number of values for cumul VM/Node load?
 		if (nbTotalResValues > 1) {
@@ -250,8 +242,8 @@ public class ConfigurationStreamer {
 			for (int i = 0; i < nbTotalResValues; i++) {
 				allowedVMCumul[i] = minVMLoad + (maxVMLoad - minVMLoad) * i / (nbTotalResValues - 1);
 			}
-			IntVar vmTotalCumul = VF.enumerated("vmTotalUse", allowedVMCumul, s);
-			s.post(ICF.arithm(vmTotalCumul, "=", vmUseCumuls[vms.length - 1]));
+			IntVar vmTotalCumul = s.intVar("vmTotalUse", allowedVMCumul);
+			s.post(s.arithm(vmTotalCumul, "=", vmUseCumuls[vms.length - 1]));
 
 			int minNodeCumul = Math.max(nodes.length, vms.length);
 			int maxNodeCumul = maxNodeRes;
@@ -259,19 +251,19 @@ public class ConfigurationStreamer {
 			for (int i = 0; i < nbTotalResValues; i++) {
 				allowedNodeCumul[i] = minNodeCumul + (maxNodeCumul - minNodeCumul) * i / (nbTotalResValues - 1);
 			}
-			IntVar nodeTotalCumul = VF.enumerated("nodeTotalUse", allowedNodeCumul, s);
-			s.post(ICF.sum(nodeCaps, nodeTotalCumul));
+			IntVar nodeTotalCumul = s.intVar("nodeTotalUse", allowedNodeCumul);
+			s.post(s.sum(nodeCaps, "=", nodeTotalCumul));
 		}
 
 		// set the extern values
-		SetVar vmsUses = VF.set("vmUses", 1, maxNodeRes, s);
-		s.post(SCF.int_values_union(vmUses, vmsUses));
+		SetVar vmsUses = s.setVar("vmUses", IntStream.range(1, maxNodeRes + 1).toArray());
+		s.post(s.union(vmUses, vmsUses));
 		for (int i = 0; i < externs.length; i++) {
-			externCaps[i] = VF.bounded("e_" + externs[i].getName(), 1, maxNodeRes, s);
-			s.post(SCF.member(externCaps[i], vmsUses));
+			externCaps[i] = s.intVar("e_" + externs[i].getName(), 1, maxNodeRes, true);
+			s.post(s.member(externCaps[i], vmsUses));
 			if (i != 0) {
 				// extern caps are decreasing
-				s.post(ICF.arithm(externCaps[i - 1], ">=", externCaps[i]));
+				s.post(s.arithm(externCaps[i - 1], ">=", externCaps[i]));
 			}
 		}
 		return nextSolutions(s).map(sol -> {
@@ -321,10 +313,10 @@ public class ConfigurationStreamer {
 		}
 		return streamElements(maxVMPerHost, maxCfgSize).filter(checker)
 				.flatMap(c -> streamResource(c, resName, maxResFunc.apply(c), maxVmLoadPct, nbTotalResValues).map(s ->
-		{
-			    IConfiguration c2 = c.clone();
-			    c2.resources().put(s.getType(), s);
-			    return c2;
-		    }));
+				{
+					IConfiguration c2 = c.clone();
+					c2.resources().put(s.getType(), s);
+					return c2;
+				}));
 	}
 }

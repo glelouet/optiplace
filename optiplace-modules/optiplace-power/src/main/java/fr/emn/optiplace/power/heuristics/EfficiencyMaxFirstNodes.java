@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.search.strategy.ISF;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -93,7 +93,7 @@ public class EfficiencyMaxFirstNodes {
 			}
 			IntVar[] vars_a = vars.toArray(new IntVar[] {});
 			Var2ValSelector v = new Var2ValSelector(vars_a, idx);
-			ret.add(ISF.custom(v, v, vars_a));
+			ret.add(Search.intVarSearch(v, v, vars_a));
 		}
 		return ret;
 	}

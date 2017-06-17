@@ -82,7 +82,7 @@ public class EmptyView implements View {
 			if (debugVarsAndPosts) {
 				logger.debug(getClass().getSimpleName() + " posted " + cc);
 			}
-			pb.getSolver().post(cc);
+			pb.post(cc);
 		}
 	}
 

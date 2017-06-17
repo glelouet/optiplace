@@ -12,18 +12,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.ResolutionPolicy;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.objective.ObjectiveManager;
-import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
-import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.search.strategy.IntStrategyFactory;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.FindAndProve;
-import org.chocosolver.solver.trace.Chatterbox;
-import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.Variable;
 
@@ -43,7 +38,6 @@ import fr.emn.optiplace.core.heuristics.StickVMsHeuristic;
 import fr.emn.optiplace.core.packers.DefaultPacker;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
-import fr.emn.optiplace.solver.ObjectiveReducer;
 import fr.emn.optiplace.solver.choco.ChocoResourcePacker;
 import fr.emn.optiplace.solver.heuristics.Static2Activated;
 import fr.emn.optiplace.view.SearchGoal;
@@ -68,8 +62,11 @@ public class Optiplace extends IOptiplace {
 	public static boolean hasSolution(IConfiguration cfg) {
 		return new Optiplace(cfg).solve().getDestination() != null;
 	}
+
 	/** the core problem, modified by the views */
 	protected ReconfigurationProblem problem;
+
+	protected Solution lastSolution = null;
 
 	public ReconfigurationProblem getPRoblem() {
 		return problem;
@@ -109,7 +106,7 @@ public class Optiplace extends IOptiplace {
 			// all the resources should be added now, we pack them using the packing
 			// constraint.
 			for (Constraint c : packer.pack(problem.getVMLocations(), problem.getUses())) {
-				problem.getSolver().post(c);
+				problem.getModel().post(c);
 			}
 		}
 		// forbid the VM from extern with insufficient resources
@@ -127,7 +124,7 @@ public class Optiplace extends IOptiplace {
 							logger.debug("resource " + resName + " prevents vm " + v + " using " + use
 									+ " from being hosted on extern " + e + " with cap " + cap);
 							try {
-								vms.removeFromEnvelope(vmIdx, Cause.Null);
+								vms.remove(vmIdx, Cause.Null);
 							} catch (ContradictionException e1) {
 								logger.warn("while removing " + vmIdx + " from " + vms, e1);
 							}
@@ -145,16 +142,16 @@ public class Optiplace extends IOptiplace {
 	public void configLogging() {
 		if (strat.isLogSolutions() || strat.isLogChoices() || strat.isLogContradictions()) {
 			if (strat.isLogStats()) {
-				Chatterbox.showStatistics(problem.getSolver());
+				problem.getSolver().showStatistics();
 			}
 			if (strat.isLogSolutions()) {
-				Chatterbox.showSolutions(problem.getSolver());
+				problem.getSolver().showSolutions();
 			}
 			if (strat.isLogChoices()) {
-				Chatterbox.showDecisions(problem.getSolver());
+				problem.getSolver().showDecisions();
 			}
 			if (strat.isLogContradictions()) {
-				problem.getSolver().plugMonitor((IMonitorContradiction) cex -> System.err.println(cex));
+				problem.getSolver().showContradiction();
 			}
 		}
 		strat.getDisplayers().forEach(problem.getSolver()::plugMonitor);
@@ -188,14 +185,14 @@ public class Optiplace extends IOptiplace {
 		}
 
 		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
-			problem.getSolver().set(makeProveHeuristic(goalMaker));
+			problem.getSolver().setSearch(makeProveHeuristic(goalMaker));
 		} else {
-			problem.getSolver().set(new FindAndProve<>(problem.getSolver().getVars(), makeFindHeuristic(),
-					makeProveHeuristic(goalMaker)));
+			problem.getSolver().setSearch(
+					new FindAndProve<>(problem.getModel().getVars(), makeFindHeuristic(), makeProveHeuristic(goalMaker)));
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
-			SearchMonitorFactory.limitTime(problem.getSolver(), strat.getMaxSearchTime());
+			problem.getSolver().limitTime(strat.getMaxSearchTime());
 		}
 
 		if (strat.isDisableOptimize()) {
@@ -224,7 +221,7 @@ public class Optiplace extends IOptiplace {
 			l.addAll(views.get(i).getSatisfactionHeuristics());
 		}
 		l.addAll(DummyPlacementHeuristic.INSTANCE.getHeuristics(problem));
-		return IntStrategyFactory.sequencer(l.toArray(new AbstractStrategy[0]));
+		return Search.sequencer(l.toArray(new AbstractStrategy[0]));
 	}
 
 	/**
@@ -261,9 +258,9 @@ public class Optiplace extends IOptiplace {
 		if (goalMaker != null) {
 			lah.addAll(goalMaker.getActivatedHeuristics(problem));
 		}
-		lah.add(new Static2Activated<>(IntStrategyFactory.sequencer(strats.toArray(new AbstractStrategy[0]))));
+		lah.add(new Static2Activated<>(Search.sequencer(strats.toArray(new AbstractStrategy[0]))));
 
-		HeuristicsList ret = new HeuristicsList(problem.getSolver(), lah.toArray(new ActivatedHeuristic[0]));
+		HeuristicsList ret = new HeuristicsList(problem.getModel(), lah.toArray(new ActivatedHeuristic[0]));
 		ret.setLogActivated(strat.isLogHeuristicsSelection());
 		if (strat.isLogHeuristicsSelection()) {
 			logger.debug("proveheuristic is : " + ret.getLeaders());
@@ -275,35 +272,35 @@ public class Optiplace extends IOptiplace {
 	public void makeSearch() {
 		long st = System.nanoTime();
 		if (problem.getObjective() != null) {
-			problem.getSolver().findOptimalSolution(ResolutionPolicy.MINIMIZE, problem.getObjective());
-			if (problem.getSolutionRecorder().getLastSolution() == null) {
+			lastSolution = problem.getSolver().findOptimalSolution(problem.getObjective(), false);
+			if (lastSolution == null) {
 				logger.debug("no solution found");
-				logger.debug(" variables : " + Arrays.asList(problem.getSolver().getVars()));
-				logger.debug(" constraints : " + Arrays.asList(problem.getSolver().getCstrs()));
+				logger.debug(" variables : " + Arrays.asList(problem.getModel().getVars()));
+				logger.debug(" constraints : " + Arrays.asList(problem.getModel().getCstrs()));
 			}
 		} else {
-			problem.getSolver().findSolution();
+			lastSolution = problem.getSolver().findSolution();
 		}
-		ObjectiveReducer or = strat.getReducer();
-		if (or != null) {
-			@SuppressWarnings("serial")
-			ObjectiveManager<IntVar, Integer> om = new ObjectiveManager<IntVar, Integer>(problem.getObjective(),
-					ResolutionPolicy.MINIMIZE, true) {
-				@Override
-				public void postDynamicCut() throws ContradictionException {
-					objective.updateBounds(bestProvedLB.intValue(),
-							Math.min(or.reduce(bestProvedUB.intValue()), bestProvedUB.intValue()) - 1, this);
-				}
-			};
-			problem.set(om);
-		}
+		//		ObjectiveReducer or = strat.getReducer();
+		//		if (or != null) {
+		//			new MaxIntObjManager();
+		//		<IntVar, Integer> om = new ObjectiveManager<IntVar, Integer>(problem.getObjective(),
+		//					ResolutionPolicy.MINIMIZE, true) {
+		//				@Override
+		//				public void postDynamicCut() throws ContradictionException {
+		//					objective.updateBounds(bestProvedLB.intValue(),
+		//							Math.min(or.reduce(bestProvedUB.intValue()), bestProvedUB.intValue()) - 1, this);
+		//				}
+		//			};
+		//			problem.getSolver().setObjectiveManager(om);(om);
+		//		}
 		target.setSearchTime(System.nanoTime() - st);
 	}
 
 	@Override
 	public void extractData() {
 		try {
-			problem.restoreLastSolution();
+			lastSolution.restore();
 		} catch (ContradictionException e) {
 			throw new UnsupportedOperationException(e);
 		}
@@ -327,6 +324,6 @@ public class Optiplace extends IOptiplace {
 
 		target.setSearchBacktracks(m.getBackTrackCount());
 		target.setSearchNodes(m.getNodeCount());
-		target.setSearchSolutions(problem.getSolutionRecorder().getSolutions().size());
+		target.setSearchSolutions(problem.getSolver().getSolutionCount());
 	}
 }

@@ -17,8 +17,6 @@ import fr.emn.optiplace.solver.ActivatedHeuristic;
  */
 public class Static2Activated<T extends Variable> extends ActivatedHeuristic<T> {
 
-	private static final long serialVersionUID = 1L;
-
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Static2Activated.class);
 
@@ -31,7 +29,7 @@ public class Static2Activated<T extends Variable> extends ActivatedHeuristic<T> 
 	public Static2Activated(AbstractStrategy<T> strat) {
 		super(strat.getVariables(), new Variable[0]);
 		this.strat = strat;
-		nullRet = strat.getVariables()[0].getSolver().getEnvironment().makeBool(false);
+		nullRet = strat.getVariables()[0].getModel().getEnvironment().makeBool(false);
 	}
 
 	// set to true when the embedded heuristic returns null : we can't call it

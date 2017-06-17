@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactory;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -21,8 +22,6 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  *
  */
 public class NodesEmptyHeuristic extends IntStrategy {
-
-	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NodesEmptyHeuristic.class);
@@ -89,7 +88,7 @@ public class NodesEmptyHeuristic extends IntStrategy {
 	 *          defines the weight of the VMs on a node
 	 */
 	public NodesEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight) {
-		this(rp, weight, DecisionOperator.int_eq);
+		this(rp, weight, DecisionOperatorFactory.makeIntEq());
 	}
 
 	/**

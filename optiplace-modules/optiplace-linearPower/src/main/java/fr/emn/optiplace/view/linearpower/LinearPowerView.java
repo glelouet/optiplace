@@ -164,20 +164,12 @@ public class LinearPowerView extends EmptyView {
 	 * @return the {@link IntVar} corresponding to the server consumption
 	 */
 	protected IntVar makePower(Node n) {
-		IntVar powerstate = pb.isOnline(n);
-		if (powerstate.isInstantiatedTo(0)) {
-			return pb.v().createIntegerConstant(0);
-		}
 		LinearPowerModel pm = data.getModel(n);
 		if (pm == null) {
 			return onmMissingModel.missingModel(n, this);
 		}
 		IntVar ret = pm.makePower(n, this);
-		if (!powerstate.contains(0)) {
-			return ret;
-		} else {
-			return v.mult(pb.isOnline(n), ret);
-		}
+		return ret;
 	}
 
 	public int[] getNodeBaseCons() {
@@ -197,7 +189,7 @@ public class LinearPowerView extends EmptyView {
 			int[] cachedNodeBase = getNodeBaseCons();
 			cachedNodeLonePowers = new IntVar[cachedNodeBase.length];
 			for (int i = 0; i < cachedNodeLonePowers.length; i++) {
-				cachedNodeLonePowers[i] = v.bswitch(pb.isOnline((Node) b.location(i)), 0, cachedNodeBase[i]);
+				cachedNodeLonePowers[i] = v.createIntegerConstant(cachedNodeBase[i]);
 			}
 		}
 		return cachedNodeLonePowers;
@@ -222,7 +214,7 @@ public class LinearPowerView extends EmptyView {
 			for (int i = 0; i < nbVMs; i++) {
 				IntVar vmCons = pb.v().createBoundIntVar("vm" + i + ".cons", 0, Integer.MAX_VALUE - 1);
 				cachedVMCons[i] = vmCons;
-				h.nth(pb.getVMLocation(pb.b().vm(i)), hostingCosts[i], vmCons);
+				h.element(pb.getVMLocation(pb.b().vm(i)), hostingCosts[i], vmCons);
 			}
 		}
 		return cachedVMCons;

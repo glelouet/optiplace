@@ -6,9 +6,8 @@ package fr.emn.optiplace.homogeneous.heuristics;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactory;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -25,8 +24,6 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  */
 public class InstantiateOnActive extends ActivatedHeuristic<IntVar> {
 
-	private static final long serialVersionUID = 1L;
-
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InstantiateOnActive.class);
 
@@ -40,7 +37,7 @@ public class InstantiateOnActive extends ActivatedHeuristic<IntVar> {
 	public InstantiateOnActive(IReconfigurationProblem pb) {
 		super(
 				pb.getSourceConfiguration().getWaitings().map(pb::getVMLocation).collect(Collectors.toList())
-						.toArray(new IntVar[0]),
+				.toArray(new IntVar[0]),
 				pb.isHosts());
 		isHosters = pb.isHosts();
 		activateds = new boolean[isHosters.length];
@@ -65,9 +62,7 @@ public class InstantiateOnActive extends ActivatedHeuristic<IntVar> {
 			if (activateds[i]) {
 				for (IntVar var : vars) {
 					if (var.contains(i) && !var.isInstantiated()) {
-						IntDecision d = getIntDecision();
-						d.set(var, i, DecisionOperator.int_eq);
-						return d;
+						return decisions.makeIntDecision(var, DecisionOperatorFactory.makeIntEq(), i);
 					}
 				}
 			}

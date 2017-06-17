@@ -28,8 +28,6 @@ import org.chocosolver.util.ESat;
  */
 public class RangePropagator extends Propagator<IntVar> {
 
-	private static final long serialVersionUID = 1L;
-
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RangePropagator.class);
 

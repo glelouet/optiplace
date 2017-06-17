@@ -3,10 +3,10 @@ package fr.emn.optiplace.view;
 import java.util.Collections;
 import java.util.List;
 
-import org.chocosolver.solver.search.strategy.ISF;
-import org.chocosolver.solver.search.strategy.selectors.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.SetValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.VariableSelector;
+import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactory;
+import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.values.SetValueSelector;
+import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.search.strategy.strategy.SetStrategy;
@@ -66,10 +66,9 @@ public interface SearchGoal {
 	///////////////////////////////////////////////////////////
 	// Tooling for creation of strategies
 
-	@SuppressWarnings("serial")
 	public static AbstractStrategy<? extends Variable> makeAssignHeuristic(String name,
-	    VariableSelector<IntVar> varSelector, IntValueSelector valSelector, IntVar... vars) {
-		return new IntStrategy(vars, varSelector, valSelector, ISF.assign()) {
+			VariableSelector<IntVar> varSelector, IntValueSelector valSelector, IntVar... vars) {
+		return new IntStrategy(vars, varSelector, valSelector, DecisionOperatorFactory.makeIntEq()) {
 
 			@Override
 			public String toString() {
@@ -78,9 +77,8 @@ public interface SearchGoal {
 		};
 	}
 
-	@SuppressWarnings("serial")
 	public static SetStrategy makeAssignHeuristic(String name, VariableSelector<SetVar> varS, SetValueSelector valS,
-	    boolean enforceFirst, SetVar... sets) {
+			boolean enforceFirst, SetVar... sets) {
 		return new SetStrategy(sets, varS, valS, enforceFirst) {
 
 			@Override

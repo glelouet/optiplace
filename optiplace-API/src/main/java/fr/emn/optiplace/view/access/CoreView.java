@@ -10,7 +10,6 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
@@ -262,16 +261,6 @@ public interface CoreView {
 	 */
 	public IntVar nbHosts();
 
-	/**
-	 * get the variable representing the power state of a node in the resulting
-	 * configuration
-	 *
-	 * @param n
-	 *            a node
-	 * @return a Boolean {@link IntVar} , set to true if the node is supposed to
-	 *         be online.
-	 */
-	BoolVar isOnline(Node n);
 
 	///////////////////////////////////////////////
 	// resource management.

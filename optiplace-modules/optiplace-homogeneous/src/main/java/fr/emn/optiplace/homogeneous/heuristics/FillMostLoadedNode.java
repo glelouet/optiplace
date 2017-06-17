@@ -27,7 +27,6 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2015
  *
  */
-@SuppressWarnings("serial")
 public class FillMostLoadedNode extends ActivatedHeuristic<IntVar> {
 
 	protected FillMostLoadedNode(IReconfigurationProblem pb) {

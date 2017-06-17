@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -33,13 +32,7 @@ public class Together implements Rule {
 		return new Together(vms);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Together parse(String def) {
-			return Together.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Together.parse(def);
 
 	Iterable<VM> vms;
 
@@ -54,13 +47,15 @@ public class Together implements Rule {
 			switch (cfg.getState(v)) {
 			case WAITING:
 				waiting = true;
-				if (nonwaiting)
+				if (nonwaiting) {
 					return false;
+				}
 				break;
 			default:
 				nonwaiting = true;
-				if (waiting)
+				if (waiting) {
 					return false;
+				}
 				break;
 			}
 		}
@@ -72,7 +67,7 @@ public class Together implements Rule {
 		// force each VM isWaiting() IntVar to be equal
 		IntVar[] vars = StreamSupport.stream(vms.spliterator(), false).map(core::isWaiting).collect(Collectors.toList())
 				.toArray(new IntVar[] {});
-		Stream.of(ICF.nvalues(vars, core.v().createIntegerConstant(1))).forEach(core::post);
+		Stream.of(core.getModel().nValues(vars, core.v().createIntegerConstant(1))).forEach(core::post);
 	}
 
 	@Override

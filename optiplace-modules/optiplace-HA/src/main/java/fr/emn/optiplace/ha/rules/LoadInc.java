@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
@@ -103,7 +102,7 @@ public class LoadInc implements Rule {
 		List<IntVar> lnodes = nodes.stream().filter(core.getSourceConfiguration()::hasNode).mapToInt(core.b()::location)
 				.mapToObj(i -> handler.getNodesLoad()[i]).collect(Collectors.toList());
 		for (int i = 0; i < lnodes.size() - 1; i++) {
-			core.getSolver().post(ICF.arithm(lnodes.get(i), "<=", lnodes.get(i + 1)));
+			core.post(core.getModel().arithm(lnodes.get(i), "<=", lnodes.get(i + 1)));
 		}
 	}
 

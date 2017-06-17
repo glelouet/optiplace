@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -67,7 +66,7 @@ public class Near implements Rule {
 			}
 		}
 		for (int i = 1; i < vmSites.size(); i++) {
-			core.post(ICF.arithm(vmSites.get(0), "=", vmSites.get(i)));
+			core.post(core.getModel().arithm(vmSites.get(0), "=", vmSites.get(i)));
 		}
 		// manage the support_tag : the group of VMs should not be placed on an
 		// extern that does not support this rule.

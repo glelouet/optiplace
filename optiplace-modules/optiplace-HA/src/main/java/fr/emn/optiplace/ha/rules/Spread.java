@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.constraints.nary.alldifferent.conditions.Condition;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -111,23 +110,23 @@ public class Spread implements Rule {
 		} else {
 			Condition noWait = a -> a.getLB() < core.b().waitIdx();
 			if (!locations.isEmpty()) {
-				Constraint adc = ICF.alldifferent_conditionnal(locations.toArray(new IntVar[] {}), noWait);
-				core.getSolver().post(adc);
+				Constraint adc = core.getModel().allDifferentUnderCondition(locations.toArray(new IntVar[] {}), noWait, false);
+				core.post(adc);
 			}
-// if (!extHosts.isEmpty()) {
-// int[] withSupportTags = IntStream.concat(IntStream.of(-1),
-// cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().location(e))).toArray();
-// Condition noNegAndNoSupport = a -> {
-// for (int i : withSupportTags) {
-// if(a.contains(i)) {
-// return false;
-// }
-// }
-// return true;
-// };
-// Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNegAndNoSupport);
-// core.getSolver().post(adc);
-// }
+			// if (!extHosts.isEmpty()) {
+			// int[] withSupportTags = IntStream.concat(IntStream.of(-1),
+			// cfg.getExterns().filter(e -> cfg.isTagged(e, SUPPORT_TAG)).mapToInt(e -> core.b().location(e))).toArray();
+			// Condition noNegAndNoSupport = a -> {
+			// for (int i : withSupportTags) {
+			// if(a.contains(i)) {
+			// return false;
+			// }
+			// }
+			// return true;
+			// };
+			// Constraint adc = ICF.alldifferent_conditionnal(extHosts.toArray(new IntVar[] {}), noNegAndNoSupport);
+			// core.getSolver().post(adc);
+			// }
 		}
 	}
 

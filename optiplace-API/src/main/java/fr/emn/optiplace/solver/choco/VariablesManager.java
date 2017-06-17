@@ -5,15 +5,11 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.constraints.set.SCF;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.VariableFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,46 +23,44 @@ public class VariablesManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(VariablesManager.class);
 
-	Solver solver;
+	Model model;
 	ConstraintHelper helper;
 
-	public Solver getSolver() {
-		return solver;
-	}
-
 	protected void post(Constraint c) {
-		solver.post(c);
+		model.post(c);
 	}
 
-	public VariablesManager(Solver s, ConstraintHelper h) {
-		solver = s;
+	public VariablesManager(Model s, ConstraintHelper h) {
+		model = s;
 		helper = h;
 	}
 
 	public IntVar createIntegerConstant(int val) {
-		return VariableFactory.fixed(val, getSolver());
+		return model.intVar(val);
 	}
 
 	public BoolVar createBoolVar(String name) {
-		return VariableFactory.bool(name, getSolver());
+		return model.boolVar(name);
 	}
 
 	public BoolVar createBoolVar(String name, boolean value) {
-		return value ? getSolver().ONE() : getSolver().ZERO();
+		return model.boolVar(name, value);
 	}
 
 	public IntVar createEnumIntVar(String name, int... sortedValues) {
-		return VariableFactory.enumerated(name, sortedValues, getSolver());
+		return model.intVar(name, sortedValues);
 	}
 
 	public IntVar createEnumIntVar(String name, int min, int max) {
-		return VariableFactory.enumerated(name, min, max, getSolver());
+		return model.intVar(name, min, max, false);
 	}
 
 	/** creates an int variable whom range goes from min to max */
 	public IntVar createBoundIntVar(String name, int min, int max) {
-		return VariableFactory.bounded(name, min, max, getSolver());
+		return model.intVar(name, min, max, true);
 	}
+
+	private final int[] emptyIntVar = new int[] {};
 
 	/**
 	 * create a Set var containing at most a given set of values
@@ -78,7 +72,7 @@ public class VariablesManager {
 	 * @return a new set that can contain from 0 to all of the values parameter.
 	 */
 	public SetVar createEnumSetVar(String name, int... values) {
-		return VariableFactory.set(name, values, getSolver());
+		return model.setVar(name, emptyIntVar, values == null ? emptyIntVar : values);
 	}
 
 	/**
@@ -91,10 +85,7 @@ public class VariablesManager {
 	 * @return a new set that contains all of the values parameter.
 	 */
 	public SetVar createFixedSet(String name, int... values) {
-		if (values == null) {
-			values = new int[] {};
-		}
-		return VariableFactory.set(name, values, values, getSolver());
+		return model.setVar(name, values == null ? emptyIntVar : values);
 	}
 
 	/**
@@ -105,16 +96,23 @@ public class VariablesManager {
 	 *          the minimum value of the set
 	 * @param max
 	 *          the max value of the set
-	 * @return a new SetVar ranging from min to max
+	 * @return a new SetVar containing from 0 to all of the (max-min+1) possible
+	 *         values
 	 */
 	public SetVar createRangeSetVar(String name, int min, int max) {
-		return VariableFactory.set(name, min, max, getSolver());
+		return createEnumSetVar(name, IntStream.range(min, max + 1).toArray());
 	}
 
-	public SetVar toSet(IntVar... vars) {
-		Solver s = getSolver();
+	/**
+	 * create a new set var containing all the variables of the given vars
+	 *
+	 * @param vars
+	 *          the variables to contain
+	 * @return a new set var constrained.
+	 */
+	public SetVar toSet(String name, IntVar... vars) {
 		if (vars == null || vars.length == 0) {
-			return VF.set("empty set", new int[] {}, s);
+			return model.setVar("empty set", emptyIntVar);
 		}
 		int min = vars[0].getLB();
 		int max = vars[0].getUB();
@@ -123,8 +121,8 @@ public class VariablesManager {
 			min = Math.min(min, v.getLB());
 			max = Math.max(max, v.getUB());
 		}
-		SetVar ret = VF.set("setof" + Arrays.asList(vars), min, max, s);
-		s.post(SCF.int_values_union(vars, ret));
+		SetVar ret = createRangeSetVar("setof" + Arrays.asList(vars), min, max);
+		post(model.union(vars, ret));
 		return ret;
 	}
 
@@ -133,7 +131,7 @@ public class VariablesManager {
 	 * value
 	 */
 	public IntVar createBoundIntVar(String name) {
-		return createBoundIntVar(name, VF.MIN_INT_BOUND, VF.MAX_INT_BOUND);
+		return createBoundIntVar(name, IntVar.MIN_INT_BOUND, IntVar.MAX_INT_BOUND);
 	}
 
 	////////////////////////////////////////////////
@@ -150,9 +148,9 @@ public class VariablesManager {
 				? createEnumIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(), left.getUB() + right.getUB())
 						: createBoundIntVar("(" + left + ")+(" + right + ')', left.getLB() + right.getLB(),
 								left.getUB() + right.getUB());
-				getSolver().post(ICF.sum(new IntVar[] {
+				post(model.sum(new IntVar[] {
 						left, right
-				}, ret));
+				}, "=", ret));
 				return ret;
 	}
 
@@ -177,23 +175,20 @@ public class VariablesManager {
 		}
 		boolean enumerated = Stream.of(vars).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(name, min, max) : createBoundIntVar(name, min, max);
-		getSolver().post(ICF.sum(vars, ret));
+		post(model.sum(vars, "=", ret));
 		return ret;
 	}
 
 	public IntVar minus(IntVar X) {
-		return VF.minus(X);
+		return model.intMinusView(X);
 	}
 
 	public IntVar plus(IntVar x, int y) {
-		if (y == 0) {
-			return x;
-		}
-		return VF.offset(x, y);
+		return model.intOffsetView(x, y);
 	}
 
 	public IntVar mult(IntVar x, int multiplier) {
-		return VF.scale(x, multiplier);
+		return model.intScaleView(x, multiplier);
 	}
 
 	/**
@@ -228,16 +223,7 @@ public class VariablesManager {
 	 * @return A variable set to value =mult⋅x+val0
 	 */
 	public IntVar linear(IntVar x, int mult, int val0) {
-		if (mult == 0) {
-			return createIntegerConstant(val0);
-		}
-		if (mult == 1) {
-			return plus(x, val0);
-		}
-		if (mult == -1) {
-			return plus(VF.minus(x), val0);
-		}
-		return plus(VF.scale(x, mult), val0);
+		return plus(mult(x, mult), val0);
 	}
 
 	/**
@@ -267,7 +253,7 @@ public class VariablesManager {
 	 */
 	public IntVar div(IntVar x, int y) {
 		IntVar ret = createBoundIntVar("(" + x.getName() + ")/" + y);
-		getSolver().post(ICF.times(ret, y, x));
+		post(model.times(ret, y, x));
 		return ret;
 	}
 
@@ -278,7 +264,7 @@ public class VariablesManager {
 	 */
 	public IntVar div(IntVar x, IntVar y) {
 		IntVar ret = createBoundIntVar("(" + x.getName() + ")/" + y.getName());
-		getSolver().post(ICF.times(ret, y, x));
+		post(model.times(ret, y, x));
 		return ret;
 	}
 
@@ -342,7 +328,7 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(pos).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(sb.append("]").toString(), min, max)
 				: createBoundIntVar(sb.append("]").toString(), min, max);
-		getSolver().post(ICF.scalar(pos, mults, ret));
+		post(model.scalar(pos, mults, "=", ret));
 		return ret;
 	}
 
@@ -370,7 +356,7 @@ public class VariablesManager {
 		}
 		// precheck
 		BoolVar ret = createBoolVar(name);
-		ICF.arithm(x, "=", y).reifyWith(ret);
+		model.arithm(x, "=", y).reifyWith(ret);
 		return ret;
 	}
 
@@ -398,7 +384,7 @@ public class VariablesManager {
 		}
 		// precheck
 		BoolVar ret = createBoolVar(name);
-		ICF.arithm(x, "=", y).reifyWith(ret);
+		model.arithm(x, "=", y).reifyWith(ret);
 		return ret;
 	}
 
@@ -426,7 +412,7 @@ public class VariablesManager {
 		}
 		// precheck
 		BoolVar ret = createBoolVar(name);
-		ICF.arithm(x, "!=", y).reifyWith(ret);
+		model.arithm(x, "!=", y).reifyWith(ret);
 		return ret;
 	}
 
@@ -446,7 +432,7 @@ public class VariablesManager {
 		}
 		// precheck
 		BoolVar ret = createBoolVar(name);
-		ICF.arithm(x, "!=", y).reifyWith(ret);
+		model.arithm(x, "!=", y).reifyWith(ret);
 		return ret;
 	}
 
@@ -548,7 +534,7 @@ public class VariablesManager {
 		boolean enumerated = Stream.of(array).filter(IntVar::hasEnumeratedDomain).findAny().isPresent();
 		IntVar ret = enumerated ? createEnumIntVar(foldSetNames(array), minmax[0], minmax[1])
 				: createBoundIntVar(foldSetNames(array), minmax[0], minmax[1]);
-		helper.nth(index, array, ret);
+		helper.element(index, array, ret);
 		return ret;
 	}
 
@@ -569,9 +555,9 @@ public class VariablesManager {
 		}
 		IntVar ret = createBoundIntVar(
 				IntStream.of(array).collect(StringBuilder::new, (b, i) -> b.append(' ').append(i), StringBuilder::append)
-						.toString() + "[" + index.getName() + "]",
+				.toString() + "[" + index.getName() + "]",
 				min, max);
-		helper.nth(index, array, ret);
+		helper.element(index, array, ret);
 		return ret;
 	}
 
@@ -589,8 +575,8 @@ public class VariablesManager {
 		if (name == null) {
 			name = x.getName() + ">0";
 		}
-		BoolVar ret = VF.bool(name, x.getSolver());
-		ICF.arithm(x, ">", 0).reifyWith(ret);
+		BoolVar ret = createBoolVar(name);
+		model.arithm(x, ">", 0).reifyWith(ret);
 		return ret;
 	}
 

@@ -13,15 +13,12 @@ package fr.emn.optiplace.ha.rules;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.chocosolver.solver.constraints.set.SCF;
-import org.chocosolver.solver.constraints.set.SetConstraintsFactory;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
@@ -55,13 +52,7 @@ public class Split implements Rule {
 		return new Split(vm1s, vm2s);
 	}
 
-	public static final Parser PARSER = new Parser() {
-
-		@Override
-		public Split parse(String def) {
-			return Split.parse(def);
-		}
-	};
+	public static final Parser PARSER = def -> Split.parse(def);
 
 	/** The first vmset. */
 	protected Set<VM> set1;
@@ -140,17 +131,17 @@ public class Split implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		SetVar minusOneSet = core.v().createEnumSetVar("{-1}", -1);
-		List<IntVar> l1 = getStream1(core.getSourceConfiguration()).map(core::getVMLocation).collect(Collectors.toList());
-		SetVar s1 = core.v().toSet(l1.toArray(new IntVar[] {}));
+		IntVar[] l1 = getStream1(core.getSourceConfiguration()).map(core::getVMLocation).toArray(IntVar[]::new);
+		SetVar s1 = core.v().toSet("split.locations1", l1);
 		// s1b = s1 \ {-1}
-		SetVar s1b = s1.duplicate();
-		core.post(SetConstraintsFactory.partition(new SetVar[] { minusOneSet, s1b }, s1));
-		List<IntVar> l2 = getStream2(core.getSourceConfiguration()).map(core::getVMLocation).collect(Collectors.toList());
-		SetVar s2 = core.v().toSet(l2.toArray(new IntVar[] {}));
+		SetVar s1b = core.getModel().setVar(s1.getLB().toArray(), s1.getUB().toArray());
+		core.post(core.getModel().partition(new SetVar[] { minusOneSet, s1b }, s1));
+		IntVar[] l2 = getStream2(core.getSourceConfiguration()).map(core::getVMLocation).toArray(IntVar[]::new);
+		SetVar s2 = core.v().toSet("split.locations2", l2);
 		// s2b = s2 \ {-1}
-		SetVar s2b = s2.duplicate();
-		core.post(SetConstraintsFactory.partition(new SetVar[] { minusOneSet, s2b }, s2));
-		core.post(SCF.disjoint(s1b, s2b));
+		SetVar s2b = core.getModel().setVar(s2.getLB().toArray(), s2.getUB().toArray());
+		core.post(core.getModel().partition(new SetVar[] { minusOneSet, s2b }, s2));
+		core.post(core.getModel().disjoint(s1b, s2b));
 	}
 
 	/**
