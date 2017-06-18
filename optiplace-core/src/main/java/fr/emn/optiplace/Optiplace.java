@@ -68,7 +68,7 @@ public class Optiplace extends IOptiplace {
 
 	protected Solution lastSolution = null;
 
-	public ReconfigurationProblem getPRoblem() {
+	public ReconfigurationProblem getProblem() {
 		return problem;
 	}
 
@@ -183,12 +183,20 @@ public class Optiplace extends IOptiplace {
 			}
 			throw new UnsupportedOperationException("can not find goal with id " + goalId);
 		}
-
-		if (strat.isDisableCheckSource() || problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) > 5) {
-			problem.getSolver().setSearch(makeProveHeuristic(goalMaker));
+		AbstractStrategy<Variable> find = null;
+		if (!strat.isDisableCheckSource() && problem.getSourceConfiguration().nbVMs(VMSTATES.WAITING) <= 5) {
+			find = makeFindHeuristic();
+		}
+		AbstractStrategy<Variable> prove = makeProveHeuristic(goalMaker);
+		if (find == null) {
+			problem.getSolver().setSearch(prove);
 		} else {
-			problem.getSolver().setSearch(
-					new FindAndProve<>(problem.getModel().getVars(), makeFindHeuristic(), makeProveHeuristic(goalMaker)));
+			Variable[] vars = problem.getModel().getVars();
+			if (vars != null) {
+				problem.getSolver().setSearch(new FindAndProve<>(problem.getModel().getVars(), find, prove));
+			} else {
+				problem.getSolver().setSearch(prove);
+			}
 		}
 
 		if (strat.getMaxSearchTime() > 0) {
@@ -273,32 +281,37 @@ public class Optiplace extends IOptiplace {
 		long st = System.nanoTime();
 		if (problem.getObjective() != null) {
 			lastSolution = problem.getSolver().findOptimalSolution(problem.getObjective(), false);
-			if (lastSolution == null) {
-				logger.debug("no solution found");
-				logger.debug(" variables : " + Arrays.asList(problem.getModel().getVars()));
-				logger.debug(" constraints : " + Arrays.asList(problem.getModel().getCstrs()));
-			}
 		} else {
 			lastSolution = problem.getSolver().findSolution();
 		}
-		//		ObjectiveReducer or = strat.getReducer();
-		//		if (or != null) {
-		//			new MaxIntObjManager();
-		//		<IntVar, Integer> om = new ObjectiveManager<IntVar, Integer>(problem.getObjective(),
-		//					ResolutionPolicy.MINIMIZE, true) {
-		//				@Override
-		//				public void postDynamicCut() throws ContradictionException {
-		//					objective.updateBounds(bestProvedLB.intValue(),
-		//							Math.min(or.reduce(bestProvedUB.intValue()), bestProvedUB.intValue()) - 1, this);
-		//				}
-		//			};
-		//			problem.getSolver().setObjectiveManager(om);(om);
-		//		}
 		target.setSearchTime(System.nanoTime() - st);
+		if (lastSolution == null) {
+			logger.debug("no solution found");
+			logger.debug(" variables : " + Arrays.asList(problem.getModel().getVars()));
+			logger.debug(" constraints : " + Arrays.asList(problem.getModel().getCstrs()));
+		}
+		// ObjectiveReducer or = strat.getReducer();
+		// if (or != null) {
+		// new MaxIntObjManager();
+		// <IntVar, Integer> om = new ObjectiveManager<IntVar,
+		// Integer>(problem.getObjective(),
+		// ResolutionPolicy.MINIMIZE, true) {
+		// @Override
+		// public void postDynamicCut() throws ContradictionException {
+		// objective.updateBounds(bestProvedLB.intValue(),
+		// Math.min(or.reduce(bestProvedUB.intValue()), bestProvedUB.intValue()) -
+		// 1, this);
+		// }
+		// };
+		// problem.getSolver().setObjectiveManager(om);(om);
+		// }
 	}
 
 	@Override
 	public void extractData() {
+		if (lastSolution == null) {
+			return;
+		}
 		try {
 			lastSolution.restore();
 		} catch (ContradictionException e) {

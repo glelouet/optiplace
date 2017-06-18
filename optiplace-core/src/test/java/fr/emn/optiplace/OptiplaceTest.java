@@ -26,6 +26,50 @@ public class OptiplaceTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OptiplaceTest.class);
 
 	/**
+	 * test with nothing
+	 */
+	@Test
+	public void testEmpty() {
+		Configuration c = new Configuration();
+		Optiplace sp = new Optiplace(c);
+		sp.solve();
+		Assert.assertEquals(sp.getTarget().getDestination(), c);
+	}
+
+	/**
+	 * test 1 vm already on the 1 node existing
+	 */
+	@Test
+	public void testNoResource() {
+		Configuration c = new Configuration();
+		Node n1 = c.addOnline("n1");
+		c.addVM("v1", n1);
+		Optiplace sp = new Optiplace(c);
+		sp.getStrat().setLogContradictions(true);
+		sp.solve();
+		Assert.assertEquals(sp.getTarget().getDestination(), c);
+	}
+
+	/**
+	 * test 1 vm already on the 1 node existing
+	 */
+	@Test
+	public void testNoResourceSeveralElement() {
+		Configuration c = new Configuration();
+		Node n1 = c.addOnline("n1");
+		Node n2 = c.addOnline("n2");
+		c.addVM("v1", n1);
+		c.addVM("v2", n2);
+		c.addVM("v3", n2);
+		Optiplace sp = new Optiplace(c);
+		sp.withGoal(null);
+		sp.getStrat().setLogChoices(true);
+		sp.getStrat().setLogContradictions(true);
+		sp.solve();
+		Assert.assertEquals(sp.getTarget().getDestination(), c);
+	}
+
+	/**
 	 * in this test, we have a correct source configuration : the solver should
 	 * not make any action.
 	 */
@@ -36,8 +80,9 @@ public class OptiplaceTest {
 		Node n2 = c.addOnline("n2", 10);
 		c.addVM("v1", n1, 1);
 		c.addVM("v2", n2, 1);
-		Optiplace sp = new Optiplace();
-		sp.source(c);
+		Optiplace sp = new Optiplace(c);
+		sp.getStrat().setLogContradictions(true);
+		sp.getStrat().setLogChoices(true);
 		sp.solve();
 		Assert.assertEquals(sp.getTarget().getDestination(), c);
 	}

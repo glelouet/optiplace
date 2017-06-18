@@ -122,8 +122,22 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 
 	// a few int[] containing the possible run state of VMs. they are used to
 	// instantiate the state var of a VM
+
+	/**
+	 * possible values of a VMState variable if the corresponding vm is on a node
+	 * or waiting
+	 */
 	private static final int[] VM_NODE_WAIT = new int[] { VM_RUNNODE, VM_WAITING };
+	/**
+	 * possible values of a VMState variable if the corresponding vm is on a node
+	 * or on an extern
+	 */
+
 	private static final int[] VM_NODE_EXT = new int[] { VM_RUNNODE, VM_RUNEXT };
+	/**
+	 * possible values of a VMState variable if the corresponding vm is on a node,
+	 * an extern, or waiting
+	 */
 	private static final int[] VM_NODE_WAIT_EXT = new int[] { VM_RUNNODE, VM_WAITING, VM_RUNEXT };
 
 	/** make the location variables */
@@ -151,8 +165,11 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 				vmsLocation[i] = v.createEnumIntVar("" + vmName(i) + "_location", 0, iswaiting ? b.waitIdx() : b.waitIdx() - 1);
 				// constrain the state of the VM
 				// if VM location is node : state is running on node
-				m.ifThenElse(m.arithm(vmsLocation[i], "<", b.nodes().length), m.arithm(vmsState[i], "=", VM_RUNNODE),
-						m.arithm(vmsState[i], "!=", VM_RUNNODE));
+				BoolVar isVmOnNode = v.createBoolVar(vmName(i) + ".onNode");
+				m.arithm(vmsLocation[i], "<", b.nodes().length).reifyWith(isVmOnNode);
+				BoolVar isVMStateRunnode = v.createBoolVar(vmName(i) + ".stateOnNode");
+				m.arithm(vmsState[i], "=", VM_RUNNODE).reifyWith(isVMStateRunnode);
+				m.arithm(isVmOnNode, "=", isVMStateRunnode).post();
 				// if VM was waiting, and location> max location then it is waiting
 				if (iswaiting) {
 					m.ifThenElse(m.arithm(vmsLocation[i], ">=", b.waitIdx()), m.arithm(vmsState[i], "=", VM_WAITING),
@@ -280,10 +297,10 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 			// A set variable for each future online nodes
 			locationVMsSets = new SetVar[b.locations().length + 1];
 			for (int i = 0; i < locationVMsSets.length - 1; i++) {
-				SetVar s = m.setVar(locationName(i) + ".hosted", 0, c.nbVMs() - 1);
+				SetVar s = v.createRangeSetVar(locationName(i) + ".hosted", 0, c.nbVMs() - 1);
 				locationVMsSets[i] = s;
 			}
-			locationVMsSets[locationVMsSets.length - 1] = m.setVar("nonNodeVMs", 0, c.nbVMs() - 1);
+			locationVMsSets[locationVMsSets.length - 1] = v.createRangeSetVar("nonNodeVMs", 0, c.nbVMs() - 1);
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
