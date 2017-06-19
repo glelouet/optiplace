@@ -27,7 +27,6 @@ import fr.emn.optiplace.actions.Migrate;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.IConfiguration.NODESTATES;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -98,7 +97,7 @@ public class Optiplace extends IOptiplace {
 		for (ViewAsModule view : views) {
 			view.rulesStream().forEach(cc -> cc.inject(problem));
 		}
-		if (source.nbNodes(NODESTATES.ONLINE) > 0 && source.nbVMs() > 0) {
+		if (source.nbNodes() > 0 && source.nbVMs() > 0) {
 			ChocoResourcePacker packer = strat.getPacker();
 			if (packer == null) {
 				packer = new DefaultPacker();

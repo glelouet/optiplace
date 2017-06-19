@@ -4,7 +4,6 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.IntVar;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.HeuristicsList;
@@ -23,7 +22,7 @@ public class GTActivatedHeuristicTest {
 	 * vars[i-1]&lt;var[i] ; so the only first solution found is 0, 1, 2…
 	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	// @Test
 	public void testLaunchvars() {
 		int nbVars = 10;
 		Model s = new Model();

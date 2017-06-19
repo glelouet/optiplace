@@ -92,7 +92,7 @@ public class Lazy implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 		List<Node> nodes = new ArrayList<>(this.nodes);
-		nodes.removeIf(n -> !core.getSourceConfiguration().isOnline(n));
+		nodes.removeIf(n -> !core.getSourceConfiguration().hasNode(n));
 		if (nodes.size() == 0) {
 			return;
 		}
@@ -112,7 +112,7 @@ public class Lazy implements Rule {
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
 		ResourceSpecification res = cfg.resources().get(resName);
-		return !nodes.stream().filter(cfg::isOnline).filter(n -> 100 * res.getUse(cfg, n) > res.getCapacity(n) * maxPCLoad)
+		return !nodes.stream().filter(cfg::hasNode).filter(n -> 100 * res.getUse(cfg, n) > res.getCapacity(n) * maxPCLoad)
 				.findAny().isPresent();
 	}
 

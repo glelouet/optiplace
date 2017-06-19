@@ -21,7 +21,7 @@ public class BenchProblems {
 		Node[] nodes = new Node[nbnodes];
 		VM[][] vms = new VM[nodes.length][];
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = c.addOnline("n_" + i, nbVmPerNode * 2 + i);
+			nodes[i] = c.addNode("n_" + i, nbVmPerNode * 2 + i);
 			vms[i] = new VM[nbVmPerNode];
 			for (int j = 0; j < vms[i].length; j++) {
 				vms[i][j] = c.addVM("vm_" + i + "_" + j, null, 2);

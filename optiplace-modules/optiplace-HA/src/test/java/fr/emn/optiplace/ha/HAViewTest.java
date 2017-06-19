@@ -29,7 +29,7 @@ public class HAViewTest {
 		int nbVMperNode = 3;
 		VM[] vms = new VM[nodes.length * nbVMperNode];
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = cfg.addOnline("n" + i, 4000, 20000);
+			nodes[i] = cfg.addNode("n" + i, 4000, 20000);
 			for (int j = 0; j < nbVMperNode; j++) {
 				vms[i * nodes.length + j] = cfg.addVM("vm" + i + "_" + j, nodes[i], 500, 5000);
 			}

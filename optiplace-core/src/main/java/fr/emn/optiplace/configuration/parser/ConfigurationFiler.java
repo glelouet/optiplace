@@ -60,15 +60,15 @@ public class ConfigurationFiler {
 	}
 
 	protected void readLine(String line) {
-		if (line.startsWith("onlines : {")) {
-			if (line.length() > "onlines : {}".length()) {
-				line = line.substring("onlines : {".length(), line.length() - 2);
+		if (line.startsWith("nodes : {")) {
+			if (line.length() > "nodes : {}".length()) {
+				line = line.substring("nodes : {".length(), line.length() - 2);
 				String[] lines = line.split("], ");
 				for (String l2 : lines) {
 					String[] l2s = l2.split("=\\[");
 					String nodeName = l2s[0];
 					if (nodeName.length() != 0) {
-						Node n = cfg.addOnline(nodeName);
+						Node n = cfg.addNode(nodeName);
 						if (l2s.length > 1) {
 							String[] vms = l2s[1].split(", ");
 							for (String vm : vms) {
@@ -78,14 +78,6 @@ public class ConfigurationFiler {
 					} else {
 						logger.debug("node name null : " + nodeName);
 					}
-				}
-			}
-		} else if (line.startsWith("offlines : [")) {
-			if (line.length() > "offlines : []".length()) {
-				line = line.substring("offlines : [".length(), line.length() - 1);
-				String[] lines = line.split(", ");
-				for (String s : lines) {
-					cfg.addOffline(s);
 				}
 			}
 		} else if (line.startsWith("waitings : [")) {
@@ -182,7 +174,7 @@ public class ConfigurationFiler {
 				}
 			}
 		} else {
-			logger.debug("dicarding line " + line);
+			logger.debug("discarding line " + line);
 		}
 
 	}

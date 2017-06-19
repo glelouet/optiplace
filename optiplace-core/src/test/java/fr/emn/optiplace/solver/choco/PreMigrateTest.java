@@ -32,7 +32,7 @@ public class PreMigrateTest {
 	public void testOneVMShadowing() {
 		Configuration sc = new Configuration("mem");
 		Optiplace sp = new Optiplace(sc);
-		Node[] nodes = { sc.addOnline("n0", 2), sc.addOnline("n1", 2), sc.addOnline("n2", 2) };
+		Node[] nodes = { sc.addNode("n0", 2), sc.addNode("n1", 2), sc.addNode("n2", 2) };
 		VM[] vms = { sc.addVM("vm0", nodes[0], 2), sc.addVM("vm1", nodes[1], 1), sc.addVM("vm2", nodes[2], 1) };
 		sc.setMigTarget(vms[0], nodes[1]);
 		sp.solve();

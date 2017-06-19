@@ -35,8 +35,8 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	@BeforeMethod
 	public void prepare() {
 		src = new Configuration();
-		n0 = src.addOnline("n0");
-		n1 = src.addOnline("n1");
+		n0 = src.addNode("n0");
+		n1 = src.addNode("n1");
 		vm0 = src.addVM("vm0", null);
 		vm1 = src.addVM("vm1", null);
 		vm2 = src.addVM("vm2", null);

@@ -122,7 +122,7 @@ public class ConfigurationStreamer {
 					ret.addExtern("e_" + ei);
 				}
 				for (int ni = 0; ni + nbExterns < nbHosters; ni++) {
-					ret.addOnline("n_" + ni);
+					ret.addNode("n_" + ni);
 				}
 				for (int vi = 0; vi < nbVMs; vi++) {
 					ret.addVM("v_" + vi, null);

@@ -148,7 +148,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 	/** get the total capacity of the nodes which are online */
 	default int getCapacity(IConfiguration cfg) {
-		return cfg.getOnlines().mapToInt(this::getCapacity).sum();
+		return cfg.getNodes().mapToInt(this::getCapacity).sum();
 	}
 
 	/**

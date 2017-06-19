@@ -599,11 +599,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	public IConfiguration extractConfiguration() {
 		IConfiguration ret = new Configuration();
 		for (Node n : b.nodes()) {
-			if (c.isOnline(n)) {
-				ret.setOnline(n);
-			} else {
-				ret.setOffline(n);
-			}
+			ret.addNode(n.getName());
 		}
 		for (Extern e : b.externs()) {
 			ret.addExtern(e.getName());

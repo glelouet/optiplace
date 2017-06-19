@@ -38,8 +38,8 @@ public class ReconfigurationProblemTest {
 	@BeforeMethod
 	public void prepare() {
 		src = new Configuration();
-		n0 = src.addOnline("n0");
-		n1 = src.addOnline("n1");
+		n0 = src.addNode("n0");
+		n1 = src.addNode("n1");
 		vm0_0 = src.addVM("vm0_0", n0);
 		vm0_1 = src.addVM("vm0_1", n0);
 		vm1_0 = src.addVM("vm1_0", n1);
@@ -84,7 +84,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testNbVMs() throws ContradictionException {
 		IConfiguration src = new Configuration("mem");
-		Node n = src.addOnline("n", 2);
+		Node n = src.addNode("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
@@ -95,7 +95,7 @@ public class ReconfigurationProblemTest {
 	@Test(dependsOnMethods = "testNbVMs")
 	public void testIsHoster() throws ContradictionException {
 		IConfiguration src = new Configuration("mem");
-		Node n = src.addOnline("n", 2);
+		Node n = src.addNode("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
@@ -106,7 +106,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testBugZeroResource() {
 		Configuration c = new Configuration("mem");
-		c.addOnline("n", 4);
+		c.addNode("n", 4);
 		VM v = c.addVM("v", null, 2);
 
 		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
@@ -120,7 +120,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testVMStateVariables() throws ContradictionException {
 		Configuration c = new Configuration();
-		Node n = c.addOnline("n");
+		Node n = c.addNode("n");
 		Extern e = c.addExtern("e");
 		VM vn0 = c.addVM("vn0", n);
 		VM vn1 = c.addVM("vn1", n);

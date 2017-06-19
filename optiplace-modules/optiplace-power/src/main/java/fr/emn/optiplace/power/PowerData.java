@@ -1,7 +1,12 @@
 
 package fr.emn.optiplace.power;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -157,9 +162,6 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 * @return the integer value of the consumption of the node
 	 */
 	public double getConsumption(IConfiguration cfg, Node n) {
-		if (cfg.isOffline(n)) {
-			return 0;
-		}
 		return get(n).getConsumption(cfg, n);
 	}
 
@@ -199,7 +201,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 * @return the sumn of the online nodes' consumption.
 	 */
 	public double getTotalConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs) {
-		return cfg.getOnlines().mapToDouble(n -> getConsumption(cfg, n)).sum();
+		return cfg.getNodes().mapToDouble(n -> getConsumption(cfg, n)).sum();
 	}
 
 	/**
@@ -213,7 +215,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 *      consumption
 	 */
 	public double getTotalUnusedOffConsumption(IConfiguration cfg) {
-		return cfg.getOnlines().mapToDouble(n -> getUnusedOffConsumption(cfg, n)).sum();
+		return cfg.getNodes().mapToDouble(n -> getUnusedOffConsumption(cfg, n)).sum();
 	}
 
 	final LinkedHashMap<Pattern, PowerModel> matchings = new LinkedHashMap<>();

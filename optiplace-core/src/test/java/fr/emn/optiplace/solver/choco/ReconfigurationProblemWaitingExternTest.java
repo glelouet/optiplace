@@ -33,8 +33,8 @@ public class ReconfigurationProblemWaitingExternTest {
 	@BeforeMethod
 	public void prepare() {
 		src = new Configuration();
-		n0 = src.addOnline("n0");
-		n1 = src.addOnline("n1");
+		n0 = src.addNode("n0");
+		n1 = src.addNode("n1");
 		nodes = new Node[] {
 		    n0, n1
 		};

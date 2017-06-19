@@ -147,7 +147,7 @@ public class Among implements Rule {
 		Set<Set<String>> groups = this.groups;
 		if (groups.isEmpty()) {
 			groups = Stream
-					.concat(core.getSourceConfiguration().getOnlines(),
+					.concat(core.getSourceConfiguration().getNodes(),
 							core.getSourceConfiguration().getExterns()
 							.filter(ext -> core.getSourceConfiguration().isLocationTagged(ext, SUPPORT_TAG)))
 					.map(n -> Collections.singleton(n.getName()))

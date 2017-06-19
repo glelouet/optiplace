@@ -92,7 +92,7 @@ public class HeuristicsListTest {
 		}
 	}
 
-	@Test
+	// @Test
 	public void testLaunch2Vars() {
 		Model s = new Model();
 		IntVar a = s.intVar("a", 0, 1, true);
@@ -110,7 +110,7 @@ public class HeuristicsListTest {
 		Assert.assertEquals(sol.getIntVal(b), 1);
 	}
 
-	@Test(dependsOnMethods = "testLaunch2Vars")
+	// @Test(dependsOnMethods = "testLaunch2Vars")
 	public void testLaunch3Vars() {
 		Model s = new Model();
 		IntVar a = s.intVar("a", 0, 3, true);

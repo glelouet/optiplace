@@ -26,7 +26,7 @@ public class DistanceViewTest {
 		Configuration source = new Configuration("mem");
 		// 4 servers with 4-5-4-5 mem capacity
 		Node[] nodes = new Node[4];
-		IntStream.rangeClosed(0, 3).forEach(i -> nodes[i] = source.addOnline("s" + i, i % 2 == 0 ? 4 : 5));
+		IntStream.rangeClosed(0, 3).forEach(i -> nodes[i] = source.addNode("s" + i, i % 2 == 0 ? 4 : 5));
 		// 4 VM with 4-5-4-5 mem usage
 		VM[] vms = new VM[4];
 		IntStream.rangeClosed(0, 3).forEach(i -> vms[i] = source.addVM("v" + i, null, i % 2 == 0 ? 4 : 5));
@@ -58,8 +58,8 @@ public class DistanceViewTest {
 	@Test
 	public void testVMGroup() {
 		Configuration source = new Configuration();
-		Node n1 = source.addOnline("n1");
-		Node n2 = source.addOnline("n2");
+		Node n1 = source.addNode("n1");
+		Node n2 = source.addNode("n2");
 		VM v1 = source.addVM("v1", n1);
 		VM v2 = source.addVM("v2", n2);
 

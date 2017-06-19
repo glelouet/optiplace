@@ -16,7 +16,7 @@ public class HostCostViewTest {
 	@Test
 	public void testOnNode() {
 		IConfiguration c = new Configuration("mem");
-		Node n0 = c.addOnline("n0", 12);
+		Node n0 = c.addNode("n0", 12);
 		Extern e0 = c.addExtern("e0", 12);
 		VM vm0 = c.addVM("vm0", n0, 4);
 		VM vm1 = c.addVM("vm1", n0, 6);
@@ -42,8 +42,8 @@ public class HostCostViewTest {
 	@Test
 	public void testWaitingCost() {
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addOnline("n0", 2);
-		Node n1 = c.addOnline("n1", 2);
+		Node n0 = c.addNode("n0", 2);
+		Node n1 = c.addNode("n1", 2);
 		VM vm0 = c.addVM("vm0", n0, 1);
 		VM vm1 = c.addVM("vm1", n1, 1);
 		VM vm2 = c.addVM("vm2", null, 2);

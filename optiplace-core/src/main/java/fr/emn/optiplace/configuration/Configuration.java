@@ -43,8 +43,6 @@ public class Configuration implements IConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-	private final Set<Node> offlines = new LinkedHashSet<>();
-
 	private final LinkedHashMap<Node, Set<VM>> nodesVM = new LinkedHashMap<>();
 
 	private final LinkedHashMap<Extern, Set<VM>> externVM = new LinkedHashMap<>();
@@ -82,7 +80,6 @@ public class Configuration implements IConfiguration {
 		nameToElement.forEach((e, v) -> other.nameToElement.put(e, v));
 		nodesTags.forEach((e, v) -> other.nodesTags.put(e, new LinkedHashSet<>(v)));
 		nodesVM.forEach((e, v) -> other.nodesVM.put(e, new LinkedHashSet<>(v)));
-		offlines.forEach(n -> other.offlines.add(n));
 		resources.forEach((e, v) -> other.resources.put(e, v.clone()));
 
 		sitesTags.forEach((e, v) -> other.sitesTags.put(e, new LinkedHashSet<>(v)));
@@ -110,28 +107,13 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<Node> getOnlines() {
+	public Stream<Node> getNodes() {
 		return nodesVM.keySet().stream();
 	}
 
 	@Override
-	public Stream<Node> getOfflines() {
-		return offlines.stream();
-	}
-
-	@Override
-	public int nbNodes(NODESTATES state) {
-		if (state == null) {
-			return offlines.size() + nodesVM.size();
-		}
-		switch (state) {
-		case OFFLINE:
-			return offlines.size();
-		case ONLINE:
-			return nodesVM.size();
-		default:
-			throw new UnsupportedOperationException();
-		}
+	public int nbNodes() {
+		return nodesVM.size();
 	}
 
 	@Override
@@ -163,13 +145,8 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean isOnline(Node n) {
+	public boolean hasNode(Node n) {
 		return nodesVM.containsKey(n);
-	}
-
-	@Override
-	public boolean isOffline(Node n) {
-		return offlines.contains(n);
 	}
 
 	@Override
@@ -207,7 +184,6 @@ public class Configuration implements IConfiguration {
 		}
 
 		if (hoster instanceof Node) {
-			setOnline((Node) hoster);
 			nodesVM.get(hoster).add(vm);
 		} else if (hoster instanceof Extern) {
 			externVM.get(hoster).add(vm);
@@ -319,17 +295,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean setOnline(Node node2) {
-		if (isOnline(node2)) {
-			return false;
-		}
-		offlines.remove(node2);
-		nodesVM.put(node2, new LinkedHashSet<>());
-		return true;
-	}
-
-	@Override
-	public Node addOnline(String name, int... resources) {
+	public Node addNode(String name, int... resources) {
 		if (name == null) {
 			return null;
 		}
@@ -339,7 +305,7 @@ public class Configuration implements IConfiguration {
 			if (ret == null) {
 				ret = new Node(name);
 				nameToElement.put(name.toLowerCase(), ret);
-				setOnline(ret);
+				nodesVM.put(ret, new LinkedHashSet<>());
 			}
 		} catch (ClassCastException cce) {
 			return null;
@@ -354,23 +320,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Node addOffline(String name, int... resources) {
-		if (name == null) {
-			return null;
-		}
-		Node ret = addOnline(name, resources);
-		if (ret == null) {
-			return null;
-		}
-		setOffline(ret);
-		return ret;
-	}
-
-	@Override
-	public boolean setOffline(Node n) {
-		if (isOffline(n)) {
-			return false;
-		}
+	public boolean removeVMs(Node n) {
 		Set<VM> vms = nodesVM.remove(n);
 		if (vms != null) {
 			for (VM vm : vms) {
@@ -379,7 +329,6 @@ public class Configuration implements IConfiguration {
 				vmMigration.remove(vm);
 			}
 		}
-		offlines.add(n);
 		return true;
 	}
 
@@ -397,8 +346,8 @@ public class Configuration implements IConfiguration {
 		} catch (ClassCastException cce) {
 			return false;
 		}
-		setOffline(n);
-		offlines.remove(n);
+		removeVMs(n);
+		nodesVM.remove(n);
 		Node rem = n;
 		nodesTags.values().stream().forEach(s -> s.remove(rem));
 		forgetElement(n);
@@ -420,7 +369,7 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<Node> getOnlines(Predicate<Set<VM>> pred) {
+	public Stream<Node> getNodes(Predicate<Set<VM>> pred) {
 		return nodesVM.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
 				.map(Entry<Node, Set<VM>>::getKey);
 	}
@@ -517,10 +466,7 @@ public class Configuration implements IConfiguration {
 
 	public String toString(String fieldSeparator) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("onlines : ").append(nodesVM);
-		if (!offlines.isEmpty()) {
-			sb.append(fieldSeparator).append("offlines : ").append(offlines);
-		}
+		sb.append("nodes : ").append(nodesVM);
 		if (!externVM.isEmpty()) {
 			sb.append(fieldSeparator).append("externs : ").append(externVM);
 		}
@@ -569,9 +515,6 @@ public class Configuration implements IConfiguration {
 		if (!vmHoster.equals(o.vmHoster)) {
 			return false;
 		}
-		if (!offlines.equals(o.offlines)) {
-			return false;
-		}
 		if (!waitings.equals(o.waitings)) {
 			return false;
 		}
@@ -593,7 +536,7 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public int hashCode() {
-		return vmHoster.hashCode() + offlines.hashCode() + waitings.hashCode() + resources.hashCode()
+		return vmHoster.hashCode() + waitings.hashCode() + resources.hashCode()
 		+ vmMigration.hashCode() + sitesToHosters.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
 		+ externsTags.hashCode() + sitesTags.hashCode();
 	}

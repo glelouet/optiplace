@@ -41,8 +41,8 @@ public class HomogeneousViewTest {
 
 	@Test
 	public void testTinyCenter() {
-		Node n0 = cfg.addOnline("n0", 10000, 5000);
-		Node n1 = cfg.addOnline("n1", 10000, 5000);
+		Node n0 = cfg.addNode("n0", 10000, 5000);
+		Node n1 = cfg.addNode("n1", 10000, 5000);
 		cfg.addVM("vm0_0", n0, 2000, 100);
 		cfg.addVM("vm1_0", n1, 2000, 100);
 		p.solve();
@@ -53,8 +53,8 @@ public class HomogeneousViewTest {
 
 	@Test(dependsOnMethods = "testTinyCenter")
 	public void testSmallCenter() {
-		Node n0 = cfg.addOnline("n0", 10000, 5000);
-		Node n1 = cfg.addOnline("n1", 10000, 5000);
+		Node n0 = cfg.addNode("n0", 10000, 5000);
+		Node n1 = cfg.addNode("n1", 10000, 5000);
 		cfg.addVM("vm0_0", n0, 2000, 100);
 		cfg.addVM("vm0_1", n0, 2000, 100);
 		cfg.addVM("vm0_2", n0, 2000, 100);
@@ -70,11 +70,11 @@ public class HomogeneousViewTest {
 		// in this test, we made 5 servers
 		// the first two have more VMs than the others
 		// so they should contain all the VMs.
-		Node n4 = cfg.addOnline("n4", 10000, 10000);
-		Node n3 = cfg.addOnline("n3", 10000, 10000);
-		Node n2 = cfg.addOnline("n2", 10000, 10000);
-		Node n1 = cfg.addOnline("n1", 10000, 10000);
-		Node n0 = cfg.addOnline("n0", 10000, 10000);
+		Node n4 = cfg.addNode("n4", 10000, 10000);
+		Node n3 = cfg.addNode("n3", 10000, 10000);
+		Node n2 = cfg.addNode("n2", 10000, 10000);
+		Node n1 = cfg.addNode("n1", 10000, 10000);
+		Node n0 = cfg.addNode("n0", 10000, 10000);
 
 		// we don't care about the CPU
 		// as long as max(VM.CPU/VM.MEM)<min(node.CPU/node.MEM)
@@ -123,7 +123,7 @@ public class HomogeneousViewTest {
 			int nbVMs = gi * maxVMsPerNode / nbNodeGroups;
 			for (int ni = 0; ni < nodesPerGroup; ni++) {
 				int idx = gi * nodesPerGroup + ni;
-				nodes[idx] = cfg.addOnline("n" + idx, nodeMem, nodeCpu);
+				nodes[idx] = cfg.addNode("n" + idx, nodeMem, nodeCpu);
 				for (int vmi = 0; vmi < nbVMs; vmi++) {
 					cfg.addVM("vm" + idx + "_" + vmi, nodes[idx], vmMem, vmCpu);
 				}

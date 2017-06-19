@@ -31,7 +31,7 @@ public class SpreadTest extends SolvingExample {
 	@Test
 	public void useCaseSpread() {
 		Configuration cfg = new Configuration("mem");
-		Node n0 = cfg.addOnline("n0", 64);
+		Node n0 = cfg.addNode("n0", 64);
 		Extern e = cfg.addExtern("e", 5);
 		VM vm0 = cfg.addVM("vm0", null, 5);
 		VM vm1 = cfg.addVM("vm1", null, 5);

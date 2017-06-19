@@ -27,8 +27,8 @@ public class Exercice3 {
 		Configuration c = new Configuration();
 		Extern e0 = c.addExtern("e0");
 		Extern e1 = c.addExtern("e1");
-		Node n0 = c.addOnline("n0");
-		Node n1 = c.addOnline("n1");
+		Node n0 = c.addNode("n0");
+		Node n1 = c.addNode("n1");
 		VM vm0 = c.addVM("v0", e0);
 		VM vm1 = c.addVM("v1", e0);
 		VM vm2 = c.addVM("v2", e0);

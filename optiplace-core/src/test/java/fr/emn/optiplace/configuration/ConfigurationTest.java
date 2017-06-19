@@ -40,23 +40,23 @@ public class ConfigurationTest {
 	@Test
 	public void testSameElements() {
 		Configuration c1 = new Configuration();
-		Node busy = c1.addOnline("busy");
-		c1.addOnline("sleepy");
-		c1.addOffline("off");
+		Node busy = c1.addNode("busy");
+		c1.addNode("idle");
 		c1.addVM("running", busy);
 		c1.addVM("sleepy", null);
 		Configuration c2 = new Configuration();
-		for (String s : new String[] { "off", "sleepy", "busy" }) {
-			c2.addOffline(s);
-		}
 		for (String s : new String[] { "running", "sleepy" }) {
 			c2.addVM(s, null);
 		}
+		for (String s : new String[] { "busy", "idle" }) {
+			c2.addNode(s);
+		}
+
 		Assert.assertTrue(IConfiguration.sameElements(c1, c2));
 		Assert.assertTrue(IConfiguration.sameElements(c2, c1));
 		Assert.assertTrue(IConfiguration.sameElements(c1, c1));
 		Assert.assertTrue(IConfiguration.sameElements(c2, c2));
-		Node other = c2.addOnline("otherNode");
+		Node other = c2.addNode("otherNode");
 		Assert.assertFalse(IConfiguration.sameElements(c1, c2));
 		Assert.assertFalse(IConfiguration.sameElements(c2, c1));
 		c2.remove(other);
@@ -72,8 +72,8 @@ public class ConfigurationTest {
 		Configuration c1 = new Configuration("CPU");
 		Configuration c2 = new Configuration("CPU");
 		for (String n : new String[] { "n0", "n1", "n2" }) {
-			c1.addOnline(n, 10);
-			c2.addOnline(n, 10);
+			c1.addNode(n, 10);
+			c2.addNode(n, 10);
 		}
 		for (String v : new String[] { "vm0", "vm1", "vm2" }) {
 			c1.addVM(v, null, 5);
@@ -81,10 +81,10 @@ public class ConfigurationTest {
 		}
 		Assert.assertEquals(c2, c1);
 		Assert.assertEquals(c1, c2);
-		c1.addOnline("n3", 3);
+		c1.addNode("n3", 3);
 		Assert.assertNotEquals(c2, c1);
 		Assert.assertNotEquals(c1, c2);
-		Node n = c2.addOnline("n3", 3);
+		Node n = c2.addNode("n3", 3);
 		Assert.assertEquals(c2, c1);
 		Assert.assertEquals(c1, c2);
 		c2.addVM("vm3", n, 2);
@@ -100,7 +100,7 @@ public class ConfigurationTest {
 		Configuration c = new Configuration();
 		Node[] nodes = new Node[8];
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = c.addOnline("n" + i);
+			nodes[i] = c.addNode("n" + i);
 		}
 		Assert.assertEquals(c.nbSites(), 0);
 		Assert.assertEquals(c.getSiteLocations(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
@@ -115,23 +115,20 @@ public class ConfigurationTest {
 	public void testGetElementByName() {
 		Configuration c = new Configuration();
 		Extern extern = c.addExtern("extern");
-		Node offline = c.addOffline("offline");
-		Node online = c.addOnline("online");
+		Node online = c.addNode("online");
 		Site site = c.addSite("site");
 		c.addVM("vmexterned", extern);
 		c.addVM("vmonline", online);
 		c.addVM("vmwaiting", null);
 
-		for (String s : new String[] { extern.getName(), "eXtern", offline.getName(), "offlinE", online.getName(), "onLINE",
+		for (String s : new String[] { extern.getName(), "eXtern", online.getName(), "onLINE",
 				site.getName(), "SitE", "vmexterned", "vmExterned", "vmOnlinE", "vmonline", "vmwaiting", "vmWaiting", }) {
 			Assert.assertNotNull(c.getElementByName(s), "can't find element " + s);
 		}
 
 		extern = c.getElementByName("extErn", Extern.class);
 		online = c.getElementByName("onLINE", Node.class);
-		offline = c.getElementByName("OffLine", Node.class);
 		site = c.getElementByName("sIte", Site.class);
-
 	}
 
 	@Test

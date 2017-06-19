@@ -16,8 +16,8 @@ public class ViewEvaluatorTest {
 		int allowedpercent = 5;
 		int nbTries = 20;
 		int redo = 10000;
-		c.addOnline("n0");
-		c.addOnline("n1");
+		c.addNode("n0");
+		c.addNode("n1");
 		c.addVM("vm0", null);
 		c.addVM("vm1", null);
 		c.addVM("vm2", null);

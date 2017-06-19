@@ -46,10 +46,6 @@ public interface IConfiguration extends Cloneable {
 		RUNNING, WAITING, EXTERN
 	}
 
-	static enum NODESTATES {
-		ONLINE, OFFLINE
-	}
-
 	/**
 	 * tooling to compare if two configurations have same vms, nodes, sites and
 	 * externs
@@ -60,8 +56,8 @@ public interface IConfiguration extends Cloneable {
 	 */
 	public static boolean sameElements(IConfiguration first, IConfiguration second) {
 		return !first.getNodes().parallel().filter(n -> !second.hasNode(n)).findAny().isPresent()
-				&& !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 				&& !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
+				&& !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 				&& !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
 				&& !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
 				&& !first.getExterns().parallel().filter(v -> !second.hasExtern(v)).findAny().isPresent()
@@ -113,7 +109,7 @@ public interface IConfiguration extends Cloneable {
 	 *
 	 * @return a Stream of all the nodes online in this configuration
 	 */
-	Stream<Node> getOnlines();
+	Stream<Node> getNodes();
 
 	/**
 	 * get a Stream of the nodes which are online and whom set of hosted VMs
@@ -125,23 +121,8 @@ public interface IConfiguration extends Cloneable {
 	 *          the set.
 	 * @return The stream of node following the predicate over their hosted VMs
 	 */
-	Stream<Node> getOnlines(Predicate<Set<VM>> pred);
+	Stream<Node> getNodes(Predicate<Set<VM>> pred);
 
-	/**
-	 * Get the nodes that are offline.
-	 *
-	 * @return a Stream of all the nodes offline in this configuration
-	 */
-	Stream<Node> getOfflines();
-
-	/**
-	 * Get all the nodes involved in the configuration.
-	 *
-	 * @return a Stream, may be empty
-	 */
-	default Stream<Node> getNodes() {
-		return Stream.concat(getOnlines(), getOfflines());
-	}
 
 	/**
 	 * get the number of Node with given state
@@ -151,11 +132,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return the number of nodes with given state if not null, or the number of
 	 *         nodes if null
 	 */
-	int nbNodes(NODESTATES state);
-
-	default int nbNodes() {
-		return nbNodes(null);
-	}
+	int nbNodes();
 
 	/**
 	 * Get the virtual machines that are running.
@@ -209,38 +186,13 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * @param n
-	 *          a Node
-	 * @return the state of the Node in the configuration, or null if the Node is
-	 *         not known
-	 */
-	default NODESTATES getState(Node n) {
-		if (isOnline(n)) {
-			return NODESTATES.ONLINE;
-		}
-		if (isOffline(n)) {
-			return NODESTATES.OFFLINE;
-		}
-		return null;
-	}
-
-	/**
 	 * Test if a node is online.
 	 *
 	 * @param n
 	 *          the node
 	 * @return true if the node is online
 	 */
-	boolean isOnline(Node n);
-
-	/**
-	 * Test if a node is offline.
-	 *
-	 * @param n
-	 *          the node
-	 * @return true if the node is offline
-	 */
-	boolean isOffline(Node n);
+	boolean hasNode(Node n);
 
 	/**
 	 * @param vm
@@ -288,16 +240,6 @@ public interface IConfiguration extends Cloneable {
 	 */
 	boolean isExterned(VM v);
 
-	/**
-	 * check if a node is already present in this
-	 *
-	 * @param n
-	 *          a Node
-	 * @return true if a node equal to this one already exist
-	 */
-	default boolean hasNode(Node n) {
-		return isOnline(n) || isOffline(n);
-	}
 
 	/**
 	 * check if a VM is already present in this
@@ -414,15 +356,6 @@ public interface IConfiguration extends Cloneable {
 	 */
 	boolean remove(VM vm);
 
-	/**
-	 * Set a node online. If the node is already in the configuration but in an
-	 * another state, it is updated.
-	 *
-	 * @param node
-	 *          the node to add
-	 * @return true if the node state changed
-	 */
-	boolean setOnline(Node node);
 
 	/**
 	 * add an online Node
@@ -433,9 +366,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return null if a on-node with give name exists, a new noe if no node with
 	 *         given name exists, or previous node modified if already exists
 	 */
-	Node addOnline(String name, int... resources);
-
-	Node addOffline(String name, int... resources);
+	Node addNode(String name, int... resources);
 
 	/**
 	 * Set a node offline. If the node is already in the configuration but in an
@@ -445,7 +376,7 @@ public interface IConfiguration extends Cloneable {
 	 *          the node
 	 * @return true if the node state changed
 	 */
-	boolean setOffline(Node node);
+	boolean removeVMs(Node node);
 
 	/**
 	 * Ensure we don't have a Node with given name.
@@ -595,14 +526,6 @@ public interface IConfiguration extends Cloneable {
 	 */
 	static enum BasicChecks {
 
-		OFFLINE_OR_ONLINE {
-
-			@Override
-			public boolean check(IConfiguration c) {
-				return !c.getOfflines().filter(c::isOnline).findFirst().isPresent();
-			}
-
-		},
 		RUNNING_OR_EXTERN_OR_WAITING {
 
 			@Override

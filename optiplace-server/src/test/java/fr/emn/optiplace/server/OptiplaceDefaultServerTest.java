@@ -43,8 +43,8 @@ public class OptiplaceDefaultServerTest {
 		OptiplaceServer test = new OptiplaceServer();
 
 		Configuration cfg = new Configuration("CPU", "MEM");
-		Node n1 = cfg.addOnline("n1", 1, 20);
-		Node n2 = cfg.addOnline("n2", 20, 1);
+		Node n1 = cfg.addNode("n1", 1, 20);
+		Node n2 = cfg.addNode("n2", 20, 1);
 		VM vm1 = cfg.addVM("vm1", n1, 1, 10);
 		VM vm2 = cfg.addVM("vm2", n1, 10, 1);
 
@@ -80,7 +80,7 @@ public class OptiplaceDefaultServerTest {
 		Node[] nodes = new Node[nbNodes];
 		VM[][] vms = new VM[nbNodes][nbVmsPerNode];
 		for (int i = 0; i < nbNodes; i++) {
-			nodes[i] = cfg.addOnline("n" + i, 8 * 3000, 64 * 1024, 100 * 1000);
+			nodes[i] = cfg.addNode("n" + i, 8 * 3000, 64 * 1024, 100 * 1000);
 			vms[i] = new VM[nbVmsPerNode];
 			for (int j = 0; j < nbVmsPerNode; j++) {
 				VM vm = cfg.addVM("vm" + i + "_" + j, nodes[i], 500, 10 * 1024,

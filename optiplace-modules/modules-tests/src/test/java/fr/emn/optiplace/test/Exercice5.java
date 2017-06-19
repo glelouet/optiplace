@@ -24,8 +24,8 @@ public class Exercice5 {
 
 	public static void main(String[] args) {
 		Configuration c = new Configuration("CPU");
-		Node n0 = c.addOnline("n0", 100);
-		Node n1 = c.addOnline("n1", 200);
+		Node n0 = c.addNode("n0", 100);
+		Node n1 = c.addNode("n1", 200);
 		Extern e = c.addExtern("e", 100);
 
 		VM v0 = c.addVM("v0", null, 30);

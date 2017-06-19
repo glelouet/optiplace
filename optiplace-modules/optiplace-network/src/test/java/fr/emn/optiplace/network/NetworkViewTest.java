@@ -24,8 +24,8 @@ public class NetworkViewTest {
 	public void testSimpleProblem() {
 		// two nodes, each has a VM, a link between the two nodes
 		Configuration c = new Configuration();
-		Node n0 = c.addOnline("n0");
-		Node n1 = c.addOnline("n1");
+		Node n0 = c.addNode("n0");
+		Node n1 = c.addNode("n1");
 		VM v0 = c.addVM("v0", n0);
 		VM v1 = c.addVM("v1", n1);
 
@@ -48,8 +48,8 @@ public class NetworkViewTest {
 	public void testSimpleProblemWithRouter() {
 		// now we test with a router between the two nodes
 		Configuration c = new Configuration();
-		Node n0 = c.addOnline("n0");
-		Node n1 = c.addOnline("n1");
+		Node n0 = c.addNode("n0");
+		Node n1 = c.addNode("n1");
 		VM v0 = c.addVM("v0", n0);
 		VM v1 = c.addVM("v1", n1);
 
@@ -73,9 +73,9 @@ public class NetworkViewTest {
 		// little more complex problem, with VM use adds up
 		// the configuration is initially bad, as each node can only host ONE VM
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addOnline("n0", 1);
-		Node n1 = c.addOnline("n1", 1);
-		Node n2 = c.addOnline("n2", 1);
+		Node n0 = c.addNode("n0", 1);
+		Node n1 = c.addNode("n1", 1);
+		Node n2 = c.addNode("n2", 1);
 		VM v0 = c.addVM("v0", n2, 1);
 		VM v1 = c.addVM("v1", n2, 1);
 		VM v2 = c.addVM("v2", n2, 1);
@@ -101,8 +101,8 @@ public class NetworkViewTest {
 		// we test a bad configuration, each node can only host one VM but each VM
 		// request too much network : they should stay waiting.
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addOnline("n0", 1);
-		Node n1 = c.addOnline("n1", 1);
+		Node n0 = c.addNode("n0", 1);
+		Node n1 = c.addNode("n1", 1);
 		VM v0 = c.addVM("v0", null, 1);
 		VM v1 = c.addVM("v1", null, 1);
 		NetworkView nv = new NetworkView();

@@ -19,7 +19,7 @@ public class BugNoExternResourceTest {
 	@Test
 	public void testNoNodeSolution() {
 		Configuration sc = new Configuration("mem");
-		Node n = sc.addOnline("node", 5);
+		Node n = sc.addNode("node", 5);
 		VM v = sc.addVM("v", null, 50);
 		Extern e = sc.addExtern("e");
 

@@ -23,7 +23,7 @@ public class SolverTest {
 	public void testSolver() {
 		Configuration c = new Configuration();
 		c.addExtern("exter");
-		c.addOnline("node");
+		c.addNode("node");
 		c.addVM("vm", null);
 		Optiplace test = new Optiplace();
 		test.source(c);

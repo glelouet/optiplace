@@ -20,22 +20,22 @@ public class Exercice4 {
 	public static void main(String[] args) {
 
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addOnline("n0", 10);
+		Node n0 = c.addNode("n0", 10);
 		VM vm0 = c.addVM("v0", n0, 4);
 		VM vm1 = c.addVM("v1", n0, 3);
 		VM vm2 = c.addVM("v2", n0, 4);
 		// 3 VM de taille totale 11 sur n0 dont la taille vaut 10 : il faut
 		// reconfigurer
 
-		Node n1 = c.addOnline("n1", 10);
+		Node n1 = c.addNode("n1", 10);
 		VM vm3 = c.addVM("v3", n1, 4);
 		// il reste 6 mem dispo sur n1
 
-		Node n2 = c.addOnline("n2", 10);
+		Node n2 = c.addNode("n2", 10);
 		VM vm4 = c.addVM("v4", n2, 2);
 		// il reste 8 mem dispo sur n2
 
-		Node n3 = c.addOnline("n3", 10);
+		Node n3 = c.addNode("n3", 10);
 		VM vm5 = c.addVM("v5", n3, 3);
 		// reste 7 mem sur n3
 

@@ -81,7 +81,7 @@ public class EvalSites {
 		// 5 nodes, each on the "local" site
 		Node[] nodes = new Node[nbNodes];
 		for (int in = 0; in < nodes.length; in++) {
-			nodes[in] = physical.addOnline("n" + in, nodeMem);
+			nodes[in] = physical.addNode("n" + in, nodeMem);
 			physical.addSite("local", nodes[in]);
 		}
 	}
@@ -182,7 +182,7 @@ public class EvalSites {
 		// 5 nodes, each on the "local" site
 		Node[] nodes = new Node[nbNodes];
 		for (int in = 0; in < nodes.length; in++) {
-			nodes[in] = physical.addOnline("n" + in, nodeMem);
+			nodes[in] = physical.addNode("n" + in, nodeMem);
 			physical.addSite("local", nodes[in]);
 		}
 

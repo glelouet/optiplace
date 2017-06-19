@@ -55,8 +55,8 @@ public class FarTest extends SolvingExample {
 		VM v2 = src.addVM("v2", null, 1000);
 		VM v3 = src.addVM("v3", null, 1000);
 
-		Node n1 = src.addOnline("n1", 500);
-		Node n2 = src.addOnline("n2", 500);
+		Node n1 = src.addNode("n1", 500);
+		Node n2 = src.addNode("n2", 500);
 		Site local = src.addSite("local", n1, n2);
 
 		Extern e1 = src.addExtern("e1", 1000);

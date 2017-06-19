@@ -28,7 +28,7 @@ public class Exercice1 {
 		Configuration c = new Configuration();
 
 		Extern e = c.addExtern("extern");
-		Node n = c.addOnline("node");
+		Node n = c.addNode("node");
 
 		// on met le node et l'extern dans le même site.
 		Site site = c.addSite("site", e, n);

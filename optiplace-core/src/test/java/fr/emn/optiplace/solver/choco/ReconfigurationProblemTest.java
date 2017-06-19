@@ -26,7 +26,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testRunning() {
 		Configuration sc = new Configuration();
-		Node n = sc.addOnline("node");
+		Node n = sc.addNode("node");
 		VM vm = sc.addVM("vm", n);
 
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);
