@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.IConfiguration.VMSTATES;
-import fr.emn.optiplace.configuration.Node;
 
 
 /**
@@ -25,8 +25,8 @@ public class SolvingExampleTest extends SolvingExample {
 
 	@Test
 	public void testCreation() {
-		nbVMPerNode = 0;
-		nbNodes = 1;
+		nbVMPerComputer = 0;
+		nbComputers = 1;
 		nbWaitings = 1;
 		// resources = new String[] {};
 
@@ -37,11 +37,11 @@ public class SolvingExampleTest extends SolvingExample {
 		// strat.setLogStats(true);
 		IConfiguration d = solve(src).getDestination();
 		Assert.assertNotNull(d);
-		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbNodes * nbVMPerNode, "dest is : " + d);
-		Assert.assertEquals(d.nbVMs(VMSTATES.RUNNING), nbWaitings + nbNodes * nbVMPerNode, "dest is : " + d);
+		Assert.assertEquals(d.nbVMs(null), nbWaitings + nbComputers * nbVMPerComputer, "dest is : " + d);
+		Assert.assertEquals(d.nbVMs(VMSTATES.RUNNING), nbWaitings + nbComputers * nbVMPerComputer, "dest is : " + d);
 		Assert.assertEquals(d.nbVMs(VMSTATES.WAITING), 0, "" + d.getWaitings().collect(Collectors.toList()));
-		for (Node n : nodes) {
-			Assert.assertTrue(d.nbHosted(n) >= nbVMPerNode,
+		for (Computer n : nodes) {
+			Assert.assertTrue(d.nbHosted(n) >= nbVMPerComputer,
 					"node " + n + " has only vms : " + d.getHosted(n).collect(Collectors.toList()));
 		}
 	}

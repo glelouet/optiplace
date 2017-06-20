@@ -1,14 +1,14 @@
 package fr.emn.optiplace.test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 
 /**
- * Placement de VM sur des Node et Extern
+ * Placement de VM sur des Computer et Extern
  *
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
@@ -28,7 +28,7 @@ public class Exercice1 {
 		Configuration c = new Configuration();
 
 		Extern e = c.addExtern("extern");
-		Node n = c.addNode("node");
+		Computer n = c.addComputer("node");
 
 		// on met le node et l'extern dans le même site.
 		Site site = c.addSite("site", e, n);

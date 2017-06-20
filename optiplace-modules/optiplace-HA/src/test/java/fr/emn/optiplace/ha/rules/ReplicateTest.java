@@ -23,9 +23,9 @@ public class ReplicateTest extends SolvingExample {
 		resources = new String[] { "MEM" };
 		nodeCapas = new int[] { 2 };
 		vmUse = new int[] { 1 };
-		nbVMPerNode = 1;
+		nbVMPerComputer = 1;
 		nbWaitings = 0;
-		nbNodes = 2;
+		nbComputers = 2;
 		ha = new HAView();
 		views = new View[] { ha };
 		super.prepare();

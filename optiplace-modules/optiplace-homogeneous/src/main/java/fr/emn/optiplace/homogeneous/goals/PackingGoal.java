@@ -12,8 +12,8 @@ import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.homogeneous.goals.PackingGoal.ElemWeighter.ResourceWeighter;
 import fr.emn.optiplace.homogeneous.goals.PackingGoal.ElemWeighter.ValueWeighter;
+import fr.emn.optiplace.homogeneous.heuristics.ComputersUsedHeuristic;
 import fr.emn.optiplace.homogeneous.heuristics.InstantiateOnActive;
-import fr.emn.optiplace.homogeneous.heuristics.NodesUsedHeuristic;
 import fr.emn.optiplace.homogeneous.heuristics.PackOnHoster;
 import fr.emn.optiplace.solver.ActivatedHeuristic;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -25,7 +25,7 @@ import fr.emn.optiplace.view.SearchGoal;
  * comparator of VMs to order the cost of moving a VM.
  * <p>
  * The cost of moving a vm os the resource use of the VM, while the benefit
- * (negative cost) of having a Node unused is the resource capacity of this
+ * (negative cost) of having a Computer unused is the resource capacity of this
  * node.
  * </p>
  *
@@ -187,7 +187,7 @@ public class PackingGoal implements SearchGoal {
 	 */
 	@Override
 	public IntVar getObjective(IReconfigurationProblem rp) {
-		IntVar[] hosteds = new IntVar[rp.c().nbNodes()];
+		IntVar[] hosteds = new IntVar[rp.c().nbComputers()];
 		int[] nodeCosts_a = new int[hosteds.length];
 		for (int i = 0; i < hosteds.length; i++) {
 			VMLocation n = rp.b().location(i);
@@ -212,8 +212,8 @@ public class PackingGoal implements SearchGoal {
 		List<ActivatedHeuristic<? extends Variable>> ret = new ArrayList<>();
 		ret.add(new PackOnHoster(rp));
 		ret.add(new InstantiateOnActive(rp));
-		if (rp.c().nbNodes() > 0) {
-			ret.add(new Static2Activated<>(new NodesUsedHeuristic(rp, getWeighter())));
+		if (rp.c().nbComputers() > 0) {
+			ret.add(new Static2Activated<>(new ComputersUsedHeuristic(rp, getWeighter())));
 		}
 		return ret;
 	}

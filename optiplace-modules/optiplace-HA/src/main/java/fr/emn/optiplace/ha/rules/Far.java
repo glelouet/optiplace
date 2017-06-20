@@ -52,7 +52,8 @@ public class Far implements Rule {
 
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		return vms.stream().filter(cfg::hasVM).map(v -> cfg.getSite(cfg.getNodeHost(v))).distinct().count() == vms.stream()
+		return vms.stream().filter(cfg::hasVM).map(v -> cfg.getSite(cfg.getComputerHost(v))).distinct().count() == vms
+				.stream()
 				.filter(cfg::hasVM).count();
 	}
 

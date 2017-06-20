@@ -6,9 +6,9 @@ import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 
@@ -22,11 +22,11 @@ public class BridgeTest {
 	public void testDefaultvalue() {
 		IConfiguration cfg = Mockito.mock(IConfiguration.class);
 		Mockito.when(cfg.getVMs()).thenReturn(Stream.empty());
-		Mockito.when(cfg.getNodes()).thenReturn(Stream.empty(), Stream.empty());
+		Mockito.when(cfg.getComputers()).thenReturn(Stream.empty(), Stream.empty());
 		Mockito.when(cfg.getExterns()).thenReturn(Stream.empty(), Stream.empty());
 		Mockito.when(cfg.getSites()).thenReturn(Stream.empty());
 		Bridge test = new Bridge(cfg);
-		Assert.assertEquals(test.location(new Node("n0")), -1);
+		Assert.assertEquals(test.location(new Computer("n0")), -1);
 		Assert.assertEquals(test.vm(new VM("v0")), -1);
 		Assert.assertEquals(test.site(new Site("s0")), 0);
 		Assert.assertEquals(test.location(new Extern("e0")), -1);

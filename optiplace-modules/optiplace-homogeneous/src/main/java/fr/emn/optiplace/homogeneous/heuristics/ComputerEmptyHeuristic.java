@@ -9,7 +9,7 @@ import org.chocosolver.solver.search.strategy.assignments.DecisionOperatorFactor
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.core.heuristics.Var2ValSelector;
 import fr.emn.optiplace.homogeneous.goals.PackingGoal.ElemWeighter;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -21,10 +21,10 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
-public class NodesEmptyHeuristic extends IntStrategy {
+public class ComputerEmptyHeuristic extends IntStrategy {
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NodesEmptyHeuristic.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ComputerEmptyHeuristic.class);
 
 	/**
 	 * store the ranking of an IntVar var to an int val. Is a couple of (Var, val)
@@ -66,13 +66,13 @@ public class NodesEmptyHeuristic extends IntStrategy {
 	 *
 	 * @param variables
 	 */
-	private NodesEmptyHeuristic(Var2ValSelector sel, IntVar[] nodesSizes, DecisionOperator<IntVar> dec) {
+	private ComputerEmptyHeuristic(Var2ValSelector sel, IntVar[] nodesSizes, DecisionOperator<IntVar> dec) {
 		super(nodesSizes, sel, sel, dec);
 	}
 
 	protected ElemWeighter weight = null;
 
-	protected NodesEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight, DecisionOperator<IntVar> dec) {
+	protected ComputerEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight, DecisionOperator<IntVar> dec) {
 		this(makeSelector(rp, weight), rp.nbVMsOn(), dec);
 		this.weight = weight;
 	}
@@ -87,7 +87,7 @@ public class NodesEmptyHeuristic extends IntStrategy {
 	 * @param weight
 	 *          defines the weight of the VMs on a node
 	 */
-	public NodesEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight) {
+	public ComputerEmptyHeuristic(IReconfigurationProblem rp, ElemWeighter weight) {
 		this(rp, weight, DecisionOperatorFactory.makeIntEq());
 	}
 
@@ -103,10 +103,10 @@ public class NodesEmptyHeuristic extends IntStrategy {
 	 * @return a selector that affects the first Node nb of VM to 0 when possible.
 	 */
 	protected static Var2ValSelector makeSelector(IReconfigurationProblem rp, ElemWeighter weighter) {
-		Node[] nodes = rp.b().nodes();
+		Computer[] nodes = rp.b().nodes();
 		IntVarRanked[] maxNodeCost = new IntVarRanked[nodes.length];
 		for (int i = 0; i < nodes.length; i++) {
-			Node n = nodes[i];
+			Computer n = nodes[i];
 			int weight = rp.getSourceConfiguration().getHosted(n).mapToInt(v -> weighter.weight(v, rp)).sum();
 			maxNodeCost[i] = new IntVarRanked(rp.nbVMsOn(n), weight);
 		}

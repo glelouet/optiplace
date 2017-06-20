@@ -8,8 +8,8 @@ import java.util.HashSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.test.SolvingExample;
 import fr.emn.optiplace.view.Rule;
@@ -22,14 +22,14 @@ public class GreedyTest extends SolvingExample {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(GreedyTest.class);
+	.getLogger(GreedyTest.class);
 
 	@Test
 	public void testSimpleInject() {
 		prepare();
 		Greedy c = new Greedy(10, "CPU", placed[0][0]);
 		IConfiguration d = solve(src, c).getDestination();
-		Node hoster = d.getNodeHost(placed[0][0]);
+		Computer hoster = d.getComputerHost(placed[0][0]);
 		Assert.assertEquals(d.resources().get("CPU").getUse(d, hoster), 100);
 	}
 

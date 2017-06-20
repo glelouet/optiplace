@@ -15,7 +15,7 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.core.heuristics.Var2ValSelector;
@@ -66,10 +66,10 @@ public class EfficiencyMaxFirstNodes {
 			fallbackResource = rp.getResourceSpecification(secondaryResource);
 		}
 		List<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
-		Node[] sortedNodes = sortNodesByEfficiencyMax(rp, fallbackResource);
+		Computer[] sortedNodes = sortNodesByEfficiencyMax(rp, fallbackResource);
 		ArrayList<IntVar> vmsHosters = extractVMsWithComp(sortedNodes, rp, inNodeComparator);
 
-		for (Node n : sortedNodes) {
+		for (Computer n : sortedNodes) {
 			// System.err.println("pack on node " + n);
 			final int idx = rp.b().location(n);
 			// first we pack the vms already assigned
@@ -108,18 +108,18 @@ public class EfficiencyMaxFirstNodes {
 	 * if two servers have same efficiency, sort them by decreasing memory
 	 * capacity
 	 */
-	public Node[] sortNodesByEfficiencyMax(IReconfigurationProblem rp, ResourceSpecification fallbackResource) {
-		Map<Node, Double> efficiencies = new HashMap<>();
+	public Computer[] sortNodesByEfficiencyMax(IReconfigurationProblem rp, ResourceSpecification fallbackResource) {
+		Map<Computer, Double> efficiencies = new HashMap<>();
 		ResourceSpecification cpur = rp.getResourceSpecification("cpu");
-		for (Node n : rp.b().nodes()) {
+		for (Computer n : rp.b().nodes()) {
 			int cpu = cpur.getCapacity(n);
 			PowerModel cm = data.get(n);
 			double maxCons = cm.maxCons(n);
 			efficiencies.put(n, maxCons / cpu);
 		}
-		ArrayList<Entry<Node, Double>> entries = new ArrayList<>(efficiencies.entrySet());
+		ArrayList<Entry<Computer, Double>> entries = new ArrayList<>(efficiencies.entrySet());
 		Collections.sort(entries, new NodeEfficiencyComparator(fallbackResource));
-		Node[] sortedNodes = new Node[entries.size()];
+		Computer[] sortedNodes = new Computer[entries.size()];
 		for (int i = 0; i < entries.size(); i++) {
 			sortedNodes[i] = entries.get(i).getKey();
 		}
@@ -139,11 +139,11 @@ public class EfficiencyMaxFirstNodes {
 	 * @return the variables of the hosters of the VMs, sorted by node, using the
 	 *         comparator inside a node desc.
 	 */
-	public static ArrayList<IntVar> extractVMsWithComp(Node[] sortedNodes, IReconfigurationProblem rp,
+	public static ArrayList<IntVar> extractVMsWithComp(Computer[] sortedNodes, IReconfigurationProblem rp,
 			Comparator<VM> comp) {
 		ArrayList<IntVar> vmsHosters = new ArrayList<>();
 		for (int i = sortedNodes.length - 1; i >= 0; i--) {
-			Node n = sortedNodes[i];
+			Computer n = sortedNodes[i];
 			ArrayList<VM> vms = new ArrayList<>(rp.getSourceConfiguration().getHosted(n).collect(Collectors.toList()));
 			Collections.sort(vms, comp);
 			for (VM vm : vms) {
@@ -157,7 +157,7 @@ public class EfficiencyMaxFirstNodes {
 	 * compare nodes by efficiency at max CPU decreasing, then on a
 	 * resourceSpecification capacity decreasing, then name.
 	 */
-	public static class NodeEfficiencyComparator implements Comparator<Entry<Node, Double>> {
+	public static class NodeEfficiencyComparator implements Comparator<Entry<Computer, Double>> {
 
 		final ResourceSpecification fallbackComparison;
 
@@ -169,7 +169,7 @@ public class EfficiencyMaxFirstNodes {
 		}
 
 		@Override
-		public int compare(Entry<Node, Double> o1, Entry<Node, Double> o2) {
+		public int compare(Entry<Computer, Double> o1, Entry<Computer, Double> o2) {
 			double val1 = o1.getValue(), val2 = o2.getValue();
 			if (val1 < val2) {
 				return -1;

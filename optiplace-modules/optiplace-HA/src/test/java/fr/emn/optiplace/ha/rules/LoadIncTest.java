@@ -11,7 +11,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.ha.rules.LoadInc;
@@ -35,7 +35,7 @@ public class LoadIncTest extends SolvingExample {
 		IConfiguration d = solve(src, c).getDestination();
 		ResourceSpecification cpu = d.resources().get("CPU");
 		int last = 0;
-		for (Node n : nodes) {
+		for (Computer n : nodes) {
 			int res = cpu.getUse(d, n);
 			Assert.assertTrue(res >= last, "Node " + n + " has less CPU use(" + res
 					+ ") than previous(" + last + ")");
@@ -45,9 +45,9 @@ public class LoadIncTest extends SolvingExample {
 
 	@Test
 	public void testParsing() {
-		List<Node> nodes = new ArrayList<>();
-		nodes.add(new Node("n1"));
-		nodes.add(new Node("n2"));
+		List<Computer> nodes = new ArrayList<>();
+		nodes.add(new Computer("n1"));
+		nodes.add(new Computer("n2"));
 		HashSet<VM> vms = new HashSet<>();
 		vms.add(new VM("vm1"));
 		vms.add(new VM("vm2"));

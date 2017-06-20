@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.goals.TotalPowerEvaluator;
@@ -77,26 +77,26 @@ public class PowerView extends EmptyView {
 	}
 
 	/**
-	 * limit the power of a set of Nodes .each power is limited independently
+	 * limit the power of a set of Computers .each power is limited independently
 	 *
 	 * @param value
 	 *          the maximum power of each node
 	 * @param nodes
 	 *          the nodes to limit the power of, or null to select all
 	 */
-	public void limitPower(int value, Node... nodes) {
+	public void limitPower(int value, Computer... nodes) {
 		addRule(new LimitPower(this, value, nodes));
 	}
 
 	/**
-	 * limit the total power of a set of Nodes. Powers are summed
+	 * limit the total power of a set of Computers. Powers are summed
 	 *
 	 * @param value
 	 *          the maximum total power
 	 * @param nodes
 	 *          the nodes to limit the power of, or null to select all
 	 */
-	public void limitSumPower(int value, Node... nodes) {
+	public void limitSumPower(int value, Computer... nodes) {
 		addRule(new LimitSumPower(this, value, nodes));
 	}
 
@@ -125,7 +125,7 @@ public class PowerView extends EmptyView {
 	 * @return the variable internally constrained to the server consumption,
 	 *         created ot retrieved if cached.
 	 */
-	public IntVar getPower(Node n) {
+	public IntVar getPower(Computer n) {
 		int nidx = pb.b().location(n);
 		if (nidx == -1) {
 			return null;
@@ -170,7 +170,7 @@ public class PowerView extends EmptyView {
 	 *          the node
 	 * @return the {@link IntVar} corresponding to the server consumption
 	 */
-	protected IntVar makePower(Node n) {
+	protected IntVar makePower(Computer n) {
 		PowerModel cm = powerData.get(n);
 		if (cm == null) {
 			System.err.println("no data for node " + n + ", models are  :" + powerData);
@@ -215,9 +215,9 @@ public class PowerView extends EmptyView {
 	 *         injected} {@link IReconfigurationProblem}
 	 */
 	protected IntVar makeTotalPower() {
-		IntVar[] pmPower = new IntVar[c.nbNodes()];
+		IntVar[] pmPower = new IntVar[c.nbComputers()];
 		for (int i = 0; i < pmPower.length; i++) {
-			pmPower[i] = getPower((Node) b.location(i));
+			pmPower[i] = getPower((Computer) b.location(i));
 		}
 		IntVar ret = pb.v().createBoundIntVar("dcPower", evalMinVMsCons(), evaluateMaxCons());
 		onNewVar(ret);
@@ -232,7 +232,7 @@ public class PowerView extends EmptyView {
 		double ret = 0;
 		for (VM vm : b.vms()) {
 			double min = Double.POSITIVE_INFINITY;
-			for (Node n : b.nodes()) {
+			for (Computer n : b.nodes()) {
 				PowerModel model = powerData.get(n);
 				double mincons = model.getMinPowerIncrease(n, pb.c().resources(), vm);
 				if (mincons < min) {
@@ -247,30 +247,30 @@ public class PowerView extends EmptyView {
 
 	/**
 	 * evaluation of the worst max consumption of the problem, if the VMs are
-	 * allocated on the worse Nodes
+	 * allocated on the worse Computers
 	 */
 	public int evaluateMaxCons() {
-		int maxNodeCons = 0;
-		for (Node n : b.nodes()) {
+		int maxComputerCons = 0;
+		for (Computer n : b.nodes()) {
 			PowerModel model = powerData.get(n);
-			maxNodeCons += model.maxCons(n);
+			maxComputerCons += model.maxCons(n);
 		}
-		return maxNodeCons;
+		return maxComputerCons;
 	}
 
 	/**
 	 * determine what is the default multiplier of powers
 	 *
 	 * @param linearCons
-	 * @param linearNodes
+	 * @param linearComputers
 	 * @return
 	 */
-	protected int findMultplier(ArrayList<LinearCPUCons> linearCons, ArrayList<Node> linearNodes,
+	protected int findMultplier(ArrayList<LinearCPUCons> linearCons, ArrayList<Computer> linearComputers,
 			ResourceSpecification cpu) {
 		double mult = 1;
 		for (int i = 0; i < linearCons.size(); i++) {
 			LinearCPUCons m = linearCons.get(i);
-			Node n = linearNodes.get(i);
+			Computer n = linearComputers.get(i);
 			double local = params.requiredGranulartity * cpu.getCapacity(n) / (m.max - m.min);
 			if (local > mult) {
 				mult = local;
@@ -285,8 +285,8 @@ public class PowerView extends EmptyView {
 	 *
 	 * @return the internal table of all nodes' power IntVars.
 	 */
-	public IntVar[] getAllNodesPowers() {
-		for (Node n : pb.b().nodes()) {
+	public IntVar[] getAllComputersPowers() {
+		for (Computer n : pb.b().nodes()) {
 			getPower(n);
 		}
 		return cachedPowers;
@@ -296,8 +296,8 @@ public class PowerView extends EmptyView {
 
 	public IntVar getMaxPowerDiff() {
 		if (cachedMaxPowerDiff == null) {
-			IntVar maxLoad = v.max(getAllNodesPowers());
-			IntVar minLoad = v.min(getAllNodesPowers());
+			IntVar maxLoad = v.max(getAllComputersPowers());
+			IntVar minLoad = v.min(getAllComputersPowers());
 			cachedMaxPowerDiff = v.createBoundIntVar("consumptionMaxDiff", 0, maxLoad.getUB() - minLoad.getLB());
 			post(pb.getModel().arithm(v.plus(cachedMaxPowerDiff, minLoad), "=", maxLoad));
 			onNewVar(cachedMaxPowerDiff);

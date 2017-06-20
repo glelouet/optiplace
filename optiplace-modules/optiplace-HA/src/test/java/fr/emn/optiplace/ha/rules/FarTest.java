@@ -8,10 +8,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
@@ -31,10 +31,10 @@ public class FarTest extends SolvingExample {
 	/** two VM from a node have to be on different site */
 	@Test
 	public void test() {
-		nbNodes = 4;
+		nbComputers = 4;
 		nbWaitings = 0;
 		prepare();
-		Node node = nodes[2];
+		Computer node = nodes[2];
 		src.addSite("site1", node);
 		VM vm0 = placed[0][0], vm1 = placed[0][1];
 		Far test = new Far(vm0, vm1);
@@ -42,8 +42,8 @@ public class FarTest extends SolvingExample {
 		Assert.assertTrue(test.isSatisfied(d), "rule " + test + "is not satisfied in " + d);
 		Assert.assertTrue(d.getLocation(vm0).equals(node) || d.getLocation(vm1).equals(node), "no VM placed on the node "
 				+ node + ", " + vm0 + " on " + d.getLocation(vm0) + ", " + vm1 + " on " + d.getLocation(vm1));
-		Assert.assertTrue(d.getSite(d.getNodeHost(vm0)) != d.getSite(d.getNodeHost(vm1)), "vms are on same site : " + vm0
-				+ "->" + d.getSite(d.getNodeHost(vm0)) + ", " + vm1 + "->" + d.getSite(d.getNodeHost(vm1)));
+		Assert.assertTrue(d.getSite(d.getComputerHost(vm0)) != d.getSite(d.getComputerHost(vm1)), "vms are on same site : "
+				+ vm0 + "->" + d.getSite(d.getComputerHost(vm0)) + ", " + vm1 + "->" + d.getSite(d.getComputerHost(vm1)));
 	}
 
 	@SuppressWarnings("unused")
@@ -55,8 +55,8 @@ public class FarTest extends SolvingExample {
 		VM v2 = src.addVM("v2", null, 1000);
 		VM v3 = src.addVM("v3", null, 1000);
 
-		Node n1 = src.addNode("n1", 500);
-		Node n2 = src.addNode("n2", 500);
+		Computer n1 = src.addComputer("n1", 500);
+		Computer n2 = src.addComputer("n2", 500);
 		Site local = src.addSite("local", n1, n2);
 
 		Extern e1 = src.addExtern("e1", 1000);

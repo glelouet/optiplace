@@ -4,10 +4,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 
 public class BugNoExternResourceTest {
@@ -17,9 +17,9 @@ public class BugNoExternResourceTest {
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testNoNodeSolution() {
+	public void testNoComputerSolution() {
 		Configuration sc = new Configuration("mem");
-		Node n = sc.addNode("node", 5);
+		Computer n = sc.addComputer("node", 5);
 		VM v = sc.addVM("v", null, 50);
 		Extern e = sc.addExtern("e");
 

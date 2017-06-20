@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.chocosolver.solver.variables.IntVar;
 
 import entropy.view.hotspot.goals.ReduceHeatGoal;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.EmptyView;
@@ -82,7 +82,7 @@ public class HotSpotView extends EmptyView {
 	 * @return the variable internally constrained to the server consumption,
 	 *         created ot retrieved if cached.
 	 */
-	public IntVar getRearTemp(Node n) {
+	public IntVar getRearTemp(Computer n) {
 		int nidx = b.location(n);
 		if (nidx == -1) {
 			return null;
@@ -102,7 +102,7 @@ public class HotSpotView extends EmptyView {
 	 * @return the internal array of all the cached rear temperatures.
 	 */
 	public IntVar[] getAllRearTemps() {
-		for (Node n : b.nodes()) {
+		for (Computer n : b.nodes()) {
 			getRearTemp(n);
 		}
 		return cachedRears;
@@ -114,9 +114,9 @@ public class HotSpotView extends EmptyView {
 	 */
 	int granularity = 2 * 3 * 5 * 7 * 11 * 13;
 
-	protected IntVar makeRear(Node n) {
+	protected IntVar makeRear(Computer n) {
 		// make a scalar operation on nodes power and their impact.
-		IntVar[] powers = consumption.getAllNodesPowers();
+		IntVar[] powers = consumption.getAllComputersPowers();
 		Map<String, Double> impacters = data.getImpacters(n.getName());
 		int[] mults = Stream.of(b.nodes())
 				.mapToInt(impacter -> (int) (granularity * impacters.get(impacter.getName()))).toArray();
@@ -135,7 +135,7 @@ public class HotSpotView extends EmptyView {
 		if (ret == null) {
 			IntVar[] increases = new IntVar[b.nodes().length];
 			for (int i = 0; i < increases.length; i++) {
-				increases[i] = makeRear((Node) b.location(i));
+				increases[i] = makeRear((Computer) b.location(i));
 			}
 			ret = v.max(increases);
 			cachedMaxRear = ret;

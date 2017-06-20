@@ -1,9 +1,9 @@
 package fr.emn.optiplace.test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 
 
@@ -21,7 +21,7 @@ public class Exercice2 {
 	public static void main(String[] args) {
 		Configuration c = new Configuration("mem");
 		Extern e = c.addExtern("e", 2);
-		Node n = c.addNode("n", 4);
+		Computer n = c.addComputer("n", 4);
 
 		// ve demande 4 mem mais e ne peut avoir que des VM utilisant moins de 2 mem
 		VM ve = c.addVM("ve", e, 4);

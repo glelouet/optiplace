@@ -139,14 +139,14 @@ public interface CoreView {
 	public IntVar nbMigrations();
 
 	/**
-	 * is the VM running on a Node in dest config ?
+	 * is the VM running on a Computer in dest config ?
 	 *
 	 * @param vmindex
 	 *          the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
 	 *         running on node
 	 */
-	public BoolVar isRunNode(int vmindex);
+	public BoolVar isRunComputer(int vmindex);
 
 	/**
 	 * is the VM running in dest config ?
@@ -154,10 +154,10 @@ public interface CoreView {
 	 * @param vm
 	 *          the vm the index of the VM
 	 * @return the boolean variable constrained to bvar==true <==> vm.state ==
-	 *         running on Node
+	 *         running on Computer
 	 */
-	public default BoolVar isRunNode(VM vm) {
-		return isRunNode(b().vm(vm));
+	public default BoolVar isRunComputer(VM vm) {
+		return isRunComputer(b().vm(vm));
 	}
 
 	/**
@@ -205,7 +205,7 @@ public interface CoreView {
 	}
 
 	////////////////////////////////////////
-	// Node hosting of VM
+	// Computer hosting of VM
 
 	/**
 	 * @param location

@@ -10,9 +10,9 @@ public class ConfigurationStreamerMain {
 	public static void main(String[] args) {
 
 		Configuration c = new Configuration();
-		c.addNode("n0");
-		c.addNode("n1");
-		c.addNode("n2");
+		c.addComputer("n0");
+		c.addComputer("n1");
+		c.addComputer("n2");
 		c.addVM("v0", null);
 		c.addVM("v1", null);
 		c.addVM("v2", null);

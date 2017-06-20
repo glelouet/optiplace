@@ -3,7 +3,7 @@
  */
 package fr.emn.optiplace.power.powermodels.catalog;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.power.powermodels.LinearCPUCons;
 import fr.emn.optiplace.power.powermodels.StepCPUCons;
 
@@ -13,7 +13,7 @@ import fr.emn.optiplace.power.powermodels.StepCPUCons;
  * 
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2013
  */
-public class NodeWithCons extends Node {
+public class NodeWithCons extends Computer {
 
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NodeWithCons.class);
@@ -44,8 +44,8 @@ public class NodeWithCons extends Node {
 		this.observedConsValues = observedConsValues;
 	}
 
-	public Node makeNode(String name) {
-		return new Node(name);
+	public Computer makeNode(String name) {
+		return new Computer(name);
 	}
 
 	protected LinearCPUCons makeLinearCPUCons() {

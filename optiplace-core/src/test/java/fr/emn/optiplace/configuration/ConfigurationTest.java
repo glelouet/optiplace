@@ -40,8 +40,8 @@ public class ConfigurationTest {
 	@Test
 	public void testSameElements() {
 		Configuration c1 = new Configuration();
-		Node busy = c1.addNode("busy");
-		c1.addNode("idle");
+		Computer busy = c1.addComputer("busy");
+		c1.addComputer("idle");
 		c1.addVM("running", busy);
 		c1.addVM("sleepy", null);
 		Configuration c2 = new Configuration();
@@ -49,14 +49,14 @@ public class ConfigurationTest {
 			c2.addVM(s, null);
 		}
 		for (String s : new String[] { "busy", "idle" }) {
-			c2.addNode(s);
+			c2.addComputer(s);
 		}
 
 		Assert.assertTrue(IConfiguration.sameElements(c1, c2));
 		Assert.assertTrue(IConfiguration.sameElements(c2, c1));
 		Assert.assertTrue(IConfiguration.sameElements(c1, c1));
 		Assert.assertTrue(IConfiguration.sameElements(c2, c2));
-		Node other = c2.addNode("otherNode");
+		Computer other = c2.addComputer("otherComputer");
 		Assert.assertFalse(IConfiguration.sameElements(c1, c2));
 		Assert.assertFalse(IConfiguration.sameElements(c2, c1));
 		c2.remove(other);
@@ -72,8 +72,8 @@ public class ConfigurationTest {
 		Configuration c1 = new Configuration("CPU");
 		Configuration c2 = new Configuration("CPU");
 		for (String n : new String[] { "n0", "n1", "n2" }) {
-			c1.addNode(n, 10);
-			c2.addNode(n, 10);
+			c1.addComputer(n, 10);
+			c2.addComputer(n, 10);
 		}
 		for (String v : new String[] { "vm0", "vm1", "vm2" }) {
 			c1.addVM(v, null, 5);
@@ -81,10 +81,10 @@ public class ConfigurationTest {
 		}
 		Assert.assertEquals(c2, c1);
 		Assert.assertEquals(c1, c2);
-		c1.addNode("n3", 3);
+		c1.addComputer("n3", 3);
 		Assert.assertNotEquals(c2, c1);
 		Assert.assertNotEquals(c1, c2);
-		Node n = c2.addNode("n3", 3);
+		Computer n = c2.addComputer("n3", 3);
 		Assert.assertEquals(c2, c1);
 		Assert.assertEquals(c1, c2);
 		c2.addVM("vm3", n, 2);
@@ -98,16 +98,16 @@ public class ConfigurationTest {
 	@Test
 	public void testSimpleSiteMaking() {
 		Configuration c = new Configuration();
-		Node[] nodes = new Node[8];
-		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = c.addNode("n" + i);
+		Computer[] computers = new Computer[8];
+		for (int i = 0; i < computers.length; i++) {
+			computers[i] = c.addComputer("n" + i);
 		}
 		Assert.assertEquals(c.nbSites(), 0);
-		Assert.assertEquals(c.getSiteLocations(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(nodes)));
-		Site site1 = c.addSite("site1", nodes[2], nodes[3]);
+		Assert.assertEquals(c.getSiteLocations(null).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(computers)));
+		Site site1 = c.addSite("site1", computers[2], computers[3]);
 		Assert.assertEquals(c.nbSites(), 1);
 		Assert.assertEquals(c.getSiteLocations(site1).collect(Collectors.toSet()),
-				new HashSet<>(Arrays.asList(nodes[2], nodes[3])));
+				new HashSet<>(Arrays.asList(computers[2], computers[3])));
 		Assert.assertEquals(c.getSiteLocations(null).collect(Collectors.toSet()).size(), 6);
 	}
 
@@ -115,7 +115,7 @@ public class ConfigurationTest {
 	public void testGetElementByName() {
 		Configuration c = new Configuration();
 		Extern extern = c.addExtern("extern");
-		Node online = c.addNode("online");
+		Computer online = c.addComputer("online");
 		Site site = c.addSite("site");
 		c.addVM("vmexterned", extern);
 		c.addVM("vmonline", online);
@@ -127,7 +127,7 @@ public class ConfigurationTest {
 		}
 
 		extern = c.getElementByName("extErn", Extern.class);
-		online = c.getElementByName("onLINE", Node.class);
+		online = c.getElementByName("onLINE", Computer.class);
 		site = c.getElementByName("sIte", Site.class);
 	}
 
@@ -144,7 +144,7 @@ public class ConfigurationTest {
 	public void testGetElementByNameException() {
 		Configuration c = new Configuration();
 		c.addVM("vm", null);
-		c.getElementByName("vm", Node.class);
+		c.getElementByName("vm", Computer.class);
 	}
 
 }

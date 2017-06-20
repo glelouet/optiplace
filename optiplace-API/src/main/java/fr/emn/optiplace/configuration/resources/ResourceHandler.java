@@ -3,16 +3,16 @@ package fr.emn.optiplace.configuration.resources;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
 /**
  * <p>
- * The link between a {@link ResourceSpecification}, which maps VM and Nodes to
- * their use and capacity, and a {@link IReconfigurationProblem} which has
- * indexed VM and Nodes.<br />
+ * The link between a {@link ResourceSpecification}, which maps VM and Computers
+ * to their use and capacity, and a {@link IReconfigurationProblem} which has
+ * indexed VM and Computers.<br />
  * Store the data related to the specifications in the problem
  * </p>
  * <p>
@@ -43,8 +43,8 @@ public class ResourceHandler {
 	protected IntVar[] locationLoadsByIndex = null;
 	protected int minVMUse = Integer.MAX_VALUE;
 	protected int maxVMUse = Integer.MAX_VALUE;
-	protected int minNodeCapa = Integer.MAX_VALUE;
-	protected int maxNodeCapa = Integer.MIN_VALUE;
+	protected int minComputerCapa = Integer.MAX_VALUE;
+	protected int maxComputerCapa = Integer.MIN_VALUE;
 	protected int[] nodesCapacities = null;
 	protected int[] vmsLoads = null;
 	protected IReconfigurationProblem associatedPb = null;
@@ -55,8 +55,8 @@ public class ResourceHandler {
 	}
 
 	/**
-	 * stores the actual IntVar [] of Node uses. is used for fast access to the
-	 * variables in a solver context
+	 * stores the actual IntVar [] of Computer uses. is used for fast access to
+	 * the variables in a solver context
 	 */
 	protected ResourceLoad resourceLoad = null;
 
@@ -70,8 +70,8 @@ public class ResourceHandler {
 		int totalVMUse = 0;
 		minVMUse = Integer.MAX_VALUE;
 		maxVMUse = Integer.MAX_VALUE;
-		minNodeCapa = Integer.MAX_VALUE;
-		maxNodeCapa = Integer.MIN_VALUE;
+		minComputerCapa = Integer.MAX_VALUE;
+		maxComputerCapa = Integer.MIN_VALUE;
 		associatedPb = pb;
 		locationLoadsByIndex = new IntVar[pb.b().waitIdx() + 1];
 		vmsLoads = new int[pb.c().nbVMs()];
@@ -82,14 +82,14 @@ public class ResourceHandler {
 			minVMUse = Math.min(minVMUse, use);
 			totalVMUse += use;
 		}
-		nodesCapacities = new int[pb.c().nbNodes()];
-		for (int i = pb.b().firstNodeIdx(); i <= pb.b().waitIdx(); i++) {
+		nodesCapacities = new int[pb.c().nbComputers()];
+		for (int i = pb.b().firstComputerIdx(); i <= pb.b().waitIdx(); i++) {
 			VMLocation n = pb.b().location(i);
 			int capa = totalVMUse;
-			if (i >= pb.b().firstNodeIdx() && i <= pb.b().lastNodeIdx()) {
+			if (i >= pb.b().firstComputerIdx() && i <= pb.b().lastComputerIdx()) {
 				capa = specs.getCapacity(n);
-				maxNodeCapa = Math.max(maxNodeCapa, capa);
-				minNodeCapa = Math.min(minNodeCapa, capa);
+				maxComputerCapa = Math.max(maxComputerCapa, capa);
+				minComputerCapa = Math.min(minComputerCapa, capa);
 				nodesCapacities[i] = capa;
 			}
 			locationLoadsByIndex[i] = pb.v()
@@ -110,11 +110,11 @@ public class ResourceHandler {
 	 * @return the table of IntVar corresponding to the resource load for each
 	 *         node(ie the sum of the use of its hosted vms)
 	 */
-	public IntVar[] getNodeLoads() {
+	public IntVar[] getComputerLoads() {
 		return locationLoadsByIndex;
 	}
 
-	public IntVar getNodeLoad(Node n) {
+	public IntVar getComputerLoad(Computer n) {
 		return locationLoadsByIndex[associatedPb.b().location(n)];
 	}
 
@@ -127,7 +127,7 @@ public class ResourceHandler {
 		return nodesCapacities;
 	}
 
-	public int getCapacity(Node n) {
+	public int getCapacity(Computer n) {
 		return specs.getCapacity(n);
 	}
 
@@ -159,16 +159,16 @@ public class ResourceHandler {
 	}
 
 	/**
-	 * @return the minNodeCapa
+	 * @return the minComputerCapa
 	 */
-	public int getMinNodeCapa() {
-		return minNodeCapa;
+	public int getMinComputerCapa() {
+		return minComputerCapa;
 	}
 
 	/**
-	 * @return the maxNodeCapa
+	 * @return the maxComputerCapa
 	 */
-	public int getMaxNodeCapa() {
-		return maxNodeCapa;
+	public int getMaxComputerCapa() {
+		return maxComputerCapa;
 	}
 }

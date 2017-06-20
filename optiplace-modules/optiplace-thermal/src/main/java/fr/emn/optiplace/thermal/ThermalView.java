@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.view.EmptyView;
 import fr.emn.optiplace.view.ProvidedData;
@@ -39,7 +39,7 @@ public class ThermalView extends EmptyView {
 		super.clear();
 		cachedCRACPower = null;
 		cachedTotalPower = null;
-		cachedNodeThermostats = null;
+		cachedComputerThermostats = null;
 	}
 
 	@Depends
@@ -47,23 +47,23 @@ public class ThermalView extends EmptyView {
 
 	int granularity = 100;
 
-	IntVar[] cachedNodeThermostats = null;
+	IntVar[] cachedComputerThermostats = null;
 
 	protected void makeThermostats() {
-		int nbNodes = pb.b().nodes().length;
-		cachedNodeThermostats = new IntVar[nbNodes];
+		int nbComputers = pb.b().nodes().length;
+		cachedComputerThermostats = new IntVar[nbComputers];
 		// for each node couple (i,j), impacts[i, j] is the impact of node(i) on
 		// node(j)
 		double[][] impacts = data.getImpactMap().toPlainMatrix(
-				Arrays.stream(pb.b().nodes()).map(Node::toString).collect(Collectors.toList()).toArray(new String[] {}));
-		IntVar[] powers = cons.getAllNodesPowers();
-		for (int j = 0; j < nbNodes; j++) {
-			double[] weights = new double[nbNodes];
-			for (int i = 0; i < nbNodes; i++) {
+				Arrays.stream(pb.b().nodes()).map(Computer::toString).collect(Collectors.toList()).toArray(new String[] {}));
+		IntVar[] powers = cons.getAllComputersPowers();
+		for (int j = 0; j < nbComputers; j++) {
+			double[] weights = new double[nbComputers];
+			for (int i = 0; i < nbComputers; i++) {
 				weights[i] = impacts[i][j];
 			}
 			// T°in (j) = Tmax(j)-impact(j)=-(impact(j)-Tmax(j))
-			cachedNodeThermostats[j] = pb.v().minus(
+			cachedComputerThermostats[j] = pb.v().minus(
 					pb.v().plus(pb.v().scalar(powers, weights, granularity), -(int) data.getMaxTemp(pb.b().location(j).getName())));
 		}
 	}
@@ -86,10 +86,10 @@ public class ThermalView extends EmptyView {
 	}
 
 	protected IntVar makeCRACPower() {
-		if (cachedNodeThermostats == null) {
+		if (cachedComputerThermostats == null) {
 			makeThermostats();
 		}
-		IntVar cracThermostat = v.min(cachedNodeThermostats);
+		IntVar cracThermostat = v.min(cachedComputerThermostats);
 		IntVar cracEffGran = v.div(
 				v.linear(cracThermostat, (int) data.getEffMult() * granularity, (int) data.getEff0() * granularity),
 				granularity);

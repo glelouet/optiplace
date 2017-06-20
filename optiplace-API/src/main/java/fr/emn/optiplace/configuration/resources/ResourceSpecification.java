@@ -6,10 +6,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.view.ProvidedDataReader;
@@ -96,7 +96,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return the array of capacities of this resource by the nodes, such as
 	 *         ret[i]:=capacity(nodes[i])
 	 */
-	default int[] getCapacities(Node... nodes) {
+	default int[] getCapacities(Computer... nodes) {
 		int[] ret = new int[nodes.length];
 		for (int i = 0; i < nodes.length; i++) {
 			ret[i] = getCapacity(nodes[i]);
@@ -137,7 +137,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 *          the node
 	 * @return the use of the node
 	 */
-	default int getUse(IConfiguration cfg, Node n) {
+	default int getUse(IConfiguration cfg, Computer n) {
 		return cfg.getHosted(n).collect(Collectors.summingInt(this::getUse));
 	}
 
@@ -148,7 +148,7 @@ public interface ResourceSpecification extends ProvidedDataReader {
 
 	/** get the total capacity of the nodes which are online */
 	default int getCapacity(IConfiguration cfg) {
-		return cfg.getNodes().mapToInt(this::getCapacity).sum();
+		return cfg.getComputers().mapToInt(this::getCapacity).sum();
 	}
 
 	/**
@@ -161,8 +161,8 @@ public interface ResourceSpecification extends ProvidedDataReader {
 	 * @return true if there is enough resource on n to host vm.
 	 */
 	default boolean canHost(IConfiguration cfg, VMLocation n, VM vm) {
-		if (n instanceof Node) {
-			return getUse(cfg, (Node) n) + getUse(vm) <= getCapacity(n);
+		if (n instanceof Computer) {
+			return getUse(cfg, (Computer) n) + getUse(vm) <= getCapacity(n);
 		} else if (n instanceof Extern) {
 			return getUse(vm) <= getCapacity(n);
 		}
@@ -206,17 +206,17 @@ public interface ResourceSpecification extends ProvidedDataReader {
 		}
 	}
 
-	default Comparator<Node> makeNodeComparator(boolean increasing) {
-		return new Comparator<Node>() {
+	default Comparator<Computer> makeComputerComparator(boolean increasing) {
+		return new Comparator<Computer>() {
 
 			@Override
-			public int compare(Node o1, Node o2) {
+			public int compare(Computer o1, Computer o2) {
 				return (increasing ? 1 : -1) * (getCapacity(o1) - getCapacity(o2));
 			}
 
 			@Override
 			public String toString() {
-				return "NodeCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
+				return "ComputerCOMP:" + getType() + "-" + (increasing ? "inc" : "dec");
 			}
 
 			@Override

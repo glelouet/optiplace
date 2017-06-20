@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel;
@@ -22,7 +22,7 @@ public class QuadraticCPUCons implements PowerModel {
 	public double min, max, lcoef;
 
 	@Override
-	public double getConsumption(Map<String, ResourceSpecification> specs, Node n, VM... vms) {
+	public double getConsumption(Map<String, ResourceSpecification> specs, Computer n, VM... vms) {
 		double cpuCons = 0;
 		ResourceSpecification spec = specs.get("CPU");
 		for (VM vm : vms) {
@@ -41,7 +41,7 @@ public class QuadraticCPUCons implements PowerModel {
 	}
 
 	@Override
-	public IntVar makePower(Node n, PowerView parent) {
+	public IntVar makePower(Computer n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		ResourceSpecification spec = pb.getResourceSpecification("cpu");
 		int capa = spec.getCapacity(n);
@@ -49,7 +49,7 @@ public class QuadraticCPUCons implements PowerModel {
 		double beta = (max - min) * lcoef / capa;
 		double gamma = min;
 
-		IntVar use = pb.getUse("cpu").getNodesLoad()[parent.b.location(n)];
+		IntVar use = pb.getUse("cpu").getComputersLoad()[parent.b.location(n)];
 		IntVar sqr = pb.v().mult(use, use);
 		IntVar sum = pb.v().scalar(new IntVar[] { sqr, use, parent.v.createIntegerConstant(1) },
 				new double[] { alpha, beta, gamma });
@@ -59,14 +59,14 @@ public class QuadraticCPUCons implements PowerModel {
 	}
 
 	@Override
-	public double getMinPowerIncrease(Node n, Map<String, ResourceSpecification> specs, VM v) {
+	public double getMinPowerIncrease(Computer n, Map<String, ResourceSpecification> specs, VM v) {
 		int use = specs.get("CPU").getUse(v);
 		int capa = specs.get("CPU").getCapacity(n);
 		return (max - min) * (1 - lcoef) / capa / capa * use * use + (max - min) * lcoef / capa * use + min;
 	}
 
 	@Override
-	public double maxCons(Node n) {
+	public double maxCons(Computer n) {
 		return max;
 	}
 }

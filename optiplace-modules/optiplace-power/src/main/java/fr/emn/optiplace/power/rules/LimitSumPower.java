@@ -9,8 +9,8 @@ import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -28,17 +28,17 @@ public class LimitSumPower extends LimitPower {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LimitSumPower.class);
 
 
-	public LimitSumPower(PowerView consumptionView, int maxConsumption, Node... nodes) {
+	public LimitSumPower(PowerView consumptionView, int maxConsumption, Computer... nodes) {
 		super(consumptionView, maxConsumption, nodes);
 	}
 
-	public LimitSumPower(PowerView consumptionView, int maxConsumption, Set<Node> nodes) {
+	public LimitSumPower(PowerView consumptionView, int maxConsumption, Set<Computer> nodes) {
 		super(consumptionView, maxConsumption, nodes);
 	}
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		List<IntVar> l = getNodes(core.c()).map(parent::getPower).collect(Collectors.toList());
+		List<IntVar> l = getComputers(core.c()).map(parent::getPower).collect(Collectors.toList());
 		IntVar totalPower = parent.v.sum("sumpowers", l.toArray(new IntVar[] {}));
 		try {
 			totalPower.updateUpperBound(maxConsumption, Cause.Null);
@@ -51,6 +51,6 @@ public class LimitSumPower extends LimitPower {
 
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		return getNodes(cfg).mapToDouble(n -> parent.getPowerData().getConsumption(cfg, n)).sum() < maxConsumption;
+		return getComputers(cfg).mapToDouble(n -> parent.getPowerData().getConsumption(cfg, n)).sum() < maxConsumption;
 	}
 }

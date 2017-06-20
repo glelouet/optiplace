@@ -5,9 +5,9 @@ import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.ConfigStrat;
 import fr.emn.optiplace.view.EmptyView;
@@ -21,12 +21,12 @@ public class SolvingExample {
 
 	protected IConfiguration src = null;
 	protected VM[] waitings = null;
-	protected Node[] nodes = null;
+	protected Computer[] nodes = null;
 	/** placed[i]{1..n} are the n VM placed on node i*/
 	protected VM[][] placed = null;
 
-	protected int nbNodes = 3;
-	protected int nbVMPerNode = 2;
+	protected int nbComputers = 3;
+	protected int nbVMPerComputer = 2;
 	protected int nbWaitings = 2;
 	protected String[] resources = { "CPU", "MEM", "GPU" };
 	protected int[] nodeCapas = { 1000, 10000, 1000 };
@@ -37,29 +37,29 @@ public class SolvingExample {
 
 	/**
 	 * prepare the configuration {@link #src}<br />
-	 * {@link #nbNodes} nodes, {@link #nbVMPerNode} VMs on each, plus
+	 * {@link #nbComputers} nodes, {@link #nbVMPerComputer} VMs on each, plus
 	 * {@link #nbWaitings} waiting VMs
 	 */
 	protected void prepare() {
 		src = new Configuration(resources);
-		nodes = makeNodes();
+		nodes = makeComputers();
 		placed = makeOnlines(nodes);
 		waitings = makeWaitings();
 		strat.setDisableCheckSource(true);
 	}
 
-	protected Node[] makeNodes() {
-		Node[] ret = new Node[nbNodes];
-		for (int i = 0; i < nbNodes; i++) {
-			ret[i] = src.addNode("n" + i, nodeCapas);
+	protected Computer[] makeComputers() {
+		Computer[] ret = new Computer[nbComputers];
+		for (int i = 0; i < nbComputers; i++) {
+			ret[i] = src.addComputer("n" + i, nodeCapas);
 		}
 		return ret;
 	}
 
-	protected VM[][] makeOnlines(Node[] nodes) {
-		VM[][] ret= new VM[nodes.length][nbVMPerNode];
+	protected VM[][] makeOnlines(Computer[] nodes) {
+		VM[][] ret = new VM[nodes.length][nbVMPerComputer];
 		for (int i = 0; i < nodes.length; i++) {
-			for (int j = 0; j < nbVMPerNode; j++) {
+			for (int j = 0; j < nbVMPerComputer; j++) {
 				VM vm = src.addVM("vm_" + i + "_" + j, nodes[i], vmUse);
 				ret[i][j] = vm;
 			}

@@ -84,7 +84,7 @@ public class EvaluationSites extends SolvingExample {
 		for (int size = 10; size < 80; size *= 1.2) {
 			EvaluationSites es = new EvaluationSites(size);
 			for (boolean addSiteConstraints : new Boolean[] {
-						true, false }) {
+					true, false }) {
 				es.addSiteConstraints = addSiteConstraints;
 				long minSearchTime = Long.MAX_VALUE;
 				long minServersUsed = Integer.MAX_VALUE;
@@ -93,7 +93,7 @@ public class EvaluationSites extends SolvingExample {
 					IConfiguration dest = res.getDestination();
 					minSearchTime = Math.min(minSearchTime, res.getSearchTime());
 					minServersUsed = Math.min(minServersUsed,
-							res.getDestination().getNodes().filter(n -> dest.nbHosted(n) > 0).count());
+							res.getDestination().getComputers().filter(n -> dest.nbHosted(n) > 0).count());
 				}
 				data.set("nbServers", "" + size * 3);
 				data.set("addSiteConstraints", "" + addSiteConstraints);
@@ -119,12 +119,12 @@ public class EvaluationSites extends SolvingExample {
 	@Override
 	protected void prepare() {
 		resources = new String[] {
-					"CPU", "MEM" };
+				"CPU", "MEM" };
 		nodeCapas = new int[] {
-					100, 100 };
+				100, 100 };
 		ha = new HAView();
 		views = new View[] {
-					ha };
+				ha };
 		super.prepare();
 		src.addSite("firstSite", Arrays.copyOf(nodes, centerSize * 2));
 		src.addSite("secondSite", Arrays.copyOfRange(nodes, centerSize * 2, nodes.length));
@@ -160,8 +160,8 @@ public class EvaluationSites extends SolvingExample {
 
 	public EvaluationSites(int centerSize) {
 		this.centerSize = centerSize;
-		nbNodes = centerSize * 3;
-		nbVMPerNode = 0;
+		nbComputers = centerSize * 3;
+		nbVMPerComputer = 0;
 		prepare();
 	}
 

@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -109,7 +109,7 @@ public class MultilinearCons implements PowerModel {
 	}
 
 	@Override
-	public double getConsumption(Map<String, ResourceSpecification> specs, Node n, VM... vms) {
+	public double getConsumption(Map<String, ResourceSpecification> specs, Computer n, VM... vms) {
 		double ret = min;
 		for (int i = 0; i < resources.length; i++) {
 			ResourceSpecification spec = specs.get(resources[i]);
@@ -123,7 +123,7 @@ public class MultilinearCons implements PowerModel {
 		return ret;
 	}
 
-	public IntVar makeScalarConsumption(Node n, PowerView parent) {
+	public IntVar makeScalarConsumption(Computer n, PowerView parent) {
 		IntVar[] uses = new IntVar[resources.length + 1];
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
@@ -133,15 +133,15 @@ public class MultilinearCons implements PowerModel {
 			if (handler == null) {
 				throw new UnsupportedOperationException("resource not specified " + resources[i]);
 			}
-			uses[i] = handler.getNodesLoad()[nodeidx];
-			mults[i] = weights[i] / handler.getNodesCapa()[nodeidx];
+			uses[i] = handler.getComputersLoad()[nodeidx];
+			mults[i] = weights[i] / handler.getComputersCapa()[nodeidx];
 		}
 		uses[resources.length] = parent.v.createIntegerConstant((int) min);
 		mults[resources.length] = 1.0;
 		return pb.v().scalar(uses, mults);
 	}
 
-	public IntVar makeSumConsumption(Node n, PowerView parent) {
+	public IntVar makeSumConsumption(Computer n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		int nodeidx = parent.b.location(n);
 		IntVar[] resourceAdd = new IntVar[resources.length + 1];
@@ -150,8 +150,8 @@ public class MultilinearCons implements PowerModel {
 			if (handler == null) {
 				throw new UnsupportedOperationException("resource not specified " + resources[i]);
 			}
-			resourceAdd[i] = pb.v().div(pb.v().mult(handler.getNodesLoad()[nodeidx], (int) weights[i]),
-			    handler.getNodesCapa()[nodeidx]);
+			resourceAdd[i] = pb.v().div(pb.v().mult(handler.getComputersLoad()[nodeidx], (int) weights[i]),
+					handler.getComputersCapa()[nodeidx]);
 		}
 		resourceAdd[resources.length] = pb.v().createIntegerConstant((int) min);
 		return pb.v().sum(n.getName() + ".cons", resourceAdd);
@@ -160,12 +160,12 @@ public class MultilinearCons implements PowerModel {
 	boolean useScalar = false;
 
 	@Override
-	public IntVar makePower(Node n, PowerView parent) {
+	public IntVar makePower(Computer n, PowerView parent) {
 		return useScalar ? makeScalarConsumption(n, parent) : makeSumConsumption(n, parent);
 	}
 
 	@Override
-	public double getMinPowerIncrease(Node n, Map<String, ResourceSpecification> specs, VM v) {
+	public double getMinPowerIncrease(Computer n, Map<String, ResourceSpecification> specs, VM v) {
 		double ret = 0;
 		for (int i = 0; i < resources.length; i++) {
 			ResourceSpecification spec = specs.get(resources[i]);
@@ -179,7 +179,7 @@ public class MultilinearCons implements PowerModel {
 	}
 
 	@Override
-	public double maxCons(Node n) {
+	public double maxCons(Computer n) {
 		double ret = min;
 		for (double weight : weights) {
 			ret += weight;

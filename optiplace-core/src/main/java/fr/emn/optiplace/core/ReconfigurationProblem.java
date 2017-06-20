@@ -28,10 +28,10 @@ import org.chocosolver.solver.variables.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.configuration.resources.ResourceHandler;
@@ -165,11 +165,11 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 				vmsLocation[i] = v.createEnumIntVar("" + vmName(i) + "_location", 0, iswaiting ? b.waitIdx() : b.waitIdx() - 1);
 				// constrain the state of the VM
 				// if VM location is node : state is running on node
-				BoolVar isVmOnNode = v.createBoolVar(vmName(i) + ".onNode");
-				m.arithm(vmsLocation[i], "<", b.nodes().length).reifyWith(isVmOnNode);
-				BoolVar isVMStateRunnode = v.createBoolVar(vmName(i) + ".stateOnNode");
+				BoolVar isVmOnComputer = v.createBoolVar(vmName(i) + ".onComputer");
+				m.arithm(vmsLocation[i], "<", b.nodes().length).reifyWith(isVmOnComputer);
+				BoolVar isVMStateRunnode = v.createBoolVar(vmName(i) + ".stateOnComputer");
 				m.arithm(vmsState[i], "=", VM_RUNNODE).reifyWith(isVMStateRunnode);
-				m.arithm(isVmOnNode, "=", isVMStateRunnode).post();
+				m.arithm(isVmOnComputer, "=", isVMStateRunnode).post();
 				// if VM was waiting, and location> max location then it is waiting
 				if (iswaiting) {
 					m.ifThenElse(m.arithm(vmsLocation[i], ">=", b.waitIdx()), m.arithm(vmsState[i], "=", VM_WAITING),
@@ -211,7 +211,8 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	}
 
 	/**
-	 * for each VM that has an host tag, remove all Nodes/externs that do not have this hosttag.
+	 * for each VM that has an host tag, remove all Computers/externs that do not
+	 * have this hosttag.
 	 */
 	protected void removeHostTags() {
 		c.getVmsTags().forEach(tag -> {
@@ -276,17 +277,17 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	 * should we name the variables by using the nodes and VMs index or using the nodes and VM names ? default is : use
 	 * their name
 	 */
-	protected boolean useVMAndNodeIndex = false;
+	protected boolean useVMAndComputerIndex = false;
 
 	protected String locationName(int i) {
 		if (i == b().waitIdx()) {
 			return "waiting";
 		}
-		return useVMAndNodeIndex ? "l_" + i : b.location(i).getName();
+		return useVMAndComputerIndex ? "l_" + i : b.location(i).getName();
 	}
 
 	protected String vmName(int i) {
-		return useVMAndNodeIndex ? "vm_" + i : b.vm(i).getName();
+		return useVMAndComputerIndex ? "vm_" + i : b.vm(i).getName();
 	}
 
 	/**
@@ -300,7 +301,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 				SetVar s = v.createRangeSetVar(locationName(i) + ".hosted", 0, c.nbVMs() - 1);
 				locationVMsSets[i] = s;
 			}
-			locationVMsSets[locationVMsSets.length - 1] = v.createRangeSetVar("nonNodeVMs", 0, c.nbVMs() - 1);
+			locationVMsSets[locationVMsSets.length - 1] = v.createRangeSetVar("nonComputerVMs", 0, c.nbVMs() - 1);
 			// for each VM i, it belongs to his hoster's set, meaning
 			// VM[i].hoster==j
 			// <=> hosters[j] contains i
@@ -406,7 +407,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	@Override
 	public BoolVar isHost(int idx) {
 		if (nodesIsHostings == null) {
-			nodesIsHostings = new BoolVar[c.nbNodes()];
+			nodesIsHostings = new BoolVar[c.nbComputers()];
 		}
 		BoolVar ret = nodesIsHostings[idx];
 		if (ret == null) {
@@ -419,7 +420,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	@Override
 	public BoolVar[] isHosts() {
 		if (nodesIsHostings == null) {
-			nodesIsHostings = new BoolVar[c.nbNodes()];
+			nodesIsHostings = new BoolVar[c.nbComputers()];
 		}
 		for (int i = 0; i < nodesIsHostings.length; i++) {
 			if (nodesIsHostings[i] == null) {
@@ -434,7 +435,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	@Override
 	public IntVar nbHosts() {
 		if (nbHosters == null) {
-			nbHosters = v.createEnumIntVar("nbHosters", 0, c.nbNodes());
+			nbHosters = v.createEnumIntVar("nbHosters", 0, c.nbComputers());
 			post(m.sum(isHosts(), "=", nbHosters));
 		}
 		return nbHosters;
@@ -458,7 +459,7 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 		if (ret == null) {
 			ret = v.createBoundIntVar(vmName(vmIndex) + ".hosterUsed" + resource, 0, IntVar.MAX_INT_BOUND);
 			onNewVar(ret);
-			h.element(getVMLocation(vmIndex), getUse(resource).getNodesLoad(), ret);
+			h.element(getVMLocation(vmIndex), getUse(resource).getComputersLoad(), ret);
 			hostedArray[vmIndex] = ret;
 		}
 		return ret;
@@ -541,20 +542,20 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 		return nbLiveMigrations;
 	}
 
-	BoolVar[] isRunNodes = null;
+	BoolVar[] isRunComputers = null;
 
 	@Override
-	public BoolVar isRunNode(int vmindex) {
+	public BoolVar isRunComputer(int vmindex) {
 		if (vmindex < 0 || vmindex >= c.nbVMs()) {
 			return null;
 		}
-		if (isRunNodes == null) {
-			isRunNodes = new BoolVar[c.nbVMs()];
+		if (isRunComputers == null) {
+			isRunComputers = new BoolVar[c.nbVMs()];
 		}
-		BoolVar ret = isRunNodes[vmindex];
+		BoolVar ret = isRunComputers[vmindex];
 		if (ret == null) {
 			ret = v.isSame(getState(vmindex), CoreView.VM_RUNNODE, "" + vmName(vmindex) + ".isrunning");
-			isRunNodes[vmindex] = ret;
+			isRunComputers[vmindex] = ret;
 		}
 		return ret;
 	}
@@ -598,8 +599,8 @@ public class ReconfigurationProblem implements IReconfigurationProblem {
 	@Override
 	public IConfiguration extractConfiguration() {
 		IConfiguration ret = new Configuration();
-		for (Node n : b.nodes()) {
-			ret.addNode(n.getName());
+		for (Computer n : b.nodes()) {
+			ret.addComputer(n.getName());
 		}
 		for (Extern e : b.externs()) {
 			ret.addExtern(e.getName());

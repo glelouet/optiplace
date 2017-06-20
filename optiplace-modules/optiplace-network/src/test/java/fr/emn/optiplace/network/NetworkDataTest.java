@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.network.data.Link;
 import fr.emn.optiplace.network.data.Router;
@@ -49,7 +49,7 @@ public class NetworkDataTest {
 	@Test
 	public void testSimpleFindPath() {
 		NetworkData test = new NetworkData();
-		Node n0 = new Node("n0");
+		Computer n0 = new Computer("n0");
 		Extern e0 = new Extern("e0");
 		Link l = test.addLink(n0, e0, 2);
 		Assert.assertEquals(test.findPath(n0, e0), Arrays.asList(l));
@@ -65,7 +65,7 @@ public class NetworkDataTest {
 	@Test(dependsOnMethods = "testSimpleFindPath")
 	public void testSmallFindPath() {
 		NetworkData test = new NetworkData();
-		Node n0 = new Node("n0");
+		Computer n0 = new Computer("n0");
 		Extern e0 = new Extern("e0");
 		Router r0 = new Router("r0");
 		Router r1 = new Router("r1");

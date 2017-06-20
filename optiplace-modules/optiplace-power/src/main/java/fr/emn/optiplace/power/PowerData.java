@@ -12,8 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel.Parser;
 import fr.emn.optiplace.power.powermodels.LinearCPUCons;
@@ -26,19 +26,19 @@ import fr.emn.optiplace.view.ProvidedDataReader;
  * gives the consumption of a node in a configuration, as a linear function of
  * its CPU load. Also gives the total consumption of a {@link IConfiguration}.
  * <br />
- * I this model, the consumption of a Node with no VM is its min consumption ;
- * its optimal consumption is 0. Optimal thus means the nodes can be shut down
+ * I this model, the consumption of a Computer with no VM is its min consumption
+ * ; its optimal consumption is 0. Optimal thus means the nodes can be shut down
  * with no additional cost
  *
  * @author guillaume
  */
-public class PowerData extends HashMap<Node, PowerModel> implements ProvidedDataReader {
+public class PowerData extends HashMap<Computer, PowerModel> implements ProvidedDataReader {
 
 	private static final long serialVersionUID = 1L;
 
 	private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PowerData.class);
 
-	public PowerModel get(Node n) {
+	public PowerModel get(Computer n) {
 		PowerModel ret = super.get(n);
 		if (ret != null) {
 			return ret;
@@ -61,12 +61,12 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 * @param max
 	 *          the max
 	 */
-	public void setLinearConsumption(Node host, double min, double max) {
+	public void setLinearConsumption(Computer host, double min, double max) {
 		put(host, new LinearCPUCons(min, max));
 	}
 
 	Parser[] parsers = {
-	    LinearCPUCons.PARSER
+			LinearCPUCons.PARSER
 	};
 
 	/**
@@ -87,7 +87,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	}
 
 	/**
-	 * parse a model and affect it to a Node
+	 * parse a model and affect it to a Computer
 	 *
 	 * @param n
 	 *          the node
@@ -95,7 +95,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 *          the model description
 	 * @return the parsed model
 	 */
-	public PowerModel put(Node n, String model) {
+	public PowerModel put(Computer n, String model) {
 		PowerModel ret = parse(model);
 		put(n, ret);
 		return ret;
@@ -110,7 +110,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 */
 	public void write(OutputStream os) {
 		PrintStream ps = new PrintStream(os);
-		for (java.util.Map.Entry<Node, PowerModel> e : entrySet()) {
+		for (java.util.Map.Entry<Computer, PowerModel> e : entrySet()) {
 			PowerModel sd = e.getValue();
 			ps.println(e.getKey().getName() + " " + sd.getClass().getSimpleName() + " " + sd.toString());
 		}
@@ -142,7 +142,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 				int idx = line.indexOf(' ');
 				String sname = line.substring(0, idx);
 				String models = line.substring(idx + 1);
-				put(new Node(sname), parse(models));
+				put(new Computer(sname), parse(models));
 			}
 		}
 		catch (Exception e) {
@@ -161,13 +161,13 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 *          the node to get the consumption
 	 * @return the integer value of the consumption of the node
 	 */
-	public double getConsumption(IConfiguration cfg, Node n) {
+	public double getConsumption(IConfiguration cfg, Computer n) {
 		return get(n).getConsumption(cfg, n);
 	}
 
-	public HashMap<Node, Double> getConsumptions(IConfiguration cfg, boolean unusedOff) {
-		HashMap<Node, Double> ret = new HashMap<>();
-		cfg.getNodes().forEach(n -> {
+	public HashMap<Computer, Double> getConsumptions(IConfiguration cfg, boolean unusedOff) {
+		HashMap<Computer, Double> ret = new HashMap<>();
+		cfg.getComputers().forEach(n -> {
 			double val = unusedOff ? getUnusedOffConsumption(cfg, n) : getConsumption(cfg, n);
 			ret.put(n, val);
 		});
@@ -185,7 +185,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 *          the node to get the consumption
 	 * @return the integer value of the optimal consumption of the node
 	 */
-	public double getUnusedOffConsumption(IConfiguration cfg, Node n) {
+	public double getUnusedOffConsumption(IConfiguration cfg, Computer n) {
 		if (cfg.nbHosted(n) == 0) {
 			return 0;
 		}
@@ -201,7 +201,7 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 * @return the sumn of the online nodes' consumption.
 	 */
 	public double getTotalConsumption(IConfiguration cfg, Map<String, ResourceSpecification> specs) {
-		return cfg.getNodes().mapToDouble(n -> getConsumption(cfg, n)).sum();
+		return cfg.getComputers().mapToDouble(n -> getConsumption(cfg, n)).sum();
 	}
 
 	/**
@@ -211,11 +211,11 @@ public class PowerData extends HashMap<Node, PowerModel> implements ProvidedData
 	 *          the configuration to evaluate. all the present node must be
 	 *          contained in this' {@link #keySet()}
 	 * @return the sumn of the online nodes' optimal consumption.
-	 * @see #getUnusedOffConsumption(IConfiguration, Node) for the optimal
+	 * @see #getUnusedOffConsumption(IConfiguration, Computer) for the optimal
 	 *      consumption
 	 */
 	public double getTotalUnusedOffConsumption(IConfiguration cfg) {
-		return cfg.getNodes().mapToDouble(n -> getUnusedOffConsumption(cfg, n)).sum();
+		return cfg.getComputers().mapToDouble(n -> getUnusedOffConsumption(cfg, n)).sum();
 	}
 
 	final LinkedHashMap<Pattern, PowerModel> matchings = new LinkedHashMap<>();

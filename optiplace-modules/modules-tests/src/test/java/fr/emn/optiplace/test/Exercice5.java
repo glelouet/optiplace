@@ -2,9 +2,9 @@ package fr.emn.optiplace.test;
 
 import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.hostcost.HostCostView;
 import fr.emn.optiplace.power.PowerView;
@@ -24,8 +24,8 @@ public class Exercice5 {
 
 	public static void main(String[] args) {
 		Configuration c = new Configuration("CPU");
-		Node n0 = c.addNode("n0", 100);
-		Node n1 = c.addNode("n1", 200);
+		Computer n0 = c.addComputer("n0", 100);
+		Computer n1 = c.addComputer("n1", 200);
 		Extern e = c.addExtern("e", 100);
 
 		VM v0 = c.addVM("v0", null, 30);

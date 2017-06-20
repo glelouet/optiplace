@@ -23,18 +23,18 @@ import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
 /**
  * <p>
- * Node, Extern and VirtualMachine in a datacenter.<br />
- * VMs are hosted by an online Node, an extern or waiting, and Nodes are either
- * online or offline<
+ * Computer, Extern and VirtualMachine in a datacenter.<br />
+ * VMs are hosted by an online Computer, an extern or waiting, and Computers are
+ * either online or offline<
  * </p>
  * <p>
- * The VM and Node are stored in their add/state change order, meaning two
+ * The VM and Computer are stored in their add/state change order, meaning two
  * iterations on the streams will return the same exact result, leading to
  * determinism in the exploration.<br />
- * If the list of Nodes or VMs is the same for two configuration created in the
- * same way, the position in the list does not mean anything about the age of
- * the Element. Actually, the full list of Nodes and VMs is a concatenation of
- * the different state-specific lists of elements.
+ * If the list of Computers or VMs is the same for two configuration created in
+ * the same way, the position in the list does not mean anything about the age
+ * of the Element. Actually, the full list of Computers and VMs is a
+ * concatenation of the different state-specific lists of elements.
  * </p>
  *
  * @author Fabien Hermenier
@@ -47,16 +47,16 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * tooling to compare if two configurations have same vms, nodes, sites and
-	 * externs
+	 * tooling to compare if two configurations have same vms, computers, sites
+	 * and externs
 	 *
 	 * @param first
 	 * @param second
 	 * @return
 	 */
 	public static boolean sameElements(IConfiguration first, IConfiguration second) {
-		return !first.getNodes().parallel().filter(n -> !second.hasNode(n)).findAny().isPresent()
-				&& !second.getNodes().parallel().filter(n -> !first.hasNode(n)).findAny().isPresent()
+		return !first.getComputers().parallel().filter(n -> !second.hasComputer(n)).findAny().isPresent()
+				&& !second.getComputers().parallel().filter(n -> !first.hasComputer(n)).findAny().isPresent()
 				&& !first.getVMs().parallel().filter(v -> !second.hasVM(v)).findAny().isPresent()
 				&& !second.getVMs().parallel().filter(v -> !first.hasVM(v)).findAny().isPresent()
 				&& !second.getExterns().parallel().filter(v -> !first.hasExtern(v)).findAny().isPresent()
@@ -105,34 +105,35 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * Get the list of nodes that are online.
+	 * Get the list of computers that are online.
 	 *
-	 * @return a Stream of all the nodes online in this configuration
+	 * @return a Stream of all the computers online in this configuration
 	 */
-	Stream<Node> getNodes();
+	Stream<Computer> getComputers();
 
 	/**
-	 * get a Stream of the nodes which are online and whom set of hosted VMs
+	 * get a Stream of the computers which are online and whom set of hosted VMs
 	 * follow one predicate. The predicate is applied to unmodifiable set, and the
 	 * VMs are unmutable so this call can not modify this
 	 *
 	 * @param pred
-	 *          a predicate over the hosted VMs of a Node with no side-effect on
-	 *          the set.
-	 * @return The stream of node following the predicate over their hosted VMs
+	 *          a predicate over the hosted VMs of a Computer with no side-effect
+	 *          on the set.
+	 * @return The stream of computer following the predicate over their hosted
+	 *         VMs
 	 */
-	Stream<Node> getNodes(Predicate<Set<VM>> pred);
+	Stream<Computer> getComputers(Predicate<Set<VM>> pred);
 
 
 	/**
-	 * get the number of Node with given state
+	 * get the number of Computer with given state
 	 *
 	 * @param state
-	 *          the state of the nodes to consider, or null for all nodes
-	 * @return the number of nodes with given state if not null, or the number of
-	 *         nodes if null
+	 *          the state of the computers to consider, or null for all computers
+	 * @return the number of computers with given state if not null, or the number
+	 *         of computers if null
 	 */
-	int nbNodes();
+	int nbComputers();
 
 	/**
 	 * Get the virtual machines that are running.
@@ -174,25 +175,25 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * get the number of VMs running on given node
+	 * get the number of VMs running on given computer
 	 *
 	 * @param host
-	 *          the node to consider
-	 * @return the number of vms which are specified running on the node ; null if
-	 *         the node is not known
+	 *          the computer to consider
+	 * @return the number of vms which are specified running on the computer ;
+	 *         null if the computer is not known
 	 */
 	default long nbHosted(VMLocation host) {
 		return getHosted(host).count();
 	}
 
 	/**
-	 * Test if a node is online.
+	 * Test if a computer is online.
 	 *
 	 * @param n
-	 *          the node
-	 * @return true if the node is online
+	 *          the computer
+	 * @return true if the computer is online
 	 */
-	boolean hasNode(Node n);
+	boolean hasComputer(Computer n);
 
 	/**
 	 * @param vm
@@ -253,15 +254,15 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * Set a virtual machine running on a node. The node is set online whatever
-	 * his previous state was. If the virtual machine is already in a other
-	 * location or state in the configuration, it is updated
+	 * Set a virtual machine running on a computer. The computer is set online
+	 * whatever his previous state was. If the virtual machine is already in a
+	 * other location or state in the configuration, it is updated
 	 *
 	 * @param vm
 	 *          the virtual machine
 	 * @param hoster
 	 *          the managedelement that will host the virtual machine.
-	 * @return true if the vm is assigned to the node and was not before
+	 * @return true if the vm is assigned to the computer and was not before
 	 */
 	boolean setHost(VM vm, VMLocation hoster);
 
@@ -281,7 +282,7 @@ public interface IConfiguration extends Cloneable {
 	 * @param vm
 	 *          the vm migrating
 	 * @param n
-	 *          null to set no migration, a Node to specify where the VM is
+	 *          null to set no migration, a Computer to specify where the VM is
 	 *          migrating
 	 */
 	void setMigTarget(VM vm, VMLocation n);
@@ -289,16 +290,16 @@ public interface IConfiguration extends Cloneable {
 	/**
 	 * @param vm
 	 *          a VM of the center
-	 * @return a Node if that vm is migrating to this node, or null.
+	 * @return a Computer if that vm is migrating to this computer, or null.
 	 */
 	VMLocation getMigTarget(VM vm);
 
 	Set<VM> getMigratingVMs();
 
-	default Node getNodeMig(VM vm) {
+	default Computer getComputerMig(VM vm) {
 		VMLocation h = getMigTarget(vm);
-		if (h instanceof Node) {
-			return (Node) h;
+		if (h instanceof Computer) {
+			return (Computer) h;
 		} else {
 			return null;
 		}
@@ -317,7 +318,7 @@ public interface IConfiguration extends Cloneable {
 	 *
 	 * @param vm
 	 *          a VM of the center
-	 * @return true if the VM is migrating to another node
+	 * @return true if the VM is migrating to another computer
 	 */
 	default boolean isMigrating(VM vm) {
 		VMLocation target = getMigTarget(vm);
@@ -358,43 +359,45 @@ public interface IConfiguration extends Cloneable {
 
 
 	/**
-	 * add an online Node
+	 * add an online Computer
 	 *
 	 * @param name
-	 *          the name of the node
+	 *          the name of the computer
 	 * @param resources
-	 * @return null if a on-node with give name exists, a new noe if no node with
-	 *         given name exists, or previous node modified if already exists
+	 * @return null if a on-computer with give name exists, a new noe if no
+	 *         computer with given name exists, or previous computer modified if
+	 *         already exists
 	 */
-	Node addNode(String name, int... resources);
+	Computer addComputer(String name, int... resources);
 
 	/**
-	 * Set a node offline. If the node is already in the configuration but in an
-	 * another state, it is updated. Any hosted VM state will be set to waiting.
+	 * Set a computer offline. If the computer is already in the configuration but
+	 * in an another state, it is updated. Any hosted VM state will be set to
+	 * waiting.
 	 *
-	 * @param node
-	 *          the node
-	 * @return true if the node state changed
+	 * @param computer
+	 *          the computer
+	 * @return true if the computer state changed
 	 */
-	boolean removeVMs(Node node);
+	boolean removeVMs(Computer computer);
 
 	/**
-	 * Ensure we don't have a Node with given name.
+	 * Ensure we don't have a Computer with given name.
 	 *
 	 * @param n
-	 *          the node to remove
-	 * @return true if the Node was present
+	 *          the computer to remove
+	 * @return true if the Computer was present
 	 */
-	boolean remove(Node n);
+	boolean remove(Computer n);
 
 	/**
 	 *
 	 * @param hosted
 	 *          a vm of the problem
-	 * @return the node hosting the VM or null
+	 * @return the computer hosting the VM or null
 	 */
-	default Node getNodeHost(VM hosted) {
-		return getState(hosted) == VMSTATES.RUNNING ? (Node) getLocation(hosted) : null;
+	default Computer getComputerHost(VM hosted) {
+		return getState(hosted) == VMSTATES.RUNNING ? (Computer) getLocation(hosted) : null;
 	}
 
 	/**
@@ -410,8 +413,8 @@ public interface IConfiguration extends Cloneable {
 	 * Get the virtual machines that are running on an hoster.
 	 *
 	 * @param n
-	 *          the node
-	 * @return a set of virtual machines, may be empty, eg if the Node is not
+	 *          the computer
+	 * @return a set of virtual machines, may be empty, eg if the Computer is not
 	 *         present or is offline
 	 */
 	Stream<VM> getHosted(VMLocation n);
@@ -428,10 +431,10 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * Get all the virtual machines running on a set of nodes.
+	 * Get all the virtual machines running on a set of computers.
 	 *
 	 * @param ns
-	 *          the set of nodes
+	 *          the set of computers
 	 * @return a set of virtual machines, may be empty
 	 */
 	default Stream<VM> getHosted(Set<VMLocation> ns) {
@@ -444,8 +447,8 @@ public interface IConfiguration extends Cloneable {
 	 *
 	 * @param vm
 	 *          the virtual machine
-	 * @return the node or extern hosting the virtual machine or {@code null} is
-	 *         the virtual machine is waiting
+	 * @return the computer or extern hosting the virtual machine or {@code null}
+	 *         is the virtual machine is waiting
 	 */
 	VMLocation getLocation(VM vm);
 
@@ -485,16 +488,16 @@ public interface IConfiguration extends Cloneable {
 	boolean remove(Extern e);
 
 	default Stream<VMLocation> getLocations() {
-		return Stream.concat(getNodes(), getExterns());
+		return Stream.concat(getComputers(), getExterns());
 	}
 
 	default int nbHosts() {
-		return nbExterns() + nbNodes();
+		return nbExterns() + nbComputers();
 	}
 
 	/**
 	 *
-	 * @return the total number of nodes, externs and VMs.
+	 * @return the total number of computers, externs and VMs.
 	 */
 	default int nbElems() {
 		return nbHosts() + nbVMs();
@@ -558,29 +561,29 @@ public interface IConfiguration extends Cloneable {
 	}
 
 	/**
-	 * compute the max number of VM of a kind a Node can host, based on the
-	 * resource capacities of the node and the use of the VM.
+	 * compute the max number of VM of a kind a Computer can host, based on the
+	 * resource capacities of the computer and the use of the VM.
 	 *
 	 * @param n
-	 *          a Node
+	 *          a Computer
 	 * @param vm
 	 *          a VM to use the resource specifications
 	 * @param specs
 	 *          the resource specifications from which we can get the capacities
-	 *          of the node and the use of the VM
+	 *          of the computer and the use of the VM
 	 * @return the minimum of capa(n)/use(VM) for each resource of specs
 	 */
-	public static double maxNBVms(Node n, VM vm, Stream<ResourceSpecification> specs) {
+	public static double maxNBVms(Computer n, VM vm, Stream<ResourceSpecification> specs) {
 		return specs.mapToDouble(s -> 1.0 * s.getCapacity(n) / s.getUse(vm)).min().getAsDouble();
 	}
 
 	/********************
 	 * site management. A site , represented by an index, is a partition of the
-	 * nodes.<br />
-	 * By default one site, the index 0, exists. adding nodes to a new site remove
-	 * them from the old one.<br />
+	 * computers.<br />
+	 * By default one site, the index 0, exists. adding computers to a new site
+	 * remove them from the old one.<br />
 	 * However, since the index is the order of creation of the sites, deleting
-	 * all the nodes from a site doesn't remove it.
+	 * all the computers from a site doesn't remove it.
 	 */
 
 	/**
@@ -638,7 +641,7 @@ public interface IConfiguration extends Cloneable {
 	 * @return
 	 */
 	public default Stream<ManagedElement> getManagedElements() {
-		return Stream.concat(Stream.concat(getNodes(), getExterns()), Stream.concat(getVMs(), getSites()));
+		return Stream.concat(Stream.concat(getComputers(), getExterns()), Stream.concat(getVMs(), getSites()));
 	}
 
 	///////////////////////////////////
@@ -654,8 +657,8 @@ public interface IConfiguration extends Cloneable {
 		if (element == null) {
 			return;
 		}
-		if (element instanceof Node) {
-			tagNode((Node) element, tag);
+		if (element instanceof Computer) {
+			tagComputer((Computer) element, tag);
 		} else if (element instanceof Extern) {
 			tagExtern((Extern) element, tag);
 		} else if (element instanceof VM) {
@@ -668,7 +671,7 @@ public interface IConfiguration extends Cloneable {
 		}
 	}
 
-	public void tagNode(Node n, String tag);
+	public void tagComputer(Computer n, String tag);
 
 	public void tagExtern(Extern e, String tag);
 
@@ -684,8 +687,8 @@ public interface IConfiguration extends Cloneable {
 		if (element == null) {
 			return;
 		}
-		if (element instanceof Node) {
-			delTagNode((Node) element, tag);
+		if (element instanceof Computer) {
+			delTagComputer((Computer) element, tag);
 		} else if (element instanceof Extern) {
 			delTagExtern((Extern) element, tag);
 		} else if (element instanceof VM) {
@@ -698,7 +701,7 @@ public interface IConfiguration extends Cloneable {
 		}
 	}
 
-	public void delTagNode(Node n, String tag);
+	public void delTagComputer(Computer n, String tag);
 
 	public void delTagExtern(Extern e, String tag);
 
@@ -734,7 +737,7 @@ public interface IConfiguration extends Cloneable {
 
 	public Stream<VM> getVmsTagged(String tag);
 
-	public Stream<Node> getNodesTagged(String tag);
+	public Stream<Computer> getComputersTagged(String tag);
 
 	public Stream<Extern> getExternsTagged(String tag);
 
@@ -748,12 +751,12 @@ public interface IConfiguration extends Cloneable {
 	 *         the center.
 	 */
 	public default Stream<String> getAllTags() {
-		return concat(concat(getVmsTags(), getNodesTags()), concat(getSitesTags(), getSitesTags())).distinct();
+		return concat(concat(getVmsTags(), getComputersTags()), concat(getSitesTags(), getSitesTags())).distinct();
 	}
 
 	public Stream<String> getVmsTags();
 
-	public Stream<String> getNodesTags();
+	public Stream<String> getComputersTags();
 
 	public Stream<String> getExternsTags();
 

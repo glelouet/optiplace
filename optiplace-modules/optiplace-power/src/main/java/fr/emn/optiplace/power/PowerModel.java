@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 
@@ -28,7 +28,7 @@ public interface PowerModel {
    *            the node to evaluate the consumption using this model.
    * @return the consumption of the Node
    */
-	default double getConsumption(IConfiguration cfg, Node n) {
+	default double getConsumption(IConfiguration cfg, Computer n) {
     VM[] vms = cfg.getHosted(n).collect(Collectors.toList())
         .toArray(new VM[] {});
 		return getConsumption(cfg.resources(), n, vms);
@@ -44,7 +44,7 @@ public interface PowerModel {
    * @return the consumption of the node
    */
   public double getConsumption(Map<String, ResourceSpecification> specs,
-      Node n, VM... vms);
+      Computer n, VM... vms);
 
   /**
    * computes the best efficiency a set of the same vm can have on the node.
@@ -62,7 +62,7 @@ public interface PowerModel {
    *         iterate from 0 to this max number of vms (int)
    */
   default double getBestEfficiency(Map<String, ResourceSpecification> specs,
-      Node n, VM vm) {
+      Computer n, VM vm) {
     int maxVMs = specs.values().stream()
 .mapToInt(r -> r.getCapacity(n) / r.getUse(vm)).max().getAsInt();
     double maxEff = 0.0;
@@ -87,7 +87,7 @@ public interface PowerModel {
    *            the view to add constraints and vars in
    * @return a new variable constrained to the consumption of the given node
    */
-  public IntVar makePower(Node n, PowerView parent);
+  public IntVar makePower(Computer n, PowerView parent);
 
   /**
    * get the minimum consumption increase due to the allocation of a vm on a
@@ -100,7 +100,7 @@ public interface PowerModel {
    * @return the minimum garantee value of increased consumption of the vm is
    *         allocated on the node
    */
-  public double getMinPowerIncrease(Node n,
+  public double getMinPowerIncrease(Computer n,
       Map<String, ResourceSpecification> specs, VM v);
 
   /**
@@ -110,7 +110,7 @@ public interface PowerModel {
    *            the node
    * @return
    */
-  public double maxCons(Node n);
+  public double maxCons(Computer n);
 
 	public static interface Parser {
 

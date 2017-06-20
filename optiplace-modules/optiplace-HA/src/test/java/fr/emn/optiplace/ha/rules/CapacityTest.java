@@ -10,7 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.test.SolvingExample;
 import fr.emn.optiplace.view.Rule;
 
@@ -44,9 +44,9 @@ public class CapacityTest extends SolvingExample {
 
   @Test
   public void testParsing() {
-    HashSet<Node> nodes = new HashSet<>();
-    nodes.add(new Node("n1"));
-    nodes.add(new Node("n2"));
+    HashSet<Computer> nodes = new HashSet<>();
+    nodes.add(new Computer("n1"));
+    nodes.add(new Computer("n2"));
 		Rule r = new Capacity(nodes, 5);
 		String s = r.toString();
     Capacity parsed = Capacity.parse(s);

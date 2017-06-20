@@ -5,18 +5,18 @@ import org.testng.annotations.Test;
 
 import fr.emn.optiplace.IOptiplace;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 
 public class HostCostViewTest {
 
 	@Test
-	public void testOnNode() {
+	public void testOnComputer() {
 		IConfiguration c = new Configuration("mem");
-		Node n0 = c.addNode("n0", 12);
+		Computer n0 = c.addComputer("n0", 12);
 		Extern e0 = c.addExtern("e0", 12);
 		VM vm0 = c.addVM("vm0", n0, 4);
 		VM vm1 = c.addVM("vm1", n0, 6);
@@ -42,8 +42,8 @@ public class HostCostViewTest {
 	@Test
 	public void testWaitingCost() {
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addNode("n0", 2);
-		Node n1 = c.addNode("n1", 2);
+		Computer n0 = c.addComputer("n0", 2);
+		Computer n1 = c.addComputer("n1", 2);
 		VM vm0 = c.addVM("vm0", n0, 1);
 		VM vm1 = c.addVM("vm1", n1, 1);
 		VM vm2 = c.addVM("vm2", null, 2);

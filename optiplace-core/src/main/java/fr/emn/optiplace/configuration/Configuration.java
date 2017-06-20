@@ -43,7 +43,7 @@ public class Configuration implements IConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-	private final LinkedHashMap<Node, Set<VM>> nodesVM = new LinkedHashMap<>();
+	private final LinkedHashMap<Computer, Set<VM>> computersVM = new LinkedHashMap<>();
 
 	private final LinkedHashMap<Extern, Set<VM>> externVM = new LinkedHashMap<>();
 
@@ -78,8 +78,8 @@ public class Configuration implements IConfiguration {
 		externsTags.forEach((e, v) -> other.externsTags.put(e, new LinkedHashSet<>(v)));
 		externVM.forEach((e, v) -> other.externVM.put(e, new LinkedHashSet<>(v)));
 		nameToElement.forEach((e, v) -> other.nameToElement.put(e, v));
-		nodesTags.forEach((e, v) -> other.nodesTags.put(e, new LinkedHashSet<>(v)));
-		nodesVM.forEach((e, v) -> other.nodesVM.put(e, new LinkedHashSet<>(v)));
+		computersTags.forEach((e, v) -> other.computersTags.put(e, new LinkedHashSet<>(v)));
+		computersVM.forEach((e, v) -> other.computersVM.put(e, new LinkedHashSet<>(v)));
 		resources.forEach((e, v) -> other.resources.put(e, v.clone()));
 
 		sitesTags.forEach((e, v) -> other.sitesTags.put(e, new LinkedHashSet<>(v)));
@@ -107,13 +107,13 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<Node> getNodes() {
-		return nodesVM.keySet().stream();
+	public Stream<Computer> getComputers() {
+		return computersVM.keySet().stream();
 	}
 
 	@Override
-	public int nbNodes() {
-		return nodesVM.size();
+	public int nbComputers() {
+		return computersVM.size();
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public class Configuration implements IConfiguration {
 		}
 		switch (state) {
 		case RUNNING:
-			return nodesVM.values().parallelStream().mapToInt(Set::size).sum();
+			return computersVM.values().parallelStream().mapToInt(Set::size).sum();
 		case WAITING:
 			return waitings.size();
 		case EXTERN:
@@ -145,8 +145,8 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean hasNode(Node n) {
-		return nodesVM.containsKey(n);
+	public boolean hasComputer(Computer n) {
+		return computersVM.containsKey(n);
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class Configuration implements IConfiguration {
 
 	@Override
 	public boolean isRunning(VM vm) {
-		return nodesVM.containsKey(getLocation(vm));
+		return computersVM.containsKey(getLocation(vm));
 	}
 
 	@Override
@@ -183,8 +183,8 @@ public class Configuration implements IConfiguration {
 			vmMigration.remove(vm);
 		}
 
-		if (hoster instanceof Node) {
-			nodesVM.get(hoster).add(vm);
+		if (hoster instanceof Computer) {
+			computersVM.get(hoster).add(vm);
 		} else if (hoster instanceof Extern) {
 			externVM.get(hoster).add(vm);
 		} else {
@@ -200,8 +200,8 @@ public class Configuration implements IConfiguration {
 		}
 		VMLocation hoster = vmHoster.remove(vm);
 		if (hoster != null) {
-			if (hoster instanceof Node) {
-				nodesVM.get(hoster).remove(vm);
+			if (hoster instanceof Computer) {
+				computersVM.get(hoster).remove(vm);
 			} else if (hoster instanceof Extern) {
 				externVM.get(hoster).remove(vm);
 			}
@@ -295,17 +295,17 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Node addNode(String name, int... resources) {
+	public Computer addComputer(String name, int... resources) {
 		if (name == null) {
 			return null;
 		}
-		Node ret;
+		Computer ret;
 		try {
-			ret = getElementByName(name, Node.class);
+			ret = getElementByName(name, Computer.class);
 			if (ret == null) {
-				ret = new Node(name);
+				ret = new Computer(name);
 				nameToElement.put(name.toLowerCase(), ret);
-				nodesVM.put(ret, new LinkedHashSet<>());
+				computersVM.put(ret, new LinkedHashSet<>());
 			}
 		} catch (ClassCastException cce) {
 			return null;
@@ -320,8 +320,8 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean removeVMs(Node n) {
-		Set<VM> vms = nodesVM.remove(n);
+	public boolean removeVMs(Computer n) {
+		Set<VM> vms = computersVM.remove(n);
 		if (vms != null) {
 			for (VM vm : vms) {
 				vmHoster.remove(vm);
@@ -333,13 +333,13 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public boolean remove(Node n) {
+	public boolean remove(Computer n) {
 		if (n == null) {
 			return false;
 		}
-		// we ensure we have a Node of same name.
+		// we ensure we have a Computer of same name.
 		try {
-			n = getElementByName(n.getName(), Node.class);
+			n = getElementByName(n.getName(), Computer.class);
 			if (n == null) {
 				return false;
 			}
@@ -347,16 +347,16 @@ public class Configuration implements IConfiguration {
 			return false;
 		}
 		removeVMs(n);
-		nodesVM.remove(n);
-		Node rem = n;
-		nodesTags.values().stream().forEach(s -> s.remove(rem));
+		computersVM.remove(n);
+		Computer rem = n;
+		computersTags.values().stream().forEach(s -> s.remove(rem));
 		forgetElement(n);
 		return true;
 	}
 
 	@Override
 	public Stream<VM> getHosted(VMLocation n) {
-		Set<VM> s = nodesVM.get(n);
+		Set<VM> s = computersVM.get(n);
 		if (s == null) {
 			s = externVM.get(n);
 		}
@@ -369,9 +369,9 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<Node> getNodes(Predicate<Set<VM>> pred) {
-		return nodesVM.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
-				.map(Entry<Node, Set<VM>>::getKey);
+	public Stream<Computer> getComputers(Predicate<Set<VM>> pred) {
+		return computersVM.entrySet().stream().filter(e -> pred.test(Collections.unmodifiableSet(e.getValue())))
+				.map(Entry<Computer, Set<VM>>::getKey);
 	}
 
 	LinkedHashMap<Site, Set<VMLocation>> sitesToHosters = new LinkedHashMap<>();
@@ -455,7 +455,8 @@ public class Configuration implements IConfiguration {
 	@Override
 	public Stream<VMLocation> getSiteLocations(Site site) {
 		if (site == null) {
-			return Stream.concat(getNodes().filter(n -> getSite(n) == null), getExterns().filter(n -> getSite(n) == null));
+			return Stream.concat(getComputers().filter(n -> getSite(n) == null),
+					getExterns().filter(n -> getSite(n) == null));
 		}
 		Set<VMLocation> set = sitesToHosters.get(site);
 		if (set == null) {
@@ -466,7 +467,7 @@ public class Configuration implements IConfiguration {
 
 	public String toString(String fieldSeparator) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("nodes : ").append(nodesVM);
+		sb.append("computers : ").append(computersVM);
 		if (!externVM.isEmpty()) {
 			sb.append(fieldSeparator).append("externs : ").append(externVM);
 		}
@@ -483,8 +484,8 @@ public class Configuration implements IConfiguration {
 			sb.append(fieldSeparator).append("resources : ").append(
 					resources.entrySet().stream().map(e -> " " + e.getValue()).reduce("", (s, t) -> s + fieldSeparator + t));
 		}
-		if (!nodesTags.isEmpty()) {
-			sb.append(fieldSeparator).append("nodesTags : ").append(nodesTags);
+		if (!computersTags.isEmpty()) {
+			sb.append(fieldSeparator).append("computersTags : ").append(computersTags);
 		}
 		if (!vmsTags.isEmpty()) {
 			sb.append(fieldSeparator).append("vmsTags : ").append(vmsTags);
@@ -527,7 +528,7 @@ public class Configuration implements IConfiguration {
 		if (!sitesToHosters.equals(o.sitesToHosters)) {
 			return false;
 		}
-		if (!nodesTags.equals(o.nodesTags) || !vmsTags.equals(o.vmsTags) || !externsTags.equals(o.externsTags)
+		if (!computersTags.equals(o.computersTags) || !vmsTags.equals(o.vmsTags) || !externsTags.equals(o.externsTags)
 				|| !sitesTags.equals(o.sitesTags)) {
 			return false;
 		}
@@ -537,7 +538,7 @@ public class Configuration implements IConfiguration {
 	@Override
 	public int hashCode() {
 		return vmHoster.hashCode() + waitings.hashCode() + resources.hashCode()
-		+ vmMigration.hashCode() + sitesToHosters.hashCode() + nodesTags.hashCode() + vmsTags.hashCode()
+				+ vmMigration.hashCode() + sitesToHosters.hashCode() + computersTags.hashCode() + vmsTags.hashCode()
 		+ externsTags.hashCode() + sitesTags.hashCode();
 	}
 
@@ -642,18 +643,18 @@ public class Configuration implements IConfiguration {
 
 	protected HashMap<String, Set<VM>> vmsTags = new LinkedHashMap<>();
 	protected HashMap<String, Set<Site>> sitesTags = new LinkedHashMap<>();
-	protected HashMap<String, Set<Node>> nodesTags = new LinkedHashMap<>();
+	protected HashMap<String, Set<Computer>> computersTags = new LinkedHashMap<>();
 	protected HashMap<String, Set<Extern>> externsTags = new LinkedHashMap<>();
 
 	@Override
-	public void tagNode(Node n, String tag) {
+	public void tagComputer(Computer n, String tag) {
 		if (n == null || tag == null) {
 			return;
 		}
-		Set<Node> s = nodesTags.get(tag);
+		Set<Computer> s = computersTags.get(tag);
 		if (s == null) {
 			s = new LinkedHashSet<>();
-			nodesTags.put(tag, s);
+			computersTags.put(tag, s);
 		}
 		s.add(n);
 	}
@@ -698,14 +699,14 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public void delTagNode(Node n, String tag) {
-		Set<Node> set = nodesTags.get(tag);
+	public void delTagComputer(Computer n, String tag) {
+		Set<Computer> set = computersTags.get(tag);
 		if (set == null) {
 			return;
 		}
 		set.remove(n);
 		if (set.isEmpty()) {
-			nodesTags.remove(tag);
+			computersTags.remove(tag);
 		}
 	}
 
@@ -751,7 +752,7 @@ public class Configuration implements IConfiguration {
 		if (e == null || tag == null) {
 			return false;
 		}
-		for (Map<String, Set<? extends ManagedElement>> m : new Map[] { vmsTags, nodesTags, externsTags, sitesTags }) {
+		for (Map<String, Set<? extends ManagedElement>> m : new Map[] { vmsTags, computersTags, externsTags, sitesTags }) {
 			Set<? extends ManagedElement> set = m.get(tag);
 			if (set != null && set.contains(e)) {
 				return true;
@@ -767,8 +768,8 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<Node> getNodesTagged(String tag) {
-		Set<Node> set = nodesTags.get(tag);
+	public Stream<Computer> getComputersTagged(String tag) {
+		Set<Computer> set = computersTags.get(tag);
 		return set == null ? Stream.empty() : set.stream();
 	}
 
@@ -789,8 +790,8 @@ public class Configuration implements IConfiguration {
 		if (me == null) {
 			return Stream.empty();
 		}
-		if (me instanceof Node) {
-			return nodesTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
+		if (me instanceof Computer) {
+			return computersTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
 		}
 		if (me instanceof VM) {
 			return vmsTags.entrySet().stream().filter(e -> e.getValue().contains(me)).map(e -> e.getKey());
@@ -816,8 +817,8 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Stream<String> getNodesTags() {
-		return nodesTags.keySet().stream();
+	public Stream<String> getComputersTags() {
+		return computersTags.keySet().stream();
 	}
 
 	@Override

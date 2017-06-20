@@ -6,9 +6,9 @@ package fr.emn.optiplace.ha;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
-import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
+import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.rules.Spread;
 import fr.emn.optiplace.view.ViewDescription;
@@ -25,12 +25,12 @@ public class HAViewTest {
 	@Test
 	public void testSolve() {
 		IConfiguration cfg = new Configuration("CPU", "MEM");
-		Node[] nodes = new Node[3];
-		int nbVMperNode = 3;
-		VM[] vms = new VM[nodes.length * nbVMperNode];
+		Computer[] nodes = new Computer[3];
+		int nbVMperComputer = 3;
+		VM[] vms = new VM[nodes.length * nbVMperComputer];
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = cfg.addNode("n" + i, 4000, 20000);
-			for (int j = 0; j < nbVMperNode; j++) {
+			nodes[i] = cfg.addComputer("n" + i, 4000, 20000);
+			for (int j = 0; j < nbVMperComputer; j++) {
 				vms[i * nodes.length + j] = cfg.addVM("vm" + i + "_" + j, nodes[i], 500, 5000);
 			}
 		}

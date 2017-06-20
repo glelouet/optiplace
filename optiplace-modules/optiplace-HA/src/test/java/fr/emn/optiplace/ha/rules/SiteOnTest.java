@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.test.SolvingExample;
@@ -24,7 +24,7 @@ public class SiteOnTest extends SolvingExample {
 		nbWaitings = 0;
 		prepare();
 
-		Node node = nodes[1];
+		Computer node = nodes[1];
 		Site site = src.addSite("mysite", node);
 		VM vm = placed[0][0];
 		SiteOn test = new SiteOn(site, vm);

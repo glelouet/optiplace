@@ -3,8 +3,8 @@ package fr.emn.optiplace.ha.rules;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.test.SolvingExample;
@@ -21,11 +21,11 @@ public class SiteOffTest extends SolvingExample {
 	/** a VM must be moved to a specific node, on a different site */
 	@Test
 	public void testSiteOff() {
-		nbNodes = 2;
-		nbVMPerNode = 1;
+		nbComputers = 2;
+		nbVMPerComputer = 1;
 		nbWaitings = 0;
 		prepare();
-		Node node = nodes[0];
+		Computer node = nodes[0];
 		Site site = src.addSite("mysite", node);
 		VM vm = placed[0][0];
 		SiteOff test = new SiteOff(site, vm);
@@ -34,7 +34,7 @@ public class SiteOffTest extends SolvingExample {
 		// strat.setLogHeuristicsSelection(true);
 		IConfiguration d = solve(src, test).getDestination();
 		Assert.assertTrue(test.isSatisfied(d), "rule is not satisfied : VM " + vm + " is on " + d.getLocation(vm)
-		    + " which is site " + d.getSite(d.getNodeHost(vm)));
+				+ " which is site " + d.getSite(d.getComputerHost(vm)));
 		Assert.assertNotEquals(d.getLocation(vm), null, "VM " + vm + " placed on " + d.getLocation(vm));
 		Assert.assertNotEquals(d.getSite(d.getLocation(vm)), site);
 	}

@@ -7,10 +7,10 @@ package fr.emn.optiplace;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -42,7 +42,7 @@ public class OptiplaceTest {
 	@Test
 	public void testNoResource() {
 		Configuration c = new Configuration();
-		Node n1 = c.addNode("n1");
+		Computer n1 = c.addComputer("n1");
 		c.addVM("v1", n1);
 		Optiplace sp = new Optiplace(c);
 		sp.getStrat().setLogContradictions(true);
@@ -56,8 +56,8 @@ public class OptiplaceTest {
 	@Test
 	public void testNoResourceSeveralElement() {
 		Configuration c = new Configuration();
-		Node n1 = c.addNode("n1");
-		Node n2 = c.addNode("n2");
+		Computer n1 = c.addComputer("n1");
+		Computer n2 = c.addComputer("n2");
 		c.addVM("v1", n1);
 		c.addVM("v2", n2);
 		c.addVM("v3", n2);
@@ -76,8 +76,8 @@ public class OptiplaceTest {
 	@Test
 	public void testExecutionNoObjective() {
 		Configuration c = new Configuration("R");
-		Node n1 = c.addNode("n1", 10);
-		Node n2 = c.addNode("n2", 10);
+		Computer n1 = c.addComputer("n1", 10);
+		Computer n2 = c.addComputer("n2", 10);
 		c.addVM("v1", n1, 1);
 		c.addVM("v2", n2, 1);
 		Optiplace sp = new Optiplace(c);

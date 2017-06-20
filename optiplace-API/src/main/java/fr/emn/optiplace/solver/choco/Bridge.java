@@ -5,9 +5,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
@@ -31,7 +31,7 @@ public class Bridge {
 
 	private VM[] vms;
 	private TObjectIntHashMap<VM> revVMs;
-	private Node[] nodes;
+	private Computer[] nodes;
 	private Extern[] externs;
 	private VMLocation[] locations;
 	private TObjectIntHashMap<VMLocation> revLocations;
@@ -51,9 +51,9 @@ public class Bridge {
 
 		this.source = source;
 		vms = source.getVMs().toArray(VM[]::new);
-		nodes = source.getNodes().toArray(Node[]::new);
+		nodes = source.getComputers().toArray(Computer[]::new);
 		externs = source.getExterns().toArray(Extern[]::new);
-		locations = Stream.concat(source.getNodes(), source.getExterns()).toArray(VMLocation[]::new);
+		locations = Stream.concat(source.getComputers(), source.getExterns()).toArray(VMLocation[]::new);
 		sites = Stream.concat(Stream.of((Site) null), source.getSites()).toArray(Site[]::new);
 
 		revVMs = new TObjectIntHashMap<>(vms.length, Constants.DEFAULT_LOAD_FACTOR, -1);
@@ -93,21 +93,21 @@ public class Bridge {
 		return locations;
 	}
 
-	public Node[] nodes() {
+	public Computer[] nodes() {
 		return nodes;
 	}
 
 	/**
 	 * @return the first node index for locations
 	 */
-	public int firstNodeIdx() {
+	public int firstComputerIdx() {
 		return 0;
 	}
 
 	/**
 	 * @return the last node index for locations
 	 */
-	public int lastNodeIdx() {
+	public int lastComputerIdx() {
 		return nodes.length - 1;
 	}
 
@@ -145,7 +145,7 @@ public class Bridge {
 	 *          an index of a location
 	 * @return true iff this index stands for a node
 	 */
-	public boolean isNode(int locationIndex) {
+	public boolean isComputer(int locationIndex) {
 		return locationIndex < nodes.length;
 	}
 

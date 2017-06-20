@@ -12,11 +12,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.Site;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
@@ -60,15 +60,15 @@ public class ConfigurationFiler {
 	}
 
 	protected void readLine(String line) {
-		if (line.startsWith("nodes : {")) {
-			if (line.length() > "nodes : {}".length()) {
-				line = line.substring("nodes : {".length(), line.length() - 2);
+		if (line.startsWith("computers : {")) {
+			if (line.length() > "computers : {}".length()) {
+				line = line.substring("computers : {".length(), line.length() - 2);
 				String[] lines = line.split("], ");
 				for (String l2 : lines) {
 					String[] l2s = l2.split("=\\[");
-					String nodeName = l2s[0];
-					if (nodeName.length() != 0) {
-						Node n = cfg.addNode(nodeName);
+					String computerName = l2s[0];
+					if (computerName.length() != 0) {
+						Computer n = cfg.addComputer(computerName);
 						if (l2s.length > 1) {
 							String[] vms = l2s[1].split(", ");
 							for (String vm : vms) {
@@ -76,7 +76,7 @@ public class ConfigurationFiler {
 							}
 						}
 					} else {
-						logger.debug("node name null : " + nodeName);
+						logger.debug("computer name null : " + computerName);
 					}
 				}
 			}
@@ -109,14 +109,14 @@ public class ConfigurationFiler {
 					}
 				}
 			}
-		} else if (line.startsWith("nodesTags : {")) {
+		} else if (line.startsWith("computersTags : {")) {
 			String[] tags = line.split("\\{|\\}")[1].split("=?\\[|\\],?\\ ?");
 			// result is tags[0] = name of first tag, tags[1]=value of first tag
 			for (int i = 0; i + 1 < tags.length; i += 2) {
 				String tag = tags[i];
 				String[] values = tags[i + 1].split(", ");
 				for (String name : Arrays.asList(values)) {
-					cfg.tagNode(new Node(name), tag);
+					cfg.tagComputer(new Computer(name), tag);
 				}
 			}
 		} else if (line.startsWith("externsTags : {")) {
@@ -156,8 +156,8 @@ public class ConfigurationFiler {
 			MappedResourceSpecification res = new MappedResourceSpecification(resName);
 			cfg.resources().put(resName, res);
 			if (l2s[1].length() > 1) {
-				String[] nodes = l2s[1].substring(0, l2s[1].length() - 1).split(", ");
-				for (String r : nodes) {
+				String[] computers = l2s[1].substring(0, l2s[1].length() - 1).split(", ");
+				for (String r : computers) {
 					String[] rs = r.split("=");
 					ManagedElement me = cfg.getElementByName(rs[0]);
 					if (me == null || !(me instanceof VMLocation)) {

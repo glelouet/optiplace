@@ -17,9 +17,9 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 
@@ -34,11 +34,11 @@ public class ResourcesSpecificationTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourcesSpecificationTest.class);
 
 	@Test
-	public void testComparatorNodeSort() {
-		Node[] nodes = new Node[10];
+	public void testComparatorComputerSort() {
+		Computer[] nodes = new Computer[10];
 		Map<VMLocation, Integer> capacities = new HashMap<>();
 		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = new Node("n" + i);
+			nodes[i] = new Computer("n" + i);
 			capacities.put(nodes[i], i + i % 2 * 10);
 		}
 		ResourceSpecification test = new ResourceSpecification() {
@@ -87,16 +87,16 @@ public class ResourcesSpecificationTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		ArrayList<Node> list = new ArrayList<>(Arrays.asList(nodes));
+		ArrayList<Computer> list = new ArrayList<>(Arrays.asList(nodes));
 
-		List<Node> expected = Arrays.asList(nodes[0], nodes[2], nodes[4], nodes[6], nodes[8], nodes[1], nodes[3], nodes[5],
+		List<Computer> expected = Arrays.asList(nodes[0], nodes[2], nodes[4], nodes[6], nodes[8], nodes[1], nodes[3], nodes[5],
 				nodes[7], nodes[9]);
-		Comparator<Node> c = test.makeNodeComparator(true);
+		Comparator<Computer> c = test.makeComputerComparator(true);
 		Collections.sort(list, c);
 		Assert.assertEquals(list, expected);
 
 		Collections.reverse(expected);
-		c = test.makeNodeComparator(false);
+		c = test.makeComputerComparator(false);
 		Collections.sort(list, c);
 		Assert.assertEquals(list, expected);
 	}

@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
@@ -98,7 +98,7 @@ public class LinearPowerModel {
 		return this;
 	}
 
-	public double apply(IConfiguration cfg, Node n) {
+	public double apply(IConfiguration cfg, Computer n) {
 		Map<String, ResourceSpecification> resources = cfg.resources();
 		double res = base;
 		if (resources == null || weights == null) {
@@ -127,7 +127,7 @@ public class LinearPowerModel {
 	 * @param linearPowerView
 	 * @return
 	 */
-	public IntVar makePower(Node n, LinearPowerView parent) {
+	public IntVar makePower(Computer n, LinearPowerView parent) {
 		IntVar[] uses = new IntVar[resources.length + 1];
 		double[] mults = new double[resources.length + 1];
 		IReconfigurationProblem pb = parent.getProblem();
@@ -138,8 +138,8 @@ public class LinearPowerModel {
 				throw new UnsupportedOperationException(
 						"resource not specified " + resources[i]);
 			}
-			uses[i] = load.getNodesLoad()[nodeidx];
-			mults[i] = weights[i] / load.getNodesCapa()[nodeidx];
+			uses[i] = load.getComputersLoad()[nodeidx];
+			mults[i] = weights[i] / load.getComputersCapa()[nodeidx];
 		}
 		uses[resources.length] = parent.v.createIntegerConstant((int) base);
 		mults[resources.length] = 1.0;

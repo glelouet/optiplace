@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -35,7 +35,7 @@ public class LoadInc implements Rule {
 		if (!m.matches()) {
 			return null;
 		}
-		List<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Node(n))
+		List<Computer> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Computer(n))
 				.collect(Collectors.toList());
 		return new LoadInc(m.group(2), nodes);
 	}
@@ -44,7 +44,7 @@ public class LoadInc implements Rule {
 
 	protected String resName = "CPU";
 
-	protected List<Node> nodes;
+	protected List<Computer> nodes;
 
 	/**
 	 * we ensure the ARule uses a LinkedHashSet to keep the order of the elements.
@@ -53,7 +53,7 @@ public class LoadInc implements Rule {
 	 * @param resource
 	 *          the resource to have nodes' order on
 	 */
-	public LoadInc(String resName, Node... nodes) {
+	public LoadInc(String resName, Computer... nodes) {
 		this(resName, Arrays.asList(nodes));
 	}
 
@@ -64,7 +64,7 @@ public class LoadInc implements Rule {
 	 * @param resource
 	 *          the resource to have nodes' order on
 	 */
-	public LoadInc(String resName, List<Node> nodes) {
+	public LoadInc(String resName, List<Computer> nodes) {
 		this.nodes = nodes;
 		if (resName != null) {
 			this.resName = resName;
@@ -76,8 +76,8 @@ public class LoadInc implements Rule {
 		if (nodes != null && nodes.size() > 1) {
 			ResourceSpecification res = cfg.resources().get(resName);
 			int lastUse = 0;
-			for (Node n : nodes) {
-				if (!cfg.hasNode(n)) {
+			for (Computer n : nodes) {
+				if (!cfg.hasComputer(n)) {
 					continue;
 				}
 				int use = res.getUse(cfg, n);
@@ -99,8 +99,8 @@ public class LoadInc implements Rule {
 		if (nodes == null || nodes.size() < 2) {
 			return;
 		}
-		List<IntVar> lnodes = nodes.stream().filter(core.getSourceConfiguration()::hasNode).mapToInt(core.b()::location)
-				.mapToObj(i -> handler.getNodesLoad()[i]).collect(Collectors.toList());
+		List<IntVar> lnodes = nodes.stream().filter(core.getSourceConfiguration()::hasComputer).mapToInt(core.b()::location)
+				.mapToObj(i -> handler.getComputersLoad()[i]).collect(Collectors.toList());
 		for (int i = 0; i < lnodes.size() - 1; i++) {
 			core.post(core.getModel().arithm(lnodes.get(i), "<=", lnodes.get(i + 1)));
 		}

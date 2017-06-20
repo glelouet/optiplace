@@ -54,7 +54,7 @@ public class Near implements Rule {
 
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		return vms.stream().filter(cfg::hasVM).map(v -> cfg.getSite(cfg.getNodeHost(v))).distinct().count() == 1;
+		return vms.stream().filter(cfg::hasVM).map(v -> cfg.getSite(cfg.getComputerHost(v))).distinct().count() == 1;
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class Optiplace extends IOptiplace {
 		long st = System.nanoTime();
 
 		// each view can pre-process the configuration, creating or removing VM,
-		// nodes, etc.
+		// computers, etc.
 		for (ViewAsModule v : views) {
 			v.preProcessConfig(source);
 		}
@@ -97,7 +97,7 @@ public class Optiplace extends IOptiplace {
 		for (ViewAsModule view : views) {
 			view.rulesStream().forEach(cc -> cc.inject(problem));
 		}
-		if (source.nbNodes() > 0 && source.nbVMs() > 0) {
+		if (source.nbComputers() > 0 && source.nbVMs() > 0) {
 			ChocoResourcePacker packer = strat.getPacker();
 			if (packer == null) {
 				packer = new DefaultPacker();

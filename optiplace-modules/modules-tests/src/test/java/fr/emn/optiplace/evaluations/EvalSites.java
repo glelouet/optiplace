@@ -8,9 +8,9 @@ import java.util.stream.Stream;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.ha.HAView;
@@ -34,7 +34,7 @@ public class EvalSites {
 	 * number of physical nodes in the local site.
 	 *
 	 */
-	static int nbNodes = 5;
+	static int nbComputers = 5;
 
 	/** mem of local nodes */
 	static int nodeMem = 5000;
@@ -57,7 +57,7 @@ public class EvalSites {
 	/**
 	 * maximum size of the problem, with regard to memory constraints
 	 */
-	static int maxSize = Math.floorDiv(nodeMem * nbNodes, dispatcherMem * 2 + webserviceMem);
+	static int maxSize = Math.floorDiv(nodeMem * nbComputers, dispatcherMem * 2 + webserviceMem);
 
 	///////////////////////////////////////////////////////////////////
 
@@ -79,9 +79,9 @@ public class EvalSites {
 			physical.addSite("site" + ie, externs[ie]);
 		}
 		// 5 nodes, each on the "local" site
-		Node[] nodes = new Node[nbNodes];
+		Computer[] nodes = new Computer[nbComputers];
 		for (int in = 0; in < nodes.length; in++) {
-			nodes[in] = physical.addNode("n" + in, nodeMem);
+			nodes[in] = physical.addComputer("n" + in, nodeMem);
 			physical.addSite("local", nodes[in]);
 		}
 	}
@@ -180,9 +180,9 @@ public class EvalSites {
 			physical.addSite("site" + ie, externs[ie]);
 		}
 		// 5 nodes, each on the "local" site
-		Node[] nodes = new Node[nbNodes];
+		Computer[] nodes = new Computer[nbComputers];
 		for (int in = 0; in < nodes.length; in++) {
-			nodes[in] = physical.addNode("n" + in, nodeMem);
+			nodes[in] = physical.addComputer("n" + in, nodeMem);
 			physical.addSite("local", nodes[in]);
 		}
 

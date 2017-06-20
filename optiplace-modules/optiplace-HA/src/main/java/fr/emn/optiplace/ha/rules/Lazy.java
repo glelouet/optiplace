@@ -11,15 +11,15 @@ import java.util.stream.Collectors;
 
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.resources.ResourceLoad;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
 /**
- * prevents a set of {@link Node}s to run at a maximum load.
+ * prevents a set of {@link Computer}s to run at a maximum load.
  *
  * @author guillaume Le Louët
  */
@@ -34,13 +34,13 @@ public class Lazy implements Rule {
 		if (!m.matches()) {
 			return null;
 		}
-		Set<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Node(n)).collect(Collectors.toSet());
+		Set<Computer> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Computer(n)).collect(Collectors.toSet());
 		return new Lazy(m.group(2), Integer.parseInt(m.group(3)), nodes);
 	}
 
 	public static final Parser PARSER = def -> Lazy.parse(def);
 
-	protected Set<Node> nodes;
+	protected Set<Computer> nodes;
 
 	private String resName;
 
@@ -55,7 +55,7 @@ public class Lazy implements Rule {
 	 * @param nodes
 	 *          the set of nodes to apply this constraint on
 	 */
-	public Lazy(String resName, int maxPCLoad, Set<Node> nodes) {
+	public Lazy(String resName, int maxPCLoad, Set<Computer> nodes) {
 		this.nodes = nodes;
 		this.resName = resName;
 		this.maxPCLoad = maxPCLoad;
@@ -66,9 +66,9 @@ public class Lazy implements Rule {
 	 *
 	 * @param nodes
 	 *          the array of nodes to convert to a {@link VJobSet}
-	 * @see #LazyNode(int, VJobSet)
+	 * @see #LazyComputer(int, VJobSet)
 	 */
-	public Lazy(String resName, int maxPCLoad, Node... nodes) {
+	public Lazy(String resName, int maxPCLoad, Computer... nodes) {
 		this(resName, maxPCLoad, new HashSet<>(Arrays.asList(nodes)));
 	}
 
@@ -91,8 +91,8 @@ public class Lazy implements Rule {
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		List<Node> nodes = new ArrayList<>(this.nodes);
-		nodes.removeIf(n -> !core.getSourceConfiguration().hasNode(n));
+		List<Computer> nodes = new ArrayList<>(this.nodes);
+		nodes.removeIf(n -> !core.getSourceConfiguration().hasComputer(n));
 		if (nodes.size() == 0) {
 			return;
 		}
@@ -102,9 +102,9 @@ public class Lazy implements Rule {
 			return;
 		}
 		ResourceLoad uses = core.getUse(spec.getType());
-		for (Node n : nodes) {
+		for (Computer n : nodes) {
 			int capa = spec.getCapacity(n) * maxPCLoad / 100;
-			IntVar use = uses.getNodesLoad()[core.b().location(n)];
+			IntVar use = uses.getComputersLoad()[core.b().location(n)];
 			core.post(core.getModel().arithm(use, "<=", capa));
 		}
 	}
@@ -112,7 +112,8 @@ public class Lazy implements Rule {
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
 		ResourceSpecification res = cfg.resources().get(resName);
-		return !nodes.stream().filter(cfg::hasNode).filter(n -> 100 * res.getUse(cfg, n) > res.getCapacity(n) * maxPCLoad)
+		return !nodes.stream().filter(cfg::hasComputer)
+				.filter(n -> 100 * res.getUse(cfg, n) > res.getCapacity(n) * maxPCLoad)
 				.findAny().isPresent();
 	}
 

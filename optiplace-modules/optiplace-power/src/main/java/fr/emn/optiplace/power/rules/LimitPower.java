@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.exception.ContradictionException;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
@@ -32,17 +32,17 @@ public class LimitPower implements Rule {
 
 	protected PowerView parent;
 
-	protected Set<Node> nodes;
+	protected Set<Computer> nodes;
 
 	public LimitPower() {
 		this(null, 0);
 	}
 
-	public LimitPower(PowerView consumptionView, int maxConsumption, Node... nodes) {
+	public LimitPower(PowerView consumptionView, int maxConsumption, Computer... nodes) {
 		this(consumptionView, maxConsumption, new HashSet<>(Arrays.asList(nodes)));
 	}
 
-	public LimitPower(PowerView consumptionView, int maxConsumption, Set<Node> nodes) {
+	public LimitPower(PowerView consumptionView, int maxConsumption, Set<Computer> nodes) {
 		this.maxConsumption = maxConsumption;
 		parent = consumptionView;
 		this.nodes = nodes;
@@ -74,21 +74,21 @@ public class LimitPower implements Rule {
 		parent = parentv;
 	}
 
-	public Set<Node> getNodes() {
+	public Set<Computer> getComputers() {
 		return nodes;
 	}
 
-	public Stream<Node> getNodes(IConfiguration c) {
+	public Stream<Computer> getComputers(IConfiguration c) {
 		if (nodes == null || nodes.isEmpty()) {
-			return c.getNodes();
+			return c.getComputers();
 		} else {
-			return nodes.stream().filter(c::hasNode);
+			return nodes.stream().filter(c::hasComputer);
 		}
 	}
 
 	@Override
 	public void inject(IReconfigurationProblem core) {
-		getNodes(core.c()).forEach(n -> {
+		getComputers(core.c()).forEach(n -> {
 			try {
 				parent.getPower(n).updateUpperBound(getMaxConsumption(), Cause.Null);
 			}
@@ -100,7 +100,7 @@ public class LimitPower implements Rule {
 
 	@Override
 	public boolean isSatisfied(IConfiguration cfg) {
-		return !getNodes(cfg).filter(n -> (parent.getPowerData().getConsumption(cfg, n) > maxConsumption)).findAny()
-		    .isPresent();
+		return !getComputers(cfg).filter(n -> (parent.getPowerData().getConsumption(cfg, n) > maxConsumption)).findAny()
+				.isPresent();
 	}
 }

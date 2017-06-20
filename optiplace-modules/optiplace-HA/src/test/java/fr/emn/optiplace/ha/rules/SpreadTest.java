@@ -10,10 +10,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.test.SolvingExample;
@@ -31,7 +31,7 @@ public class SpreadTest extends SolvingExample {
 	@Test
 	public void useCaseSpread() {
 		Configuration cfg = new Configuration("mem");
-		Node n0 = cfg.addNode("n0", 64);
+		Computer n0 = cfg.addComputer("n0", 64);
 		Extern e = cfg.addExtern("e", 5);
 		VM vm0 = cfg.addVM("vm0", null, 5);
 		VM vm1 = cfg.addVM("vm1", null, 5);
@@ -58,9 +58,9 @@ public class SpreadTest extends SolvingExample {
 		prepare();
 		Spread c = new Spread(new HashSet<>(Arrays.asList(waitings)));
 		IConfiguration d = solve(src, c).getDestination();
-		HashSet<Node> hosters = new HashSet<>();
+		HashSet<Computer> hosters = new HashSet<>();
 		for (VM v : waitings) {
-			Assert.assertTrue(hosters.add(d.getNodeHost(v)));
+			Assert.assertTrue(hosters.add(d.getComputerHost(v)));
 		}
 		Assert.assertEquals(hosters.size(), 3);
 	}
@@ -68,13 +68,13 @@ public class SpreadTest extends SolvingExample {
 	// FIXME
 	/**
 	 * a spread on 3 VMs, with 1 node and 2 extern. EAch VM should be placed on a
-	 * different Node/extern.
+	 * different Computer/extern.
 	 */
 	@Test
 	public void testSpreadWithExtern() {
 		nbWaitings = 0;
-		nbVMPerNode = 3;
-		nbNodes = 1;
+		nbVMPerComputer = 3;
+		nbComputers = 1;
 		resources = null;
 		prepare();
 		Extern e1 = src.addExtern("ext1");

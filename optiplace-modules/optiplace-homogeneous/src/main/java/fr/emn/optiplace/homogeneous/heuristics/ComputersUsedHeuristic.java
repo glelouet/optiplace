@@ -14,14 +14,14 @@ import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com] 2015
  *
  */
-public class NodesUsedHeuristic extends NodesEmptyHeuristic {
+public class ComputersUsedHeuristic extends ComputerEmptyHeuristic {
 
 
 	@SuppressWarnings("unused")
-	private static final org.slf4j.Logger logger           = org.slf4j.LoggerFactory.getLogger(NodesUsedHeuristic.class);
+	private static final org.slf4j.Logger logger           = org.slf4j.LoggerFactory.getLogger(ComputersUsedHeuristic.class);
 
 
-	public NodesUsedHeuristic(IReconfigurationProblem rp, ElemWeighter weight) {
+	public ComputersUsedHeuristic(IReconfigurationProblem rp, ElemWeighter weight) {
 		super(rp, weight.opposite(), DecisionOperatorFactory.makeIntNeq());
 	}
 

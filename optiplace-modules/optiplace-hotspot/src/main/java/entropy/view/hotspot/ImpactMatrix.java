@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.HashBasedTable;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 
 /**
  * a model where each Node consumption impact the rear of each other Node, in a
@@ -63,17 +63,17 @@ public class ImpactMatrix {
 	}
 
 	/** evaluate the impact on a set of values */
-	public HashMap<String, Double> impact(HashMap<Node, Double> vals) {
+	public HashMap<String, Double> impact(HashMap<Computer, Double> vals) {
 		HashMap<String, Double> ret = new HashMap<>();
 		LinkedHashSet<String> names = new LinkedHashSet<>(vals.keySet().stream()
-				.map(Node::getName).collect(Collectors.toList()));
+				.map(Computer::getName).collect(Collectors.toList()));
 		names.addAll(impacts.columnKeySet());
 		names.addAll(impacts.rowKeySet());
 		for (String receiver : names) {
 			double val = 0;
 			Map<String, Double> impacters = getImpacters(receiver);
 
-			for (Entry<Node, Double> en : vals.entrySet()) {
+			for (Entry<Computer, Double> en : vals.entrySet()) {
 				Double d = impacters.get(en.getKey().getName());
 				if (d != null && d != 0) {
 					val += d * en.getValue();

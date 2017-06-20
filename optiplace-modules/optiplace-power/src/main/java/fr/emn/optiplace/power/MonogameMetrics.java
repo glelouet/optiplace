@@ -2,7 +2,7 @@ package fr.emn.optiplace.power;
 
 import java.util.Arrays;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 
@@ -18,7 +18,7 @@ public class MonogameMetrics {
 	PowerView parent;
 	IReconfigurationProblem rp;
 	VM[] vms;
-	Node[] node2s;
+	Computer[] node2s;
 
 	public MonogameMetrics(PowerView parent) {
 		super();
@@ -38,7 +38,7 @@ public class MonogameMetrics {
 		clear();
 	}
 
-	public double getMonogamEff(Node n, VM vm) {
+	public double getMonogamEff(Computer n, VM vm) {
 		return parent.getPowerData().get(n).getBestEfficiency(rp.c().resources(), n, vm);
 	}
 
@@ -59,7 +59,7 @@ public class MonogameMetrics {
 		for (int i = 0; i < vms.length; i++) {
 			VM vm = vms[i];
 			for (int j = 0; j < node2s.length; j++) {
-				Node n = node2s[j];
+				Computer n = node2s[j];
 				// vm i, node j
 				if (rp.getVMLocation(vm).contains(j)) {
 					double eff = getMonogamEff(n, vm);

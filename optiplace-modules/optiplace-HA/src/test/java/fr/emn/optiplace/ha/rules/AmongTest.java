@@ -11,10 +11,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.test.SolvingExample;
@@ -37,7 +37,7 @@ public class AmongTest extends SolvingExample {
 		// strat.setLogChoices(true);
 		Set<VM> vms = Stream.concat(src.getHosted(nodes[0]), src.getHosted(nodes[1])).distinct()
 				.collect(Collectors.toSet());
-		Node n = nodes[nodes.length - 1];
+		Computer n = nodes[nodes.length - 1];
 		Among among = new Among(vms, new String[] { n.getName() });
 		IConfiguration d = solve(src, among).getDestination();
 		for (VM v : vms) {
@@ -49,7 +49,7 @@ public class AmongTest extends SolvingExample {
 	@Test
 	public void testSimpleAmong() {
 		Configuration cfg = new Configuration("mem");
-		Node n0 = cfg.addNode("n0", 64);
+		Computer n0 = cfg.addComputer("n0", 64);
 		Extern e = cfg.addExtern("e", 5);
 		VM vm0 = cfg.addVM("vm0", null, 5);
 		VM vm1 = cfg.addVM("vm1", null, 5);
@@ -79,9 +79,9 @@ public class AmongTest extends SolvingExample {
 		Among a = new Among(vms, ns);
 		// System.err.println("" + a);
 		IConfiguration d = solve(src, a).getDestination();
-		Node dest = null;
+		Computer dest = null;
 		for (VM v : vms) {
-			Node l_dest = d.getNodeHost(v);
+			Computer l_dest = d.getComputerHost(v);
 			if (dest == null) {
 				dest = l_dest;
 			}

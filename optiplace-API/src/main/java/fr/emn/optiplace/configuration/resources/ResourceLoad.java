@@ -29,7 +29,7 @@ public class ResourceLoad {
 	 */
 	int[] itemsConsumptions = null;
 
-	/** effective resource load of a bin (Node). */
+	/** effective resource load of a bin (Computer). */
 	IntVar[] binsLoad = null;
 
 	int[] binsCapa = null;
@@ -56,11 +56,11 @@ public class ResourceLoad {
 	}
 
 	/** @return the uses of the nodes */
-	public IntVar[] getNodesLoad() {
+	public IntVar[] getComputersLoad() {
 		return binsLoad;
 	}
 
-	public int[] getNodesCapa() {
+	public int[] getComputersCapa() {
 		return binsCapa;
 	}
 

@@ -23,8 +23,8 @@ import org.chocosolver.solver.variables.IntVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.ProblemStatistics;
@@ -34,7 +34,7 @@ import fr.emn.optiplace.view.access.CoreView;
 
 /**
  * Specification of a reconfiguration problem. A bridge between the VMs, the
- * Nodes, and a Choco problem
+ * Computers, and a Choco problem
  *
  * @author Fabien Hermenier
  * @author Guillaume Le Louët
@@ -61,7 +61,7 @@ public interface IReconfigurationProblem extends CoreView {
 	 */
 	SolvingStatistics getSolvingStatistics();
 
-	/***** Variables linked to Nodes and VMs *************************/
+	/***** Variables linked to Computers and VMs *************************/
 
 	/**
 	 * Get the source configuration, that is, the original configuration to
@@ -73,20 +73,20 @@ public interface IReconfigurationProblem extends CoreView {
 
 	/******************** variables linked to resources ***********************/
 
-	default IntVar getNodeUse(String resource, Node n) {
-		return getUse(resource).getNodesLoad()[b().location(n)];
+	default IntVar getComputerUse(String resource, Computer n) {
+		return getUse(resource).getComputersLoad()[b().location(n)];
 	}
 
-	default int getNodeCap(String resource, Node n) {
+	default int getComputerCap(String resource, Computer n) {
 		return getResourceSpecification(resource).getCapacities()[b().location(n)];
 	}
 
-	default IntVar getUsedCPU(Node n) {
-		return getNodeUse("CPU", n);
+	default IntVar getUsedCPU(Computer n) {
+		return getComputerUse("CPU", n);
 	}
 
-	default IntVar getUsedMem(Node n) {
-		return getNodeUse("MEM", n);
+	default IntVar getUsedMem(Computer n) {
+		return getComputerUse("MEM", n);
 	}
 
 	public IntVar getHostUse(String resource, int vmIndex);

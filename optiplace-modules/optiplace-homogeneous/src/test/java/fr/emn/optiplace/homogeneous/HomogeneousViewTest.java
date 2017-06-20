@@ -12,9 +12,9 @@ import org.testng.annotations.Test;
 
 import fr.emn.optiplace.DeducedTarget;
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 
 /**
  * @author Guillaume Le Louët [guillaume.lelouet@gmail.com]2014
@@ -41,8 +41,8 @@ public class HomogeneousViewTest {
 
 	@Test
 	public void testTinyCenter() {
-		Node n0 = cfg.addNode("n0", 10000, 5000);
-		Node n1 = cfg.addNode("n1", 10000, 5000);
+		Computer n0 = cfg.addComputer("n0", 10000, 5000);
+		Computer n1 = cfg.addComputer("n1", 10000, 5000);
 		cfg.addVM("vm0_0", n0, 2000, 100);
 		cfg.addVM("vm1_0", n1, 2000, 100);
 		p.solve();
@@ -53,8 +53,8 @@ public class HomogeneousViewTest {
 
 	@Test(dependsOnMethods = "testTinyCenter")
 	public void testSmallCenter() {
-		Node n0 = cfg.addNode("n0", 10000, 5000);
-		Node n1 = cfg.addNode("n1", 10000, 5000);
+		Computer n0 = cfg.addComputer("n0", 10000, 5000);
+		Computer n1 = cfg.addComputer("n1", 10000, 5000);
 		cfg.addVM("vm0_0", n0, 2000, 100);
 		cfg.addVM("vm0_1", n0, 2000, 100);
 		cfg.addVM("vm0_2", n0, 2000, 100);
@@ -70,11 +70,11 @@ public class HomogeneousViewTest {
 		// in this test, we made 5 servers
 		// the first two have more VMs than the others
 		// so they should contain all the VMs.
-		Node n4 = cfg.addNode("n4", 10000, 10000);
-		Node n3 = cfg.addNode("n3", 10000, 10000);
-		Node n2 = cfg.addNode("n2", 10000, 10000);
-		Node n1 = cfg.addNode("n1", 10000, 10000);
-		Node n0 = cfg.addNode("n0", 10000, 10000);
+		Computer n4 = cfg.addComputer("n4", 10000, 10000);
+		Computer n3 = cfg.addComputer("n3", 10000, 10000);
+		Computer n2 = cfg.addComputer("n2", 10000, 10000);
+		Computer n1 = cfg.addComputer("n1", 10000, 10000);
+		Computer n0 = cfg.addComputer("n0", 10000, 10000);
 
 		// we don't care about the CPU
 		// as long as max(VM.CPU/VM.MEM)<min(node.CPU/node.MEM)
@@ -103,27 +103,27 @@ public class HomogeneousViewTest {
 	 * memory
 	 * </p>
 	 * <p>
-	 * The Nodes are separated in 4 groups of 2 nodes each. The first groups have
-	 * less VMs, the last are almost full. nbVM(group i) =
-	 * maxVMPerNode*i/nbNodeGroups.<br />
+	 * The Computers are separated in 4 groups of 2 nodes each. The first groups
+	 * have less VMs, the last are almost full. nbVM(group i) =
+	 * maxVMPerComputer*i/nbComputerGroups.<br />
 	 * With 12 VMs max, this means 0 VMs on first groups, 3 on second, 6 on third,
 	 * 9 on fourth
 	 * </p>
 	 */
 	@Test(dependsOnMethods = "testMediumCenter")
 	public void testLargeCenter() {
-		int maxVMsPerNode = 12;
+		int maxVMsPerComputer = 12;
 		int nodesPerGroup = 2;
-		int nbNodeGroups = 4;
-		int nbNodes = nodesPerGroup * nbNodeGroups;
+		int nbComputerGroups = 4;
+		int nbComputers = nodesPerGroup * nbComputerGroups;
 		int vmMem = 2000, vmCpu = 100;
-		int nodeMem = vmMem * maxVMsPerNode, nodeCpu = vmCpu * maxVMsPerNode * 3;
-		Node[] nodes = new Node[nbNodes];
-		for (int gi = 0; gi < nbNodeGroups; gi++) {
-			int nbVMs = gi * maxVMsPerNode / nbNodeGroups;
+		int nodeMem = vmMem * maxVMsPerComputer, nodeCpu = vmCpu * maxVMsPerComputer * 3;
+		Computer[] nodes = new Computer[nbComputers];
+		for (int gi = 0; gi < nbComputerGroups; gi++) {
+			int nbVMs = gi * maxVMsPerComputer / nbComputerGroups;
 			for (int ni = 0; ni < nodesPerGroup; ni++) {
 				int idx = gi * nodesPerGroup + ni;
-				nodes[idx] = cfg.addNode("n" + idx, nodeMem, nodeCpu);
+				nodes[idx] = cfg.addComputer("n" + idx, nodeMem, nodeCpu);
 				for (int vmi = 0; vmi < nbVMs; vmi++) {
 					cfg.addVM("vm" + idx + "_" + vmi, nodes[idx], vmMem, vmCpu);
 				}

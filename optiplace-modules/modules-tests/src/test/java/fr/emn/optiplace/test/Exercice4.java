@@ -1,8 +1,8 @@
 package fr.emn.optiplace.test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
 
@@ -20,22 +20,22 @@ public class Exercice4 {
 	public static void main(String[] args) {
 
 		Configuration c = new Configuration("mem");
-		Node n0 = c.addNode("n0", 10);
+		Computer n0 = c.addComputer("n0", 10);
 		VM vm0 = c.addVM("v0", n0, 4);
 		VM vm1 = c.addVM("v1", n0, 3);
 		VM vm2 = c.addVM("v2", n0, 4);
 		// 3 VM de taille totale 11 sur n0 dont la taille vaut 10 : il faut
 		// reconfigurer
 
-		Node n1 = c.addNode("n1", 10);
+		Computer n1 = c.addComputer("n1", 10);
 		VM vm3 = c.addVM("v3", n1, 4);
 		// il reste 6 mem dispo sur n1
 
-		Node n2 = c.addNode("n2", 10);
+		Computer n2 = c.addComputer("n2", 10);
 		VM vm4 = c.addVM("v4", n2, 2);
 		// il reste 8 mem dispo sur n2
 
-		Node n3 = c.addNode("n3", 10);
+		Computer n3 = c.addComputer("n3", 10);
 		VM vm5 = c.addVM("v5", n3, 3);
 		// reste 7 mem sur n3
 

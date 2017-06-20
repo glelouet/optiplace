@@ -8,7 +8,7 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel;
@@ -58,7 +58,7 @@ public class LinearCPUCons implements PowerModel {
 	}
 
 	@Override
-	public double getConsumption(Map<String, ResourceSpecification> specs, Node n, VM... vms) {
+	public double getConsumption(Map<String, ResourceSpecification> specs, Computer n, VM... vms) {
 		int cpuCons = 0;
 		ResourceSpecification spec = specs.get("CPU");
 		for (VM vm : vms) {
@@ -68,7 +68,7 @@ public class LinearCPUCons implements PowerModel {
 	}
 
 	@Override
-	public IntVar makePower(Node n, PowerView parent) {
+	public IntVar makePower(Computer n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		double delta = max - min;
 		int capa = parent.getProblem().getResourceSpecification("cpu").getCapacity(n);
@@ -81,23 +81,23 @@ public class LinearCPUCons implements PowerModel {
 		return ret;
 	}
 
-	public double getConsumption(Node n, double cpuLoad) {
+	public double getConsumption(Computer n, double cpuLoad) {
 		return min + (max - min) * cpuLoad;
 	}
 
 	@Override
-	public double getMinPowerIncrease(Node n, Map<String, ResourceSpecification> specs, VM v) {
+	public double getMinPowerIncrease(Computer n, Map<String, ResourceSpecification> specs, VM v) {
 		ResourceSpecification cpu = specs.get("CPU");
 		return cpu.getUse(v) / cpu.getCapacity(n) * (max - min);
 	}
 
 	@Override
-	public double maxCons(Node n) {
+	public double maxCons(Computer n) {
 		return max;
 	}
 
 	@Override
-	public double getBestEfficiency(Map<String, ResourceSpecification> specs, Node n, VM vm) {
+	public double getBestEfficiency(Map<String, ResourceSpecification> specs, Computer n, VM vm) {
 		int maxVMs = (int) Math.floor(IConfiguration.maxNBVms(n, vm, specs.values().stream()));
 		ResourceSpecification cpu = specs.get("CPU");
 		return getConsumption(n, maxVMs * cpu.getUse(vm) / cpu.getCapacity(n)) / maxVMs;

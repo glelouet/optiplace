@@ -7,10 +7,10 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.resources.MappedResourceSpecification;
 
 
@@ -41,7 +41,7 @@ public class ConfigurationFilerTest {
 		}
 		Assert.assertEquals(f.getCfg(), test);
 
-		test.addNode("n0", 5);
+		test.addComputer("n0", 5);
 		lines = test.toString().split("\\n");
 		f = new ConfigurationFiler(null);
 		for (String l : lines) {
@@ -53,7 +53,7 @@ public class ConfigurationFilerTest {
 	@Test
 	public void testParsUnParse() {
 		Configuration test = new Configuration("CPU", "MEM");
-		Node n0 = test.addNode("n0", 10, 10);
+		Computer n0 = test.addComputer("n0", 10, 10);
 		test.addVM("vm0", n0, 1, 1);
 		test.addVM("vm1", null, 2, 3);
 		String[] lines = test.toString().split("\\n");

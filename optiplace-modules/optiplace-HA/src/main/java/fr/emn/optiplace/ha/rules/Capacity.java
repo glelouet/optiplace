@@ -21,8 +21,8 @@ import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
 import fr.emn.optiplace.view.Rule;
 
@@ -44,7 +44,7 @@ public class Capacity implements Rule {
 		if (!m.matches()) {
 			return null;
 		}
-		Set<Node> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Node(n)).collect(Collectors.toSet());
+		Set<Computer> nodes = Arrays.asList(m.group(1).split(", ")).stream().map(n -> new Computer(n)).collect(Collectors.toSet());
 		int max = Integer.parseInt(m.group(2));
 		return new Capacity(nodes, max);
 	}
@@ -53,7 +53,7 @@ public class Capacity implements Rule {
 
 	private final int maxvms;
 
-	private Set<Node> nodes;
+	private Set<Computer> nodes;
 
 	/**
 	 * Make a new Rule.
@@ -63,7 +63,7 @@ public class Capacity implements Rule {
 	 * @param m
 	 *          the maximum hosting capacity of all the nodes.
 	 */
-	public Capacity(Set<Node> ns, int m) {
+	public Capacity(Set<Computer> ns, int m) {
 		maxvms = m;
 		nodes = ns;
 	}
@@ -76,7 +76,7 @@ public class Capacity implements Rule {
 	@Override
 	public void inject(IReconfigurationProblem core) {
 
-		IntVar[] hosteds = nodes.stream().filter(core.getSourceConfiguration()::hasNode).map(core::nbVMsOn)
+		IntVar[] hosteds = nodes.stream().filter(core.getSourceConfiguration()::hasComputer).map(core::nbVMsOn)
 				.collect(Collectors.toList()).toArray(new IntVar[] {});
 		switch (hosteds.length) {
 		case 0:
@@ -105,7 +105,7 @@ public class Capacity implements Rule {
 	@Override
 	public boolean isSatisfied(IConfiguration configuration) {
 		int nb = 0;
-		for (Node n : nodes) {
+		for (Computer n : nodes) {
 			nb += configuration.nbHosted(n);
 		}
 		if (nb > maxvms) {

@@ -7,9 +7,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
@@ -26,8 +26,8 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	.getLogger(ReconfigurationProblemWaitingNoExternTest.class);
 
 	IConfiguration src;
-	Node n0, n1;
-	Node[] nodes;
+	Computer n0, n1;
+	Computer[] nodes;
 	VM vm0, vm1, vm2;
 	VM[] vms;
 	ReconfigurationProblem pb;
@@ -35,12 +35,12 @@ public class ReconfigurationProblemWaitingNoExternTest {
 	@BeforeMethod
 	public void prepare() {
 		src = new Configuration();
-		n0 = src.addNode("n0");
-		n1 = src.addNode("n1");
+		n0 = src.addComputer("n0");
+		n1 = src.addComputer("n1");
 		vm0 = src.addVM("vm0", null);
 		vm1 = src.addVM("vm1", null);
 		vm2 = src.addVM("vm2", null);
-		nodes = new Node[] {
+		nodes = new Computer[] {
 				n0, n1
 		};
 		vms = new VM[] {

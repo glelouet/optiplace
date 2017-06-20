@@ -6,7 +6,7 @@ import java.util.List;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.power.PowerView;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -30,7 +30,7 @@ public class MultiLinearConsHeuristic {
 	public List<AbstractStrategy<? extends Variable>> getHeuristics(IReconfigurationProblem rp) {
 		// ArrayList<AbstractStrategy<? extends Variable>> ret = new ArrayList<>();
 		VM[] vms = rp.b().vms();
-		Node[] nodes = rp.b().nodes();
+		Computer[] nodes = rp.b().nodes();
 
 		double[] minVMEff = new double[vms.length];
 		double[] maxVMEff = new double[vms.length];
@@ -47,7 +47,7 @@ public class MultiLinearConsHeuristic {
 		for (int i = 0; i < vms.length; i++) {
 			VM vm = vms[i];
 			for (int j = 0; j < nodes.length; j++) {
-				Node n = nodes[j];
+				Computer n = nodes[j];
 				// vm i, node j
 				if (rp.getVMLocation(vm).contains(j)) {
 					double eff = cons.getPowerData().get(n).getBestEfficiency(rp.c().resources(), n, vm);

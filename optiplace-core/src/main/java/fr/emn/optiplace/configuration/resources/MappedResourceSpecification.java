@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.stream.Stream;
 
 import fr.emn.optiplace.configuration.ManagedElement;
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.view.ProvidedDataReader;
@@ -94,7 +94,7 @@ public class MappedResourceSpecification implements ResourceSpecification {
 	public void readLine(String line) {
 		if (line.startsWith(START_NODE_CAPA)) {
 			String[] para = line.substring(START_NODE_CAPA.length()).split(" = ");
-			hostersCapacities.put(new Node(para[0]), Integer.parseInt(para[1]));
+			hostersCapacities.put(new Computer(para[0]), Integer.parseInt(para[1]));
 		} else if (line.startsWith(START_VM_USE)) {
 			String[] para = line.substring(START_VM_USE.length()).split(" = ");
 			vmsUses.put(new VM(para[0]), Integer.parseInt(para[1]));

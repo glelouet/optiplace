@@ -11,10 +11,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.access.CoreView;
 
@@ -29,8 +29,8 @@ public class ReconfigurationProblemTest {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReconfigurationProblemTest.class);
 
 	IConfiguration src;
-	Node n0, n1;
-	Node[] nodes;
+	Computer n0, n1;
+	Computer[] nodes;
 	VM vm0_0, vm0_1, vm1_0, vm1_1;
 	VM[] vms;
 	ReconfigurationProblem pb;
@@ -38,13 +38,13 @@ public class ReconfigurationProblemTest {
 	@BeforeMethod
 	public void prepare() {
 		src = new Configuration();
-		n0 = src.addNode("n0");
-		n1 = src.addNode("n1");
+		n0 = src.addComputer("n0");
+		n1 = src.addComputer("n1");
 		vm0_0 = src.addVM("vm0_0", n0);
 		vm0_1 = src.addVM("vm0_1", n0);
 		vm1_0 = src.addVM("vm1_0", n1);
 		vm1_1 = src.addVM("vm1_1", n1);
-		nodes = new Node[] {
+		nodes = new Computer[] {
 				n0, n1
 		};
 		vms = new VM[] {
@@ -84,7 +84,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testNbVMs() throws ContradictionException {
 		IConfiguration src = new Configuration("mem");
-		Node n = src.addNode("n", 2);
+		Computer n = src.addComputer("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
@@ -95,7 +95,7 @@ public class ReconfigurationProblemTest {
 	@Test(dependsOnMethods = "testNbVMs")
 	public void testIsHoster() throws ContradictionException {
 		IConfiguration src = new Configuration("mem");
-		Node n = src.addNode("n", 2);
+		Computer n = src.addComputer("n", 2);
 		src.addVM("vm", n, 3);
 		src.addExtern("e", 3);
 		ReconfigurationProblem rp = new ReconfigurationProblem(src);
@@ -106,7 +106,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testBugZeroResource() {
 		Configuration c = new Configuration("mem");
-		c.addNode("n", 4);
+		c.addComputer("n", 4);
 		VM v = c.addVM("v", null, 2);
 
 		c.resource("core").with(c.addExtern("e"), 1).with(v, 1);
@@ -120,7 +120,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testVMStateVariables() throws ContradictionException {
 		Configuration c = new Configuration();
-		Node n = c.addNode("n");
+		Computer n = c.addComputer("n");
 		Extern e = c.addExtern("e");
 		VM vn0 = c.addVM("vn0", n);
 		VM vn1 = c.addVM("vn1", n);
@@ -131,12 +131,12 @@ public class ReconfigurationProblemTest {
 		VM vw2 = c.addVM("vw2", null);
 
 		ReconfigurationProblem rp = new ReconfigurationProblem(c);
-		rp.isRunNode(vn0).setToTrue(Cause.Null);
+		rp.isRunComputer(vn0).setToTrue(Cause.Null);
 		rp.isRunExt(vn1).setToTrue(Cause.Null);
 		rp.isRunExt(ve0).setToTrue(Cause.Null);
-		rp.isRunNode(ve1).setToTrue(Cause.Null);
+		rp.isRunComputer(ve1).setToTrue(Cause.Null);
 		rp.isWaiting(vw0).setToTrue(Cause.Null);
-		rp.isRunNode(vw1).setToTrue(Cause.Null);
+		rp.isRunComputer(vw1).setToTrue(Cause.Null);
 		rp.isRunExt(vw2).setToTrue(Cause.Null);
 
 		rp.getSolver().findSolution();

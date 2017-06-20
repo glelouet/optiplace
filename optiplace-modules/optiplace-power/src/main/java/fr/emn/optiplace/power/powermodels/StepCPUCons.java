@@ -5,7 +5,7 @@ import java.util.Map;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.power.PowerModel;
@@ -106,7 +106,7 @@ public class StepCPUCons implements PowerModel {
 
 	@Override
 	public double getConsumption(Map<String, ResourceSpecification> specs,
-			Node n, VM... vms) {
+			Computer n, VM... vms) {
 		return getCons(1.0 * specs.get("CPU").sumUses(vms)
 				/ specs.get("CPU").getCapacity(n));
 	}
@@ -130,30 +130,30 @@ public class StepCPUCons implements PowerModel {
 		ELEMENT {
 
 			@Override
-			public IntVar makeConsumption(StepCPUCons target, Node n, PowerView parent) {
+			public IntVar makeConsumption(StepCPUCons target, Computer n, PowerView parent) {
 				return target.makeConsumptionElement(n, parent);
 			}
 		},
 		STAGE {
 
 			@Override
-			public IntVar makeConsumption(StepCPUCons target, Node n, PowerView parent) {
+			public IntVar makeConsumption(StepCPUCons target, Computer n, PowerView parent) {
 				return target.makeConsumptionStage(n, parent);
 			}
 		};
 
-		public abstract IntVar makeConsumption(StepCPUCons target, Node n,
+		public abstract IntVar makeConsumption(StepCPUCons target, Computer n,
 				PowerView parent);
 	}
 
 	public MakeMethod constructStrategy = MakeMethod.STAGE;
 
 	@Override
-	public IntVar makePower(Node n, PowerView parent) {
+	public IntVar makePower(Computer n, PowerView parent) {
 		return constructStrategy.makeConsumption(this, n, parent);
 	}
 
-	public IntVar makeConsumptionElement(Node n, PowerView parent) {
+	public IntVar makeConsumptionElement(Computer n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		IntVar ret = parent.v.createBoundIntVar(n.getName() + ".cons", min,
 				(int) maxCons(n));
@@ -198,7 +198,7 @@ public class StepCPUCons implements PowerModel {
 	 * @param n
 	 * @param parent
 	 * @return */
-	public IntVar makeConsumptionStage(Node n, PowerView parent) {
+	public IntVar makeConsumptionStage(Computer n, PowerView parent) {
 		IReconfigurationProblem pb = parent.getProblem();
 		IntVar ret = parent.v.createBoundIntVar(n.getName() + ".cons", min,
 				(int) maxCons(n));
@@ -217,7 +217,7 @@ public class StepCPUCons implements PowerModel {
 	}
 
 	@Override
-	public double getMinPowerIncrease(Node n,
+	public double getMinPowerIncrease(Computer n,
 			Map<String, ResourceSpecification> specs, VM v) {
 		ResourceSpecification cpu = specs.get("CPU");
 		double cpuIncrease = 1.0 * cpu.getUse(v) / cpu.getCapacity(n);
@@ -233,7 +233,7 @@ public class StepCPUCons implements PowerModel {
 	}
 
 	@Override
-	public double maxCons(Node n) {
+	public double maxCons(Computer n) {
 		if (vals == null || vals.length == 0) {
 			return min;
 		}

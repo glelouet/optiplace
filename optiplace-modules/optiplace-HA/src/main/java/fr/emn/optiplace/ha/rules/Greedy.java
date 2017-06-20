@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -82,7 +82,7 @@ public class Greedy implements Rule {
 		}
 		for (VM vm : vms) {
 			if (cfg.isRunning(vm)) {
-				Node n = cfg.getNodeHost(vm);
+				Computer n = cfg.getComputerHost(vm);
 				int nodeCapa = specs.getCapacity(n);
 				if (specs.getUse(cfg, n) / nodeCapa > getMaxHostLoad()) {
 					return false;

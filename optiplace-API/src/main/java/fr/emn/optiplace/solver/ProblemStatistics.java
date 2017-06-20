@@ -7,7 +7,7 @@ package fr.emn.optiplace.solver;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import fr.emn.optiplace.configuration.Node;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.resources.ResourceSpecification;
 import fr.emn.optiplace.solver.choco.IReconfigurationProblem;
@@ -66,19 +66,19 @@ public class ProblemStatistics {
 		return resources;
 	}
 
-	private HashMap<List<Integer>, Set<Node>> models2Nodes = null;
+	private HashMap<List<Integer>, Set<Computer>> models2Nodes = null;
 
 	/** protected because we don't want the user to access the internal hashmap */
-	protected HashMap<List<Integer>, Set<Node>> getNodeModels() {
+	protected HashMap<List<Integer>, Set<Computer>> getNodeModels() {
 		if (models2Nodes == null) {
 			models2Nodes = new HashMap<>();
 			Integer[] capa = new Integer[getResources().length];
 			List<Integer> capal = Arrays.asList(capa);
-			for (Node n : target.b().nodes()) {
+			for (Computer n : target.b().nodes()) {
 				for (int i = 0; i < capa.length; i++) {
 					capa[i] = getResources()[i].getCapacity(n);
 				}
-				Set<Node> s = models2Nodes.get(capal);
+				Set<Computer> s = models2Nodes.get(capal);
 				if (s == null) {
 					s = new HashSet<>();
 					models2Nodes.put(new ArrayList<>(capal), s);
@@ -114,7 +114,7 @@ public class ProblemStatistics {
 		return getNodeModels().size();
 	}
 
-	private final HashMap<List<Comparator<? super Node>>, ArrayList<Node>> comparators2sorted = new HashMap<>();
+	private final HashMap<List<Comparator<? super Computer>>, ArrayList<Computer>> comparators2sorted = new HashMap<>();
 
 	/**
 	 * Compare the nodes of the problem using one or more {@link Comparator}
@@ -124,18 +124,18 @@ public class ProblemStatistics {
 	 * @return
 	 */
 	@SafeVarargs
-	public final ArrayList<Node> sortNodes(Comparator<? super Node> c1, Comparator<? super Node>... comparators) {
-		List<Comparator<? super Node>> compl = new ArrayList<>();
+	public final ArrayList<Computer> sortNodes(Comparator<? super Computer> c1, Comparator<? super Computer>... comparators) {
+		List<Comparator<? super Computer>> compl = new ArrayList<>();
 		compl.add(c1);
 		if (comparators != null && comparators.length != 0) {
 			compl.addAll(Arrays.asList(comparators));
 		}
-		ArrayList<Node> ret = comparators2sorted.get(compl);
+		ArrayList<Computer> ret = comparators2sorted.get(compl);
 		if (ret == null) {
 			ret = new ArrayList<>(Arrays.asList(target.b().nodes()));
-			ListIterator<Comparator<? super Node>> li = compl.listIterator(compl.size());
+			ListIterator<Comparator<? super Computer>> li = compl.listIterator(compl.size());
 			while (li.hasPrevious()) {
-				Comparator<? super Node> cn = li.previous();
+				Comparator<? super Computer> cn = li.previous();
 				Collections.sort(ret, cn);
 			}
 			comparators2sorted.put(compl, ret);
@@ -164,7 +164,7 @@ public class ProblemStatistics {
 			ResourceSpecification res = resources[i];
 			int minNodeCapa = Integer.MAX_VALUE, maxNodeCapa = 0;
 			double sumCapa = 0;
-			for (Node n : target.b().nodes()) {
+			for (Computer n : target.b().nodes()) {
 				int c = res.getCapacity(n);
 				sumCapa += c;
 				minNodeCapa = Math.min(minNodeCapa, c);

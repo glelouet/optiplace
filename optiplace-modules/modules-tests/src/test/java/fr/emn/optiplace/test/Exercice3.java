@@ -2,9 +2,9 @@
 package fr.emn.optiplace.test;
 
 import fr.emn.optiplace.Optiplace;
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.ha.HAView;
 import fr.emn.optiplace.ha.rules.Spread;
@@ -27,8 +27,8 @@ public class Exercice3 {
 		Configuration c = new Configuration();
 		Extern e0 = c.addExtern("e0");
 		Extern e1 = c.addExtern("e1");
-		Node n0 = c.addNode("n0");
-		Node n1 = c.addNode("n1");
+		Computer n0 = c.addComputer("n0");
+		Computer n1 = c.addComputer("n1");
 		VM vm0 = c.addVM("v0", e0);
 		VM vm1 = c.addVM("v1", e0);
 		VM vm2 = c.addVM("v2", e0);

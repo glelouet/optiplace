@@ -18,9 +18,9 @@ import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Extern;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.configuration.VMLocation;
 import fr.emn.optiplace.core.ReconfigurationProblem;
@@ -35,8 +35,8 @@ import fr.emn.optiplace.network.data.VMGroup;
  * explores the network graphs available to a {@link IConfiguration} using a
  * {@link Solver}, in order to then produce a
  * <p>
- * In addition to the VM, Nodes and Externs from the configuration, we also have
- * routers to share network connections. as routers do not appear in the
+ * In addition to the VM, Computers and Externs from the configuration, we also
+ * have routers to share network connections. as routers do not appear in the
  * {@link ReconfigurationProblem} they must be removed if possible ; for this we
  * force routers to have at least three neighbours, so we can have at most from
  * 0 to n-2 routers, where n is the number of externs+nodes
@@ -85,7 +85,7 @@ public class NetworkViewStreamer extends Model {
 	@SuppressWarnings("unused")
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkViewStreamer.class);
 
-	Node[] nodes;
+	Computer[] nodes;
 	Extern[] externs;
 	int maxNbRouters;
 	Router[] routers;
@@ -148,7 +148,7 @@ public class NetworkViewStreamer extends Model {
 		this.maxGroupSize = maxGroupSize;
 		this.maxGroupUse = maxGroupUse;
 		this.nbCumulValues = nbCumulValues;
-		nodes = v.getNodes().collect(Collectors.toList()).toArray(new Node[] {});
+		nodes = v.getComputers().collect(Collectors.toList()).toArray(new Computer[] {});
 		externs = v.getExterns().collect(Collectors.toList()).toArray(new Extern[] {});
 		vms = v.getVMs().collect(Collectors.toList()).toArray(new VM[] {});
 		maxNbRouters = externs.length + nodes.length - 2;

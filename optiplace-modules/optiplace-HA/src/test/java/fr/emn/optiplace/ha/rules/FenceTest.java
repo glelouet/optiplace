@@ -30,7 +30,7 @@ public class FenceTest extends SolvingExample {
 	@Test
 	public void testSimpleInject() {
 		nbWaitings = 0;
-		nbVMPerNode = 1;
+		nbVMPerComputer = 1;
 		prepare();
 		Set<VM> vms = src.getVMs().collect(Collectors.toSet());
 		Set<String> nodes = Collections.singleton(this.nodes[0].name);
@@ -41,9 +41,9 @@ public class FenceTest extends SolvingExample {
 	}
 
 	@Test
-	public void testInjectTwoNodes() {
+	public void testInjectTwoComputers() {
 		nbWaitings = 0;
-		nbVMPerNode = 1;
+		nbVMPerComputer = 1;
 		prepare();
 		Set<VM> vms = src.getVMs().collect(Collectors.toSet());
 		Set<String> nodes = new HashSet<>(Arrays.asList(this.nodes[0].name, this.nodes[1].name));

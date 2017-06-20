@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.IConfiguration;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.view.linearpower.migrationcost.MigrationCostNull;
 
@@ -72,13 +72,13 @@ public class LinearPowerData {
 		return h * 3600 + m * 60 + s;
 	}
 
-	public HashMap<String, LinearPowerModel> namedModels = new HashMap<String, LinearPowerModel>();
+	public HashMap<String, LinearPowerModel> namedModels = new HashMap<>();
 
 	public void addServerModel(String serverName, LinearPowerModel model) {
 		namedModels.put(serverName, model);
 	}
 
-	public LinkedHashMap<Pattern, LinearPowerModel> filterModels = new LinkedHashMap<Pattern, LinearPowerModel>();
+	public LinkedHashMap<Pattern, LinearPowerModel> filterModels = new LinkedHashMap<>();
 
 	public void addPatternModel(String namePattern, LinearPowerModel model) {
 		filterModels.put(Pattern.compile(namePattern), model);
@@ -97,7 +97,7 @@ public class LinearPowerData {
 		return null;
 	}
 
-	public LinearPowerModel getModel(Node n) {
+	public LinearPowerModel getModel(Computer n) {
 		return getModel(n.getName());
 	}
 
@@ -106,11 +106,11 @@ public class LinearPowerData {
 	 * node alone for a timeslot duration
 	 *
 	 * @param cfg
-	 * the configuration, used to retrieve the Nodes.
+	 *          the configuration, used to retrieve the Computers.
 	 * @return a new array containing the cost of running each server for the
-	 * given {@link #timeSlotSeconds} duration.
+	 *         given {@link #timeSlotSeconds} duration.
 	 */
-	public int[] makeNodeRunningCost(Node[] nodes) {
+	public int[] makeComputerRunningCost(Computer[] nodes) {
 		int[] ret = new int[nodes.length];
 		for (int i = 0; i < ret.length; i++) {
 			ret[i] = (int) (getModel(nodes[i]).base * timeSlotSeconds);
@@ -138,11 +138,11 @@ public class LinearPowerData {
 	 * @return cost[i][j] the cost of hosting the vm i on the node j for a time
 	 * slot.
 	 */
-	public int[][] makeHostingCost(IConfiguration cfg, Node[] nodes,
- VM[] vms) {
+	public int[][] makeHostingCost(IConfiguration cfg, Computer[] nodes,
+			VM[] vms) {
 		if (nodes == null) {
-			nodes = cfg.getNodes().collect(Collectors.toList())
-					.toArray(new Node[] {});
+			nodes = cfg.getComputers().collect(Collectors.toList())
+					.toArray(new Computer[] {});
 		}
 		if (vms == null) {
 			vms = cfg.getVMs().collect(Collectors.toList())

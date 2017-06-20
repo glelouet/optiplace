@@ -4,9 +4,9 @@ import org.chocosolver.solver.Solution;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.emn.optiplace.configuration.Computer;
 import fr.emn.optiplace.configuration.Configuration;
 import fr.emn.optiplace.configuration.Extern;
-import fr.emn.optiplace.configuration.Node;
 import fr.emn.optiplace.configuration.VM;
 import fr.emn.optiplace.core.ReconfigurationProblem;
 import fr.emn.optiplace.view.access.CoreView;
@@ -26,7 +26,7 @@ public class ReconfigurationProblemTest {
 	@Test
 	public void testRunning() {
 		Configuration sc = new Configuration();
-		Node n = sc.addNode("node");
+		Computer n = sc.addComputer("node");
 		VM vm = sc.addVM("vm", n);
 
 		ReconfigurationProblem p = new ReconfigurationProblem(sc);

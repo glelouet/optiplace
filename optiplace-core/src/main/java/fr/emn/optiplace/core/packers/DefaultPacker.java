@@ -34,42 +34,43 @@ public class DefaultPacker implements ChocoResourcePacker {
 			}
 		}
 		for (ResourceLoad ru : resourceUse) {
-			IntVar[] nodesUses = ru.getNodesLoad();
+			IntVar[] computersUses = ru.getComputersLoad();
 			if (hasNonRunning) {
-				IntVar nonRunningNode = m.intVar("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(), true);
-				IntVar[] newNodesUses = new IntVar[nodesUses.length + 1];
-				newNodesUses[0] = nonRunningNode;
-				for (int i = 1; i < newNodesUses.length; i++) {
-					newNodesUses[i] = nodesUses[i - 1];
+				IntVar nonRunningComputer = m.intVar("res_" + ru.toString() + "_nonrunningload", 0, ru.getTotalVMLoads(), true);
+				IntVar[] newComputersUses = new IntVar[computersUses.length + 1];
+				newComputersUses[0] = nonRunningComputer;
+				for (int i = 1; i < newComputersUses.length; i++) {
+					newComputersUses[i] = computersUses[i - 1];
 				}
-				nodesUses = newNodesUses;
+				computersUses = newComputersUses;
 			}
 			if (ru.isAdditionalUse()) {
-				// if the resource has additional use for nodes : use(node n) = use0 +
+				// if the resource has additional use for computers : use(computer n) =
+				// use0 +
 				// sum(vm v on n) (use(vm)) . So we need to add constant value to the
-				// standard bin packing for nodes with non-null additional use.
-				IntVar[] sumElems = new IntVar[nodesUses.length];
-				for (int i = 0; i < nodesUses.length; i++) {
+				// standard bin packing for computers with non-null additional use.
+				IntVar[] sumElems = new IntVar[computersUses.length];
+				for (int i = 0; i < computersUses.length; i++) {
 					if (hasNonRunning && i == 0) {
-						sumElems[i] = nodesUses[i];
+						sumElems[i] = computersUses[i];
 					} else {
 						int additionallUse = ru.getAdditionalUse()[hasNonRunning ? i - 1 : i];
 
-						sumElems[i] = nodesUses[i];
+						sumElems[i] = computersUses[i];
 						if (additionallUse != 0) {
-							sumElems[i] = m.intVar(nodesUses[i].getName(), nodesUses[i].getLB(), nodesUses[i].getUB(),
-									!nodesUses[i].hasEnumeratedDomain());
+							sumElems[i] = m.intVar(computersUses[i].getName(), computersUses[i].getLB(), computersUses[i].getUB(),
+									!computersUses[i].hasEnumeratedDomain());
 						}
 					}
 				}
 				res.add(m.binPacking(binAssign, ru.getVMsLoads(), sumElems, hasNonRunning ? -1 : 0));
-				for (int i = 0; i < nodesUses.length; i++) {
-					if (sumElems[i] != nodesUses[i]) {
-						res.add(m.arithm(nodesUses[i], "=", sumElems[i], "+", ru.getAdditionalUse()[i]));
+				for (int i = 0; i < computersUses.length; i++) {
+					if (sumElems[i] != computersUses[i]) {
+						res.add(m.arithm(computersUses[i], "=", sumElems[i], "+", ru.getAdditionalUse()[i]));
 					}
 				}
 			} else {
-				res.add(m.binPacking(binAssign, ru.getVMsLoads(), nodesUses, hasNonRunning ? -1 : 0));
+				res.add(m.binPacking(binAssign, ru.getVMsLoads(), computersUses, hasNonRunning ? -1 : 0));
 			}
 		}
 		return res;
