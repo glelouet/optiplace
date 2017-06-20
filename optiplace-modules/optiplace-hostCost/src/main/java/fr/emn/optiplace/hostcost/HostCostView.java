@@ -72,6 +72,8 @@ public class HostCostView extends EmptyView {
 				if (hostcost > maxCost) {
 					maxCost = hostcost;
 				}
+				// System.err.println("location " + n.getName() + " has cost " +
+				// hostcost);
 				locationCosts[i] = v.mult(pb.nbVMsOn(i), hostcost);
 			}
 			// now the waiting location
